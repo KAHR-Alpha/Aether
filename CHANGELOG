@@ -1,0 +1,41 @@
+Todo:
+- Adding a scripting effective materials
+- Extending effective materials to more than two at a time
+- Saving/loading multilayers with effective materials
+- Tangent vectors managements for Selene
+- Polarization handling by Selene
+- Implement the Lambertian, Guassian and ABg scattering models ( see "What scattering models are available in OpticStudio?" )
+
+0.7.1
+- Added conics
+GUI:
+- Exposed the Lambertian source
+
+0.7
+CLI:
+- Added the splitter IRF
+- Reworked the diffraction grating IRF
+- Added the multilayer IRF
+GUI:
+- First iteration of the effective materials support
+- Removal of the Fresnel mode as it is redundant with the Multilayer mode
+- Added the splitter IRF
+- Added the diffraction grating IRF
+- Added the multilayer IRF
+- Enabled user defined tangents for box and rectangle primitives
+- Added buttons to check mutliple lines at once in the multilayers mode
+- Fixed the images display for the samples explorer
+
+0.6.7
+Added CLI splitter IRF
+Prevented crash on GUI raytracing if some object is missing materials
+Added diffraction output for the FDFD
+Fixed the Fieldblock vidualization tool for the FDTD
+Fixed a bug in the geometry of very thick lenses
+Fixed a bug in the behavior of the cylindrical part of a thick lens
+
+0.6.6
+Finished implementing the spectral color options for the multilayers graph
+
+0.6.5
+FDTD fixes
