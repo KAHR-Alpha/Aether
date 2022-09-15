@@ -1,0 +1,33 @@
+\chapter{Diffraction orders}
+
+The purpose of this tool is to help understand the number of propagative diffraction orders that can exist in the optical response of a flat diffraction grating. It's split in two modes selected thanks to the \lfc{Mode} switch.
+
+It is accessed through the \lfc{Diffraction Orders} button in the startup window.
+
+\section{Monochromatic mode}
+
+This is the most graphically interesting mode. The window is split in two parts: the controls on the left, and the 2D view on the right. The controls are as follows:
+\begin{itemize}
+	\item the \lfc{Lambda} selector defines the wavelength of interest
+	\item \lfc{Substrate} and \lfc{Superstrate} define the refractive index of either side of the grating. Note that \textcolor{red}{only real refractive indexes must be used}
+	\item the \lfc{Incidence} of the incoming light is set through \lfc{Theta}, which is the angle from the normal vector, and \lfc{Phi} which is the azimuth
+	\item the grating parameters are set by defining the vectors of the elementary cell. This is done through the controls inside \lfc{Grating Vector 1} and \lfc{Grating Vector 2}, for which the \lfc{Length} can be modified, as well as their \lfc{Angle} from the $\vec x$ axis.
+\end{itemize}
+The 3D view, on the right, shows the propagation direction of the various orders: red for those propagating into the superstrate, and blue for those propagating into the substrate. The green ray is the incident ray.
+
+Note that the behavior of the 3D view can be modified through the \lfc{Display} controls:
+\begin{itemize}
+	\item \lfc{Normalized} changes wether the rays have the same length, or are scaled like wave vectors.
+	\item \lfc{Superstrate} enables or disables the superstrate rays.
+	\item \lfc{Substrate} enables or disables the substrate rays.
+\end{itemize}
+
+\section{Polychromatic mode}
+
+The polychromatic mode is similar to the monochromatic one, except for a few modifications.
+
+The first one is, obviously, that the wavelength is replaced with a spectrum selector, that asks for a range between \lfc{Lambda min} and \lfc{Lambda max}, and a number of computed points \lfc{N Points}.
+
+The second modification is that the 3D visualization is replaced with a graph. This graph counts the total number of propagative diffraction orders that are present either in the superstrate or in the substrate. Note that for the superstrate this number can only go down to 1, for specular reflection can always exist.
+
+The final modification is the \lfc{Surface Modes} button. This brings a dialog up that summarizes the wavelengths for which new propagative orders appear. This computation is not exact, but based on the points of the defined spectrum. The purpose of this window is to have a guide to interpret experimental spectra, so perfect accuracy is not necessary, and can always be refined by increasing the number of points in the spectrum.

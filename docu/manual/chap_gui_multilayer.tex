@@ -1,0 +1,53 @@
+\chapter{Multilayers optical response: GUI}
+
+The GUI version of Aether contains a tool dedicated to computing the optical response of multilayer structures. This is accessed from the startup window through the \lfc{Multilayers} button.
+
+\section{Computation modes}
+
+The tool is split into two modes: spectral and angular. Both requires setting up a few controls. First, the spectrum is set with \lfc{Lambda min} and \lfc{Lambda max}, containing \lfc{N Points}. The angles of incidence are assumed to go from 0$\deg$ to 90$\deg$ with \lfc{N Angles} points.
+
+\subsection{Spectral mode}
+
+In the spectral mode, the results will computed with respect to the spectrum, and the user will browse through the angles thanks to the slider below the graph. The slider will go from 0$\deg$ to 90$\deg$ with \lfc{N Angles}.
+
+\subsection{Angular mode}
+
+In the angular mode, the results will computed with respect to the angle of incidence, and the user will browse through the spectrum from \lfc{Lambda min} to \lfc{Lambda max} thanks to the slider with \lfc{N Points} increments.
+
+\section{Multilayer structure definition}
+
+First the materials of the substrate and superstrate need to be defined. This is done through the \lfc{Superstrate} and \lfc{Substrate} material selectors. Note that
+\begin{itemize}
+	\item the incident light is assumed to be coming from the superstrate
+	\item as such, the refractive index of the superstrate can only be real
+	\item the angle of incidence is defined inside the superstrate
+\end{itemize}
+Once this is done, the various layers must be added. This is done by first selecting the layer type from the drop-down list, and then clicking \lfc{Add}, within the \lfc{Layers} control.
+
+\subsection{Layer}
+
+
+
+\subsection{Bragg structure}
+
+For convenience, the possibility of creating Bragg structures has been added.
+
+\subsection{Statistical thickness distribution}
+
+If one wants 
+
+The total number of samples is selected from the \lfc{Statistical Sampling} control. 
+
+\section{Results}
+
+The results are shown in real-time on the on the right of the window. There are nine curves in total:
+\begin{itemize}
+	\item the reflection, transmission and absorption for the S polarization (TE)
+	\item the reflection, transmission and absorption for the P polarization (TM)
+	\item the averages of both sets of curves
+\end{itemize}
+Their display can be selectively enabled or disabled thanks to the checkboxes under \lfc{Display}.
+
+\section{Exporting the result}
+
+The data shown on the graph can be exported through the \lfc{Export Data} button.

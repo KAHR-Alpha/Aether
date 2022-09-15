@@ -1,0 +1,61 @@
+\chapter{Selene: GUI}
+
+The purpose of this chapter is to explain the graphical interface used to manipulate Selene. In most aspects, it is a direct translation of the scripting interface into a GUI.
+
+As such, it is highly advised to read the previous chapter containing all the fine details about the working principles, the constants related to the renderer or objects, etc.
+
+\section{Main window}
+
+Selene's GUI is initiated by clicking the Selene button on the startup window. The window that opens is separated into four main parts: the display panel, the rays display options, the scene tree and the rendering options.
+
+\subsection{3D display}
+
+\subsection{Rays Display}
+
+\subsection{Scene tree}
+
+The scene tree summarizes the objects and light sources included in the scene. It is also the control that will serve to add new elements, modify or delete them. Elements that have a relative origin will appear as leaves of the related element.
+
+\subsubsection{Adding a new element}
+
+At the top of the scene tree sits a drop-down list that contains all the elements that can be added. Those are both objects and sources. Adding a new element first requires selecting the relevant element, and then clicking the \lfc{Add} button.
+
+The related element dialog with all its parameters will then open, but the element will only be added after clicking the \lfc{Ok} button. The addition will be cancelled otherwise.
+
+\subsubsection{Modifying an element}
+
+Elements belonging to the tree can be modified by a right click on them. This brings a popup menu up with two choices
+\begin{itemize}
+	\item \lfc{Properties} shows the element dialog that allows one to modify the various properties
+	\item \lfc{Delete} will remove the element from the scene. In the case it were used as a relative frame for any other element, the latter will have said frame invalidated
+\end{itemize}
+
+\subsection{Rendering}
+
+Once a scene is complete and properly set up (and saved to a file to avoid any lost work), rendering it is the final step. The controls related to it will be found at the bottom left of the window. It contains three parts:
+\begin{itemize}
+	\item The \lfc{N Disp} control will define how many paths to display at most in the 3D view
+	\item The \lfc{N Tot} control defines how many initial rays to cast from the sources.
+	\item The \lfc{Trace} button will render the scene.
+\end{itemize}
+After the computation is over, the 3D display will show a subset of the rays that have been computed for immediate feedback, and the various sensors will have their files written to the hard drive.
+
+\section{The object dialog}
+
+The object dialog is split into four parts, three of them being tabs:
+\begin{itemize}
+	\item the controls panel on the left is always visible. It serves to control the object name, and the various properties of the positioning system. Those are then followed by the specific object properties.
+	\item the \lfc{Geometry} tab shows a 3D view of the object geometry, according to the object properties
+	\item the \lfc{Interfaces} tab serves to control the properties of each face: materials, IRFs and tangent vectors
+	\item the \lfc{Sensor} tab helps defining if an object is a sensor, what kind and what it should record
+\end{itemize}
+
+\section{The light source dialog}
+
+The source dialog is split into two parts
+\begin{itemize}
+	\item the controls panel on the left is always visible. It serves to control the source name, and the various properties of the positioning system. Those are then followed by the specific source properties.
+	\item the \lfc{Spectrum} tab serves to define the source spectral properties. Its layout changes depending on the kind of spectrum selected
+\end{itemize}
+
+\section{The materials dialog}

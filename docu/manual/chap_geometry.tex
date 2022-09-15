@@ -1,0 +1,254 @@
+\chapter{Structures}
+\label{geomsection}
+
+\section{Main script and the structure object}
+
+Structures are not defined within the main script but in their own specific script. They still need to interact with the main script through \lud{structure objects}. Those are defined by the user through the mean of the \lfc{Structure}(\lsg{structure script}) function, where \lsgnq{structure script} is the path to the relevant file. Example:
+\begin{lstlisting}
+struct=Structure("structures/nanorods_grid.lua")
+\end{lstlisting}
+
+\lud{Structure objects} have their own functions that can be used to interact with them after loading the file.
+
+\subsection{Parameters}
+\label{structure_parameters}
+
+Structure files can be written in a ``generic'' way, depending on \underline{named} input parameters. These parameters have a default value, but can be set through the \lfc{parameter}(\lsg{name} , \lft{value}) member function, where \lsgnq{name} is the related parameter name, and \lft{value} what to assign to it. Example
+\begin{lstlisting}
+struct:parameter("P",500e-9)
+\end{lstlisting}
+
+\subsection{Other functions}
+
+\subsubsection[print]{\lfc{print}(\lsg{directory},\lft{Dx},\lft{Dy},\lft{Dz})}
+
+This function will turn the structure into a sequence of images within \lsgnq{directory/grid}, using a color gradient to display the material index. It uses \lft{Dx}, \lft{Dy} and \lft{Dz} as the spatial discretization to do so. Example
+\begin{lstlisting}
+struct:print("test_directory",5e-9,5e-9,5e-9)
+\end{lstlisting}
+
+\section{Structure script}
+\addtocontents{toc}{\protect\setcounter{tocdepth}{2}}
+
+Geometry files serve to define the structures that will be used in FDTD simulations. Like the main script, those files are written in Lua. The structures definition is done through functions that will assign an ``index'' to different parts of the discretized space. This index will then be linked to a specific material.
+	
+	It is required that the variables \lft{lx}, \lft{ly} and \lft{lz} are defined somewhere in the script file. Those variables define the size of the structure cell. For instance:
+
+\begin{lstlisting}
+lx=300e-9
+ly=300e-9
+lz=150e-9
+\end{lstlisting}
+
+
+Except for very specific cases, the functions call order will matter. This allows to create more complex structures than if the functions call order were random. For instance:
+\begin{lstlisting}
+add_layer("Z",0,100,1)
+add_block(25,50,25,50,25,50,0)
+\end{lstlisting}
+defines a layer of index 1, then creates a hole of index 0 inside it, while
+\begin{lstlisting}
+add_block(25,50,25,50,25,50,0)
+add_layer("Z",0,100,1)
+\end{lstlisting}
+first creates a block of index 0, then overwrites it with the layer of index 1.
+
+\subsection{Parameters}
+
+As seen in \ref{structure_parameters}, structure files can take named parameters into account. To do so, they need to be declared and given a default value. It is done with the \lfc{declare\_parameter}(\lsg{name},\lft{value}) function. This creates a Lua variable with the related \lsgnq{name} and a default \lft{value}. This variable can be used like any other variable afterwards. Example
+\begin{lstlisting}
+declare_parameter("p",300e-9)
+declare_parameter("h",300e-9)
+
+lx=p
+ly=p*math.sqrt(3)
+lz=200e-9+h
+\end{lstlisting}
+Here, the Structure extent is defined through the two parameters first declared. Parameters must be declared before being used.
+
+\subsection{Primitives}
+
+\subsubsection[add\_block]{\lfc{add\_block}(\lft{x1},\lft{x2},\lft{y1},\lft{y2},\lft{z1},\lft{z2},\lin{index})}
+
+Defines the region between \lft{x1}, \lft{y1}, \lft{z1} and \lft{x2}, \lft{y2}, \lft{z2} as of index \lin{index}, giving this region the shape of a block.\\ Example:
+\begin{lstlisting}
+add_block(0,100e-9,0,150e-9,200e-9,300e-9,4)
+\end{lstlisting}
+
+\subsubsection[add\_cone]{\lfc{add\_cone}(\lft{Ox},\lft{Oy},\lft{Oz},\lft{Ax},\lft{Ay},\lft{Az},\lft{r},\lin{index})}
+
+Defines a cone of radius \lft{r} and index \lin{index}. It's origin is given by the $\vec O$ vector, while its direction and length are defined through the $\vec A$ vector.\\ Example:
+
+\begin{lstlisting}
+add_cone(50e-9,50e-9,0,0,0,150e-9,1000e-9,1)
+\end{lstlisting}
+
+\subsubsection[add\_cylinder]{\lfc{add\_cylinder}(\lft{Ox},\lft{Oy},\lft{Oz},\lft{Ax},\lft{Ay},\lft{Az},\lft{r},\lin{index})}
+
+Defines a cylinder of radius \lft{r} and index \lin{index}. It's origin is given by the $\vec O$ vector, while its direction and length are defined through the $\vec A$ vector.\\ Example:
+\begin{lstlisting}
+add_cylinder(50e-9,50e-9,0,0,0,150e-9,1000e-9,1)
+\end{lstlisting}
+
+\subsubsection[add\_layer]{\lfc{add\_layer}(\lsg{dir},\lft{x1},\lft{x2},\lin{index})}
+
+Defines a layer of index \lin{index} along the \lsg{dir} direction between \lft{x1} and \lft{x2}. This layer fills space entirely in the two other directions. \lsg{dir} can take the following values: \lsg{X}, \lsg{Y} or \lsg{Z}.\\ Example:
+\begin{lstlisting}
+add_layer("Z",0,100e-9,2)
+\end{lstlisting}
+
+\subsubsection[add\_sphere]{\lfc{add\_sphere}(\lft{x},\lft{y},\lft{z},\lft{r},\lin{index})}
+
+Sets a spherical region of space with the index \lin{index}. This region is centered on \lft{x}, \lft{y}, \lft{z} and is of radius \lft{r}. \\ Example:
+\begin{lstlisting}
+add_sphere(100e-9,100e-9,50e-9,25e-9,2)
+\end{lstlisting}
+
+\subsubsection[add\_vect\_block]{\lfc{add\_vect\_block}(\lft{Ox},\lft{Oy},\lft{Oz},\lft{Ax},\lft{Ay},\lft{Az},\lft{Bx},\lft{By},\lft{Bz},\lft{Cx},\lft{Cy},\lft{Cz},\lin{index})}
+
+Defines a parallelepiped of index \lin{index}. Its offset is given through the $\vec O$ vector, while the $\vec A$, $\vec B$ and $\vec C$ vectors define the edges. Those three vectors do not need to take the offset into account (c.f. figure below).\\ Example:
+\begin{lstlisting}
+add_vect_block(100e-9,100e-9,50e-9,
+               10e-9,0,0,
+               0,10e-9,0,
+               0,0,5e-9,5)
+\end{lstlisting}
+\begin{center}\begin{tikzpicture}[decoration={markings,mark= at position 0.5 with {\arrow{stealth}}}]
+\coordinate (O) at (2.5,1.5);
+\coordinate (A) at (0.9,-1.3);
+\coordinate (B) at (2,0.5);
+\coordinate (C) at (1,1.2);
+\coordinate (C) at (1,1.2);
+\draw [very thick,-latex] (0,0) -- (2,0);
+\draw [very thick,-latex] (0,0) -- (0,2);
+\draw [very thick,-latex] (0,0) -- (-1.4,-1);
+\draw [-latex] (0,0) -- (O) node [midway,above] {$\vec O$};
+\draw (O) -- ++(A) -- ++(B) -- ++(C);
+\draw (O) -- ++(A) -- ++(C) -- ++(B);
+\draw (O) -- ++(B) -- ++(A);
+\draw (O) -- ++(B) -- ++(C);
+\draw (O) -- ++(C) -- ++(A);
+\draw (O) -- ++(C) -- ++(B) -- ++(A);
+\draw [very thick,-latex] (O) -- ++(A) node [midway,left]{$\vec A$};
+\draw [very thick,-latex] (O) -- ++(B) node [midway,above]{$\vec B$};
+\draw [very thick,-latex] (O) -- ++(C) node [midway,above left]{$\vec C$};
+\end{tikzpicture}\end{center}
+
+
+%\subsection[add\_vect\_tri]{\lfc{add\_vect\_tri}(\lft{xO},\lft{yO},\lft{zO},\lft{xA},\lft{yA},\lft{zA},\lft{xB},\lft{yB},\lft{zB},\lft{xC},\lft{yC},\lft{zC},\lft{P},\lin{index})}
+%
+%\langswitch
+%{
+%	Définit une section triangulaire d'indice \lin{index} incluse dans un parallélépipède. L'origine de celui-ci est donnée par le vecteur $\vec O$, tandis que les trois vecteurs $\vec A$, $\vec B$ et $\vec C$ définissent ses côtés. Ces vecteurs n'ont pas à prendre en compte l'origine. Le paramètre \lft{P} détermine la position de la pointe du triangle. Pour plus de précisions, voir la figure \ref{addvtri_fig}.\\ Exemple:
+%}{
+%	Defines a triangular section of index \lin{index}, imbedded in a parallelepiped. Its offset is given through the $\vec O$ vector, while the $\vec A$, $\vec B$ and $\vec C$ vectors define the edges. Those three vectors do not need to take the offset into account (c.f. figure \ref{addvblock_fig}).\\ Example:
+%}
+%\begin{lstlisting}
+%add_vect_tri(200e-9,100e-9,50e-9,
+%             10e-9,15e-9,0,
+%             5e-9,10e-9,0,
+%             0,0,10e-9,0.5,2)
+%\end{lstlisting}
+%
+%\begin{figure}[!ht]
+%\center\def\svgwidth{0.5\linewidth}
+%{\import{fig/}{vect_tri.pdf_tex}}
+%\langswitch
+%{
+%	\caption{Schéma du volume défini par la fonction \lfc{add\_vect\_tri}.}
+%}{
+%	\caption{Region defined through the \lfc{add\_vect\_tri} function.}
+%}
+%\label{addvtri_fig}
+%\end{figure}
+
+\subsection{Non shape functions}
+
+\subsubsection[default\_material]{\lfc{default\_material}(\lin{index})}
+
+Fills the whole grid with the index \lin{index}. This is mostly usefull to initialize the grid.\\ Example:
+\begin{lstlisting}
+set_full(0)
+\end{lstlisting}
+
+\subsubsection[flip]{\lfc{flip}(\lin{x},\lin{y},\lin{z})}
+
+\subsubsection[loop]{\lfc{loop}(\lin{x},\lin{y},\lin{z})}
+
+\subsection{Lua defined functions}
+
+%	En plus des formes définies par les fonctions présentées précédemment, il est possible de définir de nouvelles formes par l'intermédiaire du Lua. Pour ce faire, l'utilisateur doit créer une fonction Lua respectant certaines contraintes:
+%	\begin{itemize}
+%		\item la fonction doit définir pour tout point de l'espace si un point est à l'intérieur ou à l'extérieur de la forme que l'utilisateur souhaite créer. Si le point est à l'intérieur, la fonction doit avoir comme résultat 1, et 0 dans le cas contraire.
+%		\item le nombre d'arguments de la fonction n'est pas limité, mais les trois premières variables doivent toujours représenter $x$, $y$ et $z$.
+%		\item la fonction ne doit pas tenter de s'appuyer sur des variables globales
+%	\end{itemize}
+
+Additionally to the preview basic shapes, users can define new shapes through Lua functions. To do this, the function definition shall follow a particular template.
+	\fwarn
+
+\addtocontents{toc}{\protect\setcounter{tocdepth}{2}}
+
+\subsubsection[add\_lua\_def]{\lfc{add\_lua\_def}(\lsg{name},\lft{var\_arg...},\lin{index})}
+
+%	Une fois la nouvelle fonction définie, il est possible de l'appeler grâce à \lfc{add\_lua\_def}. Son premier argument \lsg{name} est le nom de la fonction définie par l'utilisateur. Ensuite viennent tous les arguments de la fonction en excluant ceux référant à $x$, $y$ et $z$. Enfin, l'indice du matériau à affecter est donné par \lin{index}.
+
+\fwarn
+
+\subsubsection{Example}
+
+The following example illustrates the case of a torus defined through Lua, as this shape is not one of the basic shapes.
+\begin{lstlisting}
+function torus(x,y,z,x0,y0,z0)
+	r0=350e-9;
+	a=40e-9
+	b=20e-9
+	
+	r=math.abs(math.sqrt((x-x0)*(x-x0)+(y-y0)*(y-y0))-r0)
+	h=math.abs(z-z0)
+	
+	rat=b*b*(1-r*r/a/a)
+	
+	if h*h<=rat
+		then
+			return 1
+	end
+	
+	return 0;
+end
+
+add_lua_def("torus",50e-9,100e-9,50e-9,2)
+\end{lstlisting}
+
+\subsection{Meshes}
+
+\section{Full scripts example}
+
+\subsection{Geometry}
+
+The following script is a full geometry script example that defines a nanorods grid.
+
+\begin{lstlisting}
+lx=300e-9
+ly=300e-9
+lz=150e-9
+
+default_material(0)
+add_layer("Z",0,50e-9,1)
+add_block(105e-9,235e-9,0,35e-9,50e-9,70e-9,2)
+add_block(0,35e-9,105e-9,235e-9,50e-9,70e-9,2)
+\end{lstlisting}
+
+First, \lft{lx}, \lft{ly} and \lft{lz} are defined. Then the whole grid is intialized with the index 0 through the \lfc{set\_full} function. A layer of index 1 is added at the bottom of the FDTD grid along the \lsg{Z} direction through \lfc{add\_layer}, and will be the substrate in the simulation. Finally, two nanorods of index 2 are defined with the function \lfc{add\_block}, and will later in the main script be associated to the gold material.
+
+\subsection{Main script}
+
+The following lines will instance a \lud{structure object} based on the previous script, and pass it to the FDTD solver within the main script.
+\begin{lstlisting}
+struct=Structure("../structures/nanorods_grid.lua")
+
+fdtd=MODE("fdtd_normal")
+...
+fdtd:structure(struct)
+...
+\end{lstlisting}

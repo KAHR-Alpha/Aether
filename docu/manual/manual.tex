@@ -1,0 +1,279 @@
+\documentclass[a4paper,11pt]{book}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[headings]{fullpage}
+\usepackage{color}
+\usepackage[dvipsnames]{xcolor}
+\usepackage[outline]{contour}
+\usepackage{ifthen}
+\usepackage{import}
+\usepackage{graphicx}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{bm}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta}
+\usetikzlibrary{decorations.markings}
+%\usepackage{todonotes}
+
+\definecolor{dgreen}{rgb}{0,0.6,0}
+\usepackage[colorlinks=true,citecolor=dgreen]{hyperref}
+
+\newboolean{french}
+\setboolean{french}{false}
+
+\newboolean{warnings}
+\setboolean{warnings}{false}
+
+\usepackage{inconsolata}
+
+\newcommand{\dsp}{\displaystyle}
+%\newcommand{\langswitch}[2]{\ifthenelse{\boolean{french}}{#1}{#2}}
+
+\newcommand{\fwarn}{\ifthenelse{\boolean{warnings}}{\errmessage{Completion}}{}}
+
+\usepackage{listings}
+\lstset{frame=single,basicstyle=\ttfamily,language=[5.2]Lua,showstringspaces=false}
+
+\title{Aether}
+\author{Loïc Le Cunff}
+
+\definecolor{dgreen}{rgb}{0,0.3,0}
+\definecolor{pink}{rgb}{1,0,1}
+\definecolor{orange}{rgb}{1,0.4,0}
+
+%\newcommand{\lfc}[1]{\textbf{#1}}
+\newcommand{\lfc}[1]{\textbf{\color{blue}{#1}}}
+%\newcommand{\lfc}[1]{\colorbox{blue}{\textbf{\color{white}{#1}}}}
+%\newcommand{\lfc}[1]{\textbf{\contour{black}{\color{white}{#1}}}}
+%\newcommand{\lfc}[1]{\textbf{\underline{#1}}}
+\newcommand{\lin}[1]{\textbf{\textcolor{Maroon}{#1}}}
+\newcommand{\lft}[1]{\textbf{\textcolor{red}{#1}}}
+\newcommand{\lsg}[1]{\textbf{\textcolor{pink}{"#1"}}}
+\newcommand{\lsgnq}[1]{\textbf{\textcolor{pink}{#1}}}
+\newcommand{\lvec}[1]{\textbf{\textcolor{green}{"#1"}}}
+\newcommand{\lud}[1]{\textbf{\textcolor{orange}{#1}}}
+
+\newcommand{\dse}{\displaystyle}
+
+\pagestyle{headings}
+
+\begin{document}
+\addtocontents{toc}{\protect\setcounter{tocdepth}{2}}
+
+\maketitle
+
+\tableofcontents
+
+%\listoftodos
+
+\part{Introduction}
+
+\chapter{About}
+
+\section{A bit of history}
+
+The oldest roots of the software originate back in 2008 with personnal rendering projects.
+
+This was followed two years later by an internship at the L2n on the ADI-FDTD method, which served as the basis for the FDTD module. Concurrent development happened through the OpenSource Gneiss project (now obsolete), dedicated to rendering space scenes.
+
+The FDTD code was then developed during a PhD under the ANR MetaPhotonique project, together with some basic tools.
+
+A few years later under the TurboPET project, the raytracing core was coded by integrating Gneiss' original raytracer into Aether.
+
+Since then, many improvements have been added, like the GUI, and from 2015 onwards several upgrades were designed to accomodate the Limule project, a proprietary software coded for the In-Fine joint laboratory.
+
+\section{Past Funding}
+
+The following fundings have contributed directly and indirectly to the project:
+\begin{itemize}
+	\item The University of Technology of Troyes
+	\item The ANR MetaPhotonique project
+	\item A Région Champagne-Ardenne PhD grant
+	\item The Eurostars TurboPET project
+	\item The BISONS RAPID project
+	\item The ANR DECISIoN project
+	\item The SURYS society through the In-Fine joint laboratory
+\end{itemize}
+
+\section{Aether's name}
+
+The name is an obvious reference to the Luminiferous Aether, which was the theoretical medium that carried light, over a century ago. It has long been disproven and replaced with Relativity.
+
+One might ask then: why is the name of this software the same as a flawed theory? Simply put, it is to always remember that simulations are flawed as well. They are nothing but approximations, always being crude representations of reality. One should always remain wary of them, and never hesitate to question their validity.
+
+But they are by no mean useless, they are important tools that help guide us towards what we want to achieve. However, one should never forget that what matters is reality and experiments, and when experiments and simulations don't match, it's not because reality is wrong, but because we did not understand something.
+
+\chapter{Basics}
+
+\section{Conventions}
+
+In this user manual, some conventions will be followed:
+\begin{itemize}
+	\item \lfc{var} is a function or a GUI control
+	\item \lin{var} is an integer
+	\item \lft{var} is a real number
+	\item \lsg{var} is a string. The quotation marks are required in the corresponding code
+	\item \lsgnq{var} is a string without quotation marks, usually a file name or a special variable
+	\item \lud{var} will be reserved for the less common types, and their actual type will be stated on a case by case basis
+	\item function arguments are written in meters if they are lengths, and degrees if they are angles
+	\item the chosen convention with respect to plane waves (and thus the fourier transform) is $e^{\displaystyle i(\vec k\cdot \vec r-\omega t)}$. This means that the imaginary parts of refractive indexes and permittivities must be positive.
+\end{itemize}
+
+\section{Lua}
+
+The scripting language which was chosen is Lua. It is an interpreted language much like Python or MatLab.\\ Its manual is available on: \url{https://www.lua.org/manual/5.4/}
+
+%\langswitch{\subsection{Boucles for}}{\subsection{For loops}}
+%
+%\langswitch
+%{
+%}{
+%	\fwarn
+%}
+%
+%\begin{lstlisting}
+%S=0
+%
+%for i=0,7 do
+%     S=S+i
+%end
+%\end{lstlisting}
+
+\section{Script based operation}
+
+The software was originally written to be used without any graphical interface. Still, ease of use required some sort of interface, and it was chosen to bind the core of the software to a scripting language, so that scripts could be used to define the various parameters and functions. Moreover, a full scripting language allows running computations or operations within the script itself, expanding the capabilities of Aether.
+
+The software is controlled through a script file which must be provided to it on launch. By default, it will look and use the \lsgnq{script.lua} in the working directory.
+
+Because Aether is comprised of various tools, it is necessary to differentiate them in a somewhat unified manner. This is done through the \lfc{MODE} function, for which the sole argument is the name of these tools.
+
+This function returns a pointer that can be used to modify the behavior of the related operation. The name of this pointer is entirely up to the user. For instance:
+\begin{lstlisting}
+fdtd_1=MODE("fdtd_normal")
+\end{lstlisting}
+will return a object that specifies an FDTD computation. The object can then be modified. In Lua, operations on this pointer are done through the ``:'' operator which calls functions tied to this object, For instance:
+\begin{lstlisting}
+fdtd_1:polarization("TE")
+\end{lstlisting}
+will modify the polarization property of the previously defined FDTD simulation.
+
+\subsection{Special Modes}
+
+Beyond the various modules, there are two special modes that can be called:
+\begin{itemize}
+	\item Calling \lfc{MODE}(\lsg{pause}) pauses the software until the user presses the Enter key.
+	\item Calling \lfc{MODE}(\lsg{quit}) discards the rest of the script and ends the software.
+\end{itemize}
+Those are mostly used for debugging or logging purposes. Still, their name is exposed here in case someone finds uses to them.
+
+\section{GUI Interface}
+
+\subsection{Graphs}
+
+
+\input{chap_materials}
+
+%%%%%%%%%
+%   FD
+%%%%%%%%%
+
+\part{Finite Differences}
+
+\chapter{Theoretical bases}
+
+\section{Finite differences}
+
+\section{FDTD}
+
+\section{Dispersive materials}
+
+\section{PMLs}
+
+\section{FDFD}
+
+\input{chap_geometry}
+
+\input{chap_fdtd_modes}
+
+\chapter{FDTD: GUI}
+
+%%%%%%%%%%%%%%%%%
+%   Ray Optics
+%%%%%%%%%%%%%%%%%
+
+\part{Ray optics: Selene}
+
+\input{chap_selene}
+
+\input{chap_selene_gui}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   Multilayer structures
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\part{Multilayers}
+
+\input{chap_multilayer}
+
+\input{chap_gui_multilayer}
+
+\input{chap_gui_multilayers_guided}
+
+%%%%%%%%%%%%%%%%%
+%   Misc stuff
+%%%%%%%%%%%%%%%%%
+
+\part{Various tools}
+
+\chapter{Scripting tools}
+
+\section{dielec\_planar\_waveguide}
+
+%	Ce mode permet de calculer rapidement les indices effectifs des modes guidés d'un guide plan diélectrique. Les différents indices sont définis par les fonctions \lfc{guide}(\lft{index}), \lfc{superstrate}(\lft{index}) et \lfc{substrate}(\lft{index}). L'épaisseur du guide est définie par \lfc{thickness}(\lft{h}) tandis que la longueur d'onde à étudier est donnée grâce à \lfc{lambda}(\lft{$\lambda$}).
+%	
+%	Les résultats s'affichent immédiatement à l'écran et s'accumulent dans le fichier \lsgnq{modes.txt}.
+
+\fwarn
+
+\begin{lstlisting}
+guide=MODE("dielec_planar_waveguide")
+guide:guide(1.9)
+guide:substrate(1.0)
+guide:superstrate(1.1)
+guide:thickness(200e-9)
+guide:lambda(500e-9)
+\end{lstlisting}
+
+\section{fieldblock\_treat}
+
+\section{fieldmap\_treat}
+
+\section{index\_fit}
+
+\section{preview\_fdtd\_structure}
+
+This mode allows to load and visualize a FDTD geometry file (c.f. chapter \ref{geomsection}) without requiring a simulation to be launched. Only the \lfc{structure}(\lsg{geometry\_file}) function is available in this mode. The result is displayed in the \lsgnq{grid} directory.\\ Example:
+\begin{lstlisting}
+test=MODE("preview_fdtd_structure")
+test:file("structures/nanorods_grid.lua")
+\end{lstlisting}
+
+\input{chap_gui_diffract}
+
+\input{chap_gui_graph_fitter}
+
+\input{chap_gui_samples_explorer}
+
+%\part{Appendix}
+%
+%\appendix
+%
+%\input{chap_techspecs}
+
+\bibliographystyle{unsrt}
+\bibliography{c:/docu/master_biblio}
+
+\end{document}

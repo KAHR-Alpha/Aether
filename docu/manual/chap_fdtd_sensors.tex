@@ -1,0 +1,61 @@
+\section{Sensors}
+
+\label{create_sensor_def}
+
+\subsection{Common functions}
+
+\subsubsection[location]{\lfc{location}(\lin{x1},\lin{x2},\lin{y1},\lin{y2},\lin{z1},\lin{z2})}
+
+Sets the sensor location between \lin{x1}, \lin{y1}, \lin{z1} (inclus) and \lin{x2}, \lin{y2}, \lin{z2} (exclus). Those coordinates must be defined with respect to the computation geometry file, and this can be negative.
+
+\subsubsection[name]{\lfc{name}(\lsg{name})}
+
+Gives the sensor the name \lsg{name}, which will serve as a prefix to the names of the files written at the end of the computation.
+
+\subsubsection[orientation]{\lfc{orientation}(\lsg{orientation})}
+
+This defines the sensor orientation (its normal vector), through the \lsg{orientation} variable. Its value can be \lsg{X}, \lsg{Y}, \lsg{Z}, \lsg{-X}, \lsg{-Y} or \lsg{-Z}. This function has two main goals:
+\begin{itemize}
+	\item setting a direction onto which the Poynting vector will be projected, for the sensors that need it.
+	\item specifying the exact location of the sensor, which was previously defined through the \lfc{location} function. For instance, if the orientation is \lsg{X} or \lsg{-X} the \lin{x2} variable will be ignored. Similarly, \lsg{Y} will affect \lin{y2} and \lsg{Z} will affect \lin{z2}.
+\end{itemize}
+
+\subsubsection[spectrum (one argument)]{\lfc{spectrum}(\lft{lambda})}
+
+Sets the sensor analysis wavelength \lft{lambda}.
+
+\subsubsection[spectrum (three arguments)]{\lfc{spectrum}(\lft{lambda\_min},\lft{lambda\_max},\lin{Nl})}
+
+Sets the sensor analysis spectrum between \lft{lambda\_min} and \lft{lambda\_max}, with \lin{Nl} sampling points.
+
+\subsection{Sensor types}
+
+\subsubsection{fieldmap}
+
+This sensors is dedicated to creating 2D fieldmaps. The fieldmap is computed for a single wavelength, specified through the single argument variant of \lfc{spectrum}.
+	
+At the end of the simulation, several files are created:
+\begin{itemize}
+	\item \lsgnq{name\_fieldmap.bmp}: a quick fieldmap image using a non-linear normalization
+	\item \lsgnq{name.m}: a MatLab script that will display the fieldmap
+	\item \lsgnq{name\_Ex\_raw}: a file containing the sensor data for the $x$ component of the field
+	\item \lsgnq{name\_Ey\_raw}: a file containing the sensor data for the $x$ component of the field
+	\item \lsgnq{name\_Ez\_raw}: a file containing the sensor data for the $x$ component of the field
+\end{itemize}
+Example:
+\begin{lstlisting}
+map=create_sensor("fieldmap")
+map:spectrum(405e-9)
+map:name("map")
+map:orientation("Y")
+map:location(0,500,0,1,0,500)
+
+fdtd:register_sensor(map)
+\end{lstlisting}
+
+\subsubsection{fieldblock}
+
+\subsubsection{planar\_spectral\_poynting}
+
+\fwarn
+This sensor integrates the Poynting vector flux across a planar surface.

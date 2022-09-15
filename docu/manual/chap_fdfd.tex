@@ -1,0 +1,254 @@
+\chapter{FDFD}
+
+\langswitch
+{
+	\fwarn
+}{
+	\textbf{\textcolor{red}{Warning: the simulation method detailed in this chapter is highly experimental.}}
+}
+
+\section{Introduction}
+
+\langswitch
+{
+	La méthode part des équations de Maxwell
+}{
+	The method starts from Maxwell equations
+}
+\begin{equation}\begin{array}{l}
+	\nabla \times \vec E=- \partial_t \vec B \\
+	\nabla \times \vec H= \partial_t \vec D 
+\end{array}\end{equation}
+\langswitch
+{
+	et les champs sont ensuite supposés harmoniques
+}{
+	The fields are then assumed to be harmonic, that is
+}
+\begin{equation}\begin{array}{l}
+	\nabla \times \vec E = i \omega \vec B \\
+	\nabla \times \vec H = -i\omega \vec D 
+\end{array}\end{equation}
+\langswitch
+{
+	Comme en FDTD, les dérivées spatiales sont approximées par des différences finies. Par contre, les équations sont ensuite mises sous forme matricielle.
+}{
+	Just like in FDTD, the spatial derivatives are then approximated through finite difference. This time though, the equations are put into matrix form. 
+}
+\begin{equation}
+	\begin{pmatrix}
+		0 & B \\
+		A & 0
+	\end{pmatrix}
+	\begin{pmatrix}
+		\vec E \\ \vec H
+	\end{pmatrix}=
+	M
+	\begin{pmatrix}
+		\vec E \\ \vec H
+	\end{pmatrix}
+\end{equation}
+\langswitch
+{
+	A la fin, on obtient un système linéaire à résoudre
+}{
+	In the end we get a linear system like
+}
+\begin{equation}
+	(D-M)F=-F_\textrm{src}
+\end{equation}
+\langswitch
+{
+	avec $D$ la matrice de discrétisation, $M$ la matrice définissant le matériau, $F$ un vecteur contenant toutes les composantes du champ linéarisées dans un même vecteur, et $F_\textrm{src}$ les sources. La solution au problème est alors
+}{
+	with $D$ the discretization matrix, $M$ the matrix expressing the material, $F$ a vector containing all the field components linearized in a single vector, and $F_\textrm{src}$ the sources. The problem solution is thus
+}
+\begin{equation}
+	F=-(D-M)^{-1}F_\textrm{src}
+\end{equation}
+
+
+\section{FDFD mode}
+
+
+\langswitch
+{
+	\fwarn
+}{
+	As the method is highly similar to FDTD, most of the functions presented in chapter \ref{chapter_fdtd} will also apply.
+}
+
+\langswitch{ \subsection{Fonctions communes} }{ \subsection{Common functions} }
+
+\langswitch
+{
+	Certaines fonctions sont communes à certains modes FDTD du logiciel, et sont regroupées dans cette section.
+}{
+	Some functions are common to some FDTD modes of the software, and are listed here.
+}
+
+\subsubsection[material]{\lfc{material}(\lin{index},\lsg{material\_file})}
+
+\langswitch
+{
+	Lie le fichier de matériau \lsg{material\_file} à l'indice \lin{index} défini dans le fichier de géométrie.\\
+	Exemple:
+}{
+	Links the material file \lsg{material\_file} to the index \lin{index} defined in the simulation geometry file.\\
+	Example:
+}
+\begin{lstlisting}
+fdfd:material(1,"mat_lib/Glass150.lua")
+\end{lstlisting}
+
+\langswitch
+{
+	Dans le cas où le matériau en question est censé être d'indice constant et réel, il est aussi possible de remplacer \lsg{material\_file} par un appel à la fonction \lfc{const\_material} dont le seul argument est l'indice optique. Un script de matériau correspondant sera alors généré automatiquement.\\
+	Exemple:
+}{
+	If the related material is supposed to be of constant real refractive index, \lsg{material\_file} may be replaced with a call to \lfc{const\_material}, of which the only argument is that refractive index. A material script will be generated on the fly.\\
+	Example:
+}
+\begin{lstlisting}
+fdfd:material(1,const_material(1.5))
+\end{lstlisting}
+
+\subsubsection[padding]{\lfc{padding}(\lin{x1},\lin{x2},\lin{y1},\lin{y2},\lin{z1},\lin{z2})}
+
+\langswitch
+{
+}{
+}
+
+\subsubsection[pml\_X]{\lfc{pml\_X}(\lin{Npml},\lft{kappa},\lft{sigma},\lft{alpha})}
+
+\langswitch
+{
+	Les fonctions du type \lfc{pml\_X} servent à paramétrer les PMLs (conditions absorbantes) d'une simulation. Ces fonctions sont au nombre de six:
+	\begin{itemize}
+		\item \lfc{pml\_xm}: PML suivant la direction $-\vec x$
+		\item \lfc{pml\_xp}: PML suivant la direction $\vec x$
+		\item \lfc{pml\_ym}: PML suivant la direction $-\vec y$
+		\item \lfc{pml\_yp}: PML suivant la direction $\vec y$
+		\item \lfc{pml\_zm}: PML suivant la direction $-\vec z$
+		\item \lfc{pml\_zp}: PML suivant la direction $-\vec z$
+	\end{itemize}
+	Elles prennent quatre arguments:
+	\begin{itemize}
+		\item \lin{Npml} définit le nombre de cellules, en général au minimum une dizaine
+		\item \lft{kappa} définit grossièrement la valeur de $\varepsilon_r$ en bout de PML et donc la vitesse de ``ralentissement'' du champ dans celle-ci. Une valeur entre 15 et 25 semble en général convenir.
+		\item \lft{sigma} correspond à l'absorption des PMLs. En général une valeur de $1/\sqrt{n}$ semble efficace.
+		\item \lft{alpha} est un paramètre de décalage dans le plan complexe, utile surtout si les PMLs doivent faire face à des ondes évanescentes. Typiquement autour de $0.2$.
+	\end{itemize}
+	Les coefficients \lft{kappa}, \lft{sigma} et \lft{alpha} ne sont pas uniformes suivant l'axe des PML. Les deux premiers croissent à mesure que la profondeur augmente, tandis que le dernier décroit. 
+	Exemple:
+}{
+	Functions of the \lfc{pml\_X} kind are used to define the PMLs (absorbing boundary conditions) of a computation. There are six of them:
+	\begin{itemize}
+		\item \lfc{pml\_xm}: PML along $-\vec x$
+		\item \lfc{pml\_xp}: PML along $\vec x$
+		\item \lfc{pml\_ym}: PML along $-\vec y$
+		\item \lfc{pml\_yp}: PML along $\vec y$
+		\item \lfc{pml\_zm}: PML along $-\vec z$
+		\item \lfc{pml\_zp}: PML along $\vec z$
+	\end{itemize}
+	They take four arguments:
+	\begin{itemize}
+		\item \lin{Npml} define the number of PML cells, usually around a dozen
+		\item \lft{kappa} defines what would roughly be $\varepsilon_r$ at the PML end, and thus how it slows down waves propagating into it. A value between 15 and 25 is usually suitable.
+		\item \lft{sigma} corresponds to PMLs absorption. A value of $1/\sqrt{n}$ seems usually efficient.
+		\item \lft{alpha} is a shift in the complex plane of the PML spatial coordinates. It is mostly useful if PMLs encounter evanescent waves. Typically around $0.2$.
+	\end{itemize}
+	Example:
+}
+\begin{lstlisting}
+fdfd:pml_zp(25,25,0.7,0.2)
+fdfd:pml_zm(25,25,1,0.2);
+\end{lstlisting}
+
+\subsubsection[prefix]{\lfc{prefix}(\lsg{name})}
+
+\langswitch
+{
+	Nomme la simulation par le préfixe \lsg{name} qui se retrouvera dans nombre de fichiers écrits lors de la simulation tels que les résultats.
+}{
+	Names the simulation with the prefix \lsg{name}, which will be used in the name of several files written as computation results.
+}
+
+\subsubsection[polarization]{\lfc{polarization}(\lsg{pol})}
+
+\langswitch
+{
+	Définit la polarisation du champ incident dans une simulation. \lsg{pol} admet deux valeurs possibles: \lsg{TE} ou \lsg{TM}.\\ Exemple:
+}{
+	Defines the polarization of the incident field in a simulation. \lsg{pol} can be only one of those two cases: \lsg{TE} or \lsg{TM}.\\ Example:
+}
+\begin{lstlisting}
+fdfd:polarization("TE")
+\end{lstlisting}
+
+\langswitch
+{
+	\subsubsection[polarization (variante à angle)]{\lfc{polarization}(\lft{pol})}
+}{
+	\subsubsection[polarization (angle variant)]{\lfc{polarization}(\lft{pol})}
+}
+
+\langswitch
+{
+	\fwarn
+}{
+	Just like the previous function, this defines the polarization of the incident field. In this case though, this definition is defined through the angle \lft{pol} in degrees. \lft{0} corresponds to the \lsg{TE} polarization while \lft{90} corresponds to \lsg{TM} case.
+}
+
+\subsubsection[spectrum]{\lfc{spectrum}(\lft{lambda})}
+
+\langswitch
+{
+	\fwarn
+}{
+	Defines the spectral range of analysis between \lft{lambda\_min} and \lft{lambda\_max} (in meters), with \lin{Nl} points homogeneously distributed between those two wavelengths. Warning: requesting too many points can increase the computation time.\\ Example:
+}
+\begin{lstlisting}
+fdfd:spectrum(400e-9)
+\end{lstlisting}
+
+\subsubsection[structure]{\lfc{structure}(\lsg{geometry\_file})}
+
+\langswitch
+{
+	Lie la simulation au fichier de géométrie \lsg{geometry\_file}. Pour plus de précisions c.f. \ref{geomsection}.\\ Exemple:
+}
+{
+	Links the simulation to the geometry file \lsg{geometry\_file}. For further details, see \ref{geomsection}.\\ Example:
+}
+\begin{lstlisting}
+fdfd:structure("structures/nanorods_grid.lua")
+\end{lstlisting}
+
+\subsubsection[struct\_append]{\lfc{struct\_append}(\lsg{lua})}
+
+\langswitch
+{
+	Cette fonction permet d'ajouter des commandes Lua à la structure spécifiée pour la simulation. La chaîne de caractères \lsg{lua} doit donc contenir un morceau de code Lua valide. Celui-ci est alors placé en fin du script de géométrie.
+}{
+	\fwarn
+}
+\begin{lstlisting}
+fdfd:struct_append("subdivision_modifier(2,2,2)")
+\end{lstlisting}
+
+
+\subsubsection[struct\_parameters]{\lfc{struct\_parameters}(\lsg{lua})}
+
+\langswitch
+{
+	Comme précédemment, cette fonction permet de rajouter des éléments à un fichier de géométrie. Par contre, ceux-ci seront placés en début de script. Ceci permet d'écrire des fichiers de géométrie qui s'adapteront suivant la simulation, 
+}{
+	\fwarn
+}
+\begin{lstlisting}
+fdfd:struct_parameters("period=1")
+\end{lstlisting}
+
+\langswitch{\subsection{Utilisation}}{\subsection{Usage}}

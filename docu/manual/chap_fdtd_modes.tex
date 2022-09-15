@@ -1,0 +1,333 @@
+\chapter{FDTD: scripting interface}
+
+\label{chapter_fdtd}
+
+\section{Common functions}
+
+Some functions are common to some FDTD modes of the software, and are listed here.
+\addtocontents{toc}{\protect\setcounter{tocdepth}{1}}
+
+\subsection[auto\_tsteps]{\lfc{auto\_tsteps}(\lin{Nt\_max},\lin{Nt\_check},\lft{lambda\_min},\lft{lambda\_max},\lft{coeff},\lin{Np},\lsg{layout})}
+
+This functions attemps to evaluate the advancement of a computation, and end if when results are unlikely to change much. To do so, it performs a check every \lin{Nt\_check} iterations in the following manner. 
+
+First \lin{Np} points are randomly selected at the start of the simulation on the boundaries of the grid. Boundaries can be enabled or disabled through the \lsg{layout} argument which is a string of three characters, each of which being either \lsgnq{n}, \lsgnq{u}, \lsgnq{d} or \lsgnq{b}, which stand for \lsgnq{none}, \lsgnq{up}, \lsgnq{down} and \lsgnq{both}, in the $x$, $y$ and $z$ order. For instance \lsg{dnb} would enable the $x_\textrm{min}$, $z_\textrm{min}$ and $z_\textrm{max}$ boundaries, while \lsg{nun} would only enable the $y_\textrm{max}$ boundary.
+
+Once the points are chosen, they are assigned a wavelength chosen between \lft{lambda\_min} and \lft{lambda\_max}, and the related fourier transforms are performed at those locations.
+
+Then, the algorithm evaluates the convergence of those fourier transforms through iterations, by comparing the variation to amplitude ratio of each transform to the \lft{coeff} argument (typically around $10^{-4}$ or $10^{-5}$). If the ratio for a point is less than said \lft{coeff}, then the fourier transform at that point is assumed stable. Once that criterion is checked for every point, the simulation stops.
+
+If this criterion is never met, the simulation will only end after \lin{Nt\_max} iterations.
+\begin{lstlisting}
+fdtd:auto_tsteps(100000,500,400e-9,1000e-9,1e-5,200,"nnb")
+\end{lstlisting}
+
+\subsection[Dx]{\lfc{Dx}(\lft{dx})}
+
+Sets the $x$ discretization to \lft{dx}.
+\begin{lstlisting}
+fdtd:Dx(5e-9)
+\end{lstlisting}
+
+\subsection[Dy]{\lfc{Dy}(\lft{dy})}
+
+Sets the $y$ discretization to \lft{dy}.
+\begin{lstlisting}
+fdtd:Dy(5e-9)
+\end{lstlisting}
+
+\subsection[Dz]{\lfc{Dz}(\lft{dz})}
+
+Sets the $z$ discretization to \lft{dz}.
+\begin{lstlisting}
+fdtd:Dz(5e-9)
+\end{lstlisting}
+
+\subsection[Dxyz]{\lfc{Dxyz}(\lft{d})}
+
+Sets the discretization along $x$, $y$ and $z$ to \lft{d}.
+\begin{lstlisting}
+fdtd:Dxyz(5e-9)
+\end{lstlisting}
+
+\subsection[N\_tsteps]{\lfc{N\_tsteps}(\lin{Nt})}
+
+Defines the number of time steps \lin{Nt} of a simulation.\\ Example
+\begin{lstlisting}
+fdtd:set_N_tsteps(30000)
+\end{lstlisting}
+
+\subsection[material]{\lfc{material}(\lin{index},\lsg{material\_file})}
+
+\label{fdtd_fc_material}
+Links the material file \lsg{material\_file} to the index \lin{index} defined in the simulation geometry file.\\
+	Example:
+\begin{lstlisting}
+fdtd:material(1,"mat_lib/Glass150.lua")
+\end{lstlisting}
+
+If the related material is supposed to be of constant real refractive index, \lsg{material\_file} may be replaced with a call to \lfc{const\_material}, of which the only argument is that refractive index. A material script will be generated on the fly.\\
+	Example:
+\begin{lstlisting}
+fdtd:material(1,const_material(1.5))
+\end{lstlisting}
+
+%\subsubsection[padding]{\lfc{padding}(\lin{x1},\lin{x2},\lin{y1},\lin{y2},\lin{z1},\lin{z2})}
+%
+%\langswitch
+%{
+%}{
+%}
+
+\subsection[padding]{\lfc{padding}(\lin{xm},\lin{xp},\lin{ym},\lin{yp},\lin{zm},\lin{zp})}
+
+\fwarn
+\begin{itemize}
+	\item \lin{xm}: PML padding along $-\vec x$
+	\item \lin{xp}: PML padding along $\vec x$
+	\item \lin{ym}: PML padding along $-\vec y$
+	\item \lin{yp}: PML padding along $\vec y$
+	\item \lin{zm}: PML padding along $-\vec z$
+	\item \lin{zp}: PML padding along $-\vec z$
+\end{itemize}
+
+\subsection[pml\_X]{\lfc{pml\_X}(\lin{Npml},\lft{kappa},\lft{sigma},\lft{alpha})}
+
+Functions of the \lfc{pml\_X} kind are used to define the PMLs (absorbing boundary conditions) of a computation. There are six of them:
+\begin{itemize}
+	\item \lfc{pml\_xm}: PML along $-\vec x$
+	\item \lfc{pml\_xp}: PML along $\vec x$
+	\item \lfc{pml\_ym}: PML along $-\vec y$
+	\item \lfc{pml\_yp}: PML along $\vec y$
+	\item \lfc{pml\_zm}: PML along $-\vec z$
+	\item \lfc{pml\_zp}: PML along $\vec z$
+\end{itemize}
+They take four arguments:
+\begin{itemize}
+	\item \lin{Npml} define the number of PML cells, usually around a dozen
+	\item \lft{kappa} defines what would roughly be $\varepsilon_r$ at the PML end, and thus how it slows down waves propagating into it. A value between 15 and 25 is usually suitable.
+	\item \lft{sigma} corresponds to PMLs absorption. A value of $1/\sqrt{n}$ seems usually efficient.
+	\item \lft{alpha} is a shift in the complex plane of the PML spatial coordinates. It is mostly useful if PMLs encounter evanescent waves. Typically around $0.2$.
+\end{itemize}
+The \lft{kappa}, \lft{sigma} and \lft{alpha} coefficients are not constant along the PML axis. The first two grow together with the PML depth, while the latter decreases in value.
+Example:
+
+\begin{lstlisting}
+fdtd:pml_zp(25,25,0.7,0.2)
+fdtd:pml_zm(25,25,1,0.2);
+\end{lstlisting}
+
+\subsection[prefix]{\lfc{prefix}(\lsg{name})}
+
+Names the simulation with the prefix \lsg{name}, which will be used in the name of several files written as computation results.
+
+\subsection[polarization]{\lfc{polarization}(\lsg{pol})}
+
+Defines the polarization of the incident field in a simulation. \lsg{pol} can be only one of those two cases: \lsg{TE} or \lsg{TM}.\\ Example:
+\begin{lstlisting}
+fdtd:polarization("TE")
+\end{lstlisting}
+
+\subsection[register\_sensor]{\lfc{register\_sensor}(\lud{sensor})}
+
+Links a sensor, created through the \lfc{create\_sensor} function (c.f. section \ref{create_sensor_def}), to the simulation. \\ Example:
+\begin{lstlisting}
+fdtd:register_sensor(fieldmap_1550)
+\end{lstlisting}
+
+\subsection[spectrum]{\lfc{spectrum}(\lft{lambda min} , \lft{lambda max} , \lin{Nl})}
+
+Defines the spectral range of analysis between \lft{lambda min} and \lft{lambda max} (in meters), with \lin{Nl} points homogeneously distributed between those two wavelengths. Warning: requesting too many points can increase the computation time.\\ Example:
+\begin{lstlisting}
+fdtd:spectrum(3000,1e-6,3e-6)
+\end{lstlisting}
+
+\subsection[structure]{\lfc{structure}(\lud{structure object})}
+
+Links the simulation to the geometry file \lsg{geometry\_file}. For further details, see \ref{geomsection}.\\ Example:
+\begin{lstlisting}
+structure_obj=Structure("structures/nanorods_grid.lua")
+
+fdtd:structure(structure_obj)
+\end{lstlisting}
+
+\subsection[struct\_append]{\lfc{struct\_append}(\lsg{lua})}
+
+%	Cette fonction permet d'ajouter des commandes Lua à la structure spécifiée pour la simulation. La chaîne de caractères \lsg{lua} doit donc contenir un morceau de code Lua valide. Celui-ci est alors placé en fin du script de géométrie.
+	\fwarn
+\begin{lstlisting}
+fdtd:struct_append("subdivision_modifier(2,2,2)")
+\end{lstlisting}
+
+
+\subsection[struct\_parameters]{\lfc{struct\_parameters}(\lsg{lua})}
+
+%	Comme précédemment, cette fonction permet de rajouter des éléments à un fichier de géométrie. Par contre, ceux-ci seront placés en début de script. Ceci permet d'écrire des fichiers de géométrie qui s'adapteront suivant la simulation, 
+\fwarn
+\begin{lstlisting}
+fdtd:struct_parameters("period=1")
+\end{lstlisting}
+
+
+\subsection[time\_mod]{\lfc{time\_mod}(\lft{fact})}
+
+Multiplies the natural time step $\Delta t=\frac{\min(\Delta x,\Delta y,\Delta z)}{c\sqrt{3}}$ by a factor \lft{fact} that must be set between 0 and 1.
+
+\section{Standard mode FDTD}
+\addtocontents{toc}{\protect\setcounter{tocdepth}{2}}
+
+%	Ce mode est le mode de simulation FDTD le plus élémentaire. Il ne définit aucune source par défaut et ne fait aucune analyse. Ces deux opérations doivent donc être entièrement spécifiées par l'utilisateur. Par conséquent,  La simulation est périodique ou non suivant la spécifications de PMLs.
+\fwarn
+\begin{lstlisting}
+fdtd=MODE("fdtd")
+\end{lstlisting}
+
+\subsection{Specific functions}
+
+The \lfc{polarization} and \lfc{spectrum} functions are disabled in this mode.
+
+\subsubsection[register\_source]{\lfc{register\_source}(\lud{source})}
+
+Links a source, created through the \lfc{create\_source} function (c.f. section \ref{create_source_def}), to the simulation. \\ Example:
+
+\begin{lstlisting}
+fdtd:register_source(oscillator)
+\end{lstlisting}
+
+\section{Normal incidence FDTD}
+
+In this mode, the structure is an infinitely periodic array in the $\vec x$ and $\vec y$ directions. The incident field is a gaussian pulse propagating along $-\vec z$, for which the spectrum, and thus the analysis spectrum, is defined through the \lfc{spectrum} function. At the end of the computation several files are written onto the hard drive, each prefixed with the name given to the \lfc{prefix} function.
+	
+	The \lsgnq{prefix\_show\_norm.m} file can be called by MatLab or GNU Octave. It reads \lsgnq{prefix\_spectdata\_norm} and plots the reflection and transmission coefficients of the structure, with no regard for the polarization, and then the transmittivity, reflectivity and absorption.
+	
+	Finally, \lsgnq{prefix\_show\_norm2.m} reads the \lsgnq{prefix\_spectdata\_norm2} file and outputs a detailled plot of all the complex reflection and transmission coefficients for the three components of the electric field. The goal is to show any potential polarization rotation effect.
+
+\subsection{Specific functions}
+
+%\fwarn
+%\subsubsection[enable\_poynting\_sensors]{\lfc{enable\_poynting\_sensor}()}
+%
+%\langswitch
+%{
+%	\textbf{\textcolor{red}{Attention: cette option demande un espace disque extrêmement important! La quantité totale d'espace disque nécessaire est approximativement de $96N_xN_yN_t$ octets. Il est impératif d'être sûr que la quantité d'espace disque disponible est suffisante avant de lancer une simulation avec cette option.}}
+%}{
+%	\textbf{\textcolor{red}{Warning: after enabling this option huge files will be written on the hard drive! The total size of those files will roughly be $96N_xN_yN_t$ bytes. It is extremely important that one checks there is enough free disk space before starting a simulation with this feature enabled.}}
+%}
+
+\subsubsection{PMLs}
+
+In this mode, only the \lfc{pml\_zm} and \lfc{pml\_zp} functions are available. The other four similar functions will be disregarded if they happen to be called.
+
+\subsection{Full script example}
+
+\begin{lstlisting}
+structure=Structure("nanorods_grid.lua")
+
+fdtd=MODE("fdtd_normal")
+fdtd:prefix("fdtd_")
+fdtd:polarization("TE")
+fdtd:spectrum(1e-06,2e-06,481)
+fdtd:N_tsteps(20000)
+fdtd:structure(structure)
+fdtd:Dxyz(5e-09)
+fdtd:pml_zm(25,25,1,0.2)
+fdtd:pml_zp(25,25,1,0.2)
+fdtd:material(0,const_material(1))
+fdtd:material(1,const_material(1.5))
+fdtd:material(2,"mat_lib/Au_1m_5m_Vial.lua")
+\end{lstlisting}
+
+\section{Oblique incidence FDTD using the Aminian and Rahmat-Samii method} 
+
+%	Comme pour l'incidence normale, ce mode considère que les structures sont périodiques suivant $\vec x$ et $\vec y$, et que le champ se propage suivant $-\vec z$. Le champ oblique est calculé par la méthode d'Aminian et Rahmat-Samii\cite{Aminian:06}, elle-même basée sur des conditions de Bloch. Une conséquence de ceci est que la méthode ne permet pas de calculer tout un spectre pour un angle donné, mais calcule tout le champ d'une simulation pour un $k_x$ particuliers. Ainsi, on a une contrainte forte pour chaque simulation:
+%	\begin{equation}
+%		\lambda\sin\vartheta=\textrm{Constante}
+%	\end{equation}
+%	ce qui implique l'angle d'incidence varie en fonction de la longueur d'onde.
+
+	\fwarn
+	\cite{Aminian:06}
+	\begin{equation}
+		\lambda\sin\vartheta=\textrm{Constant}
+	\end{equation}
+
+\subsection{Specific functions}
+
+\subsubsection[kx\_auto]{kx\_auto(\lft{ang\_min},\lft{ang\_max})}
+
+\subsubsection[kx\_fixed\_angle]{kx\_fixed\_angle(\lin{Nkx},\lft{lambda\_min},\lft{lambda\_max},\lft{angle})}
+
+Runs \lin{Nkx} simulations for a specific angle \lft{angle}, with the target wavelength varying between \lft{lambda\_min} and \lft{lambda\_max}.
+
+\subsubsection[kx\_fixed\_lambda]{kx\_fixed\_lambda(\lin{Nkx},\lft{lambda},\lft{ang\_min},\lft{ang\_max})}
+
+\fwarn
+
+\subsubsection[kx\_target]{kx\_target(\lft{lambda},\lft{angle})}
+
+%	Effectue une simulation en visant un angle particulier \lft{angle} pour une longueur d'onde donnée \lft{lambda}.
+	\fwarn
+
+\subsubsection{PMLs}
+
+In this mode, only the \lfc{pml\_zm} and \lfc{pml\_zp} functions are available. The other four similar functions will be disregarded if they happen to be called.
+
+\subsection{Real script example}
+
+\begin{lstlisting}
+fobl=MODE("fdtd_oblique_ARS")
+fobl:prefix("fobl_");
+fobl:polarization("TE");
+fobl:kx_fixed_lambda(3,425e-9,10,60)
+fobl:structure("structures_priv/hexa_cones_s150_h300_inv.lua");
+fobl:N_tsteps(100000);
+fobl:spectrum(3000,400e-9,450e-9);
+fobl:pml_zp(25,25,0.7,0.2)
+fobl:pml_zm(25,25,1,0.2);
+fobl:material(0,"mat_lib/Ind181.lua")
+fobl:material(1,"mat_lib/Fspace.lua")
+\end{lstlisting}
+
+\section{Single particles}
+
+This is a specific mode dedicated to simulating single particles. It is called through
+\begin{lstlisting}
+fdtd=MODE("fdtd_single_particle")
+\end{lstlisting}
+In this mode, the user can choose the periodicity of the structure. For instance, if the \lfc{pml\_x} functions are not used the software will consider the structure is periodic along $x$. No analysis is performed, and that so this part is left to the user.
+
+
+\subsection{Specific functions}
+
+
+\subsubsection[structure\_aux]{\lfc{structure\_aux}(\lsg{geometry\_file})}
+
+This function is used to specify an auxiliary structure for the simulation. This structure is used for the padding around the main geometry, and is used to compute the incident field. If the function is not used the software will just use the main grid at $x=0$, $y=$ as the auxiliary grid.
+
+\subsection{Real script example}
+
+\begin{lstlisting}
+fdonut=MODE("fdtd_single_particle")
+fdonut:prefix(prefix);
+fdonut:polarization("TE");
+fdonut:structure("structures/donut_cavity.lua");
+fdonut:structure_aux("structures/donut_cavity_aux.lua");
+fdonut:auto_tsteps(100000,500,400e-9,1000e-9,1e-5,200);
+fdonut:spectrum(3001,400e-9,1000e-9);
+fdonut:pml_xp(25,25,1,0.2);
+fdonut:pml_xm(25,25,1,0.2);
+fdonut:pml_yp(25,25,1,0.2);
+fdonut:pml_ym(25,25,1,0.2);
+fdonut:pml_zp(25,25,1,0.2);
+fdonut:pml_zm(25,25,0.8,0.2);
+fdonut:material(0,"mat_lib/Fspace.lua")
+fdonut:material(1,"mat_lib/Glass150.lua")
+fdonut:material(2,const_material(index))
+fdonut:material(3,"mat_lib/V_Au_400_1000_PCRC2.lua")
+\end{lstlisting}
+
+
+\input{chap_fdtd_sensors}
+
+\input{chap_fdtd_sources}
+	

@@ -1,0 +1,56 @@
+\section{Light sources}
+
+\label{create_source_def}
+
+\subsection{Common functions}
+
+\subsubsection[location (three arguments)]{\lfc{location}(\lin{x1},\lin{y1},\lin{z1})}
+
+Set the source location at (\lin{x1}, \lin{y1}, \lin{z1}). Those coordinates must be defined with respect to the computation geometry file, and this can be negative.
+
+\subsubsection[location (six arguments)]{\lfc{location}(\lin{x1},\lin{x2},\lin{y1},\lin{y2},\lin{z1},\lin{z2})}
+
+Set the source location between \lin{x1}, \lin{y1}, \lin{z1} (included) and \lin{x2}, \lin{y2}, \lin{z2} (excluded). Those coordinates must be defined with respect to the computation geometry file, and this can be negative.
+
+\subsubsection[orientation]{\lfc{orientation}(\lsg{orientation})}
+
+Defines the source orientation, that is \lsg{X}, \lsg{Y} or \lsg{Z}. This function is only ûsed by point sources.
+
+\subsubsection[spectrum (one argument)]{\lfc{spectrum}(\lft{lambda})}
+
+Defines the source wavelength as \lft{lambda}.
+
+\subsubsection[spectrum (two arguments)]{\lfc{spectrum}(\lft{lambda\_min},\lft{lambda\_max})}
+
+Defines the source spectrum as gaussian, between \lft{lambda\_min} and \lft{lambda\_max}.
+
+\subsection{Source types}
+
+\subsubsection{oscillator}
+
+This source adds field to the simulation grid at each time step. This done through a operation like:
+
+\begin{equation}
+	E(t+1)=E(t)+sin(\omega t)
+\end{equation}
+
+As such, this souce is not exactly a radiating electric dipole, but just shows a similar behavior. Furthermore, field injection method can potentially create a static electric and magnetic field at the end of the simulation, and so this source must be used with care.
+	
+	This is a point source, and so its location is specified through the three arguments variant of the \lfc{location} function. The excited field component is set by the \lfc{orientation} function. The source has a wide spectrum, and so the two arguments variant of the \lfc{spectrum} function needs to be used.\\ Example:
+
+\begin{lstlisting}
+src=create_source("oscillator")
+src:location(250,0,410)
+src:orientation("Z")
+src:spectrum(300e-9,1000e-9)
+
+fdtd:register_source(src)
+\end{lstlisting}
+
+\subsubsection{Electric dipole}
+
+Todo.
+
+\subsubsection{Magnetic dipole}
+
+Todo.
