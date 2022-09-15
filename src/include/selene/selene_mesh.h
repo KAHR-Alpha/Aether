@@ -107,19 +107,30 @@ class IRF
         IRF(IRF const &irf);
         
         [[deprecated]] void bootstrap();
+        void compute_snell_reflection(Vector3 &out_dir,Vector3 const &in_dir,
+                                      Vector3 const &Fnorm,double n_scal);
+        void compute_snell_refration(Vector3 &out_dir,Vector3 const &in_dir,
+                                     Vector3 const &Fnorm,double n_scal,
+                                     bool is_near_normal,double lambda,double n1,double n2);
+        bool determine_polarization(Vector3 &S_vec,Vector3 const &Fnorm,
+                                    Vector3 const &in_dir,Vector3 const &in_polar,
+                                    bool is_near_normal);
         
         bool get_response(Vector3 &out_dir,Vector3 &out_polar,
                           Vector3 const &in_dir,Vector3 const &in_polar,
                           Vector3 const &Fnorm,Vector3 const &Ftangent,
                           double lambda,double n1,double n2);
-        bool get_response_fresnel(Vector3 &out_dir,Vector3 &out_polar,
-                                  Vector3 const &in_dir,Vector3 const &in_polar,
-                                  Vector3 const &Fnorm,double lambda,double n1,double n2);
+        bool get_response_fresnel(Vector3 &out_dir,Vector3 const &in_dir,
+                                  Vector3 const &Fnorm,double n_scal,
+                                  double lambda,double n1,double n2,
+                                  bool is_TE,bool is_near_normal);
         bool get_response_grating(Vector3 const &in_dir,Vector3 &out_dir,
                                   Vector3 const &Fnorm,Vector3 const &Ftang,
                                   double lambda,double n1,double n2);
-        bool get_response_multilayer(Vector3 const &in_dir,Vector3 &out_dir,
-                                     Vector3 const &Fnorm,double lambda,double n1,double n2);
+        bool get_response_multilayer(Vector3 &out_dir,Vector3 const &in_dir,
+                                     Vector3 const &Fnorm,double n_scal,
+                                     double lambda,double n1,double n2,
+                                     bool is_TE,bool is_near_normal);
         bool get_response_perf_antiref(Vector3 const &in_dir,Vector3 &out_dir,
                                        Vector3 const &Fnorm,double lambda,double n1,double n2);
         bool get_response_snell_scatt_file(Vector3 const &in_dir,Vector3 &out_dir,
@@ -130,7 +141,6 @@ class IRF
                                          Vector3 const &Fnorm,double lambda,double n1,double n2);
         
         bool near_normal(double n_scal);
-        
         void operator = (IRF const &IRF);
         
         void set_type(int type);

@@ -77,31 +77,81 @@ void IRF::bootstrap()
         ml_model.set_N_layers(ml_heights.size());
 }
 
+void IRF::compute_snell_reflection(Vector3 &out_dir,Vector3 const &in_dir,
+                                   Vector3 const &Fnorm,double n_scal)
+{
+    out_dir=in_dir-2.0*Fnorm*n_scal;
+    out_dir.normalize();
+}
+
+void IRF::compute_snell_refration(Vector3 &out_dir,Vector3 const &in_dir,
+                                  Vector3 const &Fnorm,double n_scal,
+                                  bool is_near_normal,double lambda,double n1,double n2)
+{
+    Vector3 T=in_dir-Fnorm*n_scal;
+        
+    if(is_near_normal)
+    {
+        Vector3 Tb;
+        Tb.rand_sph();
+        
+        T.crossprod(Tb,in_dir);
+    }
+    
+    T.normalize();
+    
+    double t_scal=scalar_prod(in_dir,T);
+    
+    double k1=2.0*Pi*n1/lambda; double k1_2=k1*k1;
+    double k2_2=2.0*Pi*n2/lambda; k2_2*=k2_2;
+    
+    if(n_scal>0) out_dir=std::sqrt(k2_2-k1_2*t_scal*t_scal)*Fnorm+k1*t_scal*T;
+    else out_dir=-std::sqrt(k2_2-k1_2*t_scal*t_scal)*Fnorm+k1*t_scal*T;
+}
+
+bool IRF::determine_polarization(Vector3 &S_vec,Vector3 const &Fnorm,
+                                 Vector3 const &in_dir,Vector3 const &in_polar,
+                                 bool is_near_normal)
+{
+    S_vec=crossprod(in_dir,Fnorm);
+    
+    if(is_near_normal)
+    {
+        S_vec=in_polar;
+        S_vec=S_vec-Fnorm*scalar_prod(Fnorm,S_vec);
+        S_vec.normalize();
+    }
+    
+    double cos2_TE=scalar_prod(in_polar,S_vec);
+    cos2_TE*=cos2_TE;
+    
+    if(randp()<=cos2_TE) return true;
+    else return false;
+}
+
 bool IRF::get_response(Vector3 &out_dir,Vector3 &out_polar,
                        Vector3 const &in_dir,Vector3 const &in_polar,
                        Vector3 const &Fnorm,Vector3 const &Ftangent,
                        double lambda,double n1,double n2)
 {
-    using std::cos;
-    using std::sin;
-    using std::acos;
-    using std::asin;
+    double n_scal=scalar_prod(in_dir,Fnorm);
+    bool is_near_normal=near_normal(n_scal);
     
     bool ray_abs=false;
     
-         if(type==IRF_FRESNEL) ray_abs=get_response_fresnel(out_dir,out_polar,in_dir,in_polar,Fnorm,lambda,n1,n2);
-    else if(type==IRF_MULTILAYER) ray_abs=get_response_multilayer(in_dir,out_dir,Fnorm,lambda,n1,n2);
+    // Probabilistic polarization
+    
+    Vector3 S_vec;
+    bool is_TE=determine_polarization(S_vec,Fnorm,in_dir,in_polar,is_near_normal);
+    
+         if(type==IRF_FRESNEL) ray_abs=get_response_fresnel(out_dir,in_dir,Fnorm,n_scal,lambda,n1,n2,is_TE,is_near_normal);
+    else if(type==IRF_MULTILAYER) ray_abs=get_response_multilayer(out_dir,in_dir,Fnorm,n_scal,lambda,n1,n2,is_TE,is_near_normal);
     else if(type==IRF_PERF_ABS)
     {
         return true;
     }
     else if(type==IRF_PERF_ANTIREF) ray_abs=get_response_perf_antiref(in_dir,out_dir,Fnorm,lambda,n1,n2);
-    else if(type==IRF_PERF_MIRROR)
-    {
-        double n_scal=scalar_prod(in_dir,Fnorm);
-        
-        out_dir=in_dir-2.0*Fnorm*n_scal;
-    }
+    else if(type==IRF_PERF_MIRROR) compute_snell_reflection(out_dir,in_dir,Fnorm,n_scal);
     else if(type==IRF_SCATT_ABS)
     {
         double p=randp();
@@ -124,7 +174,52 @@ bool IRF::get_response(Vector3 &out_dir,Vector3 &out_polar,
     
     out_dir.normalize();
     
+    if(   type==IRF_FRESNEL
+       || type==IRF_MULTILAYER
+       || type==IRF_PERF_ANTIREF
+       || type==IRF_PERF_MIRROR
+       || type==IRF_SNELL_SPLITTER)
+    {
+        if(is_TE) out_polar=S_vec;
+        else out_polar=crossprod(out_dir,S_vec);
+    }
+    
     return ray_abs;
+}
+
+bool IRF::get_response_fresnel(Vector3 &out_dir,Vector3 const &in_dir,
+                               Vector3 const &Fnorm,double n_scal,
+                               double lambda,double n1,double n2,
+                               bool is_TE,bool is_near_normal)
+{
+    double cos_thi=std::abs(n_scal);
+    
+    double thi=std::acos(cos_thi);
+    double thr=std::asin(n1/n2*sin(thi));
+    double cos_thr=std::cos(thr);
+    
+    bool total_ref=false;
+    if(n1/n2*std::sin(thi)>=1.0) total_ref=true;
+    
+    // Powers
+    
+    double rte=(n1*cos_thi-n2*cos_thr)/(n1*cos_thi+n2*cos_thr);
+    double rtm=(n1*cos_thr-n2*cos_thi)/(n1*cos_thr+n2*cos_thi);
+    
+//    double r=0.5*(rte*rte+rtm*rtm);
+    double r=rtm*rtm;
+    if(is_TE) r=rte*rte;
+    
+    if(total_ref) r=1;
+    
+    // Child
+    
+    double p=randp();
+    
+    if(p<=r) compute_snell_reflection(out_dir,in_dir,Fnorm,n_scal);
+    else compute_snell_refration(out_dir,in_dir,Fnorm,n_scal,is_near_normal,lambda,n1,n2);
+    
+    return false;
 }
 
 bool IRF::get_response_grating(Vector3 const &in_dir,Vector3 &out_dir,
@@ -245,89 +340,12 @@ bool IRF::get_response_grating(Vector3 const &in_dir,Vector3 &out_dir,
     return false;
 }
 
-bool IRF::get_response_fresnel(Vector3 &out_dir,Vector3 &out_polar,
-                               Vector3 const &in_dir,Vector3 const &in_polar,
-                               Vector3 const &Fnorm,double lambda,double n1,double n2)
+bool IRF::get_response_multilayer(Vector3 &out_dir,Vector3 const &in_dir,
+                                  Vector3 const &Fnorm,double n_scal,
+                                  double lambda,double n1,double n2,
+                                  bool is_TE,bool is_near_normal)
 {
-    double n_scal=scalar_prod(in_dir,Fnorm);
-    
-    double cos_thi=std::abs(n_scal);
-    
-    double thi=std::acos(cos_thi);
-    double thr=std::asin(n1/n2*sin(thi));
-    double cos_thr=std::cos(thr);
-    
-    bool total_ref=false;
-    if(n1/n2*std::sin(thi)>=1.0) total_ref=true;
-    
-    // Probabilistic polarization
-    
-    Vector3 S_vec=crossprod(in_dir,Fnorm);
-    
-    if(near_normal(n_scal))
-    {
-        S_vec=in_polar;
-        S_vec=S_vec-Fnorm*scalar_prod(Fnorm,S_vec);
-        S_vec.normalize();
-    }
-    
-    double cos2_TE=scalar_prod(in_polar,S_vec);
-    cos2_TE*=cos2_TE;
-    
-    bool is_TE=false;
-    if(randp()<=cos2_TE) is_TE=true;
-    
-    //
-    
-    double rte=(n1*cos_thi-n2*cos_thr)/(n1*cos_thi+n2*cos_thr);
-    double rtm=(n1*cos_thr-n2*cos_thi)/(n1*cos_thr+n2*cos_thi);
-    
-//    double r=0.5*(rte*rte+rtm*rtm);
-    double r=rtm*rtm;
-    if(is_TE) r=rte*rte;
-    
-    if(total_ref) r=1;
-    
-    double p=randp();
-    
-    if(p<=r)
-    {
-        out_dir=in_dir-2.0*Fnorm*n_scal;
-        out_dir.normalize();
-    }
-    else
-    {
-        Vector3 T=in_dir-Fnorm*n_scal;
-        
-        if(near_normal(n_scal))
-        {
-            Vector3 Tb;
-            Tb.rand_sph();
-            
-            T.crossprod(Tb,in_dir);
-        }
-        
-        T.normalize();
-        
-        double t_scal=scalar_prod(in_dir,T);
-        
-        double k1=2.0*Pi*n1/lambda; double k1_2=k1*k1;
-        double k2_2=2.0*Pi*n2/lambda; k2_2*=k2_2;
-        
-        if(n_scal>0) out_dir=std::sqrt(k2_2-k1_2*t_scal*t_scal)*Fnorm+k1*t_scal*T;
-        else out_dir=-std::sqrt(k2_2-k1_2*t_scal*t_scal)*Fnorm+k1*t_scal*T;
-    }
-    
-    if(is_TE) out_polar=S_vec;
-    else out_polar=crossprod(out_dir,S_vec);
-    
-    return false;
-}
-
-bool IRF::get_response_multilayer(Vector3 const &in_dir,Vector3 &out_dir,
-                                  Vector3 const &Fnorm,double lambda,double n1,double n2)
-{
-    double n_scal=scalar_prod(in_dir,Fnorm);
+    // Multilayer setup
     
     ml_model.set_lambda(lambda);
     ml_model.set_environment(n1,n2);
@@ -350,41 +368,29 @@ bool IRF::get_response_multilayer(Vector3 const &in_dir,Vector3 &out_dir,
     
     ml_model.set_angle(thi);
     
+    // Powers
+    
     double R_TE,R_TM,T_TE,T_TM,A_TE,A_TM;
     ml_model.compute_power(R_TE,T_TE,A_TE,R_TM,T_TM,A_TM);
     
-    double R=0.5*(R_TE+R_TM);
-    double T=0.5*(T_TE+T_TM);
+//    double R=0.5*(R_TE+R_TM);
+//    double T=0.5*(T_TE+T_TM);
+    
+    double R=R_TM;
+    double T=T_TM;
+    
+    if(is_TE)
+    {
+        R=R_TE;
+        T=T_TE;
+    }
+    
+    // Child
         
     double p=randp();
     
-    if(p<=R)
-    {
-        out_dir=in_dir-2.0*Fnorm*n_scal;
-        out_dir.normalize();
-    }
-    else if(p<=R+T)
-    {
-        Vector3 T=in_dir-Fnorm*n_scal;
-        
-        if(near_normal(n_scal))
-        {
-            Vector3 Tb;
-            Tb.rand_sph();
-            
-            T.crossprod(Tb,in_dir);
-        }
-        
-        T.normalize();
-        
-        double t_scal=scalar_prod(in_dir,T);
-        
-        double k1=2.0*Pi*n1/lambda; double k1_2=k1*k1;
-        double k2_2=2.0*Pi*n2/lambda; k2_2*=k2_2;
-        
-        if(n_scal>0) out_dir=std::sqrt(k2_2-k1_2*t_scal*t_scal)*Fnorm+k1*t_scal*T;
-        else out_dir=-std::sqrt(k2_2-k1_2*t_scal*t_scal)*Fnorm+k1*t_scal*T;
-    }
+         if(p<=R) compute_snell_reflection(out_dir,in_dir,Fnorm,n_scal);
+    else if(p<=R+T) compute_snell_refration(out_dir,in_dir,Fnorm,n_scal,is_near_normal,lambda,n1,n2);
     else return true;
     
     return false;

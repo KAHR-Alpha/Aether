@@ -17,6 +17,7 @@ limitations under the License.*/
 extern const double Pi;
 extern const Imdouble Im;
 
+// Formula obtained thanks to https://www.telescope-optics.net/conics_and_aberrations.htm
 
 double conic(double x,double R,double K)
 {
