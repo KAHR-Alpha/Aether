@@ -7,7 +7,7 @@ message(${CMAKE_CXX_COMPILER_ID})
 
 set(CPACK_PACKAGE_VERSION_MAJOR 0)
 set(CPACK_PACKAGE_VERSION_MINOR 7)
-set(CPACK_PACKAGE_VERSION_PATCH 0)
+set(CPACK_PACKAGE_VERSION_PATCH 1)
 
 set(TASK "Build CLI" CACHE STRING "What to do")
 set_property(CACHE TASK PROPERTY STRINGS "Build CLI" "Build CLI+GUI" "Extract sources")
@@ -73,22 +73,12 @@ set(fdtd_modes src/fdtd_modes/default_fdtd.cpp
 			   src/fdtd_modes/oblique_rec.cpp
 			   src/fdtd_modes/single_particle.cpp)
 
-find_program(SVNVERSION "svnversion")
-
-if(SVNVERSION)
-	exec_program("svnversion -n" ${CMAKE_SOURCE_DIR} OUTPUT_VARIABLE REVISION)
-	if(NOT ${REVISION} STREQUAL "Unversioned directory")
-		message("Revision number: " ${REVISION})
-		file(WRITE REVISION ${CPACK_PACKAGE_VERSION_MAJOR} "." ${CPACK_PACKAGE_VERSION_MINOR} "." ${CPACK_PACKAGE_VERSION_PATCH} " r1." ${REVISION})
-	endif()
-else()
-	file(WRITE REVISION ${CPACK_PACKAGE_VERSION_MAJOR} "." ${CPACK_PACKAGE_VERSION_MINOR} "." ${CPACK_PACKAGE_VERSION_PATCH} " Revision Unknown")
-endif()
+file(WRITE REVISION ${CPACK_PACKAGE_VERSION_MAJOR} "." ${CPACK_PACKAGE_VERSION_MINOR} "." ${CPACK_PACKAGE_VERSION_PATCH} )
 
 if(${TASK} STREQUAL "Extract sources")
 	install(FILES contributors DESTINATION .)
 	install(FILES CHANGELOG DESTINATION .)
-	install(FILES LICENCE DESTINATION .)
+	install(FILES LICENSE DESTINATION .)
 	install(FILES REVISION DESTINATION .)
 	install(FILES show_log.m DESTINATION .)
 	install(FILES CMakeLists.txt DESTINATION .)
@@ -337,7 +327,7 @@ else()
 	
 	install(FILES contributors DESTINATION ${RSC_DIR})
 	install(FILES CHANGELOG DESTINATION ${RSC_DIR})
-	install(FILES LICENCE DESTINATION ${RSC_DIR})
+	install(FILES LICENSE DESTINATION ${RSC_DIR})
 	install(FILES REVISION DESTINATION ${RSC_DIR})
 	
 	if(WIN32)
@@ -377,7 +367,7 @@ else()
 	set(CPACK_PACKAGE_INSTALL_DIRECTORY "Aether")
 	set(CPACK_PACKAGE_EXECUTABLES Aether_GUI;Aether_GUI)
 	set(CPACK_PACKAGE_HOMEPAGE_URL https://aether.utt.fr/)
-	set(CPACK_RESOURCE_FILE_LICENSE ${CMAKE_SOURCE_DIR}/LICENCE)
+	set(CPACK_RESOURCE_FILE_LICENSE ${CMAKE_SOURCE_DIR}/LICENSE)
 	set(CPACK_VERBATIM_VARIABLES TRUE)
 	
 	set(CPACK_DEBIAN_PACKAGE_DEPENDS "libfreetype6,libfftw3-bin,zlib1g,libpng16-16,liblua5.4-0")

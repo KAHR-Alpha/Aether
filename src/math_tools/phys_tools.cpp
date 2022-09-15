@@ -30,8 +30,8 @@ void conic_far_focus(double &x,double &y,double R,double K)
     
     if(K>0)
     {
-        conic_near_focus(x,y,R,K);
-        y=-y;
+        x=conic_midpoint(R,K);
+        y=R*std::sqrt(K)/(1.0+K);
     }
     else if(K==-1) conic_near_focus(x,y,R,K);
 }
@@ -55,8 +55,8 @@ void conic_near_focus(double &x,double &y,double R,double K)
     
     if(K>0)
     {
-        y=-x;
         x=conic_midpoint(R,K);
+        y=-R*std::sqrt(K)/(1.0+K);
     }
 }
 

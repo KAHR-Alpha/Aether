@@ -42,7 +42,11 @@ void rectangle_mesh_wireframe(std::vector<Vertex> &V_arr,std::vector<Face> &F_ar
                               double ly,double lz);
 void sphere_cut_mesh_wireframe(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr,
                                double r,double cut_factor,bool volume_version);
-
+void wireframe_mesh_add_circle(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr,
+                               unsigned int disc,double x,double R);
+void wireframe_mesh_add_cross(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr,
+                              double x,double y,double z,double R);
+                               
 class SeleneVAO
 {
     public:

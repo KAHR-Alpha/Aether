@@ -24,6 +24,68 @@ extern const Vector3 unit_vec_z;
 namespace SelGUI
 {
 
+void conic_section_mesh_wireframe(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr,unsigned int disc,
+                                  double R,double K,double in_radius,double out_radius)
+{
+    V_arr.clear();
+    F_arr.clear();
+    
+    double x_in=0;
+    if(in_radius>0) x_in=conic_invert(in_radius,R,K);
+        
+    double x_out=R/(1.0+K);
+    
+    if(K>-1.0)
+    {
+        double r_half=conic(x_out,R,K);
+        
+        if(out_radius<r_half) x_out=conic_invert(out_radius,R,K);
+        else out_radius=r_half;
+    }
+    else x_out=conic_invert(out_radius,R,K);
+    
+    wireframe_mesh_add_cross(V_arr,F_arr,R,0,0,R/4.0);
+    
+    double x,y;
+    
+    conic_near_focus(x,y,R,K);
+    wireframe_mesh_add_cross(V_arr,F_arr,x,y,0,R/6.0);
+    
+    conic_far_focus(x,y,R,K);
+    wireframe_mesh_add_cross(V_arr,F_arr,x,y,0,R/6.0);
+    
+    wireframe_mesh_add_circle(V_arr,F_arr,disc,x_in,in_radius);
+    wireframe_mesh_add_circle(V_arr,F_arr,disc,x_out,out_radius);
+    
+    std::size_t v_offset=V_arr.size();
+    std::size_t f_offset=F_arr.size();
+    
+    V_arr.resize(v_offset+4*(disc+1));
+    F_arr.resize(f_offset+4*disc);
+    
+    for(unsigned int i=0;i<=disc;i++)
+    {
+        double r=in_radius+(out_radius-in_radius)*i/(disc+0.0);
+        
+        double h=conic_invert(r,R,K);
+        if(i==disc) h=x_out;
+        
+        V_arr[i+v_offset+0*(disc+1)].loc(h,+r,0);
+        V_arr[i+v_offset+1*(disc+1)].loc(h,-r,0);
+        V_arr[i+v_offset+2*(disc+1)].loc(h,0,+r);
+        V_arr[i+v_offset+3*(disc+1)].loc(h,0,-r);
+    }
+    
+    for(unsigned int i=0;i<disc;i++) for(unsigned int k=0;k<4;k++)
+    {
+        F_arr[i+f_offset+k*disc].V1=i+v_offset+k*(disc+1);
+        F_arr[i+f_offset+k*disc].V2=i+v_offset+k*(disc+1)+1;
+    }
+    
+    for(unsigned int i=0;i<F_arr.size();i++)
+        F_arr[i].V3=F_arr[i].V2;
+}
+
 void cylinder_cut_mesh_wireframe(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr,
                                  double L,double r,double cut_factor)
 {
@@ -386,117 +448,6 @@ void parabolic_mirror_mesh_wireframe(std::vector<Vertex> &V_arr,std::vector<Face
         F_arr[i+f_offset+k*disc].V1=i+v_offset+k*(disc+1);
         F_arr[i+f_offset+k*disc].V2=i+v_offset+k*(disc+1)+1;
     }
-    
-    for(unsigned int i=0;i<F_arr.size();i++)
-        F_arr[i].V3=F_arr[i].V2;
-}
-
-void wireframe_mesh_add_cross(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr,
-                              double x,double y,double z,double R)
-{
-    std::size_t v_offset=V_arr.size();
-    std::size_t f_offset=F_arr.size();
-    
-    V_arr.resize(v_offset+6);
-    F_arr.resize(f_offset+3);
-    
-    V_arr[0+v_offset].loc(x-R,y,z);
-    V_arr[1+v_offset].loc(x+R,y,z);
-    V_arr[2+v_offset].loc(x,y-R,z);
-    V_arr[3+v_offset].loc(x,y+R,z);
-    V_arr[4+v_offset].loc(x,y,z-R);
-    V_arr[5+v_offset].loc(x,y,z+R);
-    
-    F_arr[0+f_offset].V1=0+v_offset; F_arr[0+f_offset].V2=1+v_offset;
-    F_arr[1+f_offset].V1=2+v_offset; F_arr[1+f_offset].V2=3+v_offset;
-    F_arr[2+f_offset].V1=4+v_offset; F_arr[2+f_offset].V2=5+v_offset;
-}
-
-void conic_section_mesh_wireframe(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr,unsigned int disc,
-                                  double R,double K,double in_radius,double out_radius)
-{
-    V_arr.resize(6+2*disc+4*(disc+1));
-    F_arr.resize(3+2*disc+4*disc);
-    
-    double x_in=0;
-    if(in_radius>0) x_in=conic_invert(in_radius,R,K);
-        
-    double x_out=R/(1.0+K);
-    
-    if(K>-1.0)
-    {
-        double r_half=conic(x_out,R,K);
-        
-        if(out_radius<r_half) x_out=conic_invert(out_radius,R,K);
-        else out_radius=r_half;
-    }
-    else x_out=conic_invert(out_radius,R,K);
-    
-    chk_var(x_in);
-    chk_var(in_radius);
-    chk_var(x_out);
-    chk_var(out_radius);
-    
-    V_arr[0].loc(R-R/4.0,0,0);
-    V_arr[1].loc(R+R/4.0,0,0);
-    V_arr[2].loc(R,-R/4.0,0);
-    V_arr[3].loc(R,+R/4.0,0);
-    V_arr[4].loc(R,0,-R/4.0);
-    V_arr[5].loc(R,0,+R/4.0);
-    
-    F_arr[0].V1=0; F_arr[0].V2=1;
-    F_arr[1].V1=2; F_arr[1].V2=3;
-    F_arr[2].V1=4; F_arr[2].V2=5;
-    
-    int v_offset=6;
-    int f_offset=3;
-    
-    for(unsigned int i=0;i<disc;i++)
-    {
-        double ang=2.0*Pi*i/(disc-1.0);
-        double c=std::cos(ang),s=std::sin(ang);
-        
-        V_arr[i+v_offset].loc(x_in,in_radius*c,in_radius*s);
-        V_arr[i+v_offset+disc].loc(x_out,out_radius*c,out_radius*s);
-        
-        F_arr[i+f_offset].V1=i+v_offset;
-        F_arr[i+f_offset].V2=i+v_offset+1;
-        
-        F_arr[i+f_offset+disc].V1=i+v_offset+disc;
-        F_arr[i+f_offset+disc].V2=i+v_offset+1+disc;
-    }
-    
-    F_arr[f_offset+disc-1].V2=v_offset;
-    F_arr[f_offset+2*disc-1].V2=v_offset+disc;
-    
-    v_offset+=2*disc;
-    f_offset+=2*disc;
-    
-    for(unsigned int i=0;i<=disc;i++)
-    {
-        double r=in_radius+(out_radius-in_radius)*i/(disc+0.0);
-        double h=conic_invert(r,R,K);
-        
-        V_arr[i+v_offset+0*(disc+1)].loc(h,+r,0);
-        V_arr[i+v_offset+1*(disc+1)].loc(h,-r,0);
-        V_arr[i+v_offset+2*(disc+1)].loc(h,0,+r);
-        V_arr[i+v_offset+3*(disc+1)].loc(h,0,-r);
-    }
-    
-    for(unsigned int i=0;i<disc;i++) for(unsigned int k=0;k<4;k++)
-    {
-        F_arr[i+f_offset+k*disc].V1=i+v_offset+k*(disc+1);
-        F_arr[i+f_offset+k*disc].V2=i+v_offset+k*(disc+1)+1;
-    }
-    
-    
-    double x,y;
-    
-    conic_near_focus(x,y,R,K);
-    wireframe_mesh_add_cross(V_arr,F_arr,x,y,0,R/6.0);
-    
-    conic_far_focus(x,y,R,K);
-    wireframe_mesh_add_cross(V_arr,F_arr,x,y,0,R/6.0);
     
     for(unsigned int i=0;i<F_arr.size();i++)
         F_arr[i].V3=F_arr[i].V2;
@@ -897,6 +848,50 @@ void sphere_cut_mesh_wireframe(std::vector<Vertex> &V_arr,std::vector<Face> &F_a
 //    
 //    // Perimeter
 //    
+}
+
+void wireframe_mesh_add_circle(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr,
+                               unsigned int disc,double x,double R)
+{
+    std::size_t v_offset=V_arr.size();
+    std::size_t f_offset=F_arr.size();
+    
+    V_arr.resize(v_offset+disc);
+    F_arr.resize(f_offset+disc);
+        
+    for(unsigned int i=0;i<disc;i++)
+    {
+        double ang=2.0*Pi*i/(disc-1.0);
+        double c=std::cos(ang),s=std::sin(ang);
+        
+        V_arr[i+v_offset].loc(x,R*c,R*s);
+        
+        F_arr[i+f_offset].V1=i+v_offset;
+        F_arr[i+f_offset].V2=i+v_offset+1;
+    }
+    
+    F_arr[f_offset+disc-1].V2=v_offset;
+}
+
+void wireframe_mesh_add_cross(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr,
+                              double x,double y,double z,double R)
+{
+    std::size_t v_offset=V_arr.size();
+    std::size_t f_offset=F_arr.size();
+    
+    V_arr.resize(v_offset+6);
+    F_arr.resize(f_offset+3);
+    
+    V_arr[0+v_offset].loc(x-R,y,z);
+    V_arr[1+v_offset].loc(x+R,y,z);
+    V_arr[2+v_offset].loc(x,y-R,z);
+    V_arr[3+v_offset].loc(x,y+R,z);
+    V_arr[4+v_offset].loc(x,y,z-R);
+    V_arr[5+v_offset].loc(x,y,z+R);
+    
+    F_arr[0+f_offset].V1=0+v_offset; F_arr[0+f_offset].V2=1+v_offset;
+    F_arr[1+f_offset].V1=2+v_offset; F_arr[1+f_offset].V2=3+v_offset;
+    F_arr[2+f_offset].V1=4+v_offset; F_arr[2+f_offset].V2=5+v_offset;
 }
 
 //###############
