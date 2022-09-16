@@ -35,10 +35,13 @@ ChoiceDialog::ChoiceDialog(wxString const &title,
     
     const int N=labels.size();
     
-    wxString choices[N];
-    for(int i=0;i<N;i++) choices[i]=labels[i];
+    wxArrayString choices;
+    choices.Alloc(N);
     
-    choice_ctrl=new wxRadioBox(this,wxID_ANY,title,wxDefaultPosition,wxDefaultSize,N,choices,1);
+    for(int i=0;i<N;i++)
+        choices.Add(labels[i]);
+    
+    choice_ctrl=new wxRadioBox(this,wxID_ANY,title,wxDefaultPosition,wxDefaultSize,choices,1);
     
     choice_ctrl->SetSelection(0);
     
@@ -90,10 +93,13 @@ ExportChoiceDialog::ExportChoiceDialog(wxString const &title,
     
     const int N=labels.size();
     
-    wxString choices[N];
-    for(int i=0;i<N;i++) choices[i]=labels[i];
+    wxArrayString choices;
+    choices.Alloc(N);
     
-    type_ctrl=new wxRadioBox(this,wxID_ANY,title,wxDefaultPosition,wxDefaultSize,N,choices,1);
+    for(int i=0;i<N;i++)
+        choices.Add(labels[i]);
+    
+    type_ctrl=new wxRadioBox(this,wxID_ANY,title,wxDefaultPosition,wxDefaultSize,choices,1);
     
     type_ctrl->SetSelection(0);
     

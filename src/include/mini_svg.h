@@ -47,7 +47,7 @@ namespace SvgLite
             
             void add_rect(double x,double y,double w,double h);
     };
-};
+}
     
 void relat_to_mbezier(std::string fname,
                       double xmin,double xmin_ref,

@@ -81,9 +81,9 @@ void Slice::absorb_forward(Slice *slc)
     std::cout<<"Solve 2 done"<<std::endl;
 }
 
-void Slice::set_bottom(Slice *slc,int slc_ID) { btm=slc; btm_ID=slc_ID; };
+void Slice::set_bottom(Slice *slc,int slc_ID) { btm=slc; btm_ID=slc_ID; }
 void Slice::set_ID(int ID_) { ID=ID_; }
-void Slice::set_top(Slice *slc,int slc_ID) { top=slc; top_ID=slc_ID; };
+void Slice::set_top(Slice *slc,int slc_ID) { top=slc; top_ID=slc_ID; }
 void Slice::show()
 {
     std::cout<<ID<<" "<<btm_ID<<" "<<top_ID<<" "
