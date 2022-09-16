@@ -263,8 +263,8 @@ void MaterialSelector::allocate_effective_materials()
         eff_sizer->Add(eff_mat_1_selector);
         eff_sizer->Add(eff_mat_2_selector);
         
-        eff_mat_1_selector->Bind(EVT_MAT_SELECTOR,&evt_effective_material,this);
-        eff_mat_2_selector->Bind(EVT_MAT_SELECTOR,&evt_effective_material,this);
+        eff_mat_1_selector->Bind(EVT_MAT_SELECTOR,&MaterialSelector::evt_effective_material,this);
+        eff_mat_2_selector->Bind(EVT_MAT_SELECTOR,&MaterialSelector::evt_effective_material,this);
         
         int eff_mat_type_value=get_effective_material_type();
                 
@@ -285,8 +285,8 @@ void MaterialSelector::allocate_effective_materials(Material const &eff_mat_1_,
         eff_sizer->Add(eff_mat_1_selector);
         eff_sizer->Add(eff_mat_2_selector);
         
-        eff_mat_1_selector->Bind(EVT_MAT_SELECTOR,&evt_effective_material,this);
-        eff_mat_2_selector->Bind(EVT_MAT_SELECTOR,&evt_effective_material,this);
+        eff_mat_1_selector->Bind(EVT_MAT_SELECTOR,&MaterialSelector::evt_effective_material,this);
+        eff_mat_2_selector->Bind(EVT_MAT_SELECTOR,&MaterialSelector::evt_effective_material,this);
         
         int eff_mat_type_value=get_effective_material_type();
                 

@@ -330,7 +330,7 @@ void PInterFrame::load(std::string const &fname)
         for(k=0;k<N_data;k++) disp_y[k][i]=data[k][i+j];
     }
     
-    for(k=0;k<N_data;k++) graph->add_data(&x_data,&disp_y[k],randp(0.8),randp(0.8),randp(0.8));
+    for(k=0;k<N_data;k++) graph->add_external_data(&x_data,&disp_y[k],randp(0.8),randp(0.8),randp(0.8));
     
     graph->autoscale();
 }
