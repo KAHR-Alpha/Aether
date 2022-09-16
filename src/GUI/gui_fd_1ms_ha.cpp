@@ -254,75 +254,75 @@ void MSTargetInfoPanel::update_graph()
     {
         if(l==0)
         {
-            if(display_E) field_graph->add_data(&holder.get_E(l),&holder.get_z(l),1,1,1,"abs(E)");
+            if(display_E) field_graph->add_external_data(&holder.get_E(l),&holder.get_z(l),1,1,1,"abs(E)");
             if(display_complex)
             {
                 if(polarization==0)
                 {
                     if(display_Ey)
                     {
-                        field_graph->add_data(&holder.get_Ey_real(l),&holder.get_z(l),0,1,0,"real(Ey)");
-                        field_graph->add_data(&holder.get_Ey_imag(l),&holder.get_z(l),1,0,1,"imag(Ey)");
+                        field_graph->add_external_data(&holder.get_Ey_real(l),&holder.get_z(l),0,1,0,"real(Ey)");
+                        field_graph->add_external_data(&holder.get_Ey_imag(l),&holder.get_z(l),1,0,1,"imag(Ey)");
                     }
                 }
                 else
                 {
                     if(display_Ex)
                     {
-                        field_graph->add_data(&holder.get_Ex_real(l),&holder.get_z(l),1,0,0,"real(Ex)");
-                        field_graph->add_data(&holder.get_Ex_imag(l),&holder.get_z(l),0,1,1,"imag(Ex)");
+                        field_graph->add_external_data(&holder.get_Ex_real(l),&holder.get_z(l),1,0,0,"real(Ex)");
+                        field_graph->add_external_data(&holder.get_Ex_imag(l),&holder.get_z(l),0,1,1,"imag(Ex)");
                     }
                     if(display_Ez)
                     {
-                        field_graph->add_data(&holder.get_Ez_real(l),&holder.get_z(l),0,0,1,"real(Ez)");
-                        field_graph->add_data(&holder.get_Ez_imag(l),&holder.get_z(l),1,1,0,"imag(Ez)");
+                        field_graph->add_external_data(&holder.get_Ez_real(l),&holder.get_z(l),0,0,1,"real(Ez)");
+                        field_graph->add_external_data(&holder.get_Ez_imag(l),&holder.get_z(l),1,1,0,"imag(Ez)");
                     }
                 }
             }
             else
             {
-                if(display_Ey && polarization==0) field_graph->add_data(&holder.get_Ey_abs(l),&holder.get_z(l),0,1,0,"abs(Ey)");
+                if(display_Ey && polarization==0) field_graph->add_external_data(&holder.get_Ey_abs(l),&holder.get_z(l),0,1,0,"abs(Ey)");
                 if(polarization==1)
                 {
-                    if(display_Ex) field_graph->add_data(&holder.get_Ex_abs(l),&holder.get_z(l),1,0,0,"abs(Ex)");
-                    if(display_Ez) field_graph->add_data(&holder.get_Ez_abs(l),&holder.get_z(l),0,0,1,"abs(Ez)");
+                    if(display_Ex) field_graph->add_external_data(&holder.get_Ex_abs(l),&holder.get_z(l),1,0,0,"abs(Ex)");
+                    if(display_Ez) field_graph->add_external_data(&holder.get_Ez_abs(l),&holder.get_z(l),0,0,1,"abs(Ez)");
                 }
             }
         }
         else
         {
-            if(display_E) field_graph->add_data(&holder.get_E(l),&holder.get_z(l),1,1,1);
+            if(display_E) field_graph->add_external_data(&holder.get_E(l),&holder.get_z(l),1,1,1);
             if(display_complex)
             {
                 if(polarization==0)
                 {
                     if(display_Ey)
                     {
-                        field_graph->add_data(&holder.get_Ey_real(l),&holder.get_z(l),0,1,0);
-                        field_graph->add_data(&holder.get_Ey_imag(l),&holder.get_z(l),1,0,1);
+                        field_graph->add_external_data(&holder.get_Ey_real(l),&holder.get_z(l),0,1,0);
+                        field_graph->add_external_data(&holder.get_Ey_imag(l),&holder.get_z(l),1,0,1);
                     }
                 }
                 else
                 {
                     if(display_Ex)
                     {
-                        field_graph->add_data(&holder.get_Ex_real(l),&holder.get_z(l),1,0,0);
-                        field_graph->add_data(&holder.get_Ex_imag(l),&holder.get_z(l),0,1,1);
+                        field_graph->add_external_data(&holder.get_Ex_real(l),&holder.get_z(l),1,0,0);
+                        field_graph->add_external_data(&holder.get_Ex_imag(l),&holder.get_z(l),0,1,1);
                     }
                     if(display_Ez)
                     {
-                        field_graph->add_data(&holder.get_Ez_real(l),&holder.get_z(l),0,0,1);
-                        field_graph->add_data(&holder.get_Ez_imag(l),&holder.get_z(l),1,1,0);
+                        field_graph->add_external_data(&holder.get_Ez_real(l),&holder.get_z(l),0,0,1);
+                        field_graph->add_external_data(&holder.get_Ez_imag(l),&holder.get_z(l),1,1,0);
                     }
                 }
             }
             else
             {
-                if(display_Ey && polarization==0) field_graph->add_data(&holder.get_Ey_abs(l),&holder.get_z(l),0,1,0);
+                if(display_Ey && polarization==0) field_graph->add_external_data(&holder.get_Ey_abs(l),&holder.get_z(l),0,1,0);
                 if(polarization==1)
                 {
-                    if(display_Ex) field_graph->add_data(&holder.get_Ex_abs(l),&holder.get_z(l),1,0,0);
-                    if(display_Ez) field_graph->add_data(&holder.get_Ez_abs(l),&holder.get_z(l),0,0,1);
+                    if(display_Ex) field_graph->add_external_data(&holder.get_Ex_abs(l),&holder.get_z(l),1,0,0);
+                    if(display_Ez) field_graph->add_external_data(&holder.get_Ez_abs(l),&holder.get_z(l),0,0,1);
                 }
             }
         }

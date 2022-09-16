@@ -678,7 +678,7 @@ void LayerFitter::get_data_fname(wxCommandEvent &event)
     
     for(l=0;l<N_data;l++) data_comp[l]=0;
     
-    graph->add_data(&lambda,&data);
+    graph->add_external_data(&lambda,&data);
     
     x_min->set_value(lambda_min);
     x_max->set_value(lambda_max);
@@ -696,7 +696,7 @@ void LayerFitter::get_data_fname(wxCommandEvent &event)
     
     compute_response();
     
-    graph->add_data(&lambda,&data_comp,1.0,0,0);
+    graph->add_external_data(&lambda,&data_comp,1.0,0,0);
     graph->autoscale();
     graph->Refresh();
 }

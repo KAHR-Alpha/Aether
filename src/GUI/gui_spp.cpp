@@ -137,8 +137,8 @@ void SppFrame::recomp_spp()
     
     disp_graph->clear_graph();
     aux_graph->clear_graph();
-    disp_graph->add_data(&disp_lambda,&kspp_re,0,0,1.0,"2*Pi/Re(k_spp)");
-    aux_graph->add_data(&disp_lambda,&kspp_im,1.0,0,0,"1/Im(k_spp)");
+    disp_graph->add_external_data(&disp_lambda,&kspp_re,0,0,1.0,"2*Pi/Re(k_spp)");
+    aux_graph->add_external_data(&disp_lambda,&kspp_im,1.0,0,0,"1/Im(k_spp)");
     disp_graph->autoscale();
     aux_graph->autoscale();
 }
@@ -202,8 +202,8 @@ void SppFrame::update_profile()
     
     
     profile_graph->clear_graph();
-    profile_graph->add_data(&profile_dielec,&profile_dielec_z,0,0,1.0,"H");
-    profile_graph->add_data(&profile_metal,&profile_metal_z,0,0,1.0);
+    profile_graph->add_external_data(&profile_dielec,&profile_dielec_z,0,0,1.0,"H");
+    profile_graph->add_external_data(&profile_metal,&profile_metal_z,0,0,1.0);
     profile_graph->autoscale();
 }
 

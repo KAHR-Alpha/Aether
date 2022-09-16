@@ -59,7 +59,7 @@ FitterModelDialog::FitterModelDialog()
     top_sizer->Add(type_sizer,wxSizerFlags().Border(wxALL,2));
     
     graph=new Graph(this);
-    graph->add_data(&x_data,&y_data,0,0,1.0);
+    graph->add_external_data(&x_data,&y_data,0,0,1.0);
     graph->set_scale(-5.0,5.0,0.0,2.0);
     
     top_sizer->Add(graph,wxSizerFlags(1).Expand());
@@ -604,7 +604,7 @@ FitterModel::FitterModel(wxWindow *parent,int type_,GraphFitter *graph_,
     
     for(unsigned int i=0;i<handles.size();i++) handles[i].model=this;
     
-    graph->add_data(x_data,&y_data,rd,gd,bd);
+    graph->add_external_data(x_data,&y_data,rd,gd,bd);
     graph->add_handles(handles);
     graph->set_handles_color(handles,rd,gd,bd);
     graph->Refresh();
@@ -625,7 +625,7 @@ void FitterModel::accept_mutation()
 
 void FitterModel::apoptose(wxCommandEvent &event)
 {
-    graph->forget_data(x_data,&y_data);
+    graph->forget_external_data(x_data,&y_data);
     graph->forget_handles(handles);
     graph->Refresh();
     
@@ -1548,10 +1548,10 @@ void FitterFrame::evt_load(wxCommandEvent &event)
 //        error_display[i]=1.0;
 //    }
     
-    fitter->add_data(&x_data_display,&y_data_display,1.0,0,0);
+    fitter->add_external_data(&x_data_display,&y_data_display,1.0,0,0);
     fitter->autoscale();
     
-    fitter_error->add_data(&x_data_display,&error_display,1.0,0,0);
+    fitter_error->add_external_data(&x_data_display,&error_display,1.0,0,0);
     fitter_error->autoscale();
     
     event.Skip();

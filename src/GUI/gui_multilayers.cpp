@@ -759,19 +759,19 @@ void MultilayerFrame::recompute_statistical()
     else abscissa=&angle;
     
     double s=0.25;
-    if(disp_Rs) graph->add_data(abscissa,&R_TE,0,0,s,"Rs");
-    if(disp_Ts) graph->add_data(abscissa,&T_TE,0,s,0,"Ts");
-    if(disp_As) graph->add_data(abscissa,&A_TE,s,0,0,"As");
+    if(disp_Rs) graph->add_external_data(abscissa,&R_TE,0,0,s,"Rs");
+    if(disp_Ts) graph->add_external_data(abscissa,&T_TE,0,s,0,"Ts");
+    if(disp_As) graph->add_external_data(abscissa,&A_TE,s,0,0,"As");
     
     s=0.6;
-    if(disp_Rp) graph->add_data(abscissa,&R_TM,0,0,s,"Rp");
-    if(disp_Tp) graph->add_data(abscissa,&T_TM,0,s,0,"Tp");
-    if(disp_Ap) graph->add_data(abscissa,&A_TM,s,0,0,"Ap");
+    if(disp_Rp) graph->add_external_data(abscissa,&R_TM,0,0,s,"Rp");
+    if(disp_Tp) graph->add_external_data(abscissa,&T_TM,0,s,0,"Tp");
+    if(disp_Ap) graph->add_external_data(abscissa,&A_TM,s,0,0,"Ap");
     
     s=1.0;
-    if(disp_R_avg) graph->add_data(abscissa,&R_avg,0,0,s,"R_avg");
-    if(disp_T_avg) graph->add_data(abscissa,&T_avg,0,s,0,"T_avg");
-    if(disp_A_avg) graph->add_data(abscissa,&A_avg,s,0,0,"A_avg");
+    if(disp_R_avg) graph->add_external_data(abscissa,&R_avg,0,0,s,"R_avg");
+    if(disp_T_avg) graph->add_external_data(abscissa,&T_avg,0,s,0,"T_avg");
+    if(disp_A_avg) graph->add_external_data(abscissa,&A_avg,s,0,0,"A_avg");
     
     graph->set_scale((*abscissa)[0],(*abscissa)[abscissa->size()-1],-0.1,1.1);
     
@@ -1034,19 +1034,19 @@ void MultilayerFrame::recompute_straight()
     else abscissa=&angle;
     
     double s=0.25;
-    if(disp_Rs) graph->add_data(abscissa,&R_TE,0,0,s,"Rs");
-    if(disp_Ts) graph->add_data(abscissa,&T_TE,0,s,0,"Ts");
-    if(disp_As) graph->add_data(abscissa,&A_TE,s,0,0,"As");
+    if(disp_Rs) graph->add_external_data(abscissa,&R_TE,0,0,s,"Rs");
+    if(disp_Ts) graph->add_external_data(abscissa,&T_TE,0,s,0,"Ts");
+    if(disp_As) graph->add_external_data(abscissa,&A_TE,s,0,0,"As");
     
     s=0.6;
-    if(disp_Rp) graph->add_data(abscissa,&R_TM,0,0,s,"Rp");
-    if(disp_Tp) graph->add_data(abscissa,&T_TM,0,s,0,"Tp");
-    if(disp_Ap) graph->add_data(abscissa,&A_TM,s,0,0,"Ap");
+    if(disp_Rp) graph->add_external_data(abscissa,&R_TM,0,0,s,"Rp");
+    if(disp_Tp) graph->add_external_data(abscissa,&T_TM,0,s,0,"Tp");
+    if(disp_Ap) graph->add_external_data(abscissa,&A_TM,s,0,0,"Ap");
     
     s=1.0;
-    if(disp_R_avg) graph->add_data(abscissa,&R_avg,0,0,s,"R_avg");
-    if(disp_T_avg) graph->add_data(abscissa,&T_avg,0,s,0,"T_avg");
-    if(disp_A_avg) graph->add_data(abscissa,&A_avg,s,0,0,"A_avg");
+    if(disp_R_avg) graph->add_external_data(abscissa,&R_avg,0,0,s,"R_avg");
+    if(disp_T_avg) graph->add_external_data(abscissa,&T_avg,0,s,0,"T_avg");
+    if(disp_A_avg) graph->add_external_data(abscissa,&A_avg,s,0,0,"A_avg");
     
     graph->set_scale((*abscissa)[0],(*abscissa)[abscissa->size()-1],-0.1,1.1);
     

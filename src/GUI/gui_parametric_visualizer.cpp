@@ -308,7 +308,7 @@ void PVisuFrame::load(std::string const &fname)
         double R,G,B;
         sampler(R,G,B);
         
-        graph->add_data(&x_data,&disp_y[k],R,G,B);
+        graph->add_external_data(&x_data,&disp_y[k],R,G,B);
     }
     
     graph->autoscale();

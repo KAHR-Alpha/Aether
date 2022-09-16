@@ -189,13 +189,13 @@ void EffModelFrame::recomp_model()
     
     if(display_type==0)
     {
-        coeff_graph->add_data(&lambda,&eff_model_re,0,0,1.0,"Real(Ref Index)");
-        coeff_graph->add_data(&lambda,&eff_model_im,1.0,0,0,"Imag(Ref Index)");
+        coeff_graph->add_external_data(&lambda,&eff_model_re,0,0,1.0,"Real(Ref Index)");
+        coeff_graph->add_external_data(&lambda,&eff_model_im,1.0,0,0,"Imag(Ref Index)");
     }
     else if(display_type==1)
     {
-        coeff_graph->add_data(&lambda,&eff_model_re,0,0,1.0,"Real(Permittivity)");
-        coeff_graph->add_data(&lambda,&eff_model_im,1.0,0,0,"Imag(Permittivity)");
+        coeff_graph->add_external_data(&lambda,&eff_model_re,0,0,1.0,"Real(Permittivity)");
+        coeff_graph->add_external_data(&lambda,&eff_model_im,1.0,0,0,"Imag(Permittivity)");
     }
     
     coeff_graph->autoscale();

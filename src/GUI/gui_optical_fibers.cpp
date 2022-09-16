@@ -164,20 +164,20 @@ void OptFibersFrame::evt_compute(wxCommandEvent &event)
     
     for(l=0;l<=N_TE;l++)
     {
-        if(l==0) graph->add_data(&modes_TE_l[l],&modes_TE[l],0,0,1,"TE");
-        else graph->add_data(&modes_TE_l[l],&modes_TE[l],0,0,1);
+        if(l==0) graph->add_external_data(&modes_TE_l[l],&modes_TE[l],0,0,1,"TE");
+        else graph->add_external_data(&modes_TE_l[l],&modes_TE[l],0,0,1);
     }
     
     for(l=0;l<=N_TM;l++)
     {
-        if(l==0) graph->add_data(&modes_TM_l[l],&modes_TM[l],1,0,0,"TM");
-        else graph->add_data(&modes_TM_l[l],&modes_TM[l],1,0,0);
+        if(l==0) graph->add_external_data(&modes_TM_l[l],&modes_TM[l],1,0,0,"TM");
+        else graph->add_external_data(&modes_TM_l[l],&modes_TM[l],1,0,0);
     }
         
     for(unsigned int l=0;l<modes_TEM.size();l++)
     {
-        if(l==0) graph->add_data(&modes_TEM_l[l],&modes_TEM[l],0,0.5,0,"TEM");
-        else graph->add_data(&modes_TEM_l[l],&modes_TEM[l],0,0.5,0);
+        if(l==0) graph->add_external_data(&modes_TEM_l[l],&modes_TEM[l],0,0.5,0,"TEM");
+        else graph->add_external_data(&modes_TEM_l[l],&modes_TEM[l],0,0.5,0);
     }
     
     graph->autoscale();

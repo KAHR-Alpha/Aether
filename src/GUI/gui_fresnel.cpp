@@ -129,13 +129,13 @@ void FresnelFrame::update_coeffs()
     
     coeff_graph->clear_graph();
     
-    coeff_graph->add_data(&angle,&r_te,0,0,1.0,"R_s");
-    coeff_graph->add_data(&angle,&r_tm,1.0,0,0,"R_p");
-    coeff_graph->add_data(&angle,&r_avg,0,1.0,0,"R_avg");
+    coeff_graph->add_external_data(&angle,&r_te,0,0,1.0,"R_s");
+    coeff_graph->add_external_data(&angle,&r_tm,1.0,0,0,"R_p");
+    coeff_graph->add_external_data(&angle,&r_avg,0,1.0,0,"R_avg");
     
-    coeff_graph->add_data(&angle,&ar_te,0.5,0,0.5,"1-R_s");
-    coeff_graph->add_data(&angle,&ar_tm,0.5,0.5,0,"1-R_p");
-    coeff_graph->add_data(&angle,&ar_avg,0,0.5,0.5,"1-R_avg");
+    coeff_graph->add_external_data(&angle,&ar_te,0.5,0,0.5,"1-R_s");
+    coeff_graph->add_external_data(&angle,&ar_tm,0.5,0.5,0,"1-R_p");
+    coeff_graph->add_external_data(&angle,&ar_avg,0,0.5,0.5,"1-R_avg");
     
     coeff_graph->set_scale(0,90,0,1);
     coeff_graph->Refresh();

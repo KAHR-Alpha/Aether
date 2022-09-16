@@ -283,7 +283,7 @@ void GeoGradientDesigner::recompute()
     }
     
     graph->clear_graph();
-    graph->add_data(&prof_x,&prof_val,1.0,0,0);
+    graph->add_external_data(&prof_x,&prof_val,1.0,0,0);
     
     graph->set_scale(0,w,0,h);
     graph->Refresh();
@@ -842,17 +842,17 @@ void GeoGradientFrame::recompute()
         
         graph->clear_graph();
         
-        graph->add_data(&lambda,&min_R_TE,1.0,0,0,"min/max R_TE");
-        graph->add_data(&lambda,&max_R_TE,1.0,0,0);
+        graph->add_external_data(&lambda,&min_R_TE,1.0,0,0,"min/max R_TE");
+        graph->add_external_data(&lambda,&max_R_TE,1.0,0,0);
         
-        graph->add_data(&lambda,&min_T_TE,0,0,1.0,"min/max T_TE");
-        graph->add_data(&lambda,&max_T_TE,0,0,1.0);
+        graph->add_external_data(&lambda,&min_T_TE,0,0,1.0,"min/max T_TE");
+        graph->add_external_data(&lambda,&max_T_TE,0,0,1.0);
         
-        graph->add_data(&lambda,&min_R_TM,1.0,0.5,0,"min/max R_TM");
-        graph->add_data(&lambda,&max_R_TM,1.0,0.5,0);
+        graph->add_external_data(&lambda,&min_R_TM,1.0,0.5,0,"min/max R_TM");
+        graph->add_external_data(&lambda,&max_R_TM,1.0,0.5,0);
         
-        graph->add_data(&lambda,&min_T_TM,0,0.7,1.0,"min/max T_TM");
-        graph->add_data(&lambda,&max_T_TM,0,0.7,1.0);
+        graph->add_external_data(&lambda,&min_T_TM,0,0.7,1.0,"min/max T_TM");
+        graph->add_external_data(&lambda,&max_T_TM,0,0.7,1.0);
         
         graph->set_scale(spectrum->get_lambda_min(),spectrum->get_lambda_max(),-0.05,1.05);
         graph->Refresh();
@@ -967,17 +967,17 @@ void GeoGradientFrame::recompute()
         
         graph->clear_graph();
         
-        graph->add_data(&angle,&min_R_TE,1.0,0,0,"min/max R_TE");
-        graph->add_data(&angle,&max_R_TE,1.0,0,0);
+        graph->add_external_data(&angle,&min_R_TE,1.0,0,0,"min/max R_TE");
+        graph->add_external_data(&angle,&max_R_TE,1.0,0,0);
         
-        graph->add_data(&angle,&min_T_TE,0,0,1.0,"min/max T_TE");
-        graph->add_data(&angle,&max_T_TE,0,0,1.0);
+        graph->add_external_data(&angle,&min_T_TE,0,0,1.0,"min/max T_TE");
+        graph->add_external_data(&angle,&max_T_TE,0,0,1.0);
         
-        graph->add_data(&angle,&min_R_TM,1.0,0.5,0,"min/max R_TM");
-        graph->add_data(&angle,&max_R_TM,1.0,0.5,0);
+        graph->add_external_data(&angle,&min_R_TM,1.0,0.5,0,"min/max R_TM");
+        graph->add_external_data(&angle,&max_R_TM,1.0,0.5,0);
         
-        graph->add_data(&angle,&min_T_TM,0,0.7,1.0,"min/max T_TM");
-        graph->add_data(&angle,&max_T_TM,0,0.7,1.0);
+        graph->add_external_data(&angle,&min_T_TM,0,0.7,1.0,"min/max T_TM");
+        graph->add_external_data(&angle,&max_T_TM,0,0.7,1.0);
         
         graph->set_scale(0,90,-0.05,1.05);
         graph->Refresh();

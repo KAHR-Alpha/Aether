@@ -29,12 +29,14 @@ class BackdropPanel: public PanelsListBase
         wxCheckBox *display;
         wxButton *color_btn;
         wxTextCtrl *legend;
+        NamedTextCtrl<double> *x_scale,*y_scale;
         
         BackdropPanel(wxWindow *parent,Graph *graph,int ID);
         
         void evt_color(wxCommandEvent &event);
         void evt_display(wxCommandEvent &event);
         void evt_legend(wxCommandEvent &event);
+        void evt_scale(wxCommandEvent &event);
 };
 
 class GraphOptionsDialog: public wxDialog
@@ -123,6 +125,7 @@ class Graph: public wxPanel
         
         std::vector<std::vector<double>> x_self;
         std::vector<std::vector<double>> y_self;
+        std::vector<double> x_self_scale,y_self_scale;
         std::vector<bool> show_self;
         std::vector<wxPen> pen_self;
         std::vector<std::string> fname_self,legend_self;
@@ -131,9 +134,6 @@ class Graph: public wxPanel
         
         Graph(wxWindow *parent);
         
-        [[deprecated]]
-        void add_data(std::vector<double> *x_data,std::vector<double> *y_data,
-                      double r=0,double g=0,double b=0,std::string legend_str="");
         void add_external_data(std::vector<double> *x_data,std::vector<double> *y_data,
                                double r=0,double g=0,double b=0,std::string legend_str="");
         virtual void autoscale();
@@ -145,6 +145,9 @@ class Graph: public wxPanel
         void draw_border(wxGraphicsContext *gc);
         void draw_data(wxGraphicsContext *gc);
         void draw_data(wxGraphicsContext *gc,std::vector<double> const &x_data,std::vector<double> const &y_data,wxPen const &pen);
+        void draw_data(wxGraphicsContext *gc,
+                       std::vector<double> const &x_data,double x_scale,
+                       std::vector<double> const &y_data,double y_scale,wxPen const &pen);
         void draw_memory_data(wxGraphicsContext *gc,int level);
         void draw_grid_coord(wxGraphicsContext *gc);
         void draw_legend(wxGraphicsContext *gc);
@@ -161,8 +164,6 @@ class Graph: public wxPanel
         virtual bool evt_mouse_left_up_spec(wxMouseEvent &event);
         virtual bool evt_mouse_motion_spec(wxMouseEvent &event);
         void force_ratio(double x_ratio,double y_ratio);
-        [[deprecated]]
-        void forget_data(std::vector<double> *x_data,std::vector<double> *y_data);
         void forget_external_data(std::vector<double> *x_data,std::vector<double> *y_data);
         void forget_self_data(int ID);
         void get_scale(double &xmin,double &xmax,double &ymin,double &ymax);

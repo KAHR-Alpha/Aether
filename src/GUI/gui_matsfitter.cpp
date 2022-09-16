@@ -186,8 +186,8 @@ void MatsFitter::get_data_fname(wxCommandEvent &event)
     }
     
     fitter->set_base_data(&w_base,&real_disp,&imag_disp);
-    error_graph->add_data(&w_base,&real_error,0,0,1.0);
-    error_graph->add_data(&w_base,&imag_error,1.0,0,0);
+    error_graph->add_external_data(&w_base,&real_error,0,0,1.0);
+    error_graph->add_external_data(&w_base,&imag_error,1.0,0,0);
     
     double w1=std::min(w_base[0],w_base[N_data-1]);
     double w2=std::max(w_base[0],w_base[N_data-1]);

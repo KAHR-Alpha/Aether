@@ -201,7 +201,7 @@ SourceDialog::SourceDialog(Sel::Light *light_,std::vector<Sel::Frame*> const &fr
     
     sp_graph=new Graph(polychromatic_panel);
     sp_graph->SetMinSize(wxSize(1,400));
-    sp_graph->add_data(&spectrum_x,&spectrum_y,1.0,0,0);
+    sp_graph->add_external_data(&spectrum_x,&spectrum_y,1.0,0,0);
     
     polychromatic_sizer->Add(sp_graph,wxSizerFlags(1).Expand());
     

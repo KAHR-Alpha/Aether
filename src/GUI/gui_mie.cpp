@@ -240,15 +240,15 @@ void MieTool::recomp_cross_sections()
     
     if(comp_efficiencies)
     {
-        cross_graph->add_data(&disp_lambda,&C_abs,0,0,1.0,"Absorption efficiency");
-        cross_graph->add_data(&disp_lambda,&C_ext,0,1.0,0,"Extinction efficiency");
-        cross_graph->add_data(&disp_lambda,&C_scatt,1.0,0,0,"Scattering efficiency");
+        cross_graph->add_external_data(&disp_lambda,&C_abs,0,0,1.0,"Absorption efficiency");
+        cross_graph->add_external_data(&disp_lambda,&C_ext,0,1.0,0,"Extinction efficiency");
+        cross_graph->add_external_data(&disp_lambda,&C_scatt,1.0,0,0,"Scattering efficiency");
     }
     else
     {
-        cross_graph->add_data(&disp_lambda,&C_abs,0,0,1.0,"Absorption cross section");
-        cross_graph->add_data(&disp_lambda,&C_ext,0,1.0,0,"Extinction cross section");
-        cross_graph->add_data(&disp_lambda,&C_scatt,1.0,0,0,"Scattering cross section");
+        cross_graph->add_external_data(&disp_lambda,&C_abs,0,0,1.0,"Absorption cross section");
+        cross_graph->add_external_data(&disp_lambda,&C_ext,0,1.0,0,"Extinction cross section");
+        cross_graph->add_external_data(&disp_lambda,&C_scatt,1.0,0,0,"Scattering cross section");
     }
     
     cross_graph->autoscale();
@@ -286,7 +286,7 @@ void MieTool::recomp_directional_radiation()
     
     cross_graph->clear_graph();
     
-    cross_graph->add_data(&disp_lambda,&dir_rad,0,0,1.0,"Radiation");
+    cross_graph->add_external_data(&disp_lambda,&dir_rad,0,0,1.0,"Radiation");
     
     cross_graph->autoscale();
 }

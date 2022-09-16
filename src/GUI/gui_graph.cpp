@@ -60,6 +60,19 @@ BackdropPanel::BackdropPanel(wxWindow *parent,Graph *graph_,int ID_)
     self_sizer->Add(legend);
     
     sizer->Add(self_sizer,wxSizerFlags().Expand());
+    
+    wxStaticBoxSizer *scale_sizer=new wxStaticBoxSizer(wxHORIZONTAL,this,"Scaling");
+    
+    x_scale=new NamedTextCtrl<double>(scale_sizer->GetStaticBox(),"x: ",graph->x_self_scale[ID]);
+    y_scale=new NamedTextCtrl<double>(scale_sizer->GetStaticBox(),"y: ",graph->y_self_scale[ID]);
+    
+    x_scale->Bind(EVT_NAMEDTXTCTRL,&BackdropPanel::evt_scale,this);
+    y_scale->Bind(EVT_NAMEDTXTCTRL,&BackdropPanel::evt_scale,this);
+    
+    scale_sizer->Add(x_scale,wxSizerFlags(1).Border(wxRIGHT,5));
+    scale_sizer->Add(y_scale,wxSizerFlags(1).Border(wxRIGHT,5));
+    
+    sizer->Add(scale_sizer,wxSizerFlags().Expand());
 }
 
 void BackdropPanel::evt_color(wxCommandEvent &event)
@@ -87,6 +100,14 @@ void BackdropPanel::evt_display(wxCommandEvent &event)
 void BackdropPanel::evt_legend(wxCommandEvent &event)
 {
     graph->legend_self[ID]=legend->GetValue().ToStdString();
+}
+
+void BackdropPanel::evt_scale(wxCommandEvent &event)
+{
+    graph->x_self_scale[ID]=x_scale->get_value();
+    graph->y_self_scale[ID]=y_scale->get_value();
+    
+    graph->Refresh();
 }
 
 //########################
@@ -276,7 +297,7 @@ GraphOptionsDialog::GraphOptionsDialog(Graph *parent)
     
     wxButton *add_backdrop_btn=new wxButton(backdrop_panel,wxID_ANY,"Add Backdrop Data");
     add_backdrop_btn->Bind(wxEVT_BUTTON,&GraphOptionsDialog::evt_add_backdrop,this);
-    backdrop_sizer->Add(add_backdrop_btn);
+    backdrop_sizer->Add(add_backdrop_btn,wxSizerFlags().Expand());
     
     backdrops=new PanelsList<BackdropPanel>(backdrop_panel);
     
@@ -355,6 +376,39 @@ void GraphOptionsDialog::GraphOptionsDialog_SpColors(wxWindow *panel)
     update_spectral_colors();
 }
 
+class ColumnsSelectionDialog: public wxDialog
+{
+    public:
+        unsigned int x_val,y_val;
+        NamedTextCtrl<unsigned int> *x,*y;
+        
+        ColumnsSelectionDialog(wxWindow *parent)
+            :wxDialog(parent,wxID_ANY,"Columns Selection")
+        {
+            wxBoxSizer *sizer=new wxBoxSizer(wxVERTICAL);
+            
+            sizer->Add(new wxStaticText(this,wxID_ANY,"Multiple columns detected in the file.\nPlease select the columns to use (starting from 0)."));
+            
+            x=new NamedTextCtrl<unsigned int>(this,"x: ",0);
+            y=new NamedTextCtrl<unsigned int>(this,"x: ",1);
+            
+            sizer->Add(x,wxSizerFlags().Align(wxALIGN_LEFT));
+            sizer->Add(y,wxSizerFlags().Align(wxALIGN_LEFT));
+            
+            SetSizerAndFit(sizer);
+            
+            Bind(wxEVT_CLOSE_WINDOW,&ColumnsSelectionDialog::evt_close,this);
+            
+            ShowModal();
+        }
+        
+        void evt_close(wxCloseEvent &event)
+        {
+            x_val=x->get_value();
+            y_val=y->get_value();
+        }
+};
+
 void GraphOptionsDialog::evt_add_backdrop(wxCommandEvent &event)
 {
     wxString fname=wxFileSelectorEx("Select a data file");
@@ -364,13 +418,28 @@ void GraphOptionsDialog::evt_add_backdrop(wxCommandEvent &event)
         std::vector<std::vector<double>> data;
         ascii_data_loader(fname.ToStdString(),data);
         
-        graph->x_self.push_back(data[0]);
-        graph->y_self.push_back(data[1]);
+        unsigned int x_column=0;
+        unsigned int y_column=1;
+        
+        if(data.size()>2)
+        {
+            ColumnsSelectionDialog dialog(this);
+            
+            unsigned int max_c=data.size()-1;
+            
+            x_column=std::min(max_c,dialog.x_val);
+            y_column=std::min(max_c,dialog.y_val);
+        }
+        
+        graph->x_self.push_back(data[x_column]);
+        graph->y_self.push_back(data[y_column]);
+        graph->x_self_scale.push_back(1.0);
+        graph->y_self_scale.push_back(1.0);
         graph->show_self.push_back(true);
         graph->pen_self.push_back(*wxBLACK_PEN);
         graph->fname_self.push_back(fname.ToStdString());
         graph->legend_self.push_back("");
-    
+        
         rebuild_backdrop_list();
         graph->Refresh();
     }
@@ -609,11 +678,6 @@ Graph::Graph(wxWindow *parent)
     Bind(wxEVT_MOTION,&Graph::evt_mouse_motion,this);
 }
 
-void Graph::add_data(std::vector<double> *x_data_in,std::vector<double> *y_data_in,double r,double g,double b,std::string legend_str_)
-{
-    add_external_data(x_data_in,y_data_in,r,g,b,legend_str_);
-}
-
 void Graph::add_external_data(std::vector<double> *x_data_in,std::vector<double> *y_data_in,double r,double g,double b,std::string legend_str_)
 {
     close_options_dialog();
@@ -797,7 +861,9 @@ void Graph::draw_data(wxGraphicsContext *gc)
     {
         if(show_self[l])
         {
-            draw_data(gc,x_self[l],y_self[l],pen_self[l]);
+            draw_data(gc,
+                      x_self[l],x_self_scale[l],
+                      y_self[l],y_self_scale[l],pen_self[l]);
         }
     }
     
@@ -821,6 +887,26 @@ void Graph::draw_data(wxGraphicsContext *gc,
         {
             gc->StrokeLine(d2px(x_data_[i]),d2py(y_data_[i]),
                            d2px(x_data_[i+1]),d2py(y_data_[i+1]));
+        }
+    }
+}
+
+void Graph::draw_data(wxGraphicsContext *gc,
+                      std::vector<double> const &x_data_,double x_scale_,
+                      std::vector<double> const &y_data_,double y_scale_,
+                      wxPen const &pen_)
+{
+    gc->SetPen(pen_);
+    
+    for(unsigned int i=0;i<x_data_.size()-1;i++)
+    {
+        if(!std::isinf(x_data_[i])   &&
+           !std::isinf(x_data_[i+1]) &&
+           !std::isinf(y_data_[i])   &&
+           !std::isinf(y_data_[i+1]))
+        {
+            gc->StrokeLine(d2px(x_data_[i]*x_scale_),d2py(y_data_[i]*y_scale_),
+                           d2px(x_data_[i+1]*x_scale_),d2py(y_data_[i+1]*y_scale_));
         }
     }
 }
@@ -1144,11 +1230,6 @@ void Graph::force_ratio(double x_ratio_,double y_ratio_)
     y_ratio=y_ratio_;
 }
 
-void Graph::forget_data(std::vector<double> *x_data_,std::vector<double> *y_data_)
-{
-    forget_external_data(x_data_,y_data_);
-}
-
 void Graph::forget_external_data(std::vector<double> *x_data_,std::vector<double> *y_data_)
 {
     int pos=-1;
@@ -1195,6 +1276,8 @@ void Graph::forget_self_data(int i)
 {
     x_self.erase(x_self.begin()+i);
     y_self.erase(y_self.begin()+i);
+    x_self_scale.erase(x_self_scale.begin()+i);
+    y_self_scale.erase(y_self_scale.begin()+i);
     show_self.erase(show_self.begin()+i);
     pen_self.erase(pen_self.begin()+i);
     fname_self.erase(fname_self.begin()+i);

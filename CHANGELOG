@@ -1,4 +1,5 @@
 Todo:
+- Rework the multilayers using the S-matrix formalism
 - Adding a scripting effective materials
 - Extending effective materials to more than two at a time
 - Saving/loading multilayers with effective materials
@@ -6,10 +7,11 @@ Todo:
 - Polarization handling by Selene
 - Implement the Lambertian, Guassian and ABg scattering models ( see "What scattering models are available in OpticStudio?" )
 
-0.7.1
+0.7.1 (WIP)
 - Added conics
 GUI:
 - Exposed the Lambertian source
+- Added curve scaling for graphs backdrops
 
 0.7
 CLI:

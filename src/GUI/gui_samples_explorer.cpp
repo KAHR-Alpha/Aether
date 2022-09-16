@@ -576,7 +576,7 @@ SampleGraphDialog::SampleGraphDialog(wxString const &caption,
     {
         sampler(r,g,b);
         
-        graph->add_data(&x[i],&y[i],r,g,b);
+        graph->add_external_data(&x[i],&y[i],r,g,b);
     }
     
     if(axis[0]==axis[1]) graph->autoscale();

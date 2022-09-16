@@ -520,11 +520,11 @@ void DiffOrdersSDFrame::recompute()
     
     graph->clear_graph();
     
-    graph->add_data(&lambda,&s_factor_1_sup,1.0,0,0,"Superstrate a1");
-    graph->add_data(&lambda,&s_factor_2_sup,1.0,0.5,0.5,"Superstrate a2");
+    graph->add_external_data(&lambda,&s_factor_1_sup,1.0,0,0,"Superstrate a1");
+    graph->add_external_data(&lambda,&s_factor_2_sup,1.0,0.5,0.5,"Superstrate a2");
     
-    graph->add_data(&lambda,&s_factor_1_sub,0,0,1.0,"Substrate a1");
-    graph->add_data(&lambda,&s_factor_2_sub,0.5,0.5,1.0,"Substrate a2");
+    graph->add_external_data(&lambda,&s_factor_1_sub,0,0,1.0,"Substrate a1");
+    graph->add_external_data(&lambda,&s_factor_2_sub,0.5,0.5,1.0,"Substrate a2");
     
     graph->autoscale();
     
@@ -715,8 +715,8 @@ DiffOrdersFrame::DiffOrdersFrame(wxString const &title)
     gl=new GL_DiffOrders(display_panel);
     orders_graph=new Graph(display_panel);
     
-    orders_graph->add_data(&N_ord_lambda,&N_ord_sup,1.0,0,0,"Superstrate");
-    orders_graph->add_data(&N_ord_lambda,&N_ord_sub,0,0,1.0,"Substrate");
+    orders_graph->add_external_data(&N_ord_lambda,&N_ord_sup,1.0,0,0,"Superstrate");
+    orders_graph->add_external_data(&N_ord_lambda,&N_ord_sub,0,0,1.0,"Substrate");
     
     display_sizer->Add(gl,wxSizerFlags(1).Expand());
     display_sizer->Add(orders_graph,wxSizerFlags(1).Expand());

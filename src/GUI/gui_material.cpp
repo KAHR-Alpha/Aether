@@ -201,13 +201,13 @@ void MaterialExplorer::recompute_model()
     
     if(display_type==0)
     {
-        mat_graph->add_data(&disp_lambda,&disp_real,0,0,1.0,"Real(Ref Index)");
-        mat_graph->add_data(&disp_lambda,&disp_imag,1.0,0,0,"Imag(Ref Index)");
+        mat_graph->add_external_data(&disp_lambda,&disp_real,0,0,1.0,"Real(Ref Index)");
+        mat_graph->add_external_data(&disp_lambda,&disp_imag,1.0,0,0,"Imag(Ref Index)");
     }
     else if(display_type==1)
     {
-        mat_graph->add_data(&disp_lambda,&disp_real,0,0,1.0,"Real(Permittivity)");
-        mat_graph->add_data(&disp_lambda,&disp_imag,1.0,0,0,"Imag(Permittivity)");
+        mat_graph->add_external_data(&disp_lambda,&disp_real,0,0,1.0,"Real(Permittivity)");
+        mat_graph->add_external_data(&disp_lambda,&disp_imag,1.0,0,0,"Imag(Permittivity)");
     }
     
     mat_graph->autoscale();
