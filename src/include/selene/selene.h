@@ -52,7 +52,9 @@ enum
     OBJ_SPHERE,
     OBJ_SPHERE_PATCH,
     OBJ_UNSET,
-    PINHOLE,
+    POLAR_ALONG,
+    POLAR_NOT,
+    POLAR_UNSET,
     SRC_BEAM,
     SRC_CONE,
     SRC_PERFECT_BEAM,
@@ -286,6 +288,8 @@ class Light: public Frame
 {
     public:
         int spectrum_type,extent;
+        int polar_type;
+        Vector3 polar_vector;
         
         // Discrete spectra
         

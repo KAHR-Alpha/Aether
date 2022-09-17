@@ -761,6 +761,27 @@ light:name("laser")
 %light:origin(SEL_LIGHT_BEAM_WAIST)
 %\end{lstlisting}
 
+\subsubsection[polar\_along]{\lfc{polar\_along}(\lft{x},\lft{y},\lft{z})}
+
+Defines the axis vector (\lft{x},\lft{y},\lft{z}) along which the source will try to orient the polarization as close as possible. The sign of the whole vector is of no importance.
+\begin{lstlisting}
+light:polar_along(1,1,0)
+\end{lstlisting}
+
+\subsubsection[polar\_not]{\lfc{polar\_not}(\lft{x},\lft{y},\lft{z})}
+
+Defines the axis vector (\lft{x},\lft{y},\lft{z}) that the source will try to avoid for rays polarization as much as possible. The sign of the whole vector is of no importance.
+\begin{lstlisting}
+light:polar_not(0,0,1)
+\end{lstlisting}
+
+\subsubsection[polar\_unset]{\lfc{polar\_unset}()}
+
+Leaves to the source the choice of the polarization vector for each ray.
+\begin{lstlisting}
+light:polar_unset()
+\end{lstlisting}
+
 \subsubsection[power]{\lfc{power}(\lft{value})}
 
 Sets the power of the source to anchor of the specified \lft{value} in Watts.

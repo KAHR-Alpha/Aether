@@ -20,6 +20,8 @@ namespace Sel
 Light::Light()
     :spectrum_type(SPECTRUM_MONO),
      extent(EXTENT_POINT),
+     polar_type(POLAR_UNSET),
+     polar_vector(0,0,0),
      lambda_mono(550e-9),
      polymono_lambda(1,500e-9), polymono_weight(1,1.0),
      spectrum_shape(SPECTRUM_FLAT),

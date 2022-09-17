@@ -119,6 +119,39 @@ namespace LuaUI
         return 0;
     }
     
+    int selene_light_set_polar_along(lua_State *L)
+    {
+        Sel::Frame *frame=lua_get_metapointer<Sel::Frame>(L,1);
+        Sel::Light *light=dynamic_cast<Sel::Light*>(frame);
+        
+        light->polar_type=Sel::POLAR_ALONG;
+        light->polar_vector(lua_tonumber(L,2),lua_tonumber(L,3),lua_tonumber(L,4));
+        
+        return 0;
+    }
+    
+    int selene_light_set_polar_not(lua_State *L)
+    {
+        Sel::Frame *frame=lua_get_metapointer<Sel::Frame>(L,1);
+        Sel::Light *light=dynamic_cast<Sel::Light*>(frame);
+        
+        light->polar_type=Sel::POLAR_NOT;
+        light->polar_vector(lua_tonumber(L,2),lua_tonumber(L,3),lua_tonumber(L,4));
+        
+        return 0;
+    }
+    
+    int selene_light_set_polar_unset(lua_State *L)
+    {
+        Sel::Frame *frame=lua_get_metapointer<Sel::Frame>(L,1);
+        Sel::Light *light=dynamic_cast<Sel::Light*>(frame);
+        
+        light->polar_type=Sel::POLAR_UNSET;
+        light->polar_vector(0,0,0);
+        
+        return 0;
+    }
+    
     int selene_light_set_power(lua_State *L)
     {
         Sel::Frame *frame=lua_get_metapointer<Sel::Frame>(L,1);

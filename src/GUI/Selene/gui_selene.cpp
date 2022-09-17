@@ -1514,6 +1514,22 @@ void SeleneFrame::save_project(wxFileName const &fname_)
                 }
             }
             
+            // Polarization Properties
+            
+            switch(light->polar_type)
+            {
+                case Sel::POLAR_ALONG:
+                    file<<ID[i]<<":polar_along("<<light->polar_vector.x<<","
+                                                <<light->polar_vector.y<<","
+                                                <<light->polar_vector.z<<")\n";
+                    break;
+                case Sel::POLAR_NOT:
+                    file<<ID[i]<<":polar_not("<<light->polar_vector.x<<","
+                                              <<light->polar_vector.y<<","
+                                              <<light->polar_vector.z<<")\n";
+                    break;
+            }
+            
             // Geometric Properties
             
             switch(light->extent)

@@ -324,6 +324,11 @@ class SourceDialog: public FrameDialog
         NamedTextCtrl<double> *power;
         wxChoice *ambient_material;
         
+        // Polarization
+        
+        wxChoice *polarization;
+        NamedTextCtrl<double> *polar_x,*polar_y,*polar_z;
+        
         // Extent
         
         wxChoice *extent;
@@ -366,11 +371,13 @@ class SourceDialog: public FrameDialog
         void evt_delete_polymono(wxCommandEvent &event);
         void evt_extent(wxCommandEvent &event);
         void evt_graph(wxCommandEvent &event);
+        void evt_polarization_type(wxCommandEvent &event);
         void evt_polychromatic_file(wxCommandEvent &event);
         void evt_polychromatic_type(wxCommandEvent &event);
         void evt_spectrum_type(wxCommandEvent &event);
         
         void layout_extent();
+        void layout_polarization();
         
         void layout_monochromatic();
         void layout_poly_monochromatic();

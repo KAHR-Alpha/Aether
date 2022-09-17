@@ -82,6 +82,36 @@ SourceDialog::SourceDialog(Sel::Light *light_,std::vector<Sel::Frame*> const &fr
     
     // Controls
     
+    // - Polarization
+    
+    wxStaticBoxSizer *polarization_sizer=new wxStaticBoxSizer(wxVERTICAL,ctrl_panel,"Polarization");
+    
+    polarization=new wxChoice(polarization_sizer->GetStaticBox(),wxID_ANY);
+    polarization->Append("Along");
+    polarization->Append("Not");
+    polarization->Append("Unset");
+    
+    polarization->SetSelection(2);
+    
+         if(light->polar_type==Sel::POLAR_ALONG) polarization->SetSelection(0);
+    else if(light->polar_type==Sel::POLAR_NOT) polarization->SetSelection(1);
+    
+    polarization->Bind(wxEVT_CHOICE,&SourceDialog::evt_polarization_type,this);
+    
+    polar_x=new NamedTextCtrl<double>(polarization_sizer->GetStaticBox(),"x: ",light->polar_vector.x);
+    polar_y=new NamedTextCtrl<double>(polarization_sizer->GetStaticBox(),"y: ",light->polar_vector.y);
+    polar_z=new NamedTextCtrl<double>(polarization_sizer->GetStaticBox(),"z: ",light->polar_vector.z);
+    
+    polarization_sizer->Add(polarization,wxSizerFlags().Expand());
+    polarization_sizer->Add(polar_x,wxSizerFlags().Expand());
+    polarization_sizer->Add(polar_y,wxSizerFlags().Expand());
+    polarization_sizer->Add(polar_z,wxSizerFlags().Expand());
+    
+    ctrl_sizer->Add(polarization_sizer,wxSizerFlags().Expand());
+    layout_polarization();
+    
+    // - Extent
+    
     wxStaticBoxSizer *extent_sizer=new wxStaticBoxSizer(wxVERTICAL,ctrl_panel,"Extent");
     
     extent=new wxChoice(extent_sizer->GetStaticBox(),wxID_ANY);
@@ -305,6 +335,11 @@ void SourceDialog::evt_graph(wxCommandEvent &event)
     update_graph();
 }
 
+void SourceDialog::evt_polarization_type(wxCommandEvent &event)
+{
+    layout_polarization();
+}
+
 void SourceDialog::evt_polychromatic_file(wxCommandEvent &event)
 {
     wxString fname=wxFileSelectorEx("Select a file containing the spectrum...");
@@ -371,6 +406,27 @@ void SourceDialog::layout_poly_monochromatic()
     
     spectral_panel->FitInside();
     spectral_panel->Layout();
+}
+
+void SourceDialog::layout_polarization()
+{
+    int selection=polarization->GetSelection();
+    
+    if(selection==2)
+    {
+        polar_x->Hide();
+        polar_y->Hide();
+        polar_z->Hide();
+    }
+    else
+    {
+        polar_x->Show();
+        polar_y->Show();
+        polar_z->Show();
+    }
+    
+    ctrl_panel->FitInside();
+    ctrl_panel->Layout();
 }
 
 void SourceDialog::layout_polychromatic()
@@ -450,6 +506,21 @@ void SourceDialog::save_object()
     
     if(materials.size()>0)
         light->amb_mat=materials[ambient_material->GetSelection()];
+    
+    switch(polarization->GetSelection())
+    {
+        case 0:
+            light->polar_type=Sel::POLAR_ALONG;
+            light->polar_vector(polar_x->get_value(),polar_y->get_value(),polar_z->get_value());
+            break;
+        case 1:
+            light->polar_type=Sel::POLAR_NOT;
+            light->polar_vector(polar_x->get_value(),polar_y->get_value(),polar_z->get_value());
+            break;
+        case 2:
+            light->polar_type=Sel::POLAR_UNSET;
+            break;
+    }
     
     switch(extent->GetSelection())
     {

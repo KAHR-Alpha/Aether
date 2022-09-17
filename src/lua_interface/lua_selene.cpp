@@ -474,6 +474,9 @@ namespace LuaUI
         metatable_add_func(L,"material",&LuaUI::selene_light_set_material);
         metatable_add_func(L,"name",&LuaUI::selene_frame_set_name);
         metatable_add_func(L,"origin",&LuaUI::selene_frame_set_origin);
+        metatable_add_func(L,"polar_along",&LuaUI::selene_light_set_polar_along);
+        metatable_add_func(L,"polar_not",&LuaUI::selene_light_set_polar_not);
+        metatable_add_func(L,"polar_unset",&LuaUI::selene_light_set_polar_unset);
         metatable_add_func(L,"power",&LuaUI::selene_light_set_power);
         metatable_add_func(L,"ray_file",&LuaUI::selene_light_set_rays_file);
         metatable_add_func(L,"relative_origin",&LuaUI::selene_frame_set_relative_origin);

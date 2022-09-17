@@ -3,3 +3,5 @@ Aether.cbp
 Aether_build_log.html
 Aether.depend
 REVISION
+docu/manual/manual.*
+!docu/manual/manual.tex
