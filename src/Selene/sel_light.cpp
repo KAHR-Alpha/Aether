@@ -282,6 +282,10 @@ void Light::get_ray(SelRay &ray)
     
     ray.start+=x*local_x+y*local_y+z*local_z;
     
+    // Ray direction
+    
+    bool forced_polarization=false;
+    
          if(type==SRC_POINT) local_dir.rand_sph();
     else if(type==SRC_POINT_PLANAR)
     {
@@ -314,32 +318,36 @@ void Light::get_ray(SelRay &ray)
         ray.phase=user_ray_buffer[1];
         ray.start=Vector3(user_ray_buffer[2],user_ray_buffer[3],user_ray_buffer[4]);
         local_dir=Vector3(user_ray_buffer[5],user_ray_buffer[6],user_ray_buffer[7]);
-
+        
         ray.start=loc+to_global(ray.start);
         
         if(user_ray_buffer.size()==11) // optional polarization
         {
             local_pol=Vector3(user_ray_buffer[8],user_ray_buffer[9],user_ray_buffer[10]);
+            forced_polarization=true;
         }
     }
     
     // Polarization
     
-    if(polar_type==POLAR_ALONG)
+    if(!forced_polarization)
     {
-        local_pol=polar_vector;
-        local_pol.normalize();
-        
-        local_pol=local_pol-local_dir*scalar_prod(local_pol,local_dir);
-    }
-    else if(polar_type==POLAR_NOT)
-    {
-        local_pol=crossprod(local_dir,polar_vector);
-    }
-    else if(polar_type==POLAR_UNSET && type!=SRC_USER_DEFINED)
-    {
-        local_pol.rand_sph();
-        local_pol=local_pol-local_dir*scalar_prod(local_pol,local_dir);
+        if(polar_type==POLAR_ALONG)
+        {
+            local_pol=polar_vector;
+            local_pol.normalize();
+            
+            local_pol=local_pol-local_dir*scalar_prod(local_pol,local_dir);
+        }
+        else if(polar_type==POLAR_NOT)
+        {
+            local_pol=crossprod(local_dir,polar_vector);
+        }
+        else if(polar_type==POLAR_UNSET)
+        {
+            local_pol.rand_sph();
+            local_pol=local_pol-local_dir*scalar_prod(local_pol,local_dir);
+        }
     }
     
     local_pol.normalize();

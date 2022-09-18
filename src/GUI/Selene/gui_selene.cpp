@@ -129,6 +129,16 @@ SeleneFrame::SeleneFrame(wxString const &title)
     wxStaticBoxSizer *scene_sizer=new wxStaticBoxSizer(wxVERTICAL,ctrl_panel,"Scene");
     
     objects_tree=new wxTreeCtrl(ctrl_panel,wxID_ANY,wxDefaultPosition,wxDefaultSize,wxTR_HIDE_ROOT);
+    
+    wxBitmap sun_bmp=ImagesManager::get_bitmap(PathManager::locate_resource("resources/sun_on_16.png").generic_string());
+    wxBitmap mesh_bmp=ImagesManager::get_bitmap(PathManager::locate_resource("resources/wireframe_on_16.png").generic_string());
+    
+    tree_icons=new wxImageList(16,16);
+    tree_icons->Add(sun_bmp);
+    tree_icons->Add(mesh_bmp);
+    
+    objects_tree->AssignImageList(tree_icons);
+    
     scene_sizer->Add(objects_tree,wxSizerFlags(1).Expand());
     
     ctrl_sizer->Add(scene_sizer,wxSizerFlags(1).Expand());
@@ -1010,10 +1020,12 @@ void SeleneFrame::rebuild_tree()
         for(int i=0;i<N;i++) if(!placed_element[i])
         {
             std::string name=frames[i]->name;
+            int image_ID=0;
+            if(dynamic_cast<Sel::Light*>(frames[i])==nullptr) image_ID=1;
             
             if(frames[i]->relative_origin==nullptr)
             {
-                frames_ID[i]=objects_tree->AppendItem(root_ID,name);
+                frames_ID[i]=objects_tree->AppendItem(root_ID,name,image_ID);
                 placed_element[i]=true;
             }
             else
@@ -1023,7 +1035,7 @@ void SeleneFrame::rebuild_tree()
                 
                 if(placed_element[index])
                 {
-                    frames_ID[i]=objects_tree->AppendItem(frames_ID[index],name);
+                    frames_ID[i]=objects_tree->AppendItem(frames_ID[index],name,image_ID);
                     placed_element[i]=true;
                 }
             }

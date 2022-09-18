@@ -513,6 +513,7 @@ class SeleneFrame: public BaseFrame
         wxChoice *add_element_list;
         
         wxTreeItemId root_ID;
+        
         wxMenu default_menu,
                object_menu,
                frame_menu,
@@ -520,6 +521,7 @@ class SeleneFrame: public BaseFrame
                source_menu;
         
         wxTreeCtrl *objects_tree;
+        wxImageList *tree_icons;
         
         std::vector<Sel::Frame*> frames;
         std::vector<bool> render_element;
