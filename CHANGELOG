@@ -4,11 +4,11 @@ Todo:
 - Extending effective materials to more than two at a time
 - Saving/loading multilayers with effective materials
 - Tangent vectors managements for Selene
-- Polarization handling by Selene
 - Implement the Lambertian, Guassian and ABg scattering models ( see "What scattering models are available in OpticStudio?" )
 
 0.7.1 (WIP)
 - Added conics
+- Polarization handling by Selene
 GUI:
 - Exposed the Lambertian source
 - Added curve scaling for graphs backdrops
