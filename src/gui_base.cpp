@@ -268,26 +268,26 @@ class AboutDialog: public wxDialog
             description_panel->SetScrollRate(0,10);
             book->AddPage(description_panel,"Description");
             
-            // Licence
+            // License
             
-            std::string licence_str;
-            std::ifstream licence_file(PathManager::locate_resource("LICENCE"),std::ios::in);
+            std::string license_str;
+            std::ifstream license_file(PathManager::locate_resource("LICENSE"),std::ios::in);
             
-            std::getline(licence_file,licence_str,'\0');
+            std::getline(license_file,license_str,'\0');
             
-            wxScrolledWindow *licence_panel=new wxScrolledWindow(book);
-            wxBoxSizer *licence_sizer=new wxBoxSizer(wxVERTICAL);
+            wxScrolledWindow *license_panel=new wxScrolledWindow(book);
+            wxBoxSizer *license_sizer=new wxBoxSizer(wxVERTICAL);
             
         
-            wxTextCtrl *licence=new wxTextCtrl(licence_panel,1,licence_str,
+            wxTextCtrl *license=new wxTextCtrl(license_panel,1,license_str,
                                                wxDefaultPosition,wxDefaultSize,
                                                wxTE_READONLY|wxTE_RICH|wxTE_MULTILINE|wxTE_AUTO_URL);
             
-            licence_sizer->Add(licence,wxSizerFlags(1).Expand());
+            license_sizer->Add(license,wxSizerFlags(1).Expand());
             
-            licence_panel->SetSizer(licence_sizer);
-            licence_panel->SetScrollRate(0,10);
-            book->AddPage(licence_panel,"Licence");
+            license_panel->SetSizer(license_sizer);
+            license_panel->SetScrollRate(0,10);
+            book->AddPage(license_panel,"License");
             
             // Contributors
             
