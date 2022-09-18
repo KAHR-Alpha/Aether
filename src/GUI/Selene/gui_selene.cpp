@@ -1182,9 +1182,11 @@ void SeleneFrame::save_project(wxFileName const &fname_)
             {
                 case Sel::SRC_BEAM: file<<"\"beam\""; break;
                 case Sel::SRC_CONE: file<<"\"cone\""; break;
+                case Sel::SRC_LAMBERTIAN: file<<"\"lambertian\""; break;
                 case Sel::SRC_POINT: file<<"\"point\""; break;
                 case Sel::SRC_POINT_PLANAR: file<<"\"point_planar\""; break;
                 case Sel::SRC_PERFECT_BEAM: file<<"\"perfect_beam\""; break;
+                case Sel::SRC_USER_DEFINED: file<<"\"user_defined\""; break;
             }
             
             file<<")\n";

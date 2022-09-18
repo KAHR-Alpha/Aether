@@ -60,8 +60,6 @@ enum
     SRC_PERFECT_BEAM,
     SRC_POINT,
     SRC_POINT_PLANAR,
-    SRC_POINT_ZM,
-    SRC_POINT_ZP,
     SRC_LAMBERTIAN,
     SRC_USER_DEFINED,
     SENS_BOX,
@@ -323,6 +321,7 @@ class Light: public Frame
         Light();
         
         void bootstrap();
+        Vector3 compute_polarization(Vector3 const &local_ray_dir);
         double compute_wavelength();
         Vector3 get_anchor(int anchor);                 // switch
         std::string get_anchor_name(int anchor);        // switch

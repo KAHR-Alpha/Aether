@@ -14,6 +14,8 @@ limitations under the License.*/
 
 #include <selene.h>
 
+extern const Vector3 unit_vec_x,unit_vec_y,unit_vec_z;
+
 namespace Sel
 {
 
@@ -211,7 +213,7 @@ double Light::get_power() { return power; }
 
 void Light::get_ray(SelRay &ray)
 {
-    Vector3 ray_dir;
+    Vector3 local_dir,local_pol;
     
     ray.start=loc;
     ray.lambda=compute_wavelength();
@@ -280,42 +282,29 @@ void Light::get_ray(SelRay &ray)
     
     ray.start+=x*local_x+y*local_y+z*local_z;
     
-    ray.pol.rand_sph();
-    
-         if(type==SRC_POINT) ray_dir.rand_sph();
+         if(type==SRC_POINT) local_dir.rand_sph();
     else if(type==SRC_POINT_PLANAR)
     {
         double th=randp(2.0*Pi);
         
-        ray_dir=std::cos(th)*local_y+std::sin(th)*local_z;
-    }
-    else if(type==SRC_POINT_ZP)
-    {
-        ray_dir.rand_sph();
-        if(ray_dir.z<0) ray_dir.z=-ray_dir.z;
-    }
-    else if(type==SRC_POINT_ZM)
-    {
-        ray_dir.rand_sph();
-        if(ray_dir.z>0) ray_dir.z=-ray_dir.z;
+        local_dir=std::cos(th)*unit_vec_y+
+                  std::sin(th)*unit_vec_z;
     }
     else if(type==SRC_LAMBERTIAN)
     {
-        Vector3 ld;
         bool c=true;
         
         while(c)
         {
-            ld.rand_sph();
-            if(ld.x<0) ld.x=-ld.x;
-            if (randp(0, 1) < ld.x) c=false; // ld.x is the cosine of theta (elevation angle)
+            local_dir.rand_sph();
+            local_dir.x=std::abs(local_dir.x);
+
+            if(randp(0.0,1.0)<local_dir.x) c=false; // ld.x is the cosine of theta (elevation angle)
         }
-        ray_dir=ld.x*local_x+ld.y*local_y+ld.z*local_z;
     }
     else if(type==SRC_PERFECT_BEAM)
     {
-        ray_dir=local_x;
-        ray.pol=local_z;
+        local_dir=unit_vec_x;
     }
     else if(type==SRC_USER_DEFINED)
     {
@@ -324,29 +313,44 @@ void Light::get_ray(SelRay &ray)
         ray.lambda=user_ray_buffer[0];
         ray.phase=user_ray_buffer[1];
         ray.start=Vector3(user_ray_buffer[2],user_ray_buffer[3],user_ray_buffer[4]);
-          ray_dir=Vector3(user_ray_buffer[5],user_ray_buffer[6],user_ray_buffer[7]);
+        local_dir=Vector3(user_ray_buffer[5],user_ray_buffer[6],user_ray_buffer[7]);
 
-        ray.start=loc+ray.start.x*local_x+ray.start.y*local_y+ray.start.z*local_z;
-        ray_dir=ray_dir.x*local_x+ray_dir.y*local_y+ray_dir.z*local_z;
+        ray.start=loc+to_global(ray.start);
         
         if(user_ray_buffer.size()==11) // optional polarization
         {
-            ray.pol=Vector3(user_ray_buffer[8],user_ray_buffer[9],user_ray_buffer[10]);
-            ray.pol=to_global(ray.pol);
+            local_pol=Vector3(user_ray_buffer[8],user_ray_buffer[9],user_ray_buffer[10]);
         }
     }
     
-    ray.pol=ray.pol-ray_dir*scalar_prod(ray.pol,ray_dir);
-    ray.pol.normalize();
+    // Polarization
     
-    ray.set_dir(ray_dir);
+    if(polar_type==POLAR_ALONG)
+    {
+        local_pol=polar_vector;
+        local_pol.normalize();
+        
+        local_pol=local_pol-local_dir*scalar_prod(local_pol,local_dir);
+    }
+    else if(polar_type==POLAR_NOT)
+    {
+        local_pol=crossprod(local_dir,polar_vector);
+    }
+    else if(polar_type==POLAR_UNSET && type!=SRC_USER_DEFINED)
+    {
+        local_pol.rand_sph();
+        local_pol=local_pol-local_dir*scalar_prod(local_pol,local_dir);
+    }
+    
+    local_pol.normalize();
+    
+    ray.set_dir(to_global(local_dir));
+    ray.set_pol(to_global(local_pol));
     
     // Ambient refractive index
     
     if(amb_mat==nullptr) ray.n_ind=1.0;
     else ray.n_ind=amb_mat->get_n(m_to_rad_Hz(ray.lambda));
-    
-//    chk_var(ray.n_ind);
     
     NRays_sent++;
 }
