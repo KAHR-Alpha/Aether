@@ -324,6 +324,15 @@ class SourceDialog: public FrameDialog
         NamedTextCtrl<double> *power;
         wxChoice *ambient_material;
         
+        // Cone
+        
+        NamedTextCtrl<double> *angle;
+        
+        // Gaussian beam
+        
+        NamedTextCtrl<double> *numerical_aperture;
+        LengthSelector *waist_distance;
+        
         // Polarization
         
         wxChoice *polarization;
@@ -331,6 +340,7 @@ class SourceDialog: public FrameDialog
         
         // Extent
         
+        wxPanel *extent_panel;
         wxChoice *extent;
         LengthSelector *extent_x,*extent_y,*extent_z,*extent_d;
         NamedTextCtrl<double> *opening;
@@ -385,7 +395,7 @@ class SourceDialog: public FrameDialog
         void layout_polychromatic_parameters();
         
         void layout_cone();
-        void layout_beam();
+        void layout_gaussian_beam();
         void layout_lambertian();
         void layout_perfect_beam();
         void layout_point();

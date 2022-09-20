@@ -17,5 +17,3 @@ add_lorentz(0.151*C1*C1,0.121*ih,3.175*ih)
 add_lorentz(0.150*C2*C2,0.543*ih,1.305*ih)
 add_lorentz(1.149*C3*C3,1.970*ih,2.676*ih)
 add_lorentz(0.825*C4*C4,8.775*ih,1.335*ih)
-
-evaluate(3001,200e-9,124000e-9)

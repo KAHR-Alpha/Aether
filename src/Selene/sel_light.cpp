@@ -297,7 +297,26 @@ void Light::get_ray(SelRay &ray)
         local_dir=std::cos(th)*unit_vec_y+
                   std::sin(th)*unit_vec_z;
     }
-    else if(type==SRC_BEAM)
+    else if(type==SRC_CONE)
+    {
+        bool check=true;
+        double th,phi;
+        
+        double boundary=std::sin(cone_angle/2.0);
+        
+        while(check)
+        {
+            th=randp(cone_angle/2.0);
+            phi=randp(2.0*Pi);
+            
+            if(randp(boundary)<std::sin(th)) check=false;
+        }
+        
+        local_dir=std::cos(th)*unit_vec_x+
+                  std::cos(phi)*std::sin(th)*unit_vec_y+
+                  std::sin(phi)*std::sin(th)*unit_vec_z;
+    }
+    else if(type==SRC_GAUSSIAN_BEAM)
     {
         double w0=ray.lambda/(Pi*beam_numerical_aperture);
         

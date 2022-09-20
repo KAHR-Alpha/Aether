@@ -470,9 +470,11 @@ namespace LuaUI
         
         metatable_add_func(L,"discrete_spectrum",&LuaUI::selene_light_set_discrete_spectrum);
         metatable_add_func(L,"extent",&LuaUI::selene_light_set_extent);
+        metatable_add_func(L,"full_angle",&LuaUI::selene_light_set_angle);
         metatable_add_func(L,"location",&LuaUI::selene_frame_set_displacement);
         metatable_add_func(L,"material",&LuaUI::selene_light_set_material);
         metatable_add_func(L,"name",&LuaUI::selene_frame_set_name);
+        metatable_add_func(L,"numerical_aperture",&LuaUI::selene_light_set_numerical_aperture);
         metatable_add_func(L,"origin",&LuaUI::selene_frame_set_origin);
         metatable_add_func(L,"polar_along",&LuaUI::selene_light_set_polar_along);
         metatable_add_func(L,"polar_not",&LuaUI::selene_light_set_polar_not);
@@ -484,6 +486,7 @@ namespace LuaUI
         metatable_add_func(L,"rotation_frame",&LuaUI::selene_frame_set_rotation_frame);
         metatable_add_func(L,"spectrum",&LuaUI::selene_light_set_spectrum);
         metatable_add_func(L,"translation_frame",&LuaUI::selene_frame_set_translation_frame);
+        metatable_add_func(L,"waist_distance",&LuaUI::selene_light_set_waist_distance);
         metatable_add_func(L,"wavelength",&LuaUI::selene_light_set_wavelength);
     }
     

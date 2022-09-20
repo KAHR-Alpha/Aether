@@ -6,11 +6,11 @@ message(${CMAKE_GENERATOR})
 message(${CMAKE_CXX_COMPILER_ID})
 
 set(CPACK_PACKAGE_VERSION_MAJOR 0)
-set(CPACK_PACKAGE_VERSION_MINOR 7)
-set(CPACK_PACKAGE_VERSION_PATCH 1)
+set(CPACK_PACKAGE_VERSION_MINOR 8)
+set(CPACK_PACKAGE_VERSION_PATCH 0)
 
 set(TASK "Build CLI" CACHE STRING "What to do")
-set_property(CACHE TASK PROPERTY STRINGS "Build CLI" "Build CLI+GUI" "Extract sources")
+set_property(CACHE TASK PROPERTY STRINGS "Build CLI" "Build CLI+GUI")
 
 set(INSTALL_PATH "" CACHE PATH "Installation path")
 set(NThreads 0 CACHE STRING "Max number of threads" )
@@ -75,306 +75,234 @@ set(fdtd_modes src/fdtd_modes/default_fdtd.cpp
 
 file(WRITE REVISION ${CPACK_PACKAGE_VERSION_MAJOR} "." ${CPACK_PACKAGE_VERSION_MINOR} "." ${CPACK_PACKAGE_VERSION_PATCH} )
 
-if(${TASK} STREQUAL "Extract sources")
-	install(FILES contributors DESTINATION .)
-	install(FILES CHANGELOG DESTINATION .)
-	install(FILES LICENSE DESTINATION .)
-	install(FILES REVISION DESTINATION .)
-	install(FILES show_log.m DESTINATION .)
-	install(FILES CMakeLists.txt DESTINATION .)
-	
-	install(FILES ${base_term} DESTINATION src)
-	install(FILES ${base_gui} DESTINATION src)
-	install(FILES ${extra_sources} DESTINATION src)
-	
-	install(FILES ${fd_solver} DESTINATION src/fd_solver)
-	install(FILES ${fdfd_core} DESTINATION src/fdfd)
-	install(FILES ${fdtd_core} DESTINATION src/fdtd_core)
-	install(FILES ${gl_tools_src} DESTINATION src/GL_tools)
-	install(FILES ${gl3w} DESTINATION src/GL_tools)
-	install(FILES ${gui_src} DESTINATION src/GUI)
-	install(FILES ${lua_src} DESTINATION src/lua_interface)
-	install(FILES ${math_src} DESTINATION src/math_tools)
-	install(FILES ${multilayers_src} DESTINATION src/multilayers)
-	install(FILES ${sensor_src} DESTINATION src/sensors)
-	install(FILES ${selene_src} DESTINATION src/Selene)
-	install(FILES ${source_src} DESTINATION src/sources)
-	install(FILES ${structure_src} DESTINATION src/structure)
+set(GUI 0)
 
-	install(FILES ${fdtd_modes} DESTINATION src/fdtd_modes)
-	
-	install(FILES src/include/aniso_retriever.h
-				  src/include/berreman_strat.h
-				  src/include/bitmap3.h
-				  src/include/data_hdl.h
-				  src/include/dielec_models.h
-				  src/include/enum_constants.h
-				  src/include/fd_base.h
-				  src/include/fdfd.h
-				  src/include/fieldblock_holder.h
-				  src/include/filehdl.h
-				  src/include/gl_utils.h
-				  src/include/index_utils.h
-				  src/include/lua_base.h
-				  src/include/lua_fd.h
-				  src/include/lua_interface.h
-				  src/include/lua_multilayers.h
-				  src/include/lua_selene.h
-				  src/include/lua_structure.h
-				  src/include/material.h
-				  src/include/mie.h
-				  src/include/mini_svg.h
-				  src/include/multilayers.h
-				  src/include/optical_fibers.h
-				  src/include/phys_constants.h
-				  src/include/planar_wgd.h
-				  src/include/script_utils.h
-				  src/include/structure.h
-				  src/include/thread_utils.h DESTINATION src/include)
-	
-	install(DIRECTORY src/include/fdtd DESTINATION src/include)
-	install(DIRECTORY src/include/gl3w DESTINATION src/include)
-	install(DIRECTORY src/include/GUI DESTINATION src/include)
-	install(DIRECTORY src/include/math_tools DESTINATION src/include)
-	install(DIRECTORY src/include/selene DESTINATION src/include)
-	
-	install(DIRECTORY contribs DESTINATION .)
-	file(GLOB_RECURSE manual_tex docu/manual/*.tex)
-	install(FILES ${manual_tex} DESTINATION docu/manual)
-	install(DIRECTORY mat_lib DESTINATION .)
-	install(DIRECTORY resources DESTINATION .)
-	install(DIRECTORY samples DESTINATION .)
-	install(DIRECTORY svg DESTINATION .)	
+if(${TASK} STREQUAL "Build CLI+GUI")
+	set(GUI 1)
+endif()
+
+if(WIN32)
+	find_path(EIGEN3_INCLUDE_DIR eigen3.pc.in /usr/lib /usr/local/include libs libs/eigen)
 else()
-	set(GUI 0)
+	find_package(Eigen3 REQUIRED)
+endif()
+find_path(FFTW_INCLUDES fftw3.h /usr/lib /usr/local/include libs libs/fftw64)
+find_library(FFTW_LIB NAMES fftw3-3 fftw3 PATHS /usr/lib /usr/lib/x86_64-linux-gnu /usr/local/lib libs libs/fftw64)
 
-	if(${TASK} STREQUAL "Build CLI+GUI")
-		set(GUI 1)
-	endif()
+find_package(Lua)
+find_package(PNG)
+find_package(ZLIB)
+	
+if(NOT WIN32)
+	find_package(Threads)
+endif()
 
+if(GUI)
 	if(WIN32)
-		find_path(EIGEN3_INCLUDE_DIR eigen3.pc.in /usr/lib /usr/local/include libs libs/eigen)
+		find_path(FREETYPE_INCLUDE_DIRS ft2build.h libs libs/freetype)
+		find_library(FREETYPE_LIBRARIES NAMES libfreetype PATHS libs libs/freetpye)
+		
+		find_path(WXWIDGETS_INCLUDES build.cfg /usr/lib /usr/local/include libs libs/wxWidgets30_h)
+		find_library(WXWIDGETS_BASE NAMES wxbase30u_gcc_custom PATHS /usr/lib /usr/local/lib libs libs/wxWidgets30_lib)
+		find_library(WXWIDGETS_CORE NAMES wxmsw30u_core_gcc_custom PATHS /usr/lib /usr/local/lib libs libs/wxWidgets30_lib)
+		find_library(WXWIDGETS_GL NAMES wxmsw30u_gl_gcc_custom PATHS /usr/lib /usr/local/lib libs libs/wxWidgets30_lib)
+		find_library(WXWIDGETS_ADV NAMES wxmsw30u_gl_gcc_custom PATHS /usr/lib /usr/local/lib libs libs/wxWidgets30_lib)
 	else()
-		find_package(Eigen3 REQUIRED)
+		find_package(wxWidgets REQUIRED gl core base)
+		find_package(Freetype)
 	endif()
-	find_path(FFTW_INCLUDES fftw3.h /usr/lib /usr/local/include libs libs/fftw64)
-	find_library(FFTW_LIB NAMES fftw3-3 fftw3 PATHS /usr/lib /usr/lib/x86_64-linux-gnu /usr/local/lib libs libs/fftw64)
+endif()
+				
+# add_executable(Aether_CLI ${base_term} ${extra_sources} ${fd_solver}
+					  # ${fdfd_core} ${fdtd_core} ${fdtd_modes} ${lua_src}
+					  # ${math_src} ${multilayers_src} ${phototracer_src} ${rcwa_src}
+					  # ${sensor_src} ${selene_src} ${source_src})
 
-	find_package(Lua)
-	find_package(PNG)
-	find_package(ZLIB)
-		
+				
+add_executable(Aether_CLI ${base_term} ${extra_sources} ${fd_solver}
+					  ${fdfd_core} ${fdtd_core} ${fdtd_modes} ${lua_src}
+					  ${math_src} ${multilayers_src} ${phototracer_src}
+					  ${sensor_src} ${selene_src} ${source_src} ${structure_src})
+
+if(GUI)
+	# add_executable(Aether_GUI WIN32 ${base_gui} ${gui_src} ${gl_tools_src}  ${gl3w}
+						  # ${extra_sources} ${fd_solver} ${fdfd_core} ${fdtd_core}
+						  # ${fdtd_modes} ${lua_src}
+						  # ${math_src} ${multilayers_src} ${rcwa_src} ${sensor_src}
+						  # ${selene_src} ${source_src})
+						  
+	add_executable(Aether_GUI WIN32 ${base_gui} ${gui_src} ${gl_tools_src}  ${gl3w}
+						  ${extra_sources} ${fd_solver} ${fdfd_core} ${fdtd_core}
+						  ${fdtd_modes} ${lua_src}
+						  ${math_src} ${multilayers_src} ${sensor_src}
+						  ${selene_src} ${source_src} ${structure_src})
+						  
+	target_compile_definitions(Aether_GUI PUBLIC -DUNICODE)
+	target_compile_definitions(Aether_GUI PUBLIC -D_UNICODE)
+	
+	target_compile_definitions(Aether_GUI PUBLIC -DGUI_ON)
+	
 	if(NOT WIN32)
-		find_package(Threads)
+		target_compile_definitions(Aether_GUI PUBLIC -DGTK_RMV_RESIZE -DWX30_RESTRICT)
 	endif()
+endif()
 
-	if(GUI)
-		if(WIN32)
-			find_path(FREETYPE_INCLUDE_DIRS ft2build.h libs libs/freetype)
-			find_library(FREETYPE_LIBRARIES NAMES libfreetype PATHS libs libs/freetpye)
-			
-			find_path(WXWIDGETS_INCLUDES build.cfg /usr/lib /usr/local/include libs libs/wxWidgets30_h)
-			find_library(WXWIDGETS_BASE NAMES wxbase30u_gcc_custom PATHS /usr/lib /usr/local/lib libs libs/wxWidgets30_lib)
-			find_library(WXWIDGETS_CORE NAMES wxmsw30u_core_gcc_custom PATHS /usr/lib /usr/local/lib libs libs/wxWidgets30_lib)
-			find_library(WXWIDGETS_GL NAMES wxmsw30u_gl_gcc_custom PATHS /usr/lib /usr/local/lib libs libs/wxWidgets30_lib)
-			find_library(WXWIDGETS_ADV NAMES wxmsw30u_gl_gcc_custom PATHS /usr/lib /usr/local/lib libs libs/wxWidgets30_lib)
-		else()
-			find_package(wxWidgets REQUIRED gl core base)
-			find_package(Freetype)
-		endif()
-	endif()
-					
-	# add_executable(Aether_CLI ${base_term} ${extra_sources} ${fd_solver}
-						  # ${fdfd_core} ${fdtd_core} ${fdtd_modes} ${lua_src}
-						  # ${math_src} ${multilayers_src} ${phototracer_src} ${rcwa_src}
-						  # ${sensor_src} ${selene_src} ${source_src})
+if(OLD_ITERATOR)
+	add_definitions(-DLINUX_ITERATOR_TWEAK)
+endif()
 
-					
-	add_executable(Aether_CLI ${base_term} ${extra_sources} ${fd_solver}
-						  ${fdfd_core} ${fdtd_core} ${fdtd_modes} ${lua_src}
-						  ${math_src} ${multilayers_src} ${phototracer_src}
-						  ${sensor_src} ${selene_src} ${source_src} ${structure_src})
-
-	if(GUI)
-		# add_executable(Aether_GUI WIN32 ${base_gui} ${gui_src} ${gl_tools_src}  ${gl3w}
-							  # ${extra_sources} ${fd_solver} ${fdfd_core} ${fdtd_core}
-							  # ${fdtd_modes} ${lua_src}
-							  # ${math_src} ${multilayers_src} ${rcwa_src} ${sensor_src}
-							  # ${selene_src} ${source_src})
-							  
-		add_executable(Aether_GUI WIN32 ${base_gui} ${gui_src} ${gl_tools_src}  ${gl3w}
-							  ${extra_sources} ${fd_solver} ${fdfd_core} ${fdtd_core}
-							  ${fdtd_modes} ${lua_src}
-							  ${math_src} ${multilayers_src} ${sensor_src}
-							  ${selene_src} ${source_src} ${structure_src})
-							  
-		target_compile_definitions(Aether_GUI PUBLIC -DUNICODE)
-		target_compile_definitions(Aether_GUI PUBLIC -D_UNICODE)
-		
-		target_compile_definitions(Aether_GUI PUBLIC -DGUI_ON)
-		
-		if(NOT WIN32)
-			target_compile_definitions(Aether_GUI PUBLIC -DGTK_RMV_RESIZE -DWX30_RESTRICT)
-		endif()
-	endif()
-
-	if(OLD_ITERATOR)
-		add_definitions(-DLINUX_ITERATOR_TWEAK)
-	endif()
-
-	if(NThreads GREATER 0)
-		set_property(SOURCE src/thread_utils.cpp PROPERTY COMPILE_DEFINITIONS MAX_NTHR=${NThreads})
-	endif()
+if(NThreads GREATER 0)
+	set_property(SOURCE src/thread_utils.cpp PROPERTY COMPILE_DEFINITIONS MAX_NTHR=${NThreads})
+endif()
 
 
-	###############
-	#   Includes
-	###############
+###############
+#   Includes
+###############
 
 
-	include_directories(src/include)
-	include_directories(src/include/fdtd)
-	include_directories(src/include/gl3w)
-	include_directories(src/include/GUI)
-	include_directories(src/include/math_tools)
-	include_directories(src/include/selene)
-	include_directories(${LUA_INCLUDE_DIR})
-	include_directories(${EIGEN3_INCLUDE_DIR})
-	include_directories(${FFTW_INCLUDES})
-	include_directories(${PNG_PNG_INCLUDE_DIR})
+include_directories(src/include)
+include_directories(src/include/fdtd)
+include_directories(src/include/gl3w)
+include_directories(src/include/GUI)
+include_directories(src/include/math_tools)
+include_directories(src/include/selene)
+include_directories(${LUA_INCLUDE_DIR})
+include_directories(${EIGEN3_INCLUDE_DIR})
+include_directories(${FFTW_INCLUDES})
+include_directories(${PNG_PNG_INCLUDE_DIR})
 
-	if(GUI)
-		target_include_directories(Aether_GUI PUBLIC ${FREETYPE_INCLUDE_DIRS})
-		
-		if(WIN32)
-			target_include_directories(Aether_GUI PUBLIC ${WXWIDGETS_INCLUDES})
-		else()
-			include(${wxWidgets_USE_FILE})
-		endif()
-	endif()
-
-
-	##############
-	#   Linking
-	##############
-
-
-	target_link_libraries(Aether_CLI ${LUA_LIBRARIES})
-	target_link_libraries(Aether_CLI ${FFTW_LIB})
-	target_link_libraries(Aether_CLI ${PNG_LIBRARY_RELEASE})
-	target_link_libraries(Aether_CLI ${ZLIB_LIBRARY_RELEASE})
+if(GUI)
+	target_include_directories(Aether_GUI PUBLIC ${FREETYPE_INCLUDE_DIRS})
 	
 	if(WIN32)
-		target_link_libraries(Aether_CLI userenv)
+		target_include_directories(Aether_GUI PUBLIC ${WXWIDGETS_INCLUDES})
+	else()
+		include(${wxWidgets_USE_FILE})
 	endif()
-	
+endif()
+
+
+##############
+#   Linking
+##############
+
+
+target_link_libraries(Aether_CLI ${LUA_LIBRARIES})
+target_link_libraries(Aether_CLI ${FFTW_LIB})
+target_link_libraries(Aether_CLI ${PNG_LIBRARY_RELEASE})
+target_link_libraries(Aether_CLI ${ZLIB_LIBRARY_RELEASE})
+
+if(WIN32)
+	target_link_libraries(Aether_CLI userenv)
+endif()
+
+if(UNIX) 
+	target_link_libraries(Aether_CLI dl pthread)
+endif()
+
+if(GUI)
+	target_link_libraries(Aether_GUI ${LUA_LIBRARIES})
+	target_link_libraries(Aether_GUI ${FFTW_LIB})
+	target_link_libraries(Aether_GUI ${PNG_LIBRARY_RELEASE})
+	target_link_libraries(Aether_GUI ${ZLIB_LIBRARY_RELEASE})
 	if(UNIX) 
 		target_link_libraries(Aether_CLI dl pthread)
 	endif()
-
-	if(GUI)
-		target_link_libraries(Aether_GUI ${LUA_LIBRARIES})
-		target_link_libraries(Aether_GUI ${FFTW_LIB})
-		target_link_libraries(Aether_GUI ${PNG_LIBRARY_RELEASE})
-		target_link_libraries(Aether_GUI ${ZLIB_LIBRARY_RELEASE})
-		if(UNIX) 
-			target_link_libraries(Aether_CLI dl pthread)
-		endif()
-		target_link_libraries(Aether_GUI ${FREETYPE_LIBRARIES})
-			
-		if(WIN32)
-			target_link_libraries(Aether_GUI ${WXWIDGETS_BASE})
-			target_link_libraries(Aether_GUI ${WXWIDGETS_CORE})
-			target_link_libraries(Aether_GUI ${WXWIDGETS_GL})
-			target_link_libraries(Aether_GUI ${WXWIDGETS_ADV})
-			
-			target_link_libraries(Aether_GUI opengl32)
-			target_link_libraries(Aether_GUI glu32)
-			target_link_libraries(Aether_GUI gdi32)
-			target_link_libraries(Aether_GUI ole32)
-			target_link_libraries(Aether_GUI oleaut32)
-			target_link_libraries(Aether_GUI comctl32)
-			target_link_libraries(Aether_GUI comdlg32)
-			target_link_libraries(Aether_GUI userenv)
-		else()
-			target_link_libraries(Aether_GUI ${wxWidgets_LIBRARIES} ${CMAKE_DL_LIBS})
-		endif()
+	target_link_libraries(Aether_GUI ${FREETYPE_LIBRARIES})
+		
+	if(WIN32)
+		target_link_libraries(Aether_GUI ${WXWIDGETS_BASE})
+		target_link_libraries(Aether_GUI ${WXWIDGETS_CORE})
+		target_link_libraries(Aether_GUI ${WXWIDGETS_GL})
+		target_link_libraries(Aether_GUI ${WXWIDGETS_ADV})
+		
+		target_link_libraries(Aether_GUI opengl32)
+		target_link_libraries(Aether_GUI glu32)
+		target_link_libraries(Aether_GUI gdi32)
+		target_link_libraries(Aether_GUI ole32)
+		target_link_libraries(Aether_GUI oleaut32)
+		target_link_libraries(Aether_GUI comctl32)
+		target_link_libraries(Aether_GUI comdlg32)
+		target_link_libraries(Aether_GUI userenv)
+	else()
+		target_link_libraries(Aether_GUI ${wxWidgets_LIBRARIES} ${CMAKE_DL_LIBS})
 	endif()
+endif()
 
 
-	###################
-	#   Installation
-	###################
+###################
+#   Installation
+###################
+
+set(BIN_DIR .)
+set(RSC_DIR .)
+
+if(NOT WIN32)
+	set(BIN_DIR "bin")
+	set(RSC_DIR "share/Aether")
+endif()
+
+install(TARGETS Aether_CLI RUNTIME DESTINATION ${BIN_DIR} PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE)
+install(DIRECTORY contribs DESTINATION ${RSC_DIR})
+install(DIRECTORY mat_lib DESTINATION ${RSC_DIR})
+
+# install(DIRECTORY DESTINATION ${RSC_DIR}/buf)
+# install(DIRECTORY DESTINATION ${RSC_DIR}/grid)
+# install(DIRECTORY DESTINATION ${RSC_DIR}/grid2)
+# install(DIRECTORY DESTINATION ${RSC_DIR}/render)
+
+install(DIRECTORY samples DESTINATION ${RSC_DIR})
+
+install(FILES contributors DESTINATION ${RSC_DIR})
+install(FILES CHANGELOG DESTINATION ${RSC_DIR})
+install(FILES LICENSE DESTINATION ${RSC_DIR})
+install(FILES REVISION DESTINATION ${RSC_DIR})
+
+if(WIN32)
+	install(FILES ${LUA_LIBRARIES} DESTINATION .)
+	install(FILES ${FFTW_LIB} DESTINATION .)
+	install(FILES ${PNG_LIBRARY_RELEASE} DESTINATION .)
+	install(FILES ${ZLIB_LIBRARY_RELEASE} DESTINATION .)
 	
-	set(BIN_DIR .)
-	set(RSC_DIR .)
-	
-	if(NOT WIN32)
-		set(BIN_DIR "bin")
-		set(RSC_DIR "share/Aether")
+	if(${CMAKE_GENERATOR} STREQUAL "MinGW Makefiles")
+		find_file(LIBSTDCPP_DLL libstdc++-6.dll)
+		find_file(LIBGCCSEH_DLL libgcc_s_seh-1.dll)
+		find_file(LIBWINPTH_DLL libwinpthread-1.dll)
+		
+		install(FILES ${LIBSTDCPP_DLL} DESTINATION .)
+		install(FILES ${LIBGCCSEH_DLL} DESTINATION .)
+		install(FILES ${LIBWINPTH_DLL} DESTINATION .)
 	endif()
+endif()
 
-	install(TARGETS Aether_CLI RUNTIME DESTINATION ${BIN_DIR} PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE)
-	install(DIRECTORY contribs DESTINATION ${RSC_DIR})
-	install(DIRECTORY mat_lib DESTINATION ${RSC_DIR})
-	
-	# install(DIRECTORY DESTINATION ${RSC_DIR}/buf)
-	# install(DIRECTORY DESTINATION ${RSC_DIR}/grid)
-	# install(DIRECTORY DESTINATION ${RSC_DIR}/grid2)
-	# install(DIRECTORY DESTINATION ${RSC_DIR}/render)
-	
-	install(DIRECTORY samples DESTINATION ${RSC_DIR})
-	
-	install(FILES contributors DESTINATION ${RSC_DIR})
-	install(FILES CHANGELOG DESTINATION ${RSC_DIR})
-	install(FILES LICENSE DESTINATION ${RSC_DIR})
-	install(FILES REVISION DESTINATION ${RSC_DIR})
+if(GUI)
+	install(TARGETS Aether_GUI RUNTIME DESTINATION ${BIN_DIR} PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE)
+	install(DIRECTORY resources DESTINATION ${RSC_DIR})
 	
 	if(WIN32)
-		install(FILES ${LUA_LIBRARIES} DESTINATION .)
-		install(FILES ${FFTW_LIB} DESTINATION .)
-		install(FILES ${PNG_LIBRARY_RELEASE} DESTINATION .)
-		install(FILES ${ZLIB_LIBRARY_RELEASE} DESTINATION .)
-		
-		if(${CMAKE_GENERATOR} STREQUAL "MinGW Makefiles")
-			find_file(LIBSTDCPP_DLL libstdc++-6.dll)
-			find_file(LIBGCCSEH_DLL libgcc_s_seh-1.dll)
-			find_file(LIBWINPTH_DLL libwinpthread-1.dll)
-			
-			install(FILES ${LIBSTDCPP_DLL} DESTINATION .)
-			install(FILES ${LIBGCCSEH_DLL} DESTINATION .)
-			install(FILES ${LIBWINPTH_DLL} DESTINATION .)
-		endif()
+		install(FILES ${WXWIDGETS_BASE} DESTINATION .)
+		install(FILES ${WXWIDGETS_CORE} DESTINATION .)
+		install(FILES ${WXWIDGETS_GL} DESTINATION .)
+		install(FILES ${WXWIDGETS_ADV} DESTINATION .)
 	endif()
-	
-	if(GUI)
-		install(TARGETS Aether_GUI RUNTIME DESTINATION ${BIN_DIR} PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE)
-		install(DIRECTORY resources DESTINATION ${RSC_DIR})
-		
-		if(WIN32)
-			install(FILES ${WXWIDGETS_BASE} DESTINATION .)
-			install(FILES ${WXWIDGETS_CORE} DESTINATION .)
-			install(FILES ${WXWIDGETS_GL} DESTINATION .)
-			install(FILES ${WXWIDGETS_ADV} DESTINATION .)
-		endif()
-	endif()
-	
-	
-	set(CPACK_PACKAGE_NAME Aether)
-	set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Aether Simulation Suite")
-	set(CPACK_PACKAGE_VENDOR "Aether Project")
-	set(CPACK_PACKAGE_CONTACT "aether_project@utt.fr")
-	set(CPACK_PACKAGE_INSTALL_DIRECTORY "Aether")
-	set(CPACK_PACKAGE_EXECUTABLES Aether_GUI;Aether_GUI)
-	set(CPACK_PACKAGE_HOMEPAGE_URL https://aether.utt.fr/)
-	set(CPACK_RESOURCE_FILE_LICENSE ${CMAKE_SOURCE_DIR}/LICENSE)
-	set(CPACK_VERBATIM_VARIABLES TRUE)
-	
-	set(CPACK_DEBIAN_PACKAGE_DEPENDS "libfreetype6,libfftw3-bin,zlib1g,libpng16-16,liblua5.4-0")
-	
-	set(CPACK_NSIS_EXECUTABLES_DIRECTORY ".")
-	set(CPACK_NSIS_ENABLE_UNINSTALL_BEFORE_INSTALL ON)
-	set(CPACK_NSIS_INSTALL_ROOT "c:")
-	
-	include(CPack)
 endif()
+
+
+set(CPACK_PACKAGE_NAME Aether)
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Aether Simulation Suite")
+set(CPACK_PACKAGE_VENDOR "Aether Project")
+set(CPACK_PACKAGE_CONTACT "aether_project@utt.fr")
+set(CPACK_PACKAGE_INSTALL_DIRECTORY "Aether")
+set(CPACK_PACKAGE_EXECUTABLES Aether_GUI;Aether_GUI)
+set(CPACK_PACKAGE_HOMEPAGE_URL https://aether.utt.fr/)
+set(CPACK_RESOURCE_FILE_LICENSE ${CMAKE_SOURCE_DIR}/LICENSE)
+set(CPACK_VERBATIM_VARIABLES TRUE)
+
+set(CPACK_DEBIAN_PACKAGE_DEPENDS "libfreetype6,libfftw3-bin,zlib1g,libpng16-16,liblua5.4-0")
+
+set(CPACK_NSIS_EXECUTABLES_DIRECTORY ".")
+set(CPACK_NSIS_ENABLE_UNINSTALL_BEFORE_INSTALL ON)
+set(CPACK_NSIS_INSTALL_ROOT "c:")
+
+include(CPack)

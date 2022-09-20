@@ -106,9 +106,11 @@ namespace LuaUI
     void Selene_create_light_metatable(lua_State *L);
     void create_selene_light_type(lua_State *L,Sel::Light *light);
     
+    int selene_light_set_angle(lua_State *L);
     int selene_light_set_discrete_spectrum(lua_State *L);
     int selene_light_set_extent(lua_State *L);
     int selene_light_set_material(lua_State *L);
+    int selene_light_set_numerical_aperture(lua_State *L);
     int selene_light_set_polar_along(lua_State *L);
     int selene_light_set_polar_not(lua_State *L);
     int selene_light_set_polar_unset(lua_State *L);
@@ -116,6 +118,7 @@ namespace LuaUI
     int selene_light_set_rays_file(lua_State *L);
     int selene_light_set_spectrum(lua_State *L);
     int selene_light_set_wavelength(lua_State *L);
+    int selene_light_set_waist_distance(lua_State *L);
     
     // Selene
     

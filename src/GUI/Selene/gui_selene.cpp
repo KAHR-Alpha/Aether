@@ -109,8 +109,8 @@ SeleneFrame::SeleneFrame(wxString const &title)
     add_element_list->Append("Rectangle");
     add_element_list->Append("Spherical patch");
     add_element_list->Append("---------------");
-    add_element_list->Append("(todo) Beam");
-    add_element_list->Append("(todo) Cone");
+    add_element_list->Append("Cone");
+    add_element_list->Append("Gaussian Beam");
     add_element_list->Append("Lambertian Source");
     add_element_list->Append("Perfect Beam");
     add_element_list->Append("Planar Point Source");
@@ -485,11 +485,12 @@ void SeleneFrame::evt_add_element(wxCommandEvent &event)
         switch(selection)
         {
             case 0:
-                light->type=Sel::SRC_BEAM;
-                light->name="Beam_" + std::to_string(item_count);
+                light->type=Sel::SRC_CONE;
+                light->name="Cone_Source_" + std::to_string(item_count);
                 break;
             case 1:
-                light->name="Cone_Source_" + std::to_string(item_count);
+                light->type=Sel::SRC_GAUSSIAN_BEAM;
+                light->name="Gaussian_Beam_" + std::to_string(item_count);
                 break;
             case 2:
                 light->type=Sel::SRC_LAMBERTIAN;
@@ -1113,6 +1114,7 @@ void SeleneFrame::save_project(wxFileName const &fname_)
     }
     
     // Objects definition
+    file<<"-- Objects definition\n\n";
     
     std::vector<std::string> ID(frames.size());
     
@@ -1193,8 +1195,8 @@ void SeleneFrame::save_project(wxFileName const &fname_)
             
             switch(light->type)
             {
-                case Sel::SRC_BEAM: file<<"\"beam\""; break;
                 case Sel::SRC_CONE: file<<"\"cone\""; break;
+                case Sel::SRC_GAUSSIAN_BEAM: file<<"\"gaussian_beam\""; break;
                 case Sel::SRC_LAMBERTIAN: file<<"\"lambertian\""; break;
                 case Sel::SRC_POINT: file<<"\"point\""; break;
                 case Sel::SRC_POINT_PLANAR: file<<"\"point_planar\""; break;
@@ -1209,6 +1211,7 @@ void SeleneFrame::save_project(wxFileName const &fname_)
     file<<"\n";
     
     // Frame properties
+    file<<"-- Frame properties\n\n";
     
     for(std::size_t i=0;i<frames.size();i++)
     {
@@ -1250,6 +1253,7 @@ void SeleneFrame::save_project(wxFileName const &fname_)
     }
     
     // Specific object properties
+    file<<"-- Specific object properties\n\n";
     
     for(std::size_t i=0;i<frames.size();i++)
     {
@@ -1472,6 +1476,18 @@ void SeleneFrame::save_project(wxFileName const &fname_)
             if(light->power!=1.0)
                 file<<ID[i]<<":power("<<light->power<<")\n";
             
+            // Geometric properties
+            
+            if(light->type==Sel::SRC_CONE)
+            {
+                file<<ID[i]<<":full_angle("<<light->cone_angle*180.0/Pi<<")\n";
+            }
+            else if(light->type==Sel::SRC_GAUSSIAN_BEAM)
+            {
+                file<<ID[i]<<":numerical_aperture("<<light->beam_numerical_aperture<<")\n";
+                file<<ID[i]<<":waist_distance("<<light->beam_waist_distance<<")\n";
+            }
+            
             // Materials check
             
             Material *mat=light->amb_mat;
@@ -1574,6 +1590,7 @@ void SeleneFrame::save_project(wxFileName const &fname_)
     file<<"\n";
     
     // Simulation properties
+    file<<"-- Simulation properties\n\n";
     
     file<<"selene=MODE(\"selene\")\n\n";
     file<<"selene:N_rays_total("<<nr_tot->get_value()<<")\n";
@@ -1737,6 +1754,29 @@ void SeleneFrame::update_vao(SeleneVAO *vao,Sel::Frame *frame)
                 F_arr[i].V2=2*i+1;
             }
         }
+        else if(light->type==Sel::SRC_CONE)
+        {
+            double r=0.05;
+            double ang=light->cone_angle/2.0;
+            
+            double ca=std::cos(ang);
+            double sa=std::sin(ang);
+            
+            wireframe_mesh_add_line(V_arr,F_arr,Vector3(0,0,-r),Vector3(0,0,+r));
+            wireframe_mesh_add_line(V_arr,F_arr,Vector3(0,-r,0),Vector3(0,+r,0));
+            
+            wireframe_mesh_add_line(V_arr,F_arr,Vector3(0,0,0),r*Vector3(ca,+sa,0));
+            wireframe_mesh_add_line(V_arr,F_arr,Vector3(0,0,0),r*Vector3(ca,-sa,0));
+            wireframe_mesh_add_line(V_arr,F_arr,Vector3(0,0,0),r*Vector3(ca,0,+sa));
+            wireframe_mesh_add_line(V_arr,F_arr,Vector3(0,0,0),r*Vector3(ca,0,-sa));
+            
+            wireframe_mesh_add_arc(V_arr,F_arr,128,Vector3(r,0,0),Vector3(0,r,0),0,ang);
+            wireframe_mesh_add_arc(V_arr,F_arr,128,Vector3(r,0,0),Vector3(0,r,0),0,-ang);
+            wireframe_mesh_add_arc(V_arr,F_arr,128,Vector3(r,0,0),Vector3(0,0,r),0,ang);
+            wireframe_mesh_add_arc(V_arr,F_arr,128,Vector3(r,0,0),Vector3(0,0,r),0,-ang);
+            
+            wireframe_mesh_add_circle(V_arr,F_arr,128,r*ca,r*sa);
+        }
         else if(light->type==Sel::SRC_LAMBERTIAN)
         {
             V_arr.resize(14+128);
@@ -1787,7 +1827,7 @@ void SeleneFrame::update_vao(SeleneVAO *vao,Sel::Frame *frame)
             
             F_arr[134].V2=v_offset;
         }
-        else if(light->type==Sel::SRC_BEAM ||light->type==Sel::SRC_PERFECT_BEAM)
+        else if(light->type==Sel::SRC_GAUSSIAN_BEAM ||light->type==Sel::SRC_PERFECT_BEAM)
         {
             V_arr.resize(6+128);
             F_arr.resize(3+128);

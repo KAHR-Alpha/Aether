@@ -82,6 +82,19 @@ SourceDialog::SourceDialog(Sel::Light *light_,std::vector<Sel::Frame*> const &fr
     
     // Controls
     
+    // - Cone
+    
+    angle=new NamedTextCtrl(ctrl_panel,"Full angle",light->cone_angle*180.0/Pi,true);
+    ctrl_sizer->Add(angle,wxSizerFlags().Expand());
+    
+    // - Gaussian Beam
+    
+    numerical_aperture=new NamedTextCtrl(ctrl_panel,"Numerical aperture",light->beam_numerical_aperture,true);
+    waist_distance=new LengthSelector(ctrl_panel,"Waist distance",light->beam_waist_distance,true);
+    
+    ctrl_sizer->Add(numerical_aperture,wxSizerFlags().Expand());
+    ctrl_sizer->Add(waist_distance,wxSizerFlags().Expand());
+    
     // - Polarization
     
     wxStaticBoxSizer *polarization_sizer=new wxStaticBoxSizer(wxVERTICAL,ctrl_panel,"Polarization");
@@ -112,7 +125,9 @@ SourceDialog::SourceDialog(Sel::Light *light_,std::vector<Sel::Frame*> const &fr
     
     // - Extent
     
-    wxStaticBoxSizer *extent_sizer=new wxStaticBoxSizer(wxVERTICAL,ctrl_panel,"Extent");
+    extent_panel=new wxPanel(ctrl_panel);
+    
+    wxStaticBoxSizer *extent_sizer=new wxStaticBoxSizer(wxVERTICAL,extent_panel,"Extent");
     
     extent=new wxChoice(extent_sizer->GetStaticBox(),wxID_ANY);
     extent->Append("Point");
@@ -147,7 +162,9 @@ SourceDialog::SourceDialog(Sel::Light *light_,std::vector<Sel::Frame*> const &fr
     extent_sizer->Add(extent_z,wxSizerFlags().Expand());
     extent_sizer->Add(extent_d,wxSizerFlags().Expand());
     
-    ctrl_sizer->Add(extent_sizer,std_flags);
+    extent_panel->SetSizer(extent_sizer);
+    
+    ctrl_sizer->Add(extent_panel,std_flags);
     
     layout_extent();
     
@@ -261,10 +278,12 @@ SourceDialog::SourceDialog(Sel::Light *light_,std::vector<Sel::Frame*> const &fr
     
     switch(light->type)
     {
-        case Sel::SRC_BEAM: layout_beam(); break;
+        case Sel::SRC_GAUSSIAN_BEAM: layout_gaussian_beam(); break;
         case Sel::SRC_CONE: layout_cone(); break;
-        case Sel::SRC_POINT: layout_point(); break;
+        case Sel::SRC_LAMBERTIAN: layout_lambertian(); break;
         case Sel::SRC_PERFECT_BEAM: layout_perfect_beam(); break;
+        case Sel::SRC_POINT: layout_point(); break;
+        case Sel::SRC_POINT_PLANAR: layout_point_planar(); break;
     }
     
     if(light->spectrum_file!="") load_spectrum_file();
@@ -470,22 +489,46 @@ void SourceDialog::layout_polychromatic_parameters()
 
 void SourceDialog::layout_cone()
 {
+    angle->Show();
+    numerical_aperture->Hide();
+    waist_distance->Hide();
 }
 
-void SourceDialog::layout_beam()
+void SourceDialog::layout_gaussian_beam()
 {
+    angle->Hide();
+    numerical_aperture->Show();
+    waist_distance->Show();
+    
+    extent_panel->Hide();
+}
+
+void SourceDialog::layout_lambertian()
+{
+    angle->Hide();
+    numerical_aperture->Hide();
+    waist_distance->Hide();
 }
 
 void SourceDialog::layout_perfect_beam()
 {
+    angle->Hide();
+    numerical_aperture->Hide();
+    waist_distance->Hide();
 }
 
 void SourceDialog::layout_point()
 {
+    angle->Hide();
+    numerical_aperture->Hide();
+    waist_distance->Hide();
 }
 
 void SourceDialog::layout_point_planar()
 {
+    angle->Hide();
+    numerical_aperture->Hide();
+    waist_distance->Hide();
 }
 
 void SourceDialog::load_spectrum_file()
@@ -503,6 +546,10 @@ void SourceDialog::load_spectrum_file()
 void SourceDialog::save_object()
 {
     light->power=power->get_value();
+    
+    light->cone_angle=angle->get_value()*Pi/180.0;
+    light->beam_numerical_aperture=numerical_aperture->get_value();
+    light->beam_waist_distance=waist_distance->get_length();
     
     if(materials.size()>0)
         light->amb_mat=materials[ambient_material->GetSelection()];

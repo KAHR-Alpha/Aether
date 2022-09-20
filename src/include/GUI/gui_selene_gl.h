@@ -42,6 +42,10 @@ void rectangle_mesh_wireframe(std::vector<Vertex> &V_arr,std::vector<Face> &F_ar
                               double ly,double lz);
 void sphere_cut_mesh_wireframe(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr,
                                double r,double cut_factor,bool volume_version);
+void wireframe_mesh_add_arc(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr,unsigned int disc,
+                            Vector3 const &V1,Vector3 const &V2,double th_start,double th_end);
+void wireframe_mesh_add_line(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr,
+                             Vector3 const &line_start,Vector3 const &line_end);
 void wireframe_mesh_add_circle(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr,
                                unsigned int disc,double x,double R);
 void wireframe_mesh_add_cross(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr,

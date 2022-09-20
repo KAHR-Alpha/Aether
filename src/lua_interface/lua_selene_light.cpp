@@ -30,13 +30,23 @@ namespace LuaUI
     {
         std::string type=lua_tostring(L,1);
         
-             if(type=="beam") p_light->set_type(Sel::SRC_BEAM);
-        else if(type=="cone") p_light->set_type(Sel::SRC_CONE);
+             if(type=="cone") p_light->set_type(Sel::SRC_CONE);
+        else if(type=="gaussian_beam") p_light->set_type(Sel::SRC_GAUSSIAN_BEAM);
         else if(type=="lambertian") p_light->set_type(Sel::SRC_LAMBERTIAN);
         else if(type=="perfect_beam") p_light->set_type(Sel::SRC_PERFECT_BEAM);
         else if(type=="point") p_light->set_type(Sel::SRC_POINT);
         else if(type=="point_planar") p_light->set_type(Sel::SRC_POINT_PLANAR);
         else if(type=="user_defined") p_light->set_type(Sel::SRC_USER_DEFINED);
+    }
+    
+    int selene_light_set_angle(lua_State *L)
+    {
+        Sel::Frame *frame=lua_get_metapointer<Sel::Frame>(L,1);
+        Sel::Light *light=dynamic_cast<Sel::Light*>(frame);
+        
+        light->cone_angle=lua_tonumber(L,2)*Pi/180.0;
+        
+        return 0;
     }
     
     int selene_light_set_discrete_spectrum(lua_State *L)
@@ -115,6 +125,16 @@ namespace LuaUI
         Material *p_mat=lua_get_metapointer<Material>(L,2);
         
         light->amb_mat=p_mat;
+        
+        return 0;
+    }
+    
+    int selene_light_set_numerical_aperture(lua_State *L)
+    {
+        Sel::Frame *frame=lua_get_metapointer<Sel::Frame>(L,1);
+        Sel::Light *light=dynamic_cast<Sel::Light*>(frame);
+        
+        light->beam_numerical_aperture=lua_tonumber(L,2);
         
         return 0;
     }
@@ -211,6 +231,16 @@ namespace LuaUI
         
         light->spectrum_type=Sel::SPECTRUM_MONO;
         light->lambda_mono=lambda;
+        
+        return 0;
+    }
+    
+    int selene_light_set_waist_distance(lua_State *L)
+    {
+        Sel::Frame *frame=lua_get_metapointer<Sel::Frame>(L,1);
+        Sel::Light *light=dynamic_cast<Sel::Light*>(frame);
+        
+        light->beam_waist_distance=lua_tonumber(L,2);
         
         return 0;
     }

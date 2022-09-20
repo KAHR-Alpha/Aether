@@ -850,6 +850,45 @@ void sphere_cut_mesh_wireframe(std::vector<Vertex> &V_arr,std::vector<Face> &F_a
 //    
 }
 
+void wireframe_mesh_add_arc(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr,unsigned int disc,
+                             Vector3 const &V1,Vector3 const &V2,double th_start,double th_end)
+{
+    std::size_t v_offset=V_arr.size();
+    std::size_t f_offset=F_arr.size();
+    
+    V_arr.resize(v_offset+disc+1);
+    F_arr.resize(f_offset+disc);
+    
+    for(unsigned int i=0;i<=disc;i++)
+    {
+        double ang=th_start+(th_end-th_start)*i/static_cast<double>(disc);
+        
+        V_arr[v_offset+i].loc=std::cos(ang)*V1+std::sin(ang)*V2;
+    }
+    
+    for(unsigned int i=0;i<disc;i++)
+    {
+        F_arr[f_offset+i].V1=v_offset+i;
+        F_arr[f_offset+i].V2=v_offset+i+1;
+    }
+}
+
+void wireframe_mesh_add_line(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr,
+                             Vector3 const &line_start,Vector3 const &line_end)
+{
+    std::size_t v_offset=V_arr.size();
+    std::size_t f_offset=F_arr.size();
+    
+    V_arr.resize(v_offset+2);
+    F_arr.resize(f_offset+1);
+    
+    V_arr[v_offset].loc=line_start;
+    V_arr[v_offset+1].loc=line_end;
+    
+    F_arr[f_offset].V1=v_offset;
+    F_arr[f_offset].V2=v_offset+1;
+}
+
 void wireframe_mesh_add_circle(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr,
                                unsigned int disc,double x,double R)
 {

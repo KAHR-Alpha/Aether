@@ -8,5 +8,3 @@ add_lorentz(3.0079,8.1635e15,4.3785e17)
 add_lorentz(2.3410,3.8316e16,6.0574e16)
 
 -- enable_pcrc2()
-
-evaluate(1000,400e-9,1000e-9)
