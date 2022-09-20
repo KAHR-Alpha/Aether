@@ -485,6 +485,7 @@ void SeleneFrame::evt_add_element(wxCommandEvent &event)
         switch(selection)
         {
             case 0:
+                light->type=Sel::SRC_BEAM;
                 light->name="Beam_" + std::to_string(item_count);
                 break;
             case 1:
@@ -1786,7 +1787,7 @@ void SeleneFrame::update_vao(SeleneVAO *vao,Sel::Frame *frame)
             
             F_arr[134].V2=v_offset;
         }
-        else if(light->type==Sel::SRC_PERFECT_BEAM)
+        else if(light->type==Sel::SRC_BEAM ||light->type==Sel::SRC_PERFECT_BEAM)
         {
             V_arr.resize(6+128);
             F_arr.resize(3+128);

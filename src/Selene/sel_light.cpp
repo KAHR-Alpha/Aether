@@ -24,6 +24,9 @@ Light::Light()
      extent(EXTENT_POINT),
      polar_type(POLAR_UNSET),
      polar_vector(0,0,0),
+     cone_angle(Degree(25)),
+     beam_numerical_aperture(1e-3),
+     beam_waist_distance(10e-2),
      lambda_mono(550e-9),
      polymono_lambda(1,500e-9), polymono_weight(1,1.0),
      spectrum_shape(SPECTRUM_FLAT),
@@ -293,6 +296,41 @@ void Light::get_ray(SelRay &ray)
         
         local_dir=std::cos(th)*unit_vec_y+
                   std::sin(th)*unit_vec_z;
+    }
+    else if(type==SRC_BEAM)
+    {
+        double w0=ray.lambda/(Pi*beam_numerical_aperture);
+        
+        double w2=w0*w0;
+        double NA2=beam_numerical_aperture*beam_numerical_aperture;
+        
+        double y,z,vy,vz;
+        
+        bool check=true;
+        
+        while(check)
+        {
+            y=3.0*w0*randp(-1.0,1.0);
+            z=3.0*w0*randp(-1.0,1.0);
+            vy=3.0*beam_numerical_aperture*randp(-1.0,1.0);
+            vz=3.0*beam_numerical_aperture*randp(-1.0,1.0);
+            
+            double p=randp();
+            
+            if(   p<std::exp(-(y*y+z*z)/w2-(vy*vy+vz*vz)/NA2)
+               && vy*vy+vz*vz<1.0) check=false;
+        }
+        
+        double vx=sqrt(1.0-vy*vy-vz*vz);
+        double t=-beam_waist_distance/vx;
+        
+        y=y+t*vy;
+        z=z+t*vz;
+        
+        ray.start=Vector3(0,y,z);
+        ray.start=loc+to_global(ray.start);
+        
+        local_dir(vx,vy,vz);
     }
     else if(type==SRC_LAMBERTIAN)
     {

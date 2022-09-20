@@ -6,8 +6,9 @@ Todo:
 - Tangent vectors managements for Selene
 - Implement the Lambertian, Guassian and ABg scattering models ( see "What scattering models are available in OpticStudio?" )
 
-0.7.1 (WIP)
+0.8 (WIP)
 - Added conics
+- Gaussian Beams first implementation
 - Polarization handling by Selene
 GUI:
 - Exposed the Lambertian source

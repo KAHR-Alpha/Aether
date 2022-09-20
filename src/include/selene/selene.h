@@ -289,6 +289,15 @@ class Light: public Frame
         int polar_type;
         Vector3 polar_vector;
         
+        // Cone
+        
+        double cone_angle;
+        
+        // Beam
+        
+        double beam_numerical_aperture,
+               beam_waist_distance;
+        
         // Discrete spectra
         
         double lambda_mono;
@@ -313,7 +322,6 @@ class Light: public Frame
         // User defined
         
         AsciiDataLoader ray_file;
-        int ray_file_convention;
         std::vector<double> user_ray_buffer;
         
         int NRays_sent;
