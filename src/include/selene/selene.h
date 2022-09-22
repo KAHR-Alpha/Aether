@@ -675,8 +675,8 @@ class Selene
                      ray_family_counter,
                      fetched_source;
         std::vector<int> gen_ftc;
-        std::vector<double> xs_ftc,ys_ftc,zs_ftc,
-                                   xe_ftc,ye_ftc,ze_ftc;
+        std::vector<double> lambda_ftc,xs_ftc,ys_ftc,zs_ftc,
+                                       xe_ftc,ye_ftc,ze_ftc;
         std::vector<bool> lost_ftc;
         
         void add_light(Light *src);

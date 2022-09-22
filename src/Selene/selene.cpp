@@ -243,6 +243,7 @@ void Selene::fetch_ray(SelRay const &ray)
     if(ray.family<=fetch_family)
     {
         gen_ftc.push_back(ray.generation);
+        lambda_ftc.push_back(ray.lambda);
         xs_ftc.push_back(ray.prev_start.x);
         ys_ftc.push_back(ray.prev_start.y);
         zs_ftc.push_back(ray.prev_start.z);
@@ -272,6 +273,7 @@ void Selene::fetch_ray_lost(SelRay const &ray)
     if(ray.family<=fetch_family)
     {
         gen_ftc.push_back(ray.generation);
+        lambda_ftc.push_back(ray.lambda);
         xs_ftc.push_back(ray.start.x);
         ys_ftc.push_back(ray.start.y);
         zs_ftc.push_back(ray.start.z);
@@ -372,6 +374,7 @@ void Selene::render()
     for(int i=0;i<Nftc;i++)
     {
         file<<gen_ftc[i]<<" ";
+        file<<lambda_ftc[i]<<" ";
         file<<xs_ftc[i]<<" ";
         file<<ys_ftc[i]<<" ";
         file<<zs_ftc[i]<<" ";
@@ -493,6 +496,7 @@ void Selene::request_raytrace(RayPath &ray_path)
 void Selene::reset_fetcher()
 {
     gen_ftc.clear();
+    lambda_ftc.clear();
     xs_ftc.clear();
     ys_ftc.clear();
     zs_ftc.clear();

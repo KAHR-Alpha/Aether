@@ -81,14 +81,21 @@ class GL_Selene: public GL_3D_Base
     public:
         std::vector<SeleneVAO*> vao;
         
-        GLuint prog_solid,prog_wires,prog_ray;
+        GLuint prog_solid,prog_wires,prog_ray_generation,prog_ray_dispersion;
         
         // Rays
         
-        int Nrays,max_gen,min_disp_gen,max_disp_gen;
+        int Nrays;
+        int display_type;
+        
+        int gen_max,
+            gen_min_disp,gen_max_disp;
+        double lambda_min,lambda_max,
+               lambda_min_disp,lambda_max_disp;
+        
         double lost_length;
         GLuint ray_vao,ray_v_buff,
-               ray_offset_buff,ray_A_buff,ray_gen_buff,ray_lost_buff;
+               ray_offset_buff,ray_A_buff,ray_gen_buff,ray_lambda_buff,ray_lost_buff;
         
         GL_Selene(wxWindow *parent);
         
@@ -99,7 +106,8 @@ class GL_Selene: public GL_3D_Base
         void set_rays(std::vector<double> const &x1,std::vector<double> const &x2,
                       std::vector<double> const &y1,std::vector<double> const &y2,
                       std::vector<double> const &z1,std::vector<double> const &z2,
-                      std::vector<int> const &gen,std::vector<bool> const &lost);
+                      std::vector<int> const &gen,std::vector<double> const &lambda,
+                      std::vector<bool> const &lost);
                       
 };
 

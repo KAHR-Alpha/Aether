@@ -68,26 +68,7 @@ SeleneFrame::SeleneFrame(wxString const &title)
     
     // - Display
     
-    wxStaticBoxSizer *ray_sizer=new wxStaticBoxSizer(wxVERTICAL,ctrl_panel,"Rays Display");
-    wxBoxSizer *gen_sizer_1=new wxBoxSizer(wxHORIZONTAL);
-    wxBoxSizer *gen_sizer_2=new wxBoxSizer(wxVERTICAL);
-    
-    min_gen=new NamedTextCtrl<int>(ctrl_panel,"Min Gen: ",0,5);
-    max_gen=new NamedTextCtrl<int>(ctrl_panel,"Max Gen: ",10,5);
-    wxButton *gen_display_btn=new wxButton(ctrl_panel,wxID_ANY,"Auto",
-                                           wxDefaultPosition,wxDefaultSize,wxBU_EXACTFIT);
-    lost_length=new LengthSelector(ctrl_panel,"Losses: ",0.1);
-    
-    gen_sizer_2->Add(min_gen,wxSizerFlags().Expand());
-    gen_sizer_2->Add(max_gen,wxSizerFlags().Expand());
-    
-    gen_sizer_1->Add(gen_sizer_2,wxSizerFlags(1));
-    gen_sizer_1->Add(gen_display_btn,wxSizerFlags().Expand());
-    
-    ray_sizer->Add(gen_sizer_1,wxSizerFlags().Expand().Border(wxALL,2));
-    ray_sizer->Add(lost_length,wxSizerFlags().Expand().Border(wxALL,2));
-    
-    ctrl_sizer->Add(ray_sizer,wxSizerFlags().Expand());
+    SeleneFrame_RayDisp(ctrl_panel,ctrl_sizer);
         
     // Elements addition
     
@@ -209,10 +190,6 @@ SeleneFrame::SeleneFrame(wxString const &title)
     // Bindings
     
     objects_tree->Bind(wxEVT_TREE_ITEM_MENU,&SeleneFrame::evt_object_menu,this);
-    lost_length->Bind(EVT_LENGTH_SELECTOR,&SeleneFrame::evt_lost_length,this);
-    gen_display_btn->Bind(wxEVT_BUTTON,&SeleneFrame::evt_generation_display_auto,this);
-    min_gen->Bind(EVT_NAMEDTXTCTRL,&SeleneFrame::evt_generation_display,this);
-    max_gen->Bind(EVT_NAMEDTXTCTRL,&SeleneFrame::evt_generation_display,this);
     trace_btn->Bind(wxEVT_BUTTON,&SeleneFrame::evt_trace,this);
     
     Bind(wxEVT_MENU,&SeleneFrame::evt_menu,this);
@@ -227,6 +204,99 @@ SeleneFrame::SeleneFrame(wxString const &title)
     
     ctrl_panel->SetScrollRate(10,10);
     ctrl_panel->FitInside();
+}
+
+void SeleneFrame::SeleneFrame_RayDisp(wxWindow *parent,wxBoxSizer *ctrl_sizer)
+{
+    wxSizerFlags default_expand=wxSizerFlags().Expand();
+    
+    wxStaticBoxSizer *ray_sizer=new wxStaticBoxSizer(wxVERTICAL,ctrl_panel,"Rays Display");
+    wxStaticBox *box=ray_sizer->GetStaticBox();
+    
+    // Display type
+    
+    ray_disp_type=new wxChoice(box,wxID_ANY);
+    ray_disp_type->Bind(wxEVT_CHOICE,&SeleneFrame::evt_ray_display_type,this);
+    
+    ray_disp_type->Append("Dispersion");
+    ray_disp_type->Append("Generation");
+    ray_disp_type->SetSelection(1);
+    
+    ray_sizer->Add(ray_disp_type,default_expand);
+    
+    // Min Max
+    
+    wxBoxSizer *auto_sizer=new wxBoxSizer(wxHORIZONTAL);
+    
+    // - Gen/Spectrum
+    
+    wxBoxSizer *minmax_sizer=new wxBoxSizer(wxVERTICAL);
+    
+    gen_min=new NamedTextCtrl<int>(box,"Min Gen: ",0,5);
+    gen_max=new NamedTextCtrl<int>(box,"Max Gen: ",10,5);
+    gen_min->Bind(EVT_NAMEDTXTCTRL,&SeleneFrame::evt_generation_display,this);
+    gen_max->Bind(EVT_NAMEDTXTCTRL,&SeleneFrame::evt_generation_display,this);
+    
+    minmax_sizer->Add(gen_min,wxSizerFlags().Expand());
+    minmax_sizer->Add(gen_max,wxSizerFlags().Expand());
+    
+    lambda_min=new WavelengthSelector(box,"Min Wavelength: ",370e-9);
+    lambda_max=new WavelengthSelector(box,"Max Wavelength: ",850e-9);
+    
+    lambda_min->Bind(EVT_WAVELENGTH_SELECTOR,&SeleneFrame::evt_generation_display,this);
+    lambda_max->Bind(EVT_WAVELENGTH_SELECTOR,&SeleneFrame::evt_generation_display,this);
+    
+    minmax_sizer->Add(lambda_min,wxSizerFlags().Expand());
+    minmax_sizer->Add(lambda_max,wxSizerFlags().Expand());
+    
+    lambda_min->Hide();
+    lambda_max->Hide();
+    
+    // - Auto
+    
+    wxButton *auto_btn=new wxButton(box,wxID_ANY,"Auto",wxDefaultPosition,wxDefaultSize,wxBU_EXACTFIT);
+    auto_btn->Bind(wxEVT_BUTTON,&SeleneFrame::evt_generation_display_auto,this);
+    
+    auto_sizer->Add(minmax_sizer,wxSizerFlags(1));
+    auto_sizer->Add(auto_btn,wxSizerFlags().Expand());
+    
+    ray_sizer->Add(auto_sizer,wxSizerFlags().Expand().Border(wxALL,2));
+    
+    // Lost length
+    
+    lost_length=new LengthSelector(box,"Losses: ",0.1);
+    lost_length->Bind(EVT_LENGTH_SELECTOR,&SeleneFrame::evt_lost_length,this);
+    
+    ray_sizer->Add(lost_length,wxSizerFlags().Expand().Border(wxALL,2));
+    
+    // Wrapping-up
+    
+    ctrl_sizer->Add(ray_sizer,wxSizerFlags().Expand());
+}
+
+void SeleneFrame::evt_ray_display_type(wxCommandEvent &event)
+{
+    gen_min->Hide();
+    gen_max->Hide();
+    
+    lambda_min->Hide();
+    lambda_max->Hide();
+    
+    if(ray_disp_type->GetSelection()==0)
+    {
+        lambda_min->Show();
+        lambda_max->Show();
+        gl->display_type=0;
+    }
+    else
+    {
+        gen_min->Show();
+        gen_max->Show();
+        gl->display_type=1;
+    }
+    
+    ctrl_panel->FitInside();
+    ctrl_panel->Layout();
 }
 
 void SeleneFrame::check_objects_irfs()
@@ -342,8 +412,8 @@ void SeleneFrame::check_objects_materials()
 
 void SeleneFrame::clear_state()
 {
-    min_gen->set_value(0);
-    max_gen->set_value(10);
+    gen_min->set_value(0);
+    gen_max->set_value(10);
     
     lost_length->set_length(0.1);
     
@@ -540,21 +610,34 @@ void SeleneFrame::evt_add_element(wxCommandEvent &event)
 
 void SeleneFrame::evt_generation_display(wxCommandEvent &event)
 {
-    gl->min_disp_gen=min_gen->get_value();
-    gl->max_disp_gen=max_gen->get_value();
+    gl->gen_min_disp=gen_min->get_value();
+    gl->gen_max_disp=gen_max->get_value();
+    
+    gl->lambda_min_disp=lambda_min->get_lambda();
+    gl->lambda_max_disp=lambda_max->get_lambda();
     
     event.Skip();
 }
 
 void SeleneFrame::evt_generation_display_auto(wxCommandEvent &event)
 {
-    int max_gen_gl=gl->max_gen;
+    int gen_max_gl=gl->gen_max;
     
-    gl->min_disp_gen=0;
-    gl->max_disp_gen=max_gen_gl;
+    // Generation
     
-    min_gen->set_value(0);
-    max_gen->set_value(max_gen_gl);
+    gl->gen_min_disp=0;
+    gl->gen_max_disp=gl->gen_max;
+    
+    gen_min->set_value(0);
+    gen_max->set_value(gl->gen_max);
+    
+    // Wavelength
+    
+    gl->lambda_min_disp=gl->lambda_min;
+    gl->lambda_max_disp=gl->lambda_max;
+    
+    lambda_min->set_lambda(gl->lambda_min);
+    lambda_max->set_lambda(gl->lambda_max);
     
     event.Skip();
 }
@@ -758,7 +841,8 @@ void SeleneFrame::evt_trace(wxCommandEvent &event)
         gl->set_rays(selene.xs_ftc,selene.xe_ftc,
                      selene.ys_ftc,selene.ye_ftc,
                      selene.zs_ftc,selene.ze_ftc,
-                     selene.gen_ftc,selene.lost_ftc);
+                     selene.gen_ftc,selene.lambda_ftc,
+                     selene.lost_ftc);
     }
     
     event.Skip();

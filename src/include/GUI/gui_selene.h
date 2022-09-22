@@ -509,11 +509,14 @@ class SeleneFrame: public BaseFrame
         
         wxScrolledWindow *ctrl_panel;
         
-        //
+        // Display
+        
+        wxChoice *ray_disp_type;
+        NamedTextCtrl<int> *gen_min,*gen_max;
+        WavelengthSelector *lambda_min,*lambda_max;
+        LengthSelector *lost_length;
         
         NamedTextCtrl<int> *nr_disp,*nr_tot;
-        NamedTextCtrl<int> *min_gen,*max_gen;
-        LengthSelector *lost_length;
         
         std::filesystem::path output_directory_std;
         wxTextCtrl *output_directory;
@@ -544,6 +547,7 @@ class SeleneFrame: public BaseFrame
         std::vector<Sel::IRF*> user_irfs;
         
         SeleneFrame(wxString const &title);
+        void SeleneFrame_RayDisp(wxWindow *parent,wxBoxSizer *ctrl_sizer);
         
         void check_objects_irfs();
         void check_objects_materials();
@@ -559,6 +563,7 @@ class SeleneFrame: public BaseFrame
         void evt_object_menu(wxTreeEvent &event);
         void evt_output_directory(wxCommandEvent &event);
         void evt_popup_menu(wxCommandEvent &event);
+        void evt_ray_display_type(wxCommandEvent &event);
         void evt_trace(wxCommandEvent &event);
         void evt_tree_right_click(wxMouseEvent &event);
         std::string get_IRF_script_name(Sel::IRF *irf);

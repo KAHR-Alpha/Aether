@@ -1151,7 +1151,14 @@ void SeleneVAO::set_shading(Vector3 const &color_,bool wireframe_,bool display_)
 
 GL_Selene::GL_Selene(wxWindow *parent)
     :GL_3D_Base(parent),
-     Nrays(0), max_gen(0), min_disp_gen(1), max_disp_gen(10), lost_length(0.1)
+     Nrays(0),
+     display_type(1),
+     gen_max(0),
+     gen_min_disp(1), gen_max_disp(10),
+     lambda_min(370e-9), lambda_max(850e-9),
+     lambda_min_disp(lambda_min),
+     lambda_max_disp(lambda_max),
+     lost_length(0.1)
 {
 }
 
@@ -1175,16 +1182,29 @@ void GL_Selene::delete_vao(SeleneVAO *vao_)
 
 void GL_Selene::init_opengl()
 {
-    prog_solid=Glite::create_program(PathManager::locate_resource("resources/glsl/FD_vshader.glsl"),
-                                     PathManager::locate_resource("resources/glsl/FD_solid_fshader.glsl"));
+    std::filesystem::path v_shader,f_shader;
     
-    prog_wires=Glite::create_program(PathManager::locate_resource("resources/glsl/FD_vshader.glsl"),
-                                     PathManager::locate_resource("resources/glsl/FD_wires_fshader.glsl"));
+    v_shader=PathManager::locate_resource("resources/glsl/FD_vshader.glsl");
+    f_shader=PathManager::locate_resource("resources/glsl/FD_solid_fshader.glsl");
+    
+    prog_solid=Glite::create_program(v_shader,f_shader);
+    
+    v_shader=PathManager::locate_resource("resources/glsl/FD_vshader.glsl");
+    f_shader=PathManager::locate_resource("resources/glsl/FD_wires_fshader.glsl");
+    
+    prog_wires=Glite::create_program(v_shader,f_shader);
     
     // Ray
     
-    prog_ray=Glite::create_program(PathManager::locate_resource("resources/glsl/selene_rays_vshader.glsl"),
-                                   PathManager::locate_resource("resources/glsl/selene_rays_fshader.glsl"));
+    v_shader=PathManager::locate_resource("resources/glsl/selene_rays_vshader.glsl");
+    f_shader=PathManager::locate_resource("resources/glsl/selene_rays_fshader.glsl");
+    
+    prog_ray_generation=Glite::create_program(v_shader,f_shader);
+    
+    v_shader=PathManager::locate_resource("resources/glsl/selene/rays_disp_vshader.glsl");
+    f_shader=PathManager::locate_resource("resources/glsl/selene/rays_disp_fshader.glsl");
+    
+    prog_ray_dispersion=Glite::create_program(v_shader,f_shader);
     
     SeleneVAO tmp_ray_vao;
     std::vector<Vertex> V_arr;
@@ -1199,10 +1219,10 @@ void GL_Selene::init_opengl()
     glGenBuffers(1,&ray_offset_buff);
     glGenBuffers(1,&ray_A_buff);
     glGenBuffers(1,&ray_gen_buff);
+    glGenBuffers(1,&ray_lambda_buff);
     glGenBuffers(1,&ray_lost_buff);
     
     int Nv=V_arr.size();
-//    int Nf=F_arr.size();
     GLfloat v_arr_buff[8];
     
     v_arr_buff[0]=0;
@@ -1238,19 +1258,25 @@ void GL_Selene::init_opengl()
     glBufferData(GL_ARRAY_BUFFER,50000*sizeof(GLfloat),NULL,GL_STATIC_DRAW);
     glVertexAttribPointer(4,1,GL_FLOAT,GL_FALSE,0,0);
     
-    glBindBuffer(GL_ARRAY_BUFFER,ray_lost_buff);
+    glBindBuffer(GL_ARRAY_BUFFER,ray_lambda_buff);
     glBufferData(GL_ARRAY_BUFFER,50000*sizeof(GLfloat),NULL,GL_STATIC_DRAW);
     glVertexAttribPointer(5,1,GL_FLOAT,GL_FALSE,0,0);
+    
+    glBindBuffer(GL_ARRAY_BUFFER,ray_lost_buff);
+    glBufferData(GL_ARRAY_BUFFER,50000*sizeof(GLfloat),NULL,GL_STATIC_DRAW);
+    glVertexAttribPointer(6,1,GL_FLOAT,GL_FALSE,0,0);
     
     glVertexAttribDivisor(2,1);
     glVertexAttribDivisor(3,1);
     glVertexAttribDivisor(4,1);
     glVertexAttribDivisor(5,1);
+    glVertexAttribDivisor(6,1);
     
     glEnableVertexAttribArray(2);
     glEnableVertexAttribArray(3);
     glEnableVertexAttribArray(4);
     glEnableVertexAttribArray(5);
+    glEnableVertexAttribArray(6);
     
     //
 
@@ -1273,12 +1299,26 @@ void GL_Selene::render()
 {
     glLineWidth(1);
     
-    glUseProgram(prog_ray);
+    glUseProgram(prog_ray_dispersion);
     
     glUniformMatrix4fv(10,1,0,camera.proj_gl);
     glUniform1f(14,lost_length);
-    glUniform1f(15,min_disp_gen);
-    glUniform1f(16,max_disp_gen);
+    
+    if(display_type==0)
+    {
+        glUniform1f(15,0);
+        glUniform1f(16,gen_max);
+        glUniform1f(17,lambda_min_disp);
+        glUniform1f(18,lambda_max_disp);
+    }
+    else
+    {
+        glUniform1f(15,gen_min_disp);
+        glUniform1f(16,gen_max_disp);
+        glUniform1f(17,lambda_min);
+        glUniform1f(18,lambda_max);
+    }
+    glUniform1i(19,display_type);
     
     glBindVertexArray(ray_vao);
     glDrawArraysInstanced(GL_LINES,0,2,Nrays);
@@ -1311,18 +1351,28 @@ void GL_Selene::render()
 void GL_Selene::set_rays(std::vector<double> const &x1,std::vector<double> const &x2,
                          std::vector<double> const &y1,std::vector<double> const &y2,
                          std::vector<double> const &z1,std::vector<double> const &z2,
-                         std::vector<int> const &gen,std::vector<bool> const &lost)
+                         std::vector<int> const &gen,std::vector<double> const &lambda,
+                         std::vector<bool> const &lost)
 {
     Nrays=std::min(50000,int(x1.size()));
     
     GLfloat *buffer_pos=new GLfloat[4*Nrays];
     GLfloat *buffer_A=new GLfloat[4*Nrays];
     GLfloat *buffer_gen=new GLfloat[Nrays];
+    GLfloat *buffer_lambda=new GLfloat[Nrays];
     GLfloat *buffer_lost=new GLfloat[Nrays];
     
-    max_gen=0;
-    for(int i=0;i<Nrays;i++) max_gen=std::max(max_gen,gen[i]);
-    max_gen=std::max(1,max_gen);
+    gen_max=0;
+    lambda_min=std::numeric_limits<double>::max();
+    lambda_max=0;
+    
+    for(int i=0;i<Nrays;i++)
+    {
+        gen_max=std::max(gen_max,gen[i]);
+        lambda_min=std::min(lambda_min,lambda[i]);
+        lambda_max=std::max(lambda_max,lambda[i]);
+    }
+    gen_max=std::max(1,gen_max);
     
     for(int i=0;i<Nrays;i++)
     {
@@ -1333,6 +1383,7 @@ void GL_Selene::set_rays(std::vector<double> const &x1,std::vector<double> const
         buffer_pos[j+0]=x1[i]; buffer_pos[j+1]=y1[i]; buffer_pos[j+2]=z1[i]; buffer_pos[j+3]=1;
         buffer_A[j+0]=A.x; buffer_A[j+1]=A.y; buffer_A[j+2]=A.z; buffer_A[j+3]=0;
         buffer_gen[i]=gen[i];
+        buffer_lambda[i]=lambda[i];
         buffer_lost[i]=lost[i];
     }
     
@@ -1349,12 +1400,16 @@ void GL_Selene::set_rays(std::vector<double> const &x1,std::vector<double> const
     glBindBuffer(GL_ARRAY_BUFFER,ray_gen_buff);
     glBufferSubData(GL_ARRAY_BUFFER,0,Nrays*sizeof(GLfloat),buffer_gen);
     
+    glBindBuffer(GL_ARRAY_BUFFER,ray_lambda_buff);
+    glBufferSubData(GL_ARRAY_BUFFER,0,Nrays*sizeof(GLfloat),buffer_lambda);
+    
     glBindBuffer(GL_ARRAY_BUFFER,ray_lost_buff);
     glBufferSubData(GL_ARRAY_BUFFER,0,Nrays*sizeof(GLfloat),buffer_lost);
     
     delete[] buffer_pos;
     delete[] buffer_A;
     delete[] buffer_gen;
+    delete[] buffer_lambda;
     delete[] buffer_lost;
 }
 
