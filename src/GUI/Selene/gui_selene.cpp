@@ -605,6 +605,43 @@ void SeleneFrame::evt_add_element(wxCommandEvent &event)
     
     rebuild_tree();
     
+    // Recentering camera
+    
+    if(frames.size()>=2)
+    {
+        double x_min=std::numeric_limits<double>::max();
+        double x_max=std::numeric_limits<double>::min();
+        double y_min=std::numeric_limits<double>::max();
+        double y_max=std::numeric_limits<double>::min();
+        double z_min=std::numeric_limits<double>::max();
+        double z_max=std::numeric_limits<double>::min();
+        
+        for(std::size_t i=0;i<frames.size();i++)
+        {
+            x_min=std::min(x_min,frames[i]->loc.x);
+            x_max=std::max(x_max,frames[i]->loc.x);
+            
+            y_min=std::min(y_min,frames[i]->loc.y);
+            y_max=std::max(y_max,frames[i]->loc.y);
+            
+            z_min=std::min(z_min,frames[i]->loc.z);
+            z_max=std::max(z_max,frames[i]->loc.z);
+        }
+        
+        double x_center=0.5*(x_max-x_min),
+               y_center=0.5*(y_max-y_min),
+               z_center=0.5*(z_max-z_min);
+        
+        double radius=(x_center-x_min)*(x_center-x_min)+
+                      (y_center-y_min)*(y_center-y_min)+
+                      (z_center-z_min)*(z_center-z_min);
+        
+        radius=1.5*std::sqrt(radius);
+        
+        gl->set_camera_target(Vector3(x_center,y_center,z_center));
+        gl->set_camera_radius(radius);
+    }
+    
     event.Skip();
 }
 
