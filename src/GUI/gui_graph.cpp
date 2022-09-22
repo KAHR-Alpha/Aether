@@ -20,6 +20,7 @@ limitations under the License.*/
 #include <sstream>
 
 extern std::ofstream plog;
+extern const double Pi;
 
 enum
 {
@@ -643,6 +644,9 @@ Graph::Graph(wxWindow *parent)
      draw_grid(true), graph_drag(false), legend(false), black(false), lock_scale(false),
      padxm(50), padxp(25),
      padym(25), padyp(25),
+     autoscale_length(0),
+     grid_length(0),
+     options_length(0),
      xmin(-4), xmax(4),
      ymin(-4), ymax(4),
      fixed_ratio(false),
@@ -822,6 +826,32 @@ void Graph::draw_border(wxGraphicsContext *gc)
     
     gc->DrawRectangle(padxm,padyp,sx-padxm-padxp,sy-padym-padyp);
     
+    double sw,sh,sd,sext;
+    
+    gc->GetTextExtent("Autoscale ",&autoscale_length,&autoscale_height,&sd,&sext);
+    gc->GetTextExtent(" Grid ",&grid_length,&grid_height,&sd,&sext);
+    gc->GetTextExtent(" Options",&options_length,&options_height,&sd,&sext);
+    
+    wxGraphicsMatrix base_mat=gc->GetTransform();
+    
+    gc->Translate(sx-padxp,padyp);
+    gc->Rotate(Pi/2.0);
+    gc->DrawText("Autoscale",0,-autoscale_height-3);
+    
+    gc->SetTransform(base_mat);
+    
+    gc->Translate(sx-padxp,padyp+autoscale_length);
+    gc->Rotate(Pi/2.0);
+    gc->DrawText(" Grid",0,-grid_height-3);
+    
+    gc->SetTransform(base_mat);
+    
+    gc->Translate(sx-padxp,padyp+autoscale_length+grid_length);
+    gc->Rotate(Pi/2.0);
+    gc->DrawText(" Options",0,-options_height-3);
+    
+    gc->SetTransform(base_mat);
+        
     if(right_zoom)
     {
         gc->SetPen(select_pen);
@@ -1113,6 +1143,33 @@ void Graph::evt_mouse_left_down(wxMouseEvent &event)
         if(right_zoom) process_right_zoom(event);
         else
         {
+            if(   mouse_x>=sx-padxp && mouse_x<=sx-padxp+autoscale_height+3
+               && mouse_y>=padyp && mouse_y<=padyp+autoscale_length)
+            {
+                autoscale();
+            }
+            
+            if(   mouse_x>=sx-padxp && mouse_x<=sx-padxp+grid_height+3
+               && mouse_y>=padyp+autoscale_length && mouse_y<=padyp+autoscale_length+grid_length)
+            {
+                draw_grid=!draw_grid;
+                Refresh();
+            }
+            
+            if(   mouse_x>=sx-padxp && mouse_x<=sx-padxp+options_height+3
+               && mouse_y>=padyp+autoscale_length+grid_length
+               && mouse_y<=padyp+autoscale_length+grid_length+options_length)
+            {
+                if(options_dialog==nullptr)
+                {
+                    options_dialog=new GraphOptionsDialog(this);
+                    
+                    options_dialog->Show();
+                    
+                    options_dialog->Bind(wxEVT_CLOSE_WINDOW,&Graph::evt_dialog_closed,this);
+                }
+            }
+            
             graph_drag=true;
         }
     }

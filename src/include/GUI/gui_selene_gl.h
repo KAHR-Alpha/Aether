@@ -81,7 +81,7 @@ class GL_Selene: public GL_3D_Base
     public:
         std::vector<SeleneVAO*> vao;
         
-        GLuint prog_solid,prog_wires,prog_ray_generation,prog_ray_dispersion;
+        GLuint prog_solid,prog_wires,prog_rays;
         
         // Rays
         

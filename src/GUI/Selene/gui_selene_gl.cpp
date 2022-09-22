@@ -1195,16 +1195,11 @@ void GL_Selene::init_opengl()
     prog_wires=Glite::create_program(v_shader,f_shader);
     
     // Ray
-    
-    v_shader=PathManager::locate_resource("resources/glsl/selene_rays_vshader.glsl");
-    f_shader=PathManager::locate_resource("resources/glsl/selene_rays_fshader.glsl");
-    
-    prog_ray_generation=Glite::create_program(v_shader,f_shader);
-    
+        
     v_shader=PathManager::locate_resource("resources/glsl/selene/rays_disp_vshader.glsl");
     f_shader=PathManager::locate_resource("resources/glsl/selene/rays_disp_fshader.glsl");
     
-    prog_ray_dispersion=Glite::create_program(v_shader,f_shader);
+    prog_rays=Glite::create_program(v_shader,f_shader);
     
     SeleneVAO tmp_ray_vao;
     std::vector<Vertex> V_arr;
@@ -1299,7 +1294,7 @@ void GL_Selene::render()
 {
     glLineWidth(1);
     
-    glUseProgram(prog_ray_dispersion);
+    glUseProgram(prog_rays);
     
     glUniformMatrix4fv(10,1,0,camera.proj_gl);
     glUniform1f(14,lost_length);

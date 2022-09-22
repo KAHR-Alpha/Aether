@@ -90,6 +90,8 @@ class Graph: public wxPanel
         bool spectral_data;
         bool draw_grid,graph_drag,legend,black,lock_scale;
         int sx,sy,padxm,padxp,padym,padyp;
+        double autoscale_length,grid_length,options_length;
+        double autoscale_height,grid_height,options_height;
         double xmin,xmax;
         double ymin,ymax;
         
