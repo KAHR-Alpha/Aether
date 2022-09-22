@@ -6,6 +6,11 @@ Todo:
 - Tangent vectors managements for Selene
 - Implement the Lambertian, Guassian and ABg scattering models ( see "What scattering models are available in OpticStudio?" )
 
+0.8.1
+GUI:
+- Buttons in graphs to access fonctionnalities instead of hidden keyboard shortcuts
+- Added dispersion display in Selene
+
 0.8
 - RayTracing: Added conics
 - RayTracing: Added Cone sources
