@@ -323,8 +323,10 @@ void ObjectDialog::ObjectDialogSensor()
     ray_phase=new wxCheckBox(record_sizer->GetStaticBox(),wxID_ANY,"Phase");
     ray_world_intersection=new wxCheckBox(record_sizer->GetStaticBox(),wxID_ANY,"World Intersection");
     ray_world_direction=new wxCheckBox(record_sizer->GetStaticBox(),wxID_ANY,"World Direction");
+    ray_world_polarization=new wxCheckBox(record_sizer->GetStaticBox(),wxID_ANY,"World Polarization");
     ray_obj_intersection=new wxCheckBox(record_sizer->GetStaticBox(),wxID_ANY,"Object Intersection");
     ray_obj_direction=new wxCheckBox(record_sizer->GetStaticBox(),wxID_ANY,"Object Direction");
+    ray_obj_polarization=new wxCheckBox(record_sizer->GetStaticBox(),wxID_ANY,"Object Polarization");
     ray_obj_face=new wxCheckBox(record_sizer->GetStaticBox(),wxID_ANY,"Face Hit");
     
     ray_wavelength->SetValue(object->sens_wavelength);
@@ -335,8 +337,10 @@ void ObjectDialog::ObjectDialogSensor()
     ray_phase->SetValue(object->sens_phase);
     ray_world_intersection->SetValue(object->sens_ray_world_intersection);
     ray_world_direction->SetValue(object->sens_ray_world_direction);
+    ray_world_polarization->SetValue(object->sens_ray_world_polar);
     ray_obj_intersection->SetValue(object->sens_ray_obj_intersection);
     ray_obj_direction->SetValue(object->sens_ray_obj_direction);
+    ray_obj_polarization->SetValue(object->sens_ray_obj_polar);
     ray_obj_face->SetValue(object->sens_ray_obj_face);
     
     record_sizer->Add(ray_wavelength,wxSizerFlags().Border(wxALL,3));
@@ -347,8 +351,10 @@ void ObjectDialog::ObjectDialogSensor()
     record_sizer->Add(ray_phase,wxSizerFlags().Border(wxALL,3));
     record_sizer->Add(ray_world_intersection,wxSizerFlags().Border(wxALL,3));
     record_sizer->Add(ray_world_direction,wxSizerFlags().Border(wxALL,3));
+    record_sizer->Add(ray_world_polarization,wxSizerFlags().Border(wxALL,3));
     record_sizer->Add(ray_obj_intersection,wxSizerFlags().Border(wxALL,3));
     record_sizer->Add(ray_obj_direction,wxSizerFlags().Border(wxALL,3));
+    record_sizer->Add(ray_obj_polarization,wxSizerFlags().Border(wxALL,3));
     record_sizer->Add(ray_obj_face,wxSizerFlags().Border(wxALL,3));
     
     sensor_sizer->Add(record_sizer);
@@ -571,8 +577,10 @@ void ObjectDialog::save_object()
     object->sens_phase=ray_phase->GetValue();
     object->sens_ray_world_intersection=ray_world_intersection->GetValue();
     object->sens_ray_world_direction=ray_world_direction->GetValue();
+    object->sens_ray_world_polar=ray_world_polarization->GetValue();
     object->sens_ray_obj_intersection=ray_obj_intersection->GetValue();
     object->sens_ray_obj_direction=ray_obj_direction->GetValue();
+    object->sens_ray_obj_polar=ray_obj_polarization->GetValue();
     object->sens_ray_obj_face=ray_obj_face->GetValue();
 }
 

@@ -112,8 +112,10 @@ Object::Object()
      sens_phase(false),
      sens_ray_world_intersection(false),
      sens_ray_world_direction(false),
+     sens_ray_world_polar(false),
      sens_ray_obj_intersection(false),
      sens_ray_obj_direction(false),
+     sens_ray_obj_polar(false),
      sens_ray_obj_face(false)
 {
     type=OBJ_UNSET;
@@ -204,8 +206,10 @@ void Object::bootstrap(std::filesystem::path const &output_directory,double ray_
         if(sens_phase) { sb_Nmax+=sizeof(double); sb_file<<"phase "; }
         if(sens_ray_world_intersection) { sb_Nmax+=3*sizeof(double); sb_file<<"world_intersection "; }
         if(sens_ray_world_direction) { sb_Nmax+=3*sizeof(double); sb_file<<"world_direction "; }
+        if(sens_ray_world_polar) { sb_Nmax+=3*sizeof(double); sb_file<<"world_polarization "; }
         if(sens_ray_obj_intersection) { sb_Nmax+=3*sizeof(double); sb_file<<"obj_intersection "; }
         if(sens_ray_obj_direction) { sb_Nmax+=3*sizeof(double); sb_file<<"obj_direction "; }
+        if(sens_ray_obj_polar) { sb_Nmax+=3*sizeof(double); sb_file<<"obj_polarization "; }
         if(sens_ray_obj_face) { sb_Nmax+=sizeof(int); sb_file<<"obj_face "; }
         
         sb_Nmax=static_cast<int>(150e6/sb_Nmax);
@@ -218,8 +222,10 @@ void Object::bootstrap(std::filesystem::path const &output_directory,double ray_
         if(sens_phase) sb_phase.resize(sb_Nmax);
         if(sens_ray_world_intersection) sb_world_i.resize(sb_Nmax);
         if(sens_ray_world_direction) sb_world_d.resize(sb_Nmax);
+        if(sens_ray_world_polar) sb_world_polar.resize(sb_Nmax);
         if(sens_ray_obj_intersection) sb_obj_i.resize(sb_Nmax);
         if(sens_ray_obj_direction) sb_obj_d.resize(sb_Nmax);
+        if(sens_ray_obj_polar) sb_obj_polar.resize(sb_Nmax);
         if(sens_ray_obj_face) sb_face.resize(sb_Nmax);
     }
 }
@@ -792,8 +798,10 @@ void Object::sens_buffer_add(SelRay &ray,
     if(sens_phase) sb_phase[i]=ray.age/ray.lambda;
     if(sens_ray_world_intersection) sb_world_i[i]=world_intersection;
     if(sens_ray_world_direction) sb_world_d[i]=ray.dir;
+    if(sens_ray_world_polar) sb_world_polar[i]=ray.pol;
     if(sens_ray_obj_intersection) sb_obj_i[i]=obj_intersection;
     if(sens_ray_obj_direction) sb_obj_d[i]=local_ray.dir;
+    if(sens_ray_obj_polar) sb_obj_polar[i]=local_ray.pol;
     if(sens_ray_obj_face) sb_face[i]=hit_face;
     
     sb_Ncurr++;
@@ -817,8 +825,10 @@ void Object::sens_buffer_dump()
         if(sens_phase) strm<<sb_phase[i]<<" ";
         if(sens_ray_world_intersection) strm<<sb_world_i[i].x<<" "<<sb_world_i[i].y<<" "<<sb_world_i[i].z<<" ";
         if(sens_ray_world_direction)    strm<<sb_world_d[i].x<<" "<<sb_world_d[i].y<<" "<<sb_world_d[i].z<<" ";
+        if(sens_ray_world_polar)        strm<<sb_world_polar[i].x<<" "<<sb_world_polar[i].y<<" "<<sb_world_polar[i].z<<" ";
         if(sens_ray_obj_intersection)   strm<<sb_obj_i[i].x<<" "<<sb_obj_i[i].y<<" "<<sb_obj_i[i].z<<" ";
         if(sens_ray_obj_direction)      strm<<sb_obj_d[i].x<<" "<<sb_obj_d[i].y<<" "<<sb_obj_d[i].z<<" ";
+        if(sens_ray_obj_polar)          strm<<sb_obj_polar[i].x<<" "<<sb_obj_polar[i].y<<" "<<sb_obj_polar[i].z<<" ";
         if(sens_ray_obj_face) strm<<sb_face[i]<<" ";
     }
     
@@ -977,6 +987,8 @@ void Object::to_local_ray(SelRay &ray,SelRay const &base_ray)
     local_dir.z=scalar_prod(local_z,base_ray.dir);
     
     ray.set_dir(local_dir);
+    
+    ray.pol=to_local(base_ray.pol);
 }
 
 void Object::xyz_to_uv(double &u,double &v,int face_,

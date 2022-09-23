@@ -621,15 +621,18 @@ class Object: public Frame
              sens_phase,
              sens_ray_world_intersection,
              sens_ray_world_direction,
+             sens_ray_world_polar,
              sens_ray_obj_intersection,
              sens_ray_obj_direction,
+             sens_ray_obj_polar,
              sens_ray_obj_face;
         
         int sb_Nmax,sb_Ncurr,sb_Ntot;
         std::filesystem::path sb_fname;
         std::vector<int> sb_source,sb_path,sb_generation,sb_face;
         std::vector<double> sb_lambda,sb_opl,sb_phase;
-        std::vector<Vector3> sb_world_i,sb_world_d,sb_obj_i,sb_obj_d;
+        std::vector<Vector3> sb_world_i,sb_world_d,sb_world_polar,
+                             sb_obj_i,sb_obj_d,sb_obj_polar;
         std::ofstream sb_file;
         
         void sens_buffer_add(SelRay &ray,

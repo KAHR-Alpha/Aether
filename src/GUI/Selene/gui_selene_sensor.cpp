@@ -29,7 +29,8 @@ RayCounter::RayCounter()
      has_source(false),
      has_path(false),
      has_generation(false),
-     has_phase(false)
+     has_phase(false),
+     has_polarization(false)
 {
 }
 
@@ -87,6 +88,7 @@ void RayCounter::initialize()
     }
     if(vector_contains(sensor_content,std::string("world_intersection"))) column_offset+=3;
     if(vector_contains(sensor_content,std::string("world_direction"))) column_offset+=3;
+    if(vector_contains(sensor_content,std::string("world_polarization"))) column_offset+=3;
     if(vector_contains(sensor_content,std::string("obj_intersection")))
     {
         obj_inter_column=column_offset;
@@ -101,6 +103,12 @@ void RayCounter::initialize()
     if(vector_contains(sensor_content,std::string("obj_direction")))
     {
         obj_dir_column=column_offset;
+        column_offset+=3;
+    }
+    if(vector_contains(sensor_content,std::string("obj_polarization")))
+    {
+        has_polarization=true;
+        obj_polar_column=column_offset;
         column_offset+=3;
     }
     if(vector_contains(sensor_content,std::string("obj_face")))
@@ -143,6 +151,7 @@ void RayCounter::initialize()
     if(has_path) path.resize(Nl);
     if(has_generation) generation.resize(Nl);
     if(has_phase) phase.resize(Nl);
+    if(has_polarization) obj_polarization.resize(Nl);
     
     obj_inter.resize(Nl);
     obj_dir.resize(Nl);
@@ -163,6 +172,13 @@ void RayCounter::initialize()
             
             lambda_min=std::min(lambda_min,lambda[i]);
             lambda_max=std::max(lambda_max,lambda[i]);
+        }
+        
+        if(has_polarization)
+        {
+            obj_polarization[i].x=data[obj_polar_column+0];
+            obj_polarization[i].y=data[obj_polar_column+1];
+            obj_polarization[i].z=data[obj_polar_column+2];
         }
         
         obj_inter[i].x=data[obj_inter_column+0];

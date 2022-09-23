@@ -58,16 +58,18 @@ class RayCounter
             phase_column,
             obj_inter_column,
             obj_dir_column,
+            obj_polar_column,
             face_column;
         
         bool has_lambda,
              has_source,
              has_path,
              has_generation,
-             has_phase;
+             has_phase,
+             has_polarization;
         
         std::vector<double> lambda,phase;
-        std::vector<Vector3> obj_inter,obj_dir;
+        std::vector<Vector3> obj_inter,obj_dir,obj_polarization;
         std::vector<int> source,path,generation,face;
         
         RayCounter();

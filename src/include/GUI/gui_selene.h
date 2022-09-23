@@ -99,8 +99,10 @@ class ObjectDialog: public FrameDialog
                    *ray_phase,
                    *ray_world_intersection,
                    *ray_world_direction,
+                   *ray_world_polarization,
                    *ray_obj_intersection,
                    *ray_obj_direction,
+                   *ray_obj_polarization,
                    *ray_obj_face;
         
         wxTimer *gl_check;
