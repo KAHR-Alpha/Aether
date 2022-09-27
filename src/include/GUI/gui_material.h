@@ -77,9 +77,6 @@ class MaterialSelector: public wxPanel
         wxButton *load_btn,*add_lib_btn,*inspect_btn;
         wxTextCtrl *mat_txt;
         
-        [[deprecated]] wxStaticText *weight_txt;
-        [[deprecated]] wxTextCtrl *weight_ctrl;
-        
         // Effective Material
         
         Material eff_material;
@@ -131,10 +128,8 @@ class MaterialSelector: public wxPanel
         void operator = (MaterialSelector const &selector);
         void set_const_model(double n);
         void set_library_model(Material *material);
-        void show_weight();
         void throw_event();
         void update_library_list();
-        void weight_change_event(wxCommandEvent &event);
 };
 
 class MiniMaterialSelector: public wxPanel

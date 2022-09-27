@@ -17,7 +17,6 @@ limitations under the License.*/
 #include <gui_diffract_orders.h>
 #include <gui_ellifr.h>
 #include <gui_ellipso3.h>
-#include <gui_effective_model.h>
 #include <gui_fd_ms.h>
 #include <gui_fdtd.h>
 #include <gui_fdtd_structdesign.h>
@@ -503,9 +502,9 @@ MainFrame::MainFrame(std::string title,wxPoint const &pos, wxSize const &size)
     diff_orders_btn->Disable();
     #endif
     
-    wxButton *eff_model_btn=new wxButton(base_panel,wxID_ANY,"Effective Models");
-    eff_model_btn->Bind(wxEVT_BUTTON,&MainFrame::open_frame<EffModelFrame,eff_model_name>,this);
-    util_sizer->Add(eff_model_btn,wxSizerFlags().Expand());
+//    wxButton *eff_model_btn=new wxButton(base_panel,wxID_ANY,"Effective Models");
+//    eff_model_btn->Bind(wxEVT_BUTTON,&MainFrame::open_frame<EffModelFrame,eff_model_name>,this);
+//    util_sizer->Add(eff_model_btn,wxSizerFlags().Expand());
     
     #ifdef DISABLE_GUI_EFFECTIVE_MODELS
     eff_model_btn->Disable();

@@ -51,11 +51,6 @@ MaterialSelector::MaterialSelector(wxWindow *parent,std::string name,bool no_box
     load_btn=new wxButton(this,wxID_ANY,"Load");
     add_lib_btn=new wxButton(this,wxID_ANY,"Add to library");
     inspect_btn=new wxButton(this,wxID_ANY,"Inspect");
-    weight_txt=new wxStaticText(this,wxID_ANY,"Weight:");
-    weight_ctrl=new wxTextCtrl(this,wxID_ANY,"1.0",wxDefaultPosition,wxDefaultSize,wxTE_PROCESS_ENTER);
-    
-    weight_txt->Hide();
-    weight_ctrl->Hide();
     
     sizer->Add(mat_type_ctrl);
     sizer->Add(library_list_ctrl,wxSizerFlags(1));
@@ -64,8 +59,6 @@ MaterialSelector::MaterialSelector(wxWindow *parent,std::string name,bool no_box
     sizer->Add(load_btn,wxSizerFlags().Expand());
     sizer->Add(add_lib_btn,wxSizerFlags().Expand());
     sizer->Add(inspect_btn,wxSizerFlags().Expand());
-    sizer->Add(weight_txt,wxSizerFlags().Border(wxLEFT,10).Align(wxCENTER));
-    sizer->Add(weight_ctrl,wxSizerFlags().Align(wxCENTER));
     
     add_lib_btn->Bind(wxEVT_BUTTON,&MaterialSelector::evt_add_to_library,this);
     inspect_btn->Bind(wxEVT_BUTTON,&MaterialSelector::evt_inspect,this);
@@ -74,7 +67,6 @@ MaterialSelector::MaterialSelector(wxWindow *parent,std::string name,bool no_box
     mat_txt->Bind(wxEVT_TEXT_ENTER,&MaterialSelector::const_index_event,this);
     mat_txt->Bind(wxEVT_KILL_FOCUS,&MaterialSelector::evt_const_index_focus,this);
     mat_type_ctrl->Bind(wxEVT_CHOICE,&MaterialSelector::evt_mat_type,this);
-    weight_ctrl->Bind(wxEVT_TEXT_ENTER,&MaterialSelector::weight_change_event,this);
     
     layout_library();
     
@@ -110,11 +102,6 @@ MaterialSelector::MaterialSelector(wxWindow *parent,std::string name,bool no_box
     load_btn=new wxButton(this,wxID_ANY,"Load");
     add_lib_btn=new wxButton(this,wxID_ANY,"Add to library");
     inspect_btn=new wxButton(this,wxID_ANY,"Inspect");
-    weight_txt=new wxStaticText(this,wxID_ANY,"Weight:");
-    weight_ctrl=new wxTextCtrl(this,wxID_ANY,"1.0",wxDefaultPosition,wxDefaultSize,wxTE_PROCESS_ENTER);
-    
-    weight_txt->Hide();
-    weight_ctrl->Hide();
     
     sizer->Add(mat_type_ctrl);
     sizer->Add(library_list_ctrl,wxSizerFlags(1));
@@ -123,8 +110,6 @@ MaterialSelector::MaterialSelector(wxWindow *parent,std::string name,bool no_box
     sizer->Add(load_btn,wxSizerFlags().Expand());
     sizer->Add(add_lib_btn,wxSizerFlags().Expand());
     sizer->Add(inspect_btn,wxSizerFlags().Expand());
-    sizer->Add(weight_txt,wxSizerFlags().Border(wxLEFT,10).Align(wxCENTER));
-    sizer->Add(weight_ctrl,wxSizerFlags().Align(wxCENTER));
     
     add_lib_btn->Bind(wxEVT_BUTTON,&MaterialSelector::evt_add_to_library,this);
     inspect_btn->Bind(wxEVT_BUTTON,&MaterialSelector::evt_inspect,this);
@@ -133,7 +118,6 @@ MaterialSelector::MaterialSelector(wxWindow *parent,std::string name,bool no_box
     mat_txt->Bind(wxEVT_TEXT_ENTER,&MaterialSelector::const_index_event,this);
     mat_txt->Bind(wxEVT_KILL_FOCUS,&MaterialSelector::evt_const_index_focus,this);
     mat_type_ctrl->Bind(wxEVT_CHOICE,&MaterialSelector::evt_mat_type,this);
-    weight_ctrl->Bind(wxEVT_TEXT_ENTER,&MaterialSelector::weight_change_event,this);
     
     Material tmp_material(material);
     bool input_ok=accept_material(&tmp_material);
@@ -739,20 +723,12 @@ void MaterialSelector::operator = (MaterialSelector const &selector)
     library_list_ctrl->SetSelection(selector.library_list_ctrl->GetSelection());
     
     mat_txt->SetValue(selector.mat_txt->GetValue());
-    weight_ctrl->SetValue(selector.weight_ctrl->GetValue());
     
          if(mat_type==GUI_MAT_REAL_N || mat_type==GUI_MAT_REAL_EPS) layout_const();
     else if(mat_type==GUI_MAT_LIBRARY) layout_library();
     else if(mat_type==GUI_MAT_SCRIPT) layout_script();
 }
 
-void MaterialSelector::show_weight()
-{
-    weight_txt->Show();
-    weight_ctrl->Show();
-    
-    Layout();
-}
 
 void MaterialSelector::throw_event()
 {
@@ -791,15 +767,15 @@ void MaterialSelector::update_library_list()
     throw_event();
 }
 
-void MaterialSelector::weight_change_event(wxCommandEvent &event)
-{
-    textctrl_to_T(weight_ctrl,weight);
-    
-    if(weight<0)
-    {
-        weight=1.0;
-        weight_ctrl->SetValue("1.0");
-    }
-    
-    throw_event();
-}
+//void MaterialSelector::weight_change_event(wxCommandEvent &event)
+//{
+//    textctrl_to_T(weight_ctrl,weight);
+//    
+//    if(weight<0)
+//    {
+//        weight=1.0;
+//        weight_ctrl->SetValue("1.0");
+//    }
+//    
+//    throw_event();
+//}
