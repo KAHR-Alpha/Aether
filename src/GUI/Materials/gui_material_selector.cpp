@@ -151,7 +151,7 @@ MaterialSelector::MaterialSelector(wxWindow *parent,std::string name,bool no_box
         else
         {
             unsigned int l;
-            Material *pm=MaterialsLib::knows_material(l,material);
+            Material *pm=MaterialsLib::knows_material(l,material,validator);
             
             if(pm==nullptr)
             {

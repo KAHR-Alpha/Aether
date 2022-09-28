@@ -39,6 +39,8 @@ enum
 
 class MaterialSelector;
 
+bool default_material_validator(Material *material);
+
 class MaterialsLib
 {
     private:
@@ -53,15 +55,14 @@ class MaterialsLib
     public:
         static void add_material(std::filesystem::path const &fname);
         static Material* get_material(unsigned int n);
-        static Material* knows_material(unsigned int &n,Material const &material);
+        static Material* knows_material(unsigned int &n,Material const &material,
+                                        bool (*validator)(Material*)=&default_material_validator);
         static std::filesystem::path get_material_name(unsigned int n);
         static int get_N_materials();
         static void initialize();
         static void register_material_selector(MaterialSelector *selector);
         static void remove_material_selector(MaterialSelector *selector);
 };
-
-bool default_material_validator(Material *material);
 
 class MaterialSelector: public wxPanel
 {

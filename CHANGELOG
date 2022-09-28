@@ -6,6 +6,10 @@ Todo:
 - Tangent vectors managements for Selene
 - Implement the Lambertian, Guassian and ABg scattering models ( see "What scattering models are available in OpticStudio?" )
 
+0.8.2
+GUI:
+- Materials display fix when editing the FDTD settings
+
 0.8.1
 GUI:
 - Buttons in graphs to access fonctionnalities instead of hidden keyboard shortcuts

@@ -113,17 +113,15 @@ void MaterialsLib::insert_material(int pos,std::filesystem::path const &fname,Ma
     user_material[pos]=user_material_;
 }
 
-Material *MaterialsLib::knows_material(unsigned int &n,Material const &material)
+Material *MaterialsLib::knows_material(unsigned int &n,Material const &material,bool (*validator)(Material*))
 {
     n=0;
     
     for(int i=0;i<Nm;i++)
     {
-        if(material==*(mat_arr[i]))
-        {
-            n=i;
-            return mat_arr[i];
-        }
+        if(material==*(mat_arr[i])) return mat_arr[i];
+        
+        if((*validator)(mat_arr[i])) n++; // Deal with lists with "holes" compared to the Mats library
     }
     
     return nullptr;

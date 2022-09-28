@@ -22,7 +22,6 @@ limitations under the License.*/
 #include <gui_fdtd_structdesign.h>
 #include <gui_fieldblock_explr.h>
 #include <gui_fitter.h>
-#include <gui_fresnel.h>
 #include <gui_geometric_gradient.h>
 #include <gui_gl_test.h>
 #include <gui_layerfitter.h>
