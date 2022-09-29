@@ -14,6 +14,7 @@ limitations under the License.*/
 
 #include <filehdl.h>
 #include <material.h>
+#include <phys_tools.h>
 
 extern std::ofstream plog;
 extern const double Pi;
@@ -85,38 +86,11 @@ int lmat_description(lua_State *L)
     return 0;
 }
 
-int lmat_enable_pcrc2(lua_State *L)
-{
-    Material *mat=get_mat_pointer(L,"binded_material");
-    
-    if(mat->type==MAT_DIELEC)
-    {
-        mat->pcrc2=true;
-    }
-    
-    return 1;
-}
-
 int lmat_epsilon_infty(lua_State *L)
 {
     Material *mat=get_mat_pointer(L,"binded_material");
     
-    if(lua_gettop(L)==2)
-    {
-        double eps_inf=lua_tonumber(L,1);
-        mat->eps_inf=eps_inf;
-        mat->eps_inf_im=0;
-        
-        if(mat->type==MAT_DIELEC)
-        {
-            mat->dielec.set_const(eps_inf);
-        }
-    }
-    else if(lua_gettop(L)==3)
-    {
-        mat->eps_inf=lua_tonumber(L,1);
-        mat->eps_inf_im=lua_tonumber(L,2);
-    }
+    mat->eps_inf=lua_tonumber(L,1);
     
     return 0;
 }
@@ -180,28 +154,8 @@ int lmat_index_infty(lua_State *L)
 {
     Material *mat=get_mat_pointer(L,"binded_material");
     
-    if(lua_gettop(L)==2)
-    {
-        double n=lua_tonumber(L,1);
-        mat->eps_inf=n*n;
-        mat->eps_inf_im=0;
-        
-        if(mat->type==MAT_DIELEC)
-        {
-            mat->dielec.set_const(n*n);
-        }
-    }
-    else if(lua_gettop(L)==3)
-    {
-        double nr=lua_tonumber(L,1);
-        double ni=lua_tonumber(L,2);
-        
-        Imdouble n=nr+ni*Im;
-        Imdouble eps=n*n;
-        
-        mat->eps_inf=eps.real();
-        mat->eps_inf_im=eps.imag();
-    }
+    double n=lua_tonumber(L,1);
+    mat->eps_inf=n*n;
     
     return 0;
 }
@@ -218,24 +172,6 @@ int lmat_set_cauchy(lua_State *L)
         coeffs[i]=lua_tonumber(L,i+1);
     
     mat->set_type_cauchy(coeffs);
-    
-    return 0;
-}
-
-int lmat_set_constant(lua_State *L)
-{
-    Material *mat=get_mat_pointer(L,"binded_material");
-    
-    mat->type=MAT_CONST;
-    
-    return 0;
-}
-
-int lmat_set_constant_im(lua_State *L)
-{
-    Material *mat=get_mat_pointer(L,"binded_material");
-    
-    mat->type=MAT_CONST_IM;
     
     return 0;
 }
@@ -318,25 +254,8 @@ int lmat_set_sellmeier(lua_State *L)
 {
     Material *mat=get_mat_pointer(L,"binded_material");
     
-    double B1=lua_tonumber(L,1);
-    double C1=lua_tonumber(L,2);
-    
-    double B2=lua_tonumber(L,3);
-    double C2=lua_tonumber(L,4);
-    
-    double B3=lua_tonumber(L,5);
-    double C3=lua_tonumber(L,6);
-    
-    mat->set_type_sellmeier(B1,C1,B2,C2,B3,C3);
-    
-    return 0;
-}
-
-int lmat_set_dielectric(lua_State *L)
-{
-    Material *mat=get_mat_pointer(L,"binded_material");
-    
-    mat->type=MAT_DIELEC;
+    mat->sellmeier_B.push_back(lua_tonumber(L,1));
+    mat->sellmeier_C.push_back(lua_tonumber(L,2));
     
     return 0;
 }
@@ -353,10 +272,9 @@ int lmat_set_validity_range(lua_State *L)
 
 Material::Material()
     :type(MAT_UNDEFINED),
-     eps_inf(1.0), eps_inf_im(0),
+     eps_inf(1.0),
      lambda_valid_min(400e-9),
      lambda_valid_max(1000e-9),
-     pcrc2(false),
      is_effective_material(false), // Effective material
      effective_type(MAT_EFF_BRUGGEMAN),
      eff_mat_1(nullptr),
@@ -370,17 +288,14 @@ Material::Material()
 Material::Material(Material const &mat)
     :type(mat.type),
      eps_inf(mat.eps_inf),
-     eps_inf_im(mat.eps_inf_im),
      lambda_valid_min(mat.lambda_valid_min),
      lambda_valid_max(mat.lambda_valid_max),
-     pcrc2(mat.pcrc2),
      dielec(mat.dielec),
      n_spline(mat.n_spline),
      k_spline(mat.k_spline),
      cauchy_coeffs(mat.cauchy_coeffs),
-     B1(mat.B1), C1(mat.C1),
-     B2(mat.B2), C2(mat.C2),
-     B3(mat.B3), C3(mat.C3),
+     sellmeier_B(mat.sellmeier_B),
+     sellmeier_C(mat.sellmeier_C),
      is_effective_material(mat.is_effective_material), // Effective material
      effective_type(mat.effective_type),
      eff_mat_1(nullptr),
@@ -402,10 +317,9 @@ Material::Material(Material const &mat)
 
 Material::Material(std::filesystem::path const &script_path_)
     :type(MAT_UNDEFINED),
-     eps_inf(1.0), eps_inf_im(0),
+     eps_inf(1.0),
      lambda_valid_min(400e-9),
      lambda_valid_max(1000e-9),
-     pcrc2(false),
      is_effective_material(false), // Effective material
      effective_type(MAT_EFF_BRUGGEMAN),
      eff_mat_1(nullptr),
@@ -434,22 +348,36 @@ Imdouble Material::get_eps(double w) const
 {
     if(!is_effective_material)
     {
+        std::size_t i;
+        
+        double lambda=rad_Hz_to_m(w);
+        double lambda_2=lambda*lambda;
+        
+        Imdouble eps_out=eps_inf;
+        
+        // Common dielectric models
+        
+        for(i=0;i<debye.size();i++) eps_out+=debye[i].eval(w);
+        for(i=0;i<drude.size();i++) eps_out+=drude[i].eval(w);
+        for(i=0;i<lorentz.size();i++) eps_out+=lorentz[i].eval(w);
+        for(i=0;i<critpoint.size();i++) eps_out+=critpoint[i].eval(w);
+        
+        // Sellmeier terms
+        
+        for(std::size_t i=0;i<sellmeier_B.size();i++)
+            eps_out+=sellmeier_B[i]/(1.0-sellmeier_C[i]/lambda_2);
+        
+        // Cauchy terms
+        
+        // Spline
+        
+        return eps_out;
+        
         if(type==MAT_CONST) return eps_inf;
-        else if(type==MAT_CONST_IM) return eps_inf+eps_inf_im*Im;
-        else if(type==MAT_DIELEC) return dielec.eval(w);
         else if(type==MAT_SPLINE)
         {
             Imdouble tmp_n(n_spline(w),k_spline(w));
             return tmp_n*tmp_n;
-        }
-        else if(type==MAT_SELLMEIER)
-        {
-            double l2=2.0*Pi*c_light/w;
-            l2*=l2;
-            
-            return 1.0+B1/(1.0-C1/l2)
-                      +B2/(1.0-C2/l2)
-                      +B3/(1.0-C3/l2);
         }
         else if(type==MAT_CAUCHY)
         {
@@ -566,10 +494,6 @@ std::string Material::get_matlab(std::string const &fname_) const
     {
         strm<<"eps=0*lambda+"<<eps_inf<<";\n\n";
     }
-    else if(type==MAT_CONST_IM)
-    {
-        strm<<"eps=0*lambda+"<<eps_inf<<"+i*"<<eps_inf_im<<";\n\n";
-    }
     else if(type==MAT_DIELEC)
     {
         strm<<"w=2*pi*299792458./lambda;\n\n";
@@ -668,21 +592,17 @@ void Material::load_lua_script(std::filesystem::path const &script_path_)
     lua_pushlightuserdata(L,reinterpret_cast<void*>(&caller_path));
     lua_setglobal(L,"lua_caller_path");
     
+    lua_register(L,"add_cauchy",lmat_set_cauchy);
     lua_register(L,"add_crit_point",lmat_add_crit_point);
     lua_register(L,"add_debye",lmat_add_debye);
     lua_register(L,"add_drude",lmat_add_drude);
     lua_register(L,"add_lorentz",lmat_add_lorentz);
+    lua_register(L,"add_sellmeier",lmat_set_sellmeier);
     lua_register(L,"description",lmat_description);
-    lua_register(L,"enable_pcrc2",lmat_enable_pcrc2);
     lua_register(L,"epsilon_infty",lmat_epsilon_infty);
     lua_register(L,"evaluate",lmat_evaluate);
     lua_register(L,"index_infty",lmat_index_infty);
-    lua_register(L,"set_cauchy",lmat_set_cauchy);
-    lua_register(L,"set_constant",lmat_set_constant);
-    lua_register(L,"set_constant_im",lmat_set_constant_im);
-    lua_register(L,"set_dielectric",lmat_set_dielectric);
     lua_register(L,"set_data_file",lmat_set_data_file);
-    lua_register(L,"set_sellmeier",lmat_set_sellmeier);
     lua_register(L,"validity_range",lmat_set_validity_range);
     
     luaL_loadfile(L,script_path.generic_string().c_str());
@@ -695,12 +615,10 @@ void Material::operator = (Material const &mat)
 {
     type=mat.type;
     eps_inf=mat.eps_inf;
-    eps_inf_im=mat.eps_inf_im;
     
     lambda_valid_min=mat.lambda_valid_min;
     lambda_valid_max=mat.lambda_valid_max;
     
-    pcrc2=mat.pcrc2;
     dielec=mat.dielec;
     name=mat.name;
     description=mat.description;
@@ -711,9 +629,8 @@ void Material::operator = (Material const &mat)
     
     cauchy_coeffs=mat.cauchy_coeffs;
     
-    B1=mat.B1; C1=mat.C1;
-    B2=mat.B2; C2=mat.C2;
-    B3=mat.B3; C3=mat.C3;
+    sellmeier_B=mat.sellmeier_B;
+    sellmeier_C=mat.sellmeier_C;
     
     is_effective_material=mat.is_effective_material;
     effective_type=mat.effective_type;
@@ -756,11 +673,6 @@ bool Material::operator == (Material const &mat) const
         {
             if(eps_inf!=mat.eps_inf) return false;
         }
-        else if(type==MAT_CONST_IM)
-        {
-            if(eps_inf!=mat.eps_inf || 
-               eps_inf_im!=mat.eps_inf_im) return false;
-        }
         else if(type==MAT_DIELEC ||
                 type==MAT_SPLINE ||
                 type==MAT_CAUCHY ||
@@ -779,8 +691,9 @@ void Material::reset()
 {
     type=MAT_UNDEFINED;
     eps_inf=1.0;
-    eps_inf_im=0;
-    pcrc2=false;
+    
+    sellmeier_B.clear();
+    sellmeier_C.clear();
 }
 
 void Material::set_const_eps(double eps_)
@@ -816,17 +729,6 @@ void Material::set_type_cauchy(std::vector<double> const &cauchy_coeffs_)
     type=MAT_CAUCHY;
     
     cauchy_coeffs=cauchy_coeffs_;
-}
-
-void Material::set_type_sellmeier(double B1_,double C1_,
-                                  double B2_,double C2_,
-                                  double B3_,double C3_)
-{
-    type=MAT_SELLMEIER;
-    
-    B1=B1_; C1=C1_;
-    B2=B2_; C2=C2_;
-    B3=B3_; C3=C3_;
 }
 
 int spec_mat_ID=0;

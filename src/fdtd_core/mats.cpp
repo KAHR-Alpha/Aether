@@ -451,8 +451,10 @@ void FDTD_Material::load_mfile(std::string fname)
     {
         dielec=base_mat.dielec;
         
-        if(base_mat.pcrc2) PCRC_dielec_treat();
-        else RC_dielec_treat();
+//        if(base_mat.pcrc2) PCRC_dielec_treat();
+//        else RC_dielec_treat();
+        
+        RC_dielec_treat();
     }
 }
 
@@ -465,8 +467,10 @@ void FDTD_Material::set_base_mat(Material const &material_)
     {
         dielec=base_mat.dielec;
         
-        if(base_mat.pcrc2) PCRC_dielec_treat();
-        else RC_dielec_treat();
+//        if(base_mat.pcrc2) PCRC_dielec_treat();
+//        else RC_dielec_treat();
+        
+        RC_dielec_treat();
     }
 }
 

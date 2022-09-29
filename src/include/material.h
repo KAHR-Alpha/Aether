@@ -52,17 +52,21 @@ enum
 class Material
 {
     public:
-        int type;
+        [[deprecated]] int type;
         
         double eps_inf;
-        [[deprecated]] double eps_inf_im;
         
         double lambda_valid_min,
                lambda_valid_max;
         
-        bool pcrc2;
-        
         Dielec_model dielec;
+        
+        // Common dielectric models
+        
+        std::vector<dielec_debye> debye;
+        std::vector<dielec_drude> drude;
+        std::vector<dielec_lorentz> lorentz;
+        std::vector<dielec_critpoint> critpoint;
         
         // For file-based materials
         Cspline n_spline,k_spline;
@@ -71,7 +75,7 @@ class Material
         std::vector<double> cauchy_coeffs;
         
         // Sellmeier
-        double B1,C1,B2,C2,B3,C3;
+        std::vector<double> sellmeier_B,sellmeier_C;
         
         // Effective Material
         
@@ -102,9 +106,6 @@ class Material
         void set_const_n(double n);
         void set_effective_material(int effective_type,Material const &eff_mat_1,Material const &eff_mat_2);
         void set_type_cauchy(std::vector<double> const &cauchy_coeffs);
-        void set_type_sellmeier(double B1,double C1,
-                                double B2,double C2,
-                                double B3,double C3);
 };
 
 int gen_absorbing_material(lua_State *L);
