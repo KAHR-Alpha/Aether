@@ -68,14 +68,14 @@ class Material
         std::vector<dielec_lorentz> lorentz;
         std::vector<dielec_critpoint> critpoint;
         
-        // For file-based materials
-        Cspline n_spline,k_spline;
-        
         // Cauchy
         std::vector<double> cauchy_coeffs;
         
         // Sellmeier
         std::vector<double> sellmeier_B,sellmeier_C;
+        
+        // For file-based materials
+        Cspline n_spline,k_spline;
         
         // Effective Material
         
@@ -102,10 +102,10 @@ class Material
         void operator = (Material const &mat);
         bool operator == (Material const &mat) const;
         void reset();
-        void set_const_eps(double eps);
-        void set_const_n(double n);
+        [[deprecated]] void set_const_eps(double eps);
+        [[deprecated]] void set_const_n(double n);
         void set_effective_material(int effective_type,Material const &eff_mat_1,Material const &eff_mat_2);
-        void set_type_cauchy(std::vector<double> const &cauchy_coeffs);
+        [[deprecated]] void set_type_cauchy(std::vector<double> const &cauchy_coeffs);
 };
 
 int gen_absorbing_material(lua_State *L);

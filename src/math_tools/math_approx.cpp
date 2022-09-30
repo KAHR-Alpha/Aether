@@ -195,6 +195,11 @@ void Cspline::init(std::vector<double> const &xp_,std::vector<double> const &yp_
     calc_coeffs();
 }
 
+bool Cspline::is_empty() const
+{
+    return Np==0;
+}
+
 double Cspline::operator () (double const &x) const { return eval(x); }
 
 void Cspline::operator = (Cspline const &spline)

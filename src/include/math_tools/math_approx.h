@@ -172,6 +172,7 @@ class Cspline
         
         double eval(double const &x) const;
         void init(std::vector<double> const &x,std::vector<double> const &y,int end_mode=CSPLINE_NATURAL);
+        bool is_empty() const;
         
         double operator () (double const &x) const;
         void operator = (Cspline const &spline);

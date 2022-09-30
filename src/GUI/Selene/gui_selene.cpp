@@ -1183,15 +1183,11 @@ void SeleneFrame::save_project(wxFileName const &fname_)
         file<<name<<"=Material()\n";
         
         file<<name<<":";
-        switch(materials[i]->type)
+        if(materials[i]->is_const())
         {
-            case MAT_CONST:
-                file<<"refractive_index("<<std::real(materials[i]->get_n(0))<<")\n";
-                break;
-            default:
-                file<<"load_script(\""<<materials[i]->script_path.generic_string()<<"\")\n";
-                break;
+            file<<"refractive_index("<<std::real(materials[i]->get_n(0))<<")\n";
         }
+        else file<<"load_script(\""<<materials[i]->script_path.generic_string()<<"\")\n";
         file<<name<<":name(\""<<materials[i]->name<<"\")\n";
         file<<"\n";
     }
@@ -1216,7 +1212,7 @@ void SeleneFrame::save_project(wxFileName const &fname_)
                 
                 for(std::size_t j=0;j<user_irfs[i]->ml_heights.size();j++)
                 {
-                    if(user_irfs[i]->ml_materials[j].type==MAT_CONST)
+                    if(user_irfs[i]->ml_materials[j].is_const())
                         file<<name<<":add_layer("<<user_irfs[i]->ml_heights[j]<<","<<user_irfs[i]->ml_materials[j].get_n(0).real()<<")\n";
                     else
                         file<<name<<":add_layer("<<user_irfs[i]->ml_heights[j]<<","<<user_irfs[i]->ml_materials[j].script_path.generic_string()<<")\n";

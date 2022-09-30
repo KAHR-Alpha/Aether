@@ -144,7 +144,7 @@ MaterialSelector::MaterialSelector(wxWindow *parent,std::string name,bool no_box
     }
     else
     {
-        if(material.type==MAT_CONST || input_ok==false)
+        if(material.is_const() || input_ok==false)
         {
             set_const_model(material.get_n(0).real());
         }
