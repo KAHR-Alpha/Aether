@@ -39,6 +39,10 @@ Material::Material(Material const &mat)
      lambda_valid_min(mat.lambda_valid_min),
      lambda_valid_max(mat.lambda_valid_max),
      dielec(mat.dielec),
+     debye(mat.debye),
+     drude(mat.drude),
+     lorentz(mat.lorentz),
+     critpoint(mat.critpoint),
      cauchy_coeffs(mat.cauchy_coeffs),
      sellmeier_B(mat.sellmeier_B),
      sellmeier_C(mat.sellmeier_C),
@@ -118,7 +122,7 @@ Imdouble Material::get_eps(double w) const
         
         // Sellmeier terms
         
-        for(std::size_t i=0;i<sellmeier_B.size();i++)
+        for(i=0;i<sellmeier_B.size();i++)
             eps_out+=sellmeier_B[i]/(1.0-sellmeier_C[i]/lambda_2);
         
         // Cauchy terms
@@ -127,10 +131,8 @@ Imdouble Material::get_eps(double w) const
         
         // Spline
         
-        for(std::size_t i=0;i<er_spline.size();i++)
-        {
+        for(i=0;i<er_spline.size();i++)
             eps_out+=(er_spline[i])(w)+(ei_spline[i])(w)*Im;
-        }
          
         return eps_out;
         
@@ -346,6 +348,11 @@ void Material::operator = (Material const &mat)
     lambda_valid_min=mat.lambda_valid_min;
     lambda_valid_max=mat.lambda_valid_max;
     
+    debye=mat.debye;
+    drude=mat.drude;
+    lorentz=mat.lorentz;
+    critpoint=mat.critpoint;
+    
     dielec=mat.dielec;
     name=mat.name;
     description=mat.description;
@@ -454,13 +461,11 @@ void Material::reset()
 
 void Material::set_const_eps(double eps_)
 {
-    type=MAT_CONST;
     eps_inf=eps_;
 }
 
 void Material::set_const_n(double n)
 {
-    type=MAT_CONST;
     eps_inf=n*n;
 }
 
