@@ -1,6 +1,6 @@
 -- Fit d'Alexandre Or entre 400nm et 1 micron
 
-set_dielectric()
+
 
 epsilon_infty(1.03)
 add_drude(1.3064e16,1.1274e14)

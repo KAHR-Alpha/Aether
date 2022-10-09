@@ -121,7 +121,8 @@ int lmat_set_cauchy(lua_State *L)
     return 0;
 }
 
-int lmat_set_data_file(lua_State *L)
+template<int type>
+int lmat_add_data_file(lua_State *L)
 {
     Material *mat=get_mat_pointer(L,"binded_material");
     
@@ -161,16 +162,38 @@ int lmat_set_data_file(lua_State *L)
     int Nl=fcountlines((parent_path/fname).generic_string());
     
     double lambda;
-    std::vector<double> w(Nl),n(Nl),k(Nl);
+    std::vector<double> w(Nl),er(Nl),ei(Nl);
     
-    for(int i=0;i<Nl;i++)
+    if constexpr(type==0)
     {
-        file>>lambda;
+        double n,k;
         
-        w[i]=2.0*Pi*c_light/lambda;
-        
-        file>>n[i];
-        file>>k[i];
+        for(int i=0;i<Nl;i++)
+        {
+            file>>lambda;
+            file>>n;
+            file>>k;
+            
+            w[i]=2.0*Pi*c_light/lambda;
+            
+            Imdouble eps=n+k*Im;
+            eps=eps*eps;
+            
+            er[i]=eps.real();
+            ei[i]=eps.imag();
+        }
+    }
+    else
+    {
+        for(int i=0;i<Nl;i++)
+        {
+            file>>lambda;
+            
+            w[i]=2.0*Pi*c_light/lambda;
+            
+            file>>er[i];
+            file>>ei[i];
+        }
     }
     
     if(w[0]>w[Nl-1])
@@ -178,19 +201,18 @@ int lmat_set_data_file(lua_State *L)
         for(int i=0;i<Nl/2;i++)
         {
             std::swap(w[i],w[Nl-1-i]);
-            std::swap(n[i],n[Nl-1-i]);
-            std::swap(k[i],k[Nl-1-i]);
+            std::swap(er[i],er[Nl-1-i]);
+            std::swap(ei[i],ei[Nl-1-i]);
         }
     }
     
-    chk_var(Nl);
+    Cspline sp_er,sp_ei;
     
-//    n.show();
+    sp_er.init(w,er);
+    sp_ei.init(w,ei);
     
-    mat->n_spline.init(w,n);
-    mat->k_spline.init(w,k);
-    
-    file.close();
+    mat->er_spline.push_back(sp_er);
+    mat->ei_spline.push_back(sp_ei);
     
     return 0;
 }
@@ -240,6 +262,8 @@ void Material::load_lua_script(std::filesystem::path const &script_path_)
     
     lua_register(L,"add_cauchy",lmat_set_cauchy);
     lua_register(L,"add_crit_point",lmat_add_crit_point);
+    lua_register(L,"add_data_epsilon",lmat_add_data_file<1>);
+    lua_register(L,"add_data_index",lmat_add_data_file<0>);
     lua_register(L,"add_debye",lmat_add_debye);
     lua_register(L,"add_drude",lmat_add_drude);
     lua_register(L,"add_lorentz",lmat_add_lorentz);
@@ -247,7 +271,6 @@ void Material::load_lua_script(std::filesystem::path const &script_path_)
     lua_register(L,"description",lmat_description);
     lua_register(L,"epsilon_infty",lmat_epsilon_infty);
     lua_register(L,"index_infty",lmat_index_infty);
-    lua_register(L,"set_data_file",lmat_set_data_file);
     lua_register(L,"validity_range",lmat_set_validity_range);
     
     luaL_loadfile(L,script_path.generic_string().c_str());

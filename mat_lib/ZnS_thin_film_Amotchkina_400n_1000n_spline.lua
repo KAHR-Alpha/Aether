@@ -10,6 +10,8 @@
   -- publisher={Optical Society of America}
 -- }
 
-set_data_file("data/ZnS_thin_film_Amotchkina_400n_1000n")
+epsilon_infty(0)
+
+add_data_index("data/ZnS_thin_film_Amotchkina_400n_1000n")
 
 validity_range(400e-9,1000e-9)

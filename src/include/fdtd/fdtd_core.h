@@ -15,8 +15,8 @@ limitations under the License.*/
 #ifndef FDTD_CORE_H_INCLUDED
 #define FDTD_CORE_H_INCLUDED
 
+#include <fdtd_material.h>
 #include <fdtd_utils.h>
-#include <material.h>
 
 //#ifndef NTHR
 //    #define NTHR 4

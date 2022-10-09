@@ -39,11 +39,11 @@ Material::Material(Material const &mat)
      lambda_valid_min(mat.lambda_valid_min),
      lambda_valid_max(mat.lambda_valid_max),
      dielec(mat.dielec),
-     n_spline(mat.n_spline),
-     k_spline(mat.k_spline),
      cauchy_coeffs(mat.cauchy_coeffs),
      sellmeier_B(mat.sellmeier_B),
      sellmeier_C(mat.sellmeier_C),
+     er_spline(mat.er_spline),
+     ei_spline(mat.ei_spline),
      is_effective_material(mat.is_effective_material), // Effective material
      effective_type(mat.effective_type),
      eff_mat_1(nullptr),
@@ -91,7 +91,7 @@ bool Material::fdtd_compatible()
     {
         if(   cauchy_coeffs.empty()
            && sellmeier_B.empty()
-           && n_spline.is_empty()) return true;
+           && er_spline.empty()) return true;
         else return false;
     }
     
@@ -127,17 +127,14 @@ Imdouble Material::get_eps(double w) const
         
         // Spline
         
-        #warning "Implement spline evaluation"
-//        return Imdouble(n_spline(w),k_spline(w));
+        for(std::size_t i=0;i<er_spline.size();i++)
+        {
+            eps_out+=(er_spline[i])(w)+(ei_spline[i])(w)*Im;
+        }
          
         return eps_out;
         
 //        if(type==MAT_CONST) return eps_inf;
-//        else if(type==MAT_SPLINE)
-//        {
-//            Imdouble tmp_n(n_spline(w),k_spline(w));
-//            return tmp_n*tmp_n;
-//        }
 //        else if(type==MAT_CAUCHY)
 //        {
 //            double l2=2.0*Pi*c_light/w;
@@ -337,7 +334,7 @@ bool Material::is_const() const
            && critpoint.empty()
            && cauchy_coeffs.empty()
            && sellmeier_B.empty()
-           && n_spline.is_empty()) return true;
+           && er_spline.empty()) return true;
         else return false;
     }
 }
@@ -354,13 +351,13 @@ void Material::operator = (Material const &mat)
     description=mat.description;
     script_path=mat.script_path;
     
-    n_spline=mat.n_spline;
-    k_spline=mat.k_spline;
-    
     cauchy_coeffs=mat.cauchy_coeffs;
     
     sellmeier_B=mat.sellmeier_B;
     sellmeier_C=mat.sellmeier_C;
+    
+    er_spline=mat.er_spline;
+    ei_spline=mat.ei_spline;
     
     is_effective_material=mat.is_effective_material;
     effective_type=mat.effective_type;
@@ -430,9 +427,8 @@ void Material::reset()
     sellmeier_B.clear();
     sellmeier_C.clear();
     
-    #warning clearing splines
-//    n_spline.clear();
-//    k_spline.clear();
+    er_spline.clear();
+    ei_spline.clear();
     
     if(is_effective_material)
     {

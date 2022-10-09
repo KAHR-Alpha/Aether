@@ -1,6 +1,6 @@
 -- Fit d'Alexandre Ag entre 400nm et 1 micron
 
-set_dielectric()
+
 
 epsilon_infty(3.7325)
 add_drude(1.3354e16,9.6875e13)

@@ -1,6 +1,6 @@
 description('Approximate PPMA-DR1 fit from Loïc Le Cunff using a Lorentz model between 350nm and 800nm, based on Marianne Consonni\'s PhD thesis, figure 2.10\nMarianne Consonni, Lithographie haute résolution assistée par plasmons de surface, 2008')
 
-set_dielectric()
+
 
 epsilon_infty(2.75145)
 
