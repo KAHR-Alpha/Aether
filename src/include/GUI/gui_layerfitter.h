@@ -88,7 +88,7 @@ class Dielec_Panel_Const : public ModelPanel2
 class Dielec_Panel_Drude : public ModelPanel2
 {
     public:
-        dielec_drude model;
+        DrudeModel model;
         
         NamedTextCtrl<double> *wd,*g;
         
@@ -104,7 +104,7 @@ class Dielec_Panel_Drude : public ModelPanel2
 class Dielec_Panel_Lorentz : public ModelPanel2
 {
     public:
-        dielec_lorentz model;
+        LorentzModel model;
         
         NamedTextCtrl<double> *A,*O,*G;
         
@@ -120,7 +120,7 @@ class Dielec_Panel_Lorentz : public ModelPanel2
 class Dielec_Panel_CritPoint : public ModelPanel2
 {
     public:
-        dielec_critpoint model;
+        CritpointModel model;
         
         NamedTextCtrl<double> *A,*O,*G,*P;
         

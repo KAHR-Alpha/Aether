@@ -42,14 +42,14 @@ class Material
         double lambda_valid_min,
                lambda_valid_max;
         
-        Dielec_model dielec;
+        [[deprecated]] Dielec_model dielec;
         
         // Common dielectric models
         
-        std::vector<dielec_debye> debye;
-        std::vector<dielec_drude> drude;
-        std::vector<dielec_lorentz> lorentz;
-        std::vector<dielec_critpoint> critpoint;
+        std::vector<DebyeModel> debye;
+        std::vector<DrudeModel> drude;
+        std::vector<LorentzModel> lorentz;
+        std::vector<CritpointModel> critpoint;
         
         // Cauchy
         std::vector<double> cauchy_coeffs;

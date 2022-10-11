@@ -24,14 +24,12 @@ extern std::ofstream plog;
 //###############
 
 Dielec_model::Dielec_model()
-    :ei(1.0),
-     Ndebye(0), Ndrude(0), Nlorentz(0), Ncp(0)
+    :ei(1.0)
 {
 }
 
 Dielec_model::Dielec_model(Dielec_model const &D)
     :ei(D.ei),
-     Ndebye(D.Ndebye), Ndrude(D.Ndrude), Nlorentz(D.Nlorentz), Ncp(D.Ncp),
      debye_arr(D.debye_arr),
      drude_arr(D.drude_arr),
      lorentz_arr(D.lorentz_arr),
@@ -46,23 +44,22 @@ Dielec_model::~Dielec_model()
 void Dielec_model::clear()
 {
     ei=1.0;
-    Ndebye=Ndrude=Nlorentz=Ncp=0;
-    debye_arr.reset();
-    drude_arr.reset();
-    lorentz_arr.reset();
-    cp_arr.reset();
+    debye_arr.clear();
+    drude_arr.clear();
+    lorentz_arr.clear();
+    cp_arr.clear();
 }
 
 Imdouble Dielec_model::eval(double w) const
 {
-    int i;
+    std::size_t i;
     Imdouble r=0;
     
     r+=ei;
-    for(i=0;i<Ndebye;i++) r+=debye_arr[i].eval(w);
-    for(i=0;i<Ndrude;i++) r+=drude_arr[i].eval(w);
-    for(i=0;i<Nlorentz;i++) r+=lorentz_arr[i].eval(w);
-    for(i=0;i<Ncp;i++) r+=cp_arr[i].eval(w);
+    for(i=0;i<debye_arr.size();i++) r+=debye_arr[i].eval(w);
+    for(i=0;i<drude_arr.size();i++) r+=drude_arr[i].eval(w);
+    for(i=0;i<lorentz_arr.size();i++) r+=lorentz_arr[i].eval(w);
+    for(i=0;i<cp_arr.size();i++) r+=cp_arr[i].eval(w);
     
     return r;
 }
@@ -74,38 +71,34 @@ void Dielec_model::set_const(double ei_in)
 
 void Dielec_model::add_debye(double ds,double t0)
 {
-    dielec_debye tmp_deb;
+    DebyeModel tmp_deb;
     tmp_deb.set(ds,t0);
     
     debye_arr.push_back(tmp_deb);
-    Ndebye+=1;
 }
 
 void Dielec_model::add_drude(double wd,double g)
 {
-    dielec_drude tmp_drude;
+    DrudeModel tmp_drude;
     tmp_drude.set(wd,g);
     
     drude_arr.push_back(tmp_drude);
-    Ndrude+=1;
 }
 
 void Dielec_model::add_lorentz(double A,double O,double G)
 {
-    dielec_lorentz tmp_lor;
+    LorentzModel tmp_lor;
     tmp_lor.set(A,O,G);
     
     lorentz_arr.push_back(tmp_lor);
-    Nlorentz+=1;
 }
 
 void Dielec_model::add_critpoint(double A,double O,double P,double G)
 {
-    dielec_critpoint tmp_crit;
+    CritpointModel tmp_crit;
     tmp_crit.set(A,O,P,G);
     
     cp_arr.push_back(tmp_crit);
-    Ncp+=1;
 }
 
 double Dielec_model::get_const()
@@ -115,7 +108,6 @@ double Dielec_model::get_const()
 
 void Dielec_model::get_time_exp(Grid1<Imdouble> &va,Grid1<Imdouble> &vb)
 {
-    int i,j;
     Imdouble tmp_a,tmp_b;
     
     int Nmod=get_N_models();
@@ -123,26 +115,28 @@ void Dielec_model::get_time_exp(Grid1<Imdouble> &va,Grid1<Imdouble> &vb)
     va.init(Nmod);
     vb.init(Nmod);
     
-    j=0;
-    for(i=0;i<Ndebye;i++)
+    std::size_t i;
+    int j=0;
+    
+    for(i=0;i<debye_arr.size();i++)
     {
         debye_arr[i].get_time_exp(tmp_a,tmp_b);
         va[j]=tmp_a; vb[j]=tmp_b;
         j++;
     }
-    for(i=0;i<Ndrude;i++)
+    for(i=0;i<drude_arr.size();i++)
     {
         drude_arr[i].get_time_exp(tmp_a,tmp_b);
         va[j]=tmp_a; vb[j]=tmp_b;
         j++;
     }
-    for(i=0;i<Nlorentz;i++)
+    for(i=0;i<lorentz_arr.size();i++)
     {
         lorentz_arr[i].get_time_exp(tmp_a,tmp_b);
         va[j]=tmp_a; vb[j]=tmp_b;
         j++;
     }
-    for(i=0;i<Ncp;i++)
+    for(i=0;i<cp_arr.size();i++)
     {
         cp_arr[i].get_time_exp(tmp_a,tmp_b);
         va[j]=tmp_a; vb[j]=tmp_b;
@@ -156,16 +150,16 @@ std::string Dielec_model::get_matlab() const
     
     strm<<"eps=0*w+"<<ei<<";\n";
     
-    int i,l=0;
+    int l=0;
     
-    for(i=0;i<Ndebye;i++) { strm<<debye_arr[i].get_matlab(l); l++; }
-    for(i=0;i<Ndrude;i++) { strm<<drude_arr[i].get_matlab(l); l++; }
-    for(i=0;i<Nlorentz;i++) { strm<<lorentz_arr[i].get_matlab(l); l++; }
-    for(i=0;i<Ncp;i++) { strm<<cp_arr[i].get_matlab(l); l++; }
+    for(std::size_t i=0;i<debye_arr.size();i++) { strm<<debye_arr[i].get_matlab(l); l++; }
+    for(std::size_t i=0;i<drude_arr.size();i++) { strm<<drude_arr[i].get_matlab(l); l++; }
+    for(std::size_t i=0;i<lorentz_arr.size();i++) { strm<<lorentz_arr[i].get_matlab(l); l++; }
+    for(std::size_t i=0;i<cp_arr.size();i++) { strm<<cp_arr[i].get_matlab(l); l++; }
     
     strm<<"eps=eps+";
     
-    for(i=0;i<l;i++)
+    for(int i=0;i<l;i++)
     {
         strm<<"eps_"<<i;
         
@@ -178,14 +172,17 @@ std::string Dielec_model::get_matlab() const
 
 int Dielec_model::get_N_models()
 {
-    return Ndebye+Ndrude+Nlorentz+Ncp;
+    return debye_arr.size()+
+           drude_arr.size()+
+           lorentz_arr.size()+
+           cp_arr.size();
 }
 
 double Dielec_model::get_sigma()
 {
-    int i;
     double sig=0;
-    for(i=0;i<Ndrude;i++)
+    
+    for(std::size_t i=0;i<drude_arr.size();i++)
     {
         sig+=drude_arr[i].get_sigma();
     }
@@ -195,25 +192,25 @@ double Dielec_model::get_sigma()
 
 void Dielec_model::show()
 {
-    int i;
+    std::size_t i;
     
     std::cout<<"Eps_inf: "<<ei<<std::endl;
-    for(i=0;i<Ndebye;i++)
+    for(i=0;i<debye_arr.size();i++)
     {
         std::cout<<"Debye "<<i<<":"<<std::endl;
         debye_arr[i].show();
     }
-    for(i=0;i<Ndrude;i++)
+    for(i=0;i<drude_arr.size();i++)
     {
         std::cout<<"Drude "<<i<<":"<<std::endl;
         drude_arr[i].show();
     }
-    for(i=0;i<Nlorentz;i++)
+    for(i=0;i<lorentz_arr.size();i++)
     {
         std::cout<<"Lorentz "<<i<<":"<<std::endl;
         lorentz_arr[i].show();
     }
-    for(i=0;i<Ncp;i++)
+    for(i=0;i<cp_arr.size();i++)
     {
         std::cout<<"Critical-points "<<i<<":"<<std::endl;
         cp_arr[i].show();
@@ -224,15 +221,10 @@ void Dielec_model::operator = (Dielec_model const &D)
 {
     ei=D.ei;
     
-    Ndebye=D.Ndebye; if(Ndebye>0) debye_arr.init(Ndebye);
-    Ndrude=D.Ndrude; if(Ndrude>0) drude_arr.init(Ndrude);
-    Nlorentz=D.Nlorentz; if(Nlorentz>0) lorentz_arr.init(Nlorentz);
-    Ncp=D.Ncp; if(Ncp>0) cp_arr.init(Ncp);
-    
-    if(Ndebye>0) debye_arr=D.debye_arr;
-    if(Ndrude>0) drude_arr=D.drude_arr;
-    if(Nlorentz>0) lorentz_arr=D.lorentz_arr;
-    if(Ncp>0) cp_arr=D.cp_arr;
+    debye_arr=D.debye_arr;
+    drude_arr=D.drude_arr;
+    lorentz_arr=D.lorentz_arr;
+    cp_arr=D.cp_arr;
 }
 
 //####################
@@ -240,15 +232,15 @@ void Dielec_model::operator = (Dielec_model const &D)
 
 //Debye
 
-dielec_debye::dielec_debye()
+DebyeModel::DebyeModel()
     :ds(0), t0(0)
 {}
 
-dielec_debye::dielec_debye(dielec_debye const &D)
+DebyeModel::DebyeModel(DebyeModel const &D)
     :ds(D.ds), t0(D.t0)
 {}
 
-std::string dielec_debye::get_matlab(int ID) const
+std::string DebyeModel::get_matlab(int ID) const
 {
     std::stringstream strm;
     
@@ -260,28 +252,28 @@ std::string dielec_debye::get_matlab(int ID) const
     return strm.str();
 }
 
-Imdouble dielec_debye::eval(double w) const
+Imdouble DebyeModel::eval(double w) const
 {
     return ds/(1.0-w*t0*Im);
 }
 
-void dielec_debye::get_time_exp(Imdouble &a_o,Imdouble &b_o)
+void DebyeModel::get_time_exp(Imdouble &a_o,Imdouble &b_o)
 {
     a_o=ds/t0;
     b_o=-1.0/t0;
 }
 
-void dielec_debye::set(double dsi,double t0i)
+void DebyeModel::set(double dsi,double t0i)
 {
     ds=dsi; t0=t0i;
 }
 
-void dielec_debye::show()
+void DebyeModel::show()
 {
     std::cout<<"Ds: "<<ds<<" t0: "<<t0<<std::endl;
 }
 
-void dielec_debye::operator = (dielec_debye const &D)
+void DebyeModel::operator = (DebyeModel const &D)
 {
     ds=D.ds;
     t0=D.t0;
@@ -289,20 +281,20 @@ void dielec_debye::operator = (dielec_debye const &D)
 
 //Drude
 
-dielec_drude::dielec_drude()
+DrudeModel::DrudeModel()
     :wd(0), wd2(0), g(1.0)
 {}
 
-dielec_drude::dielec_drude(dielec_drude const &D)
+DrudeModel::DrudeModel(DrudeModel const &D)
     :wd(D.wd), wd2(D.wd2), g(D.g)
 {}
 
-Imdouble dielec_drude::eval(double w) const
+Imdouble DrudeModel::eval(double w) const
 {
     return -wd2/(w*w+w*g*Im);
 }
 
-std::string dielec_drude::get_matlab(int ID) const
+std::string DrudeModel::get_matlab(int ID) const
 {
     std::stringstream strm;
     
@@ -314,17 +306,17 @@ std::string dielec_drude::get_matlab(int ID) const
     return strm.str();
 }
 
-void dielec_drude::get_time_exp(Imdouble &a_o,Imdouble &b_o)
+void DrudeModel::get_time_exp(Imdouble &a_o,Imdouble &b_o)
 {
     a_o=-wd2/g;
     b_o=-g;
 }
 
-double dielec_drude::get_sigma()
+double DrudeModel::get_sigma()
 {
     return e0*wd2/g;
 }
-void dielec_drude::set(double wdi,double gi)
+void DrudeModel::set(double wdi,double gi)
 {
     wd=wdi;
     g=gi;
@@ -332,12 +324,12 @@ void dielec_drude::set(double wdi,double gi)
     wd2=wd*wd;
 }
 
-void dielec_drude::show()
+void DrudeModel::show()
 {
     std::cout<<"Wd: "<<wd<<" Wd2: "<<wd2<<" g: "<<g<<std::endl;
 }
 
-void dielec_drude::operator = (dielec_drude const &D)
+void DrudeModel::operator = (DrudeModel const &D)
 {
     wd=D.wd;
     wd2=D.wd2;
@@ -346,20 +338,20 @@ void dielec_drude::operator = (dielec_drude const &D)
 
 //Lorentz
 
-dielec_lorentz::dielec_lorentz()
+LorentzModel::LorentzModel()
     :A(0), O(1.0), O2(1.0), G(0)
 {}
 
-dielec_lorentz::dielec_lorentz(dielec_lorentz const &D)
+LorentzModel::LorentzModel(LorentzModel const &D)
     :A(D.A), O(D.O), O2(D.O2), G(D.G)
 {}
 
-Imdouble dielec_lorentz::eval(double w) const
+Imdouble LorentzModel::eval(double w) const
 {
     return A*O2/(O2-w*w-w*G*Im);
 }
 
-std::string dielec_lorentz::get_matlab(int ID) const
+std::string LorentzModel::get_matlab(int ID) const
 {
     std::stringstream strm;
     
@@ -372,7 +364,7 @@ std::string dielec_lorentz::get_matlab(int ID) const
     return strm.str();
 }
 
-void dielec_lorentz::get_time_exp(Imdouble &a_o,Imdouble &b_o)
+void LorentzModel::get_time_exp(Imdouble &a_o,Imdouble &b_o)
 {
     double alp=G/2.0;
     Imdouble bet=std::sqrt(O*O-alp*alp);
@@ -382,18 +374,18 @@ void dielec_lorentz::get_time_exp(Imdouble &a_o,Imdouble &b_o)
     b_o=-alp+bet*Im;
 }
 
-void dielec_lorentz::set(double Ai,double Oi,double Gi)
+void LorentzModel::set(double Ai,double Oi,double Gi)
 {
     A=Ai; O=Oi; G=Gi;
     O2=O*O;
 }
 
-void dielec_lorentz::show()
+void LorentzModel::show()
 {
     std::cout<<"A: "<<A<<" O: "<<O<<" O2: "<<O2<<" G: "<<G<<std::endl;
 }
 
-void dielec_lorentz::operator =(dielec_lorentz const &D)
+void LorentzModel::operator =(LorentzModel const &D)
 {
     A=D.A;
     O=D.O;
@@ -403,15 +395,15 @@ void dielec_lorentz::operator =(dielec_lorentz const &D)
 
 //Critical points
 
-dielec_critpoint::dielec_critpoint()
+CritpointModel::CritpointModel()
     :A(0), O(1), P(0), G(1)
 {}
 
-dielec_critpoint::dielec_critpoint(dielec_critpoint const &D)
+CritpointModel::CritpointModel(CritpointModel const &D)
     :A(D.A), O(D.O), P(D.P), G(D.G)
 {}
 
-std::string dielec_critpoint::get_matlab(int ID) const
+std::string CritpointModel::get_matlab(int ID) const
 {
     std::stringstream strm;
     
@@ -425,29 +417,29 @@ std::string dielec_critpoint::get_matlab(int ID) const
     return strm.str();
 }
 
-Imdouble dielec_critpoint::eval(double w) const
+Imdouble CritpointModel::eval(double w) const
 {
     using std::exp;
     return A*O*(exp(P*Im)/(O-w-G*Im)+exp(-P*Im)/(O+w+G*Im));
 }
 
-void dielec_critpoint::get_time_exp(Imdouble &a_o,Imdouble &b_o)
+void CritpointModel::get_time_exp(Imdouble &a_o,Imdouble &b_o)
 {
     a_o=-2.0*A*O*std::exp(-P*Im)*Im;
     b_o=-G+O*Im;
 }
 
-void dielec_critpoint::set(double Ai,double Oi,double P_i,double Gi)
+void CritpointModel::set(double Ai,double Oi,double P_i,double Gi)
 {
     A=Ai; O=Oi; P=P_i; G=Gi;
 }
 
-void dielec_critpoint::show()
+void CritpointModel::show()
 {
     std::cout<<"A: "<<A<<" O: "<<O<<" P: "<<P<<" G: "<<G<<std::endl;
 }
 
-void dielec_critpoint::operator = (dielec_critpoint const &D)
+void CritpointModel::operator = (CritpointModel const &D)
 {
     A=D.A;
     O=D.O;

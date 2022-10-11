@@ -83,7 +83,6 @@ class FDTD_Material
         void coeffsZ(double &C1o,double &C2xo,double &C2yo);
         Imdouble get_n(double w) const;
         //void init(int m_type,double Dx,double Dy,double Dz,double Dt);
-        void load_mfile(std::string fname);
         double pml_coeff();
         void compute_close(int i,int j,int k,int dir,
                            Grid3<double> &E,

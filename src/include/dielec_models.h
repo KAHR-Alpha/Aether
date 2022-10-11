@@ -22,14 +22,14 @@ limitations under the License.*/
 #include <fstream>
 #include <vector>
 
-class dielec_debye
+class DebyeModel
 {
     private:
         double ds,t0;
         
     public:
-        dielec_debye();
-        dielec_debye(dielec_debye const &D);
+        DebyeModel();
+        DebyeModel(DebyeModel const &D);
     
         Imdouble eval(double) const;
         std::string get_matlab(int ID) const;
@@ -37,17 +37,17 @@ class dielec_debye
         void set(double ds,double t0);
         void show();
         
-        void operator = (dielec_debye const &D);
+        void operator = (DebyeModel const &D);
 };
 
-class dielec_drude
+class DrudeModel
 {
     private:
         double wd,wd2,g;
         
     public:
-        dielec_drude();
-        dielec_drude(dielec_drude const &D);
+        DrudeModel();
+        DrudeModel(DrudeModel const &D);
         
         Imdouble eval(double) const;
         std::string get_matlab(int ID) const;
@@ -56,17 +56,17 @@ class dielec_drude
         void set(double wd,double g);
         void show();
         
-        void operator = (dielec_drude const &D);
+        void operator = (DrudeModel const &D);
 };
 
-class dielec_lorentz
+class LorentzModel
 {
     private:
         double A,O,O2,G;
         
     public:
-        dielec_lorentz();
-        dielec_lorentz(dielec_lorentz const &D);
+        LorentzModel();
+        LorentzModel(LorentzModel const &D);
         
         Imdouble eval(double) const;
         std::string get_matlab(int ID) const;
@@ -74,17 +74,17 @@ class dielec_lorentz
         void set(double A,double O,double G);
         void show();
         
-        void operator = (dielec_lorentz const &D);
+        void operator = (LorentzModel const &D);
 };
 
-class dielec_critpoint
+class CritpointModel
 {
     private:
         double A,O,P,G;
         
     public:
-        dielec_critpoint();
-        dielec_critpoint(dielec_critpoint const &D);
+        CritpointModel();
+        CritpointModel(CritpointModel const &D);
         
         Imdouble eval(double) const;
         std::string get_matlab(int ID) const;
@@ -92,7 +92,7 @@ class dielec_critpoint
         void set(double A,double O,double P,double G);
         void show();
         
-        void operator = (dielec_critpoint const &D);
+        void operator = (CritpointModel const &D);
 };
 
 class Dielec_model
@@ -104,12 +104,10 @@ class Dielec_model
         
         double ei;
         
-        int Ndebye,Ndrude,Nlorentz,Ncp;
-        
-        Grid1<dielec_debye> debye_arr;
-        Grid1<dielec_drude> drude_arr;
-        Grid1<dielec_lorentz> lorentz_arr;
-        Grid1<dielec_critpoint> cp_arr;
+        std::vector<DebyeModel> debye_arr;
+        std::vector<DrudeModel> drude_arr;
+        std::vector<LorentzModel> lorentz_arr;
+        std::vector<CritpointModel> cp_arr;
         
         void set_const(double ei);
         void add_debye(double ds,double t0);

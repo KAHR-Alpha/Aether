@@ -35,7 +35,7 @@ int lmat_add_crit_point(lua_State *L)
     double P=lua_tonumber(L,3);
     double G=lua_tonumber(L,4);
     
-    dielec_critpoint critpoint;
+    CritpointModel critpoint;
     critpoint.set(A,O,P,G);
     
     mat->critpoint.push_back(critpoint);
@@ -50,7 +50,7 @@ int lmat_add_debye(lua_State *L)
     double ds=lua_tonumber(L,1);
     double t0=lua_tonumber(L,2);
     
-    dielec_debye debye;
+    DebyeModel debye;
     debye.set(ds,t0);
     
     mat->debye.push_back(debye);
@@ -65,7 +65,7 @@ int lmat_add_drude(lua_State *L)
     double wd=lua_tonumber(L,1);
     double g=lua_tonumber(L,2);
     
-    dielec_drude drude;
+    DrudeModel drude;
     drude.set(wd,g);
     
     mat->drude.push_back(drude);
@@ -81,7 +81,7 @@ int lmat_add_lorentz(lua_State *L)
     double O=lua_tonumber(L,2);
     double G=lua_tonumber(L,3);
     
-    dielec_lorentz lorentz;
+    LorentzModel lorentz;
     lorentz.set(A,O,G);
     
     mat->lorentz.push_back(lorentz);

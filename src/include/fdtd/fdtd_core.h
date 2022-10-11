@@ -120,7 +120,6 @@ class FDTD
         #else
         void set_matsgrid(Grid3<unsigned int> &mat_x,Grid3<unsigned int> &mat_y,Grid3<unsigned int> &mat_z);
         #endif
-        void set_material(unsigned int,std::string);
         void set_material(unsigned int index,Material const &material);
         void set_prefix(std::string);
         //void set_spectrum_dens(int);

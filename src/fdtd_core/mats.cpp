@@ -441,28 +441,12 @@ void FDTD_Material::link_grid(Grid3<unsigned int> const &mat_grid,unsigned int I
     }}}
 }
 
-void FDTD_Material::load_mfile(std::string fname)
-{
-    base_mat.load_lua_script(fname);
-    
-    if(base_mat.type==MAT_CONST) set_const(base_mat.eps_inf);
-    else if(base_mat.type==MAT_DIELEC)
-    {
-        dielec=base_mat.dielec;
-        
-//        if(base_mat.pcrc2) PCRC_dielec_treat();
-//        else RC_dielec_treat();
-        
-        RC_dielec_treat();
-    }
-}
-
 void FDTD_Material::set_base_mat(Material const &material_)
 {
     base_mat=material_;
     
-    if(base_mat.type==MAT_CONST) set_const(base_mat.eps_inf);
-    else if(base_mat.type==MAT_DIELEC)
+    if(base_mat.is_const()) set_const(base_mat.eps_inf);
+    else if(base_mat.fdtd_compatible())
     {
         dielec=base_mat.dielec;
         
