@@ -14,6 +14,7 @@ limitations under the License.*/
 
 #include <bitmap3.h>
 #include <fdtd_material.h>
+#include <fdtd_utils.h>
 
 extern const double Pi;
 extern const Imdouble Im;
@@ -448,7 +449,12 @@ void FDTD_Material::set_base_mat(Material const &material_)
     if(base_mat.is_const()) set_const(base_mat.eps_inf);
     else if(base_mat.fdtd_compatible())
     {
-        dielec=base_mat.dielec;
+        dielec.eps_inf=base_mat.eps_inf;
+        
+        dielec.debye_arr=base_mat.debye;
+        dielec.drude_arr=base_mat.drude;
+        dielec.lorentz_arr=base_mat.lorentz;
+        dielec.cp_arr=base_mat.critpoint;
         
 //        if(base_mat.pcrc2) PCRC_dielec_treat();
 //        else RC_dielec_treat();

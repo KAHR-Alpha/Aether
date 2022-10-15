@@ -13,6 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include <fdtd_material.h>
+#include <fdtd_utils.h>
 
 extern const double Pi;
 extern std::ofstream plog;

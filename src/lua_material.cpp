@@ -117,7 +117,7 @@ int lmat_index_infty(lua_State *L)
     return 0;
 }
 
-int lmat_set_cauchy(lua_State *L)
+int lmat_add_cauchy(lua_State *L)
 {
     int N=lua_gettop(L);
     
@@ -128,7 +128,7 @@ int lmat_set_cauchy(lua_State *L)
     for(int i=0;i<N;i++)
         coeffs[i]=lua_tonumber(L,i+1);
     
-    mat->set_type_cauchy(coeffs);
+    mat->cauchy_coeffs.push_back(coeffs);
     
     return 0;
 }
@@ -137,8 +137,6 @@ template<int type>
 int lmat_add_data_file(lua_State *L)
 {
     Material *mat=get_mat_pointer(L,"binded_material");
-    
-    mat->type=MAT_SPLINE;
     
     std::string fname=lua_tostring(L,1);
     
@@ -251,6 +249,8 @@ int lmat_set_validity_range(lua_State *L)
 
 void Material::load_lua_script(std::filesystem::path const &script_path_)
 {
+    reset();
+    
     if(!std::filesystem::is_regular_file(script_path_))
     {
         std::cerr<<"Error: Couldn't find the material "<<script_path_<<" ...\nAborting...\n";
@@ -259,8 +259,6 @@ void Material::load_lua_script(std::filesystem::path const &script_path_)
     }
     
     script_path=script_path_;
-    
-    dielec.clear();
     
     lua_State *L=luaL_newstate();
     luaL_openlibs(L);
@@ -272,7 +270,7 @@ void Material::load_lua_script(std::filesystem::path const &script_path_)
     lua_pushlightuserdata(L,reinterpret_cast<void*>(&caller_path));
     lua_setglobal(L,"lua_caller_path");
     
-    lua_register(L,"add_cauchy",lmat_set_cauchy);
+    lua_register(L,"add_cauchy",lmat_add_cauchy);
     lua_register(L,"add_crit_point",lmat_add_crit_point);
     lua_register(L,"add_data_epsilon",lmat_add_data_file<1>);
     lua_register(L,"add_data_index",lmat_add_data_file<0>);
@@ -281,7 +279,9 @@ void Material::load_lua_script(std::filesystem::path const &script_path_)
     lua_register(L,"add_lorentz",lmat_add_lorentz);
     lua_register(L,"add_sellmeier",lmat_set_sellmeier);
     lua_register(L,"description",lmat_description);
+    lua_register(L,"epsilon_infinity",lmat_epsilon_infty);
     lua_register(L,"epsilon_infty",lmat_epsilon_infty);
+    lua_register(L,"index_infinity",lmat_index_infty);
     lua_register(L,"index_infty",lmat_index_infty);
     lua_register(L,"validity_range",lmat_set_validity_range);
     

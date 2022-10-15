@@ -38,7 +38,6 @@ Material::Material(Material const &mat)
     :eps_inf(mat.eps_inf),
      lambda_valid_min(mat.lambda_valid_min),
      lambda_valid_max(mat.lambda_valid_max),
-     dielec(mat.dielec),
      debye(mat.debye),
      drude(mat.drude),
      lorentz(mat.lorentz),
@@ -127,7 +126,19 @@ Imdouble Material::get_eps(double w) const
         
         // Cauchy terms
         
-        #warning "Implement cauchy evaluation"
+        for(i=0;i<cauchy_coeffs.size();i++)
+        {
+            double lambda_2n=1.0;
+            double n=0;
+            
+            for(std::size_t j=0;j<cauchy_coeffs[i].size();j++)
+            {
+                n+=cauchy_coeffs[i][j]/lambda_2n;
+                lambda_2n*=lambda_2;
+            }
+            
+            eps_out+=n*n;
+        }
         
         // Spline
         
@@ -135,25 +146,6 @@ Imdouble Material::get_eps(double w) const
             eps_out+=(er_spline[i])(w)+(ei_spline[i])(w)*Im;
          
         return eps_out;
-        
-//        if(type==MAT_CONST) return eps_inf;
-//        else if(type==MAT_CAUCHY)
-//        {
-//            double l2=2.0*Pi*c_light/w;
-//            l2*=l2;
-//            
-//            double s=cauchy_coeffs[0];
-//            
-//            double lp=1.0;
-//            
-//            for(unsigned int i=1;i<cauchy_coeffs.size();i++)
-//            {
-//                lp*=l2;
-//                s+=cauchy_coeffs[i]/lp;
-//            }
-//            
-//            return s*s;
-//        }
     }
     else
     {
@@ -232,7 +224,7 @@ std::string Material::get_matlab(std::string const &fname_) const
     
     strm<<"% Lambda checking\n\n";
     
-    if(type!=MAT_CONST && type!=MAT_CONST_IM)
+    if(!is_const())
     {
         strm<<"validity_min="<<lambda_valid_min<<";\n";
         strm<<"validity_max="<<lambda_valid_max<<";\n\n";
@@ -353,7 +345,6 @@ void Material::operator = (Material const &mat)
     lorentz=mat.lorentz;
     critpoint=mat.critpoint;
     
-    dielec=mat.dielec;
     name=mat.name;
     description=mat.description;
     script_path=mat.script_path;
@@ -482,13 +473,6 @@ void Material::set_effective_material(int effective_type_,Material const &eff_ma
     
     *eff_mat_1=eff_mat_1_;
     *eff_mat_2=eff_mat_2_;
-}
-
-void Material::set_type_cauchy(std::vector<double> const &cauchy_coeffs_)
-{
-    type=MAT_CAUCHY;
-    
-    cauchy_coeffs=cauchy_coeffs_;
 }
 
 //######################

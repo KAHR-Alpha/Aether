@@ -24,12 +24,12 @@ extern std::ofstream plog;
 //###############
 
 Dielec_model::Dielec_model()
-    :ei(1.0)
+    :eps_inf(1.0)
 {
 }
 
 Dielec_model::Dielec_model(Dielec_model const &D)
-    :ei(D.ei),
+    :eps_inf(D.eps_inf),
      debye_arr(D.debye_arr),
      drude_arr(D.drude_arr),
      lorentz_arr(D.lorentz_arr),
@@ -43,7 +43,7 @@ Dielec_model::~Dielec_model()
 
 void Dielec_model::clear()
 {
-    ei=1.0;
+    eps_inf=1.0;
     debye_arr.clear();
     drude_arr.clear();
     lorentz_arr.clear();
@@ -55,7 +55,7 @@ Imdouble Dielec_model::eval(double w) const
     std::size_t i;
     Imdouble r=0;
     
-    r+=ei;
+    r+=eps_inf;
     for(i=0;i<debye_arr.size();i++) r+=debye_arr[i].eval(w);
     for(i=0;i<drude_arr.size();i++) r+=drude_arr[i].eval(w);
     for(i=0;i<lorentz_arr.size();i++) r+=lorentz_arr[i].eval(w);
@@ -64,46 +64,9 @@ Imdouble Dielec_model::eval(double w) const
     return r;
 }
 
-void Dielec_model::set_const(double ei_in)
-{
-    ei=ei_in;
-}
-
-void Dielec_model::add_debye(double ds,double t0)
-{
-    DebyeModel tmp_deb;
-    tmp_deb.set(ds,t0);
-    
-    debye_arr.push_back(tmp_deb);
-}
-
-void Dielec_model::add_drude(double wd,double g)
-{
-    DrudeModel tmp_drude;
-    tmp_drude.set(wd,g);
-    
-    drude_arr.push_back(tmp_drude);
-}
-
-void Dielec_model::add_lorentz(double A,double O,double G)
-{
-    LorentzModel tmp_lor;
-    tmp_lor.set(A,O,G);
-    
-    lorentz_arr.push_back(tmp_lor);
-}
-
-void Dielec_model::add_critpoint(double A,double O,double P,double G)
-{
-    CritpointModel tmp_crit;
-    tmp_crit.set(A,O,P,G);
-    
-    cp_arr.push_back(tmp_crit);
-}
-
 double Dielec_model::get_const()
 {
-    return ei;
+    return eps_inf;
 }
 
 void Dielec_model::get_time_exp(Grid1<Imdouble> &va,Grid1<Imdouble> &vb)
@@ -148,7 +111,7 @@ std::string Dielec_model::get_matlab() const
 {
     std::stringstream strm;
     
-    strm<<"eps=0*w+"<<ei<<";\n";
+    strm<<"eps=0*w+"<<eps_inf<<";\n";
     
     int l=0;
     
@@ -194,7 +157,7 @@ void Dielec_model::show()
 {
     std::size_t i;
     
-    std::cout<<"Eps_inf: "<<ei<<std::endl;
+    std::cout<<"Eps_inf: "<<eps_inf<<std::endl;
     for(i=0;i<debye_arr.size();i++)
     {
         std::cout<<"Debye "<<i<<":"<<std::endl;
@@ -219,7 +182,7 @@ void Dielec_model::show()
 
 void Dielec_model::operator = (Dielec_model const &D)
 {
-    ei=D.ei;
+    eps_inf=D.eps_inf;
     
     debye_arr=D.debye_arr;
     drude_arr=D.drude_arr;
@@ -247,7 +210,7 @@ std::string DebyeModel::get_matlab(int ID) const
     strm<<"ds_"<<ID<<"="<<ds<<";\n";
     strm<<"t0_"<<ID<<"="<<t0<<";\n\n";
     
-    strm<<"eps_"<<ID<<"=ds_"<<ID<<"./(1.0-w*t0_"<<ID<<"*i);\n\n";
+    strm<<"eps_debye_"<<ID<<"=ds_"<<ID<<"./(1.0-w*t0_"<<ID<<"*i);\n\n";
     
     return strm.str();
 }
@@ -301,7 +264,7 @@ std::string DrudeModel::get_matlab(int ID) const
     strm<<"wd2_"<<ID<<"="<<wd2<<";\n";
     strm<<"g_"<<ID<<"="<<g<<";\n\n";
     
-    strm<<"eps_"<<ID<<"=-wd2_"<<ID<<"./(w.^2+w*g_"<<ID<<"*i);\n\n";
+    strm<<"eps_drude_"<<ID<<"=-wd2_"<<ID<<"./(w.^2+w*g_"<<ID<<"*i);\n\n";
     
     return strm.str();
 }

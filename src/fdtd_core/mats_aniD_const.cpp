@@ -13,6 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include <fdtd_material.h>
+#include <fdtd_utils.h>
 
 void FDTD_Material::set_ani_DC(double eps_x,double eps_y,double eps_z)
 {

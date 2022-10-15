@@ -16,7 +16,6 @@ limitations under the License.*/
 #define MATERIAL_H
 
 #include <dielec_models.h>
-#include <fdtd_utils.h>
 #include <lua_base.h>
 #include <math_approx.h>
 
@@ -35,14 +34,10 @@ enum
 class Material
 {
     public:
-        [[deprecated]] int type;
-        
         double eps_inf;
         
         double lambda_valid_min,
                lambda_valid_max;
-        
-        [[deprecated]] Dielec_model dielec;
         
         // Common dielectric models
         
@@ -52,7 +47,7 @@ class Material
         std::vector<CritpointModel> critpoint;
         
         // Cauchy
-        std::vector<double> cauchy_coeffs;
+        std::vector<std::vector<double>> cauchy_coeffs;
         
         // Sellmeier
         std::vector<double> sellmeier_B,sellmeier_C;
@@ -85,10 +80,9 @@ class Material
         void operator = (Material const &mat);
         bool operator == (Material const &mat) const;
         void reset();
-        [[deprecated]] void set_const_eps(double eps);
-        [[deprecated]] void set_const_n(double n);
+        void set_const_eps(double eps);
+        void set_const_n(double n);
         void set_effective_material(int effective_type,Material const &eff_mat_1,Material const &eff_mat_2);
-        [[deprecated]] void set_type_cauchy(std::vector<double> const &cauchy_coeffs);
 };
 
 int gen_absorbing_material(lua_State *L);

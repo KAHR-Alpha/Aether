@@ -13,6 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include <fdtd_material.h>
+#include <fdtd_utils.h>
 
 void FDTD_Material::set_const(double eps)
 {

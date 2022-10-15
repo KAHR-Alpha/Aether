@@ -13,6 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include <fdtd_material.h>
+#include <fdtd_utils.h>
 
 void FDTD_Material::PCRC_ante(int i,int j,int k,
                               Grid3<double> const &Ex,

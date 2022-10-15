@@ -98,22 +98,16 @@ class CritpointModel
 class Dielec_model
 {
     public:
-        Dielec_model();
-        Dielec_model(Dielec_model const& D);
-        ~Dielec_model();
-        
-        double ei;
+        double eps_inf;
         
         std::vector<DebyeModel> debye_arr;
         std::vector<DrudeModel> drude_arr;
         std::vector<LorentzModel> lorentz_arr;
         std::vector<CritpointModel> cp_arr;
         
-        void set_const(double ei);
-        void add_debye(double ds,double t0);
-        void add_drude(double wd,double g);
-        void add_lorentz(double A,double O,double G);
-        void add_critpoint(double A,double O,double P,double G);
+        Dielec_model();
+        Dielec_model(Dielec_model const& D);
+        ~Dielec_model();
         
         void clear();
         Imdouble eval(double) const; 
