@@ -210,7 +210,7 @@ std::string DebyeModel::get_matlab(int ID) const
     strm<<"ds_"<<ID<<"="<<ds<<";\n";
     strm<<"t0_"<<ID<<"="<<t0<<";\n\n";
     
-    strm<<"eps_debye_"<<ID<<"=ds_"<<ID<<"./(1.0-w*t0_"<<ID<<"*i);\n\n";
+    strm<<matlab_ID(ID)<<"=ds_"<<ID<<"./(1.0-w*t0_"<<ID<<"*i);";
     
     return strm.str();
 }
@@ -224,6 +224,11 @@ void DebyeModel::get_time_exp(Imdouble &a_o,Imdouble &b_o)
 {
     a_o=ds/t0;
     b_o=-1.0/t0;
+}
+
+std::string DebyeModel::matlab_ID(int ID) const
+{
+    return "eps_debye_"+std::to_string(ID);
 }
 
 void DebyeModel::set(double dsi,double t0i)
@@ -264,7 +269,7 @@ std::string DrudeModel::get_matlab(int ID) const
     strm<<"wd2_"<<ID<<"="<<wd2<<";\n";
     strm<<"g_"<<ID<<"="<<g<<";\n\n";
     
-    strm<<"eps_drude_"<<ID<<"=-wd2_"<<ID<<"./(w.^2+w*g_"<<ID<<"*i);\n\n";
+    strm<<matlab_ID(ID)<<"=-wd2_"<<ID<<"./(w.^2+w*g_"<<ID<<"*i);";
     
     return strm.str();
 }
@@ -279,6 +284,12 @@ double DrudeModel::get_sigma()
 {
     return e0*wd2/g;
 }
+
+std::string DrudeModel::matlab_ID(int ID) const
+{
+    return "eps_drude_"+std::to_string(ID);
+}
+
 void DrudeModel::set(double wdi,double gi)
 {
     wd=wdi;
@@ -322,7 +333,7 @@ std::string LorentzModel::get_matlab(int ID) const
     strm<<"O2_"<<ID<<"="<<O2<<";\n";
     strm<<"G_"<<ID<<"="<<G<<";\n\n";
     
-    strm<<"eps_"<<ID<<"=A_"<<ID<<"*O2_"<<ID<<"./(O2_"<<ID<<"-w.^2-w*G_"<<ID<<"*i);\n\n";
+    strm<<matlab_ID(ID)<<"=A_"<<ID<<"*O2_"<<ID<<"./(O2_"<<ID<<"-w.^2-w*G_"<<ID<<"*i);";
     
     return strm.str();
 }
@@ -335,6 +346,11 @@ void LorentzModel::get_time_exp(Imdouble &a_o,Imdouble &b_o)
     
     a_o=-eta*Im;
     b_o=-alp+bet*Im;
+}
+
+std::string LorentzModel::matlab_ID(int ID) const
+{
+    return "eps_lorentz_"+std::to_string(ID);
 }
 
 void LorentzModel::set(double Ai,double Oi,double Gi)
@@ -375,7 +391,7 @@ std::string CritpointModel::get_matlab(int ID) const
     strm<<"P_"<<ID<<"="<<P<<";\n";
     strm<<"G_"<<ID<<"="<<G<<";\n\n";
     
-    strm<<"eps_"<<ID<<"=A_"<<ID<<"*O_"<<ID<<"*(exp(P_"<<ID<<"*i)./(O_"<<ID<<"-w-G_"<<ID<<"*i)+exp(-P_"<<ID<<"*i)./(O_"<<ID<<"+w+G_"<<ID<<"*i));\n\n";
+    strm<<matlab_ID(ID)<<"=A_"<<ID<<"*O_"<<ID<<"*(exp(P_"<<ID<<"*i)./(O_"<<ID<<"-w-G_"<<ID<<"*i)+exp(-P_"<<ID<<"*i)./(O_"<<ID<<"+w+G_"<<ID<<"*i));";
     
     return strm.str();
 }
@@ -390,6 +406,11 @@ void CritpointModel::get_time_exp(Imdouble &a_o,Imdouble &b_o)
 {
     a_o=-2.0*A*O*std::exp(-P*Im)*Im;
     b_o=-G+O*Im;
+}
+
+std::string CritpointModel::matlab_ID(int ID) const
+{
+    return "eps_critpoints_"+std::to_string(ID);
 }
 
 void CritpointModel::set(double Ai,double Oi,double P_i,double Gi)

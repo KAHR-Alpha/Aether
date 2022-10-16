@@ -67,18 +67,9 @@ Material::Material(Material const &mat)
 }
 
 Material::Material(std::filesystem::path const &script_path_)
-    :eps_inf(1.0),
-     lambda_valid_min(400e-9),
-     lambda_valid_max(1000e-9),
-     is_effective_material(false), // Effective material
-     effective_type(MAT_EFF_BRUGGEMAN),
-     eff_mat_1(nullptr),
-     eff_mat_2(nullptr),
-     eff_weight(0),
-     description(""), // String escriptions
-     script_path(script_path_)
+    :Material()
 {
-    load_lua_script(script_path);
+    load_lua_script(script_path_);
 }
 
 Material::~Material()
@@ -119,11 +110,6 @@ Imdouble Material::get_eps(double w) const
         for(i=0;i<lorentz.size();i++) eps_out+=lorentz[i].eval(w);
         for(i=0;i<critpoint.size();i++) eps_out+=critpoint[i].eval(w);
         
-        // Sellmeier terms
-        
-        for(i=0;i<sellmeier_B.size();i++)
-            eps_out+=sellmeier_B[i]/(1.0-sellmeier_C[i]/lambda_2);
-        
         // Cauchy terms
         
         for(i=0;i<cauchy_coeffs.size();i++)
@@ -139,6 +125,11 @@ Imdouble Material::get_eps(double w) const
             
             eps_out+=n*n;
         }
+        
+        // Sellmeier terms
+        
+        for(i=0;i<sellmeier_B.size();i++)
+            eps_out+=sellmeier_B[i]/(1.0-sellmeier_C[i]/lambda_2);
         
         // Spline
         
@@ -240,38 +231,121 @@ std::string Material::get_matlab(std::string const &fname_) const
     
     strm<<"% Model\n\n";
     
-    #warning Matlab material
-//    if(type==MAT_CONST)
-//    {
-//        strm<<"eps=0*lambda+"<<eps_inf<<";\n\n";
-//    }
-//    else if(type==MAT_DIELEC)
-//    {
-//        strm<<"w=2*pi*299792458./lambda;\n\n";
-//        
-//        strm<<dielec.get_matlab()<<"\n";
-//    }
-//    else if(type==MAT_SPLINE)
-//    {
-//        Imdouble tmp_n(n_spline(w),k_spline(w));
-//        return tmp_n*tmp_n;
-//    }
-//    else if(type==MAT_SELLMEIER)
-//    {
-//        double l2=2.0*Pi*c_light/w;
-//        l2*=l2;
-//        
-//        return 1.0+B1/(1.0-C1/l2)
-//                  +B2/(1.0-C2/l2)
-//                  +B3/(1.0-C3/l2);
-//    }
+    strm<<"eps=0*lambda+"<<eps_inf<<";\n\n";
+    strm<<"w=2*pi*299792458./lambda;\n";
+    strm<<"lambda_2=lambda.^2;\n\n";
     
+    std::size_t i;
+    
+    // Dielectric models
+    
+    for(i=0;i<debye.size();i++)
+    {
+        strm<<debye[i].get_matlab(i)<<"\n";
+        strm<<"eps=eps+"<<debye[i].matlab_ID(i)<<";\n\n";
+    }
+    for(i=0;i<drude.size();i++)
+    {
+        strm<<drude[i].get_matlab(i)<<"\n";
+        strm<<"eps=eps+"<<drude[i].matlab_ID(i)<<";\n\n";
+    }
+    for(i=0;i<lorentz.size();i++)
+    {
+        strm<<lorentz[i].get_matlab(i)<<"\n";
+        strm<<"eps=eps+"<<lorentz[i].matlab_ID(i)<<";\n\n";
+    }
+    for(i=0;i<critpoint.size();i++)
+    {
+        strm<<critpoint[i].get_matlab(i)<<"\n";
+        strm<<"eps=eps+"<<critpoint[i].matlab_ID(i)<<";\n\n";
+    }
+    
+    // Cauchy terms
+        
+    for(i=0;i<cauchy_coeffs.size();i++)
+    {
+        for(std::size_t j=0;j<cauchy_coeffs[i].size();j++)
+            strm<<"cauchy_"<<i<<"_"<<j<<"="<<cauchy_coeffs[i][j]<<";\n";
+        
+        strm<<"cauchy_"<<i<<"_eps=cauchy_"<<i<<"_"<<0;
+        for(std::size_t j=1;j<cauchy_coeffs[i].size();j++)
+        {
+            strm<<"+cauchy_"<<i<<"_"<<j<<"./(lambda.^"<<2*j<<")";
+        }
+        strm<<";\n";
+        strm<<"eps=eps+cauchy_"<<i<<".^2;\n\n";
+    }
+    
+    // Sellmeier terms
+    
+    if(!sellmeier_B.empty())
+    {
+        for(i=0;i<sellmeier_B.size();i++)
+        {
+            strm<<"sellmeier_B_"<<i<<"="<<sellmeier_B[i]<<"; ";
+            strm<<"sellmeier_C_"<<i<<"="<<sellmeier_C[i]<<";\n";
+        }
+    
+        strm<<"\neps=eps";
+        for(i=0;i<sellmeier_B.size();i++)
+            strm<<"+sellmeier_B_"<<i<<"./(1.0-sellmeier_C_"<<i<<"./lambda_2)";
+        strm<<";\n\n";
+    }
+    
+    // Spline
+    
+    for(i=0;i<er_spline.size();i++)
+    {
+        // Real data
+        
+        std::size_t N=er_spline[i].get_N();
+        
+        strm<<"spline_"<<i<<"_er_w=[";
+        for(std::size_t j=0;j<N;j++)
+        {
+            strm<<er_spline[i].get_x_base(j);
+            if(j+1<N) strm<<" ";
+        }
+        strm<<"];\n";
+        
+        strm<<"spline_"<<i<<"_er=[";
+        for(std::size_t j=0;j<N;j++)
+        {
+            strm<<er_spline[i].get_y_base(j);
+            if(j+1<N) strm<<" ";
+        }
+        strm<<"];\n\n";
+        
+        // Imag data
+        
+        N=ei_spline[i].get_N();
+        
+        strm<<"spline_"<<i<<"_ei_w=[";
+        for(std::size_t j=0;j<N;j++)
+        {
+            strm<<ei_spline[i].get_x_base(j);
+            if(j+1<N) strm<<" ";
+        }
+        strm<<"];\n";
+        
+        strm<<"spline_"<<i<<"_ei=[";
+        for(std::size_t j=0;j<N;j++)
+        {
+            strm<<ei_spline[i].get_y_base(j);
+            if(j+1<N) strm<<" ";
+        }
+        strm<<"];\n\n";
+        
+        strm<<"spline_"<<i<<"_eps=spline(spline_"<<i<<"_er_w,spline_"<<i<<"_er,w)";
+                       strm<<"+1i*spline(spline_"<<i<<"_ei_w,spline_"<<i<<"_ei,w)\n";
+        strm<<"eps=eps+spline_"<<i<<"_eps;\n";
+    }
     
     strm<<"% Options checking\n\n";
-
+    
     strm<<"op_display=0;\n";
     strm<<"op_index=0;\n\n";
-
+    
     strm<<"for k=1:(nargin-1)\n";
     strm<<"    if strcmp(varargin{k},'display')==1\n";
     strm<<"        op_display=1;\n";
@@ -280,13 +354,13 @@ std::string Material::get_matlab(std::string const &fname_) const
     strm<<"        op_index=1;\n";
     strm<<"    end\n";
     strm<<"end\n\n";
-
+    
     strm<<"if op_index\n";
     strm<<"    out=sqrt(eps);\n";
     strm<<"else\n";
     strm<<"    out=eps;\n";
     strm<<"end\n\n";
-
+    
     strm<<"if op_display\n";
     strm<<"    figure(111);\n";
     strm<<"    h=plot(lambda,real(out),lambda,imag(out));\n";
@@ -415,35 +489,35 @@ void Material::reset()
     lambda_valid_min=400e-9;
     lambda_valid_max=1000e-9;
     
-    debye.clear();
-    drude.clear();
-    lorentz.clear();
-    critpoint.clear();
-    
-    cauchy_coeffs.clear();
-    
-    sellmeier_B.clear();
-    sellmeier_C.clear();
-    
-    er_spline.clear();
-    ei_spline.clear();
-    
-    if(is_effective_material)
-    {
-        is_effective_material=false;
-        
-        effective_type=MAT_EFF_BRUGGEMAN;
-        
-        delete eff_mat_1;
-        delete eff_mat_2;
-        
-        eff_mat_1=nullptr;
-        eff_mat_2=nullptr;
-        
-        is_effective_material=false;
-        
-        eff_weight=0;
-    }
+//    debye.clear();
+//    drude.clear();
+//    lorentz.clear();
+//    critpoint.clear();
+//    
+//    cauchy_coeffs.clear();
+//    
+//    sellmeier_B.clear();
+//    sellmeier_C.clear();
+//    
+//    er_spline.clear();
+//    ei_spline.clear();
+//    
+//    if(is_effective_material)
+//    {
+//        is_effective_material=false;
+//        
+//        effective_type=MAT_EFF_BRUGGEMAN;
+//        
+//        delete eff_mat_1;
+//        delete eff_mat_2;
+//        
+//        eff_mat_1=nullptr;
+//        eff_mat_2=nullptr;
+//        
+//        is_effective_material=false;
+//        
+//        eff_weight=0;
+//    }
     
     name="";
     description="";

@@ -182,6 +182,18 @@ double Cspline::eval(double const &x_) const
     return scale_y*out+offset_y;
 }
 
+std::size_t Cspline::get_N() const { return xp.size(); }
+
+double Cspline::get_x_base(std::size_t const &i) const
+{
+    return xp[i]*scale_x+offset_x;
+}
+
+double Cspline::get_y_base(std::size_t const &i) const
+{
+    return yp[i]*scale_y+offset_y;
+}
+
 void Cspline::init(std::vector<double> const &xp_,std::vector<double> const &yp_,int end_mode_)
 {
     Np=xp_.size();

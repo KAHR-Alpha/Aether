@@ -35,6 +35,7 @@ class DebyeModel
         std::string get_matlab(int ID) const;
         void get_time_exp(Imdouble &a,Imdouble &b);
         void set(double ds,double t0);
+        std::string matlab_ID(int ID) const;
         void show();
         
         void operator = (DebyeModel const &D);
@@ -53,6 +54,7 @@ class DrudeModel
         std::string get_matlab(int ID) const;
         void get_time_exp(Imdouble &a,Imdouble &b);
         double get_sigma();
+        std::string matlab_ID(int ID) const;
         void set(double wd,double g);
         void show();
         
@@ -71,6 +73,7 @@ class LorentzModel
         Imdouble eval(double) const;
         std::string get_matlab(int ID) const;
         void get_time_exp(Imdouble &a,Imdouble &b);
+        std::string matlab_ID(int ID) const;
         void set(double A,double O,double G);
         void show();
         
@@ -90,6 +93,7 @@ class CritpointModel
         std::string get_matlab(int ID) const;
         void get_time_exp(Imdouble &a,Imdouble &b);
         void set(double A,double O,double P,double G);
+        std::string matlab_ID(int ID) const;
         void show();
         
         void operator = (CritpointModel const &D);
