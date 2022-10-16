@@ -334,7 +334,6 @@ int gen_const_material(lua_State *L)
     
     std::ofstream file(fname,std::ios::out|std::ios::trunc);
     
-    file<<"set_constant()"<<std::endl;
     file<<"index_infty("<<lua_tonumber(L,1)<<")"<<std::endl;
     
     file.close();
