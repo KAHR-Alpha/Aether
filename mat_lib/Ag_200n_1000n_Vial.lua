@@ -1,4 +1,4 @@
-description('Silver fit by Alexandre Vial between 200nm and 1 micron, from Palik data\nVial: Bubendorff, J. & Lei, F. (Eds.), Use of the critical points model as law of dispersion for the modeling of plasmonic structures using the FDTD method, 2, Transworld Research Network, 2008, 23 - 46')
+description('Silver fit by Alexandre Vial between 200nm and 1 micron, from Palik data\n\nVial: Bubendorff, J. & Lei, F. (Eds.), Use of the critical points model as law of dispersion for the modeling of plasmonic structures using the FDTD method, 2, Transworld Research Network, 2008, 23 - 46')
 
 epsilon_infty(1.1211)
 

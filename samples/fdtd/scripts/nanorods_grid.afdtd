@@ -14,10 +14,10 @@ fdtd:pml_xm(0,25,1,0.2)
 fdtd:pml_xp(0,25,1,0.2)
 fdtd:pml_ym(0,25,1,0.2)
 fdtd:pml_yp(0,25,1,0.2)
-fdtd:pml_zm(25,25,1,0.2)
+fdtd:pml_zm(25,25,0.5,0.2)
 fdtd:pml_zp(25,25,1,0.2)
 fdtd:material(0,const_material(1))
-fdtd:material(1,const_material(1.5))
+fdtd:material(1,const_material(3.42))
 fdtd:material(2,"mat_lib/Au_1m_5m_Vial.lua")
 
 

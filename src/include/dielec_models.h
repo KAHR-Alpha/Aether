@@ -24,10 +24,9 @@ limitations under the License.*/
 
 class DebyeModel
 {
-    private:
+    public:
         double ds,t0;
         
-    public:
         DebyeModel();
         DebyeModel(DebyeModel const &D);
     
@@ -43,10 +42,9 @@ class DebyeModel
 
 class DrudeModel
 {
-    private:
+    public:
         double wd,wd2,g;
         
-    public:
         DrudeModel();
         DrudeModel(DrudeModel const &D);
         
@@ -63,10 +61,9 @@ class DrudeModel
 
 class LorentzModel
 {
-    private:
+    public:
         double A,O,O2,G;
         
-    public:
         LorentzModel();
         LorentzModel(LorentzModel const &D);
         
@@ -82,10 +79,9 @@ class LorentzModel
 
 class CritpointModel
 {
-    private:
+    public:
         double A,O,P,G;
         
-    public:
         CritpointModel();
         CritpointModel(CritpointModel const &D);
         

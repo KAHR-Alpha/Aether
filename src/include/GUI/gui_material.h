@@ -189,6 +189,139 @@ class MaterialExplorer: public BaseFrame
         void recompute_model();
 };
 
+namespace MatGUI
+{
+    class SubmodelPanel: public PanelsListBase
+    {
+        public:
+            Material *material;
+            
+            SubmodelPanel(wxWindow *parent);
+            
+            void evt_modification(wxCommandEvent &event);
+            virtual void gui_to_mat();
+    };
+    
+    class EpsInfPanel: public SubmodelPanel
+    {
+        public:
+            double *mat_eps_inf;
+            NamedTextCtrl<double> *eps_inf;
+            
+            EpsInfPanel(wxWindow *parent,double *eps_inf);
+            
+            void gui_to_mat();
+    };
+    
+    class DrudePanel: public SubmodelPanel
+    {
+        public:
+            int ID;
+            DrudeModel *mat_drude;
+            WavelengthSelector *wd,*g;
+            
+            DrudePanel(wxWindow *parent,DrudeModel *drude,int ID);
+            
+            void gui_to_mat();
+    };
+    
+    class LorentzPanel: public SubmodelPanel
+    {
+        public:
+            int ID;
+            LorentzModel *mat_lorentz;
+            
+            NamedTextCtrl<double> *A;
+            WavelengthSelector *O,*G;
+            
+            LorentzPanel(wxWindow *parent,LorentzModel *lorentz,int ID);
+            
+            void gui_to_mat();
+    };
+    
+    class CritpointPanel: public SubmodelPanel
+    {
+        public:
+            int ID;
+            CritpointModel *mat_critpoint;
+            
+            NamedTextCtrl<double> *A,*P;
+            WavelengthSelector *O,*G;
+            
+            CritpointPanel(wxWindow *parent,CritpointModel *critpoint,int ID);
+            
+            void gui_to_mat();
+    };
+    
+    class CauchyPanel: public SubmodelPanel
+    {
+        public:
+            int ID;
+            std::vector<double> *mat_coeffs;
+            
+            std::vector<NamedTextCtrl<double>*> coeffs;
+            
+            CauchyPanel(wxWindow *parent,std::vector<double> *coeffs,int ID);
+            
+            void gui_to_mat();
+    };
+    
+    class SellmeierPanel: public SubmodelPanel
+    {
+        public:
+            int ID;
+            double *mat_B,*mat_C;
+            
+            NamedTextCtrl<double> *B;
+            WavelengthSelector *C;
+            
+            SellmeierPanel(wxWindow *parent,double *B,double *C,int ID);
+            
+            void gui_to_mat();
+    };
+}
+
+class MaterialManager: public BaseFrame
+{
+    public:
+        unsigned int Np;
+        double lambda_min,lambda_max;
+        Material material;
+        
+        std::vector<double> lambda,disp_lambda,disp_real,disp_imag;
+        
+        MaterialSelector *mat_selector;
+        
+        // Controls
+        
+        wxScrolledWindow *ctrl_panel;
+        
+        wxTextCtrl *description;
+        WavelengthSelector *validity_min,*validity_max;
+        
+        PanelsList<MatGUI::SubmodelPanel> *material_elements;
+        
+        // Display
+        
+        Graph *mat_graph;
+        SpectrumSelector *sp_selector;
+        wxChoice *disp_choice;
+        
+        MaterialManager(wxString const &title);
+        MaterialManager(double lambda_min,double lambda_max,int Np,MaterialSelector *selector=nullptr);
+        
+        void MaterialManager_Controls();
+        void MaterialManager_Display(wxPanel *display_panel);
+        
+        void disp_choice_event(wxCommandEvent &event);
+        void export_event(wxCommandEvent &event);
+        void evt_material_selector(wxCommandEvent &event);
+        void evt_spectrum_selector(wxCommandEvent &event);
+        void rebuild_elements_list();
+        void recompute_model();
+        void update_controls();
+};
+
 class MaterialsListSub: public PanelsListBase
 {
     public:

@@ -898,10 +898,10 @@ WavelengthSelector::WavelengthSelector(wxWindow *parent,std::string name,double 
     std::stringstream strm;
     strm<<lambda*1e9;
     
-    wxString choices[]={"nm","microns","m","THz","Hz","eV","1/cm"};
+    wxString choices[]={"nm","microns","m","THz","Hz","rad Hz","eV","1/cm"};
     
     lambda_ctrl=new wxTextCtrl(this,wxID_ANY,strm.str(),wxDefaultPosition,wxDefaultSize,wxTE_PROCESS_ENTER);
-    unit_ctrl=new wxChoice(this,wxID_ANY,wxDefaultPosition,wxDefaultSize,7,choices);
+    unit_ctrl=new wxChoice(this,wxID_ANY,wxDefaultPosition,wxDefaultSize,8,choices);
     unit_ctrl->SetSelection(0);
     
     sizer->Add(lambda_ctrl,wxSizerFlags(1));
@@ -914,6 +914,20 @@ WavelengthSelector::WavelengthSelector(wxWindow *parent,std::string name,double 
     SetSizer(sizer);
 }
 
+void WavelengthSelector::change_unit(std::string const &unit)
+{
+         if(unit=="nm") unit_ctrl->SetSelection(0);
+    else if(unit=="microns") unit_ctrl->SetSelection(1);
+    else if(unit=="m") unit_ctrl->SetSelection(2);
+    else if(unit=="THz") unit_ctrl->SetSelection(3);
+    else if(unit=="Hz") unit_ctrl->SetSelection(4);
+    else if(unit=="rad Hz") unit_ctrl->SetSelection(5);
+    else if(unit=="eV") unit_ctrl->SetSelection(6);
+    else if(unit=="1/cm") unit_ctrl->SetSelection(7);
+    
+    update_value_display();
+}
+
 double WavelengthSelector::get_lambda() { return lambda; }
 
 void WavelengthSelector::lock()
@@ -923,49 +937,38 @@ void WavelengthSelector::lock()
 
 void WavelengthSelector::set_lambda(double lambda_)
 {
-    lambda=lambda_;
-    
-    double disp_value=0;
-    
-    int selection=unit_ctrl->GetSelection();
-    
-         if(selection==0) disp_value=m_to_nm(lambda);
-    else if(selection==1) disp_value=m_to_microns(lambda);
-    else if(selection==2) disp_value=lambda;
-    else if(selection==3) disp_value=m_to_THz(lambda);
-    else if(selection==4) disp_value=m_to_Hz(lambda);
-    else if(selection==5) disp_value=m_to_eV(lambda);
-    else if(selection==6) disp_value=m_to_inv_cm(lambda);
-    
-    std::stringstream strm;
-    strm<<disp_value;
-    
-    lambda_ctrl->SetValue(strm.str());
+    update_value_display();
 }
 
 void WavelengthSelector::unit_event(wxCommandEvent &event)
 {
-    double disp_value=0;
-    
-    int selection=unit_ctrl->GetSelection();
-    
-         if(selection==0) disp_value=m_to_nm(lambda);
-    else if(selection==1) disp_value=m_to_microns(lambda);
-    else if(selection==2) disp_value=lambda;
-    else if(selection==3) disp_value=m_to_THz(lambda);
-    else if(selection==4) disp_value=m_to_Hz(lambda);
-    else if(selection==5) disp_value=m_to_eV(lambda);
-    else if(selection==6) disp_value=m_to_inv_cm(lambda);
-    
-    std::stringstream strm;
-    strm<<disp_value;
-    
-    lambda_ctrl->SetValue(strm.str());
+    update_value_display();
 }
 
 void WavelengthSelector::unlock()
 {
     lambda_ctrl->SetEditable(true);
+}
+
+void WavelengthSelector::update_value_display()
+{
+    double disp_value=0;
+    
+    int selection=unit_ctrl->GetSelection();
+    
+         if(selection==0) disp_value=m_to_nm(lambda);
+    else if(selection==1) disp_value=m_to_microns(lambda);
+    else if(selection==2) disp_value=lambda;
+    else if(selection==3) disp_value=m_to_THz(lambda);
+    else if(selection==4) disp_value=m_to_Hz(lambda);
+    else if(selection==5) disp_value=m_to_rad_Hz(lambda);
+    else if(selection==6) disp_value=m_to_eV(lambda);
+    else if(selection==7) disp_value=m_to_inv_cm(lambda);
+    
+    std::stringstream strm;
+    strm<<disp_value;
+    
+    lambda_ctrl->SetValue(strm.str());
 }
 
 void WavelengthSelector::value_change()
@@ -981,8 +984,9 @@ void WavelengthSelector::value_change()
     else if(selection==2) lambda=input_value;
     else if(selection==3) lambda=THz_to_m(input_value);
     else if(selection==4) lambda=Hz_to_m(input_value);
-    else if(selection==5) lambda=eV_to_m(input_value);
-    else if(selection==6) lambda=inv_cm_to_m(input_value);
+    else if(selection==5) lambda=rad_Hz_to_m(input_value);
+    else if(selection==6) lambda=eV_to_m(input_value);
+    else if(selection==7) lambda=inv_cm_to_m(input_value);
     
     wxCommandEvent event(EVT_WAVELENGTH_SELECTOR);
     
