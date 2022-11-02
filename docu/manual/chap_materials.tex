@@ -18,7 +18,25 @@ Those are the simplest models that are used to define materials like glasses in 
 
 \subsection{Cauchy}
 
-\subsection{Sellmeier}
+\subsection{Sellmeier terms}
+
+The Sellmeier formula is usually written as
+\begin{equation}
+	n^2=1+\sum_i \frac{B_i \lambda^2}{\lambda^2-C_i}
+\end{equation}
+but since $n^2=\varepsilon$, it can be understood as 
+\begin{equation}
+	\varepsilon=1+\sum_i \epsilon^\textrm{SM}_i ~~~~ ; ~~~~ \epsilon^\textrm{SM}_i=\frac{B_i \lambda^2}{\lambda^2-C_i}
+\end{equation}
+where each $\epsilon^\textrm{SM}_i$ resembles a Lorentz model.
+
+Since $C_i$ obviously must have a dimension of m$^2$, it was decided it would be simpler for Aether to write $\epsilon^\textrm{SM}$ as
+\begin{equation}
+	\epsilon^\textrm{SM}_i=\frac{B_i \lambda^2}{\lambda^2-C_i^2}
+\end{equation}
+so that $C_i$ and $\lambda$ are homogeneous.
+
+As such each Sellmeier term is added to the material dielectric model with the function \lfc{add\_sellmeier(\lft{B},\lft{C})}, where $\lft{C}$ is the square-root of what is usually found in material databases.
 
 \section{Absorbing dispersive materials}
 

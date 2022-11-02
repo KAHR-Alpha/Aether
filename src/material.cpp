@@ -129,7 +129,10 @@ Imdouble Material::get_eps(double w) const
         // Sellmeier terms
         
         for(i=0;i<sellmeier_B.size();i++)
-            eps_out+=sellmeier_B[i]/(1.0-sellmeier_C[i]/lambda_2);
+        {
+            double CL=sellmeier_C[i]/lambda;
+            eps_out+=sellmeier_B[i]/(1.0-CL*CL);
+        }
         
         // Spline
         
@@ -288,7 +291,7 @@ std::string Material::get_matlab(std::string const &fname_) const
     
         strm<<"\neps=eps";
         for(i=0;i<sellmeier_B.size();i++)
-            strm<<"+sellmeier_B_"<<i<<"./(1.0-sellmeier_C_"<<i<<"./lambda_2)";
+            strm<<"+sellmeier_B_"<<i<<"./(1.0-(sellmeier_C_"<<i<<"./lambda).^2)";
         strm<<";\n\n";
     }
     
