@@ -281,25 +281,44 @@ namespace MatGUI
     };
 }
 
+wxDECLARE_EVENT(EVT_MATERIAL_EDITOR,wxCommandEvent);
+
+class MaterialEditor: public wxPanel
+{
+    public:
+        Material material;
+        
+        wxTextCtrl *description;
+        WavelengthSelector *validity_min,*validity_max;
+        
+        wxChoice *model_choice;
+        
+        PanelsList<MatGUI::SubmodelPanel> *material_elements;
+        
+        MaterialEditor(wxWindow *parent);
+        
+        void evt_add_model(wxCommandEvent &event);
+        void rebuild_elements_list();
+        void update_controls();
+};
+
 class MaterialManager: public BaseFrame
 {
     public:
         unsigned int Np;
         double lambda_min,lambda_max;
-        Material material;
+        
+        bool library_material;
         
         std::vector<double> lambda,disp_lambda,disp_real,disp_imag;
         
-        MaterialSelector *mat_selector;
-        
         // Controls
+        
+        NamedTextCtrl<std::string> *material_path;
         
         wxScrolledWindow *ctrl_panel;
         
-        wxTextCtrl *description;
-        WavelengthSelector *validity_min,*validity_max;
-        
-        PanelsList<MatGUI::SubmodelPanel> *material_elements;
+        MaterialEditor *editor;
         
         // Display
         
@@ -308,18 +327,21 @@ class MaterialManager: public BaseFrame
         wxChoice *disp_choice;
         
         MaterialManager(wxString const &title);
-        MaterialManager(double lambda_min,double lambda_max,int Np,MaterialSelector *selector=nullptr);
         
         void MaterialManager_Controls();
         void MaterialManager_Display(wxPanel *display_panel);
         
         void disp_choice_event(wxCommandEvent &event);
-        void export_event(wxCommandEvent &event);
-        void evt_material_selector(wxCommandEvent &event);
+//        void evt_material_selector(wxCommandEvent &event);
+        void evt_menu(wxCommandEvent &event);
+        void evt_menu_exit();
+        void evt_menu_load();
+        void evt_menu_new();
+        void evt_menu_save();
+        void evt_menu_save_as();
         void evt_spectrum_selector(wxCommandEvent &event);
-        void rebuild_elements_list();
+//        void export_event(wxCommandEvent &event);
         void recompute_model();
-        void update_controls();
 };
 
 class MaterialsListSub: public PanelsListBase

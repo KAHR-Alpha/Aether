@@ -53,7 +53,8 @@ class PathManager
                                      pwd,
                                      resources_path,
                                      tmp_path,
-                                     user_profile_path;
+                                     user_profile_path,
+                                     user_profile_materials;
         
         static std::filesystem::path locate_file(std::filesystem::path const &path,
                                                  std::filesystem::path const &caller_path=pwd);

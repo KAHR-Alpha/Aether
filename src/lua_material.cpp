@@ -291,6 +291,47 @@ void Material::load_lua_script(std::filesystem::path const &script_path_)
     lua_close(L);
 }
 
+void Material::write_lua_script()
+{
+    std::size_t i;
+    
+    std::ofstream file(script_path,std::ios::out|std::ios::binary|std::ios::trunc);
+    
+    if(!description.empty()) file<<"description(\""<<description<<"\")\n\n";
+    
+    file<<"validity_range("<<lambda_valid_min<<","<<lambda_valid_max<<")\n\n";
+    file<<"epsilon_infinity("<<eps_inf<<")\n\n";
+    
+    for(i=0;i<debye.size();i++)
+        file<<"add_debye("<<debye[i].ds<<","<<debye[i].t0<<")\n";
+        
+    for(i=0;i<drude.size();i++)
+        file<<"add_drude("<<drude[i].wd<<","<<drude[i].g<<")\n";
+        
+    for(i=0;i<lorentz.size();i++)
+        file<<"add_lorentz("<<lorentz[i].A<<","<<lorentz[i].O<<","<<lorentz[i].G<<")\n";
+
+    for(i=0;i<critpoint.size();i++)
+        file<<"add_critpoint("<<critpoint[i].A<<","<<critpoint[i].O<<","<<critpoint[i].P<<","<<critpoint[i].G<<")\n";
+
+    for(i=0;i<cauchy_coeffs.size();i++)
+    {
+        file<<"add_cauchy(";
+        
+        for(std::size_t j=0;j<cauchy_coeffs[i].size();j++)
+        {
+            file<<cauchy_coeffs[i][j];
+            if(j+1!=cauchy_coeffs[i].size()) file<<",";
+        }
+        
+        file<<")\n";
+    }
+
+    for(i=0;i<sellmeier_B.size();i++)
+        file<<"add_sellmeier("<<sellmeier_B[i]<<","<<sellmeier_C[i]<<")\n";
+
+}
+
 int spec_mat_ID=0;
 
 //int gen_absorbing_material(lua_State *L)

@@ -182,7 +182,7 @@ std::string Material::get_description() const
 
 std::string Material::get_matlab(std::string const &fname_) const
 {
-    Filename fname(fname_);
+    std::filesystem::path fname(fname_);
     
     std::stringstream strm;
     
@@ -191,14 +191,14 @@ std::string Material::get_matlab(std::string const &fname_) const
     strm<<"%    Example:\n";
     strm<<"%\n";
     strm<<"%       lambda=linspace("<<lambda_valid_min<<','<<lambda_valid_max<<",601);\n";
-    strm<<"%       eps="<<fname.get_core()<<"(lambda);\n";
+    strm<<"%       eps="<<fname.stem().generic_string()<<"(lambda);\n";
     strm<<"%\n";
     strm<<"%    Optional parameters after the wavelength:\n";
     strm<<"%\n";
     strm<<"%       'index': returns the refractive index instead of the permittivity\n";
     strm<<"%       'display': displays the index or permittivity in a new figure\n";
     strm<<"%\n";
-    strm<<"%       Example: eps="<<fname.get_core()<<"(lambda,'display');\n";
+    strm<<"%       Example: eps="<<fname.stem().generic_string()<<"(lambda,'display');\n";
     strm<<"%\n";
     strm<<"%    Description:\n";
     strm<<"%\n";
@@ -214,7 +214,7 @@ std::string Material::get_matlab(std::string const &fname_) const
     
     strm<<"\n\n";
     
-    strm<<"function out="<<fname.get_core()<<"(lambda,varargin)\n\n";
+    strm<<"function out="<<fname.stem().generic_string()<<"(lambda,varargin)\n\n";
     
     strm<<"% Lambda checking\n\n";
     
@@ -492,35 +492,35 @@ void Material::reset()
     lambda_valid_min=400e-9;
     lambda_valid_max=1000e-9;
     
-//    debye.clear();
-//    drude.clear();
-//    lorentz.clear();
-//    critpoint.clear();
-//    
-//    cauchy_coeffs.clear();
-//    
-//    sellmeier_B.clear();
-//    sellmeier_C.clear();
-//    
-//    er_spline.clear();
-//    ei_spline.clear();
-//    
-//    if(is_effective_material)
-//    {
-//        is_effective_material=false;
-//        
-//        effective_type=MAT_EFF_BRUGGEMAN;
-//        
-//        delete eff_mat_1;
-//        delete eff_mat_2;
-//        
-//        eff_mat_1=nullptr;
-//        eff_mat_2=nullptr;
-//        
-//        is_effective_material=false;
-//        
-//        eff_weight=0;
-//    }
+    debye.clear();
+    drude.clear();
+    lorentz.clear();
+    critpoint.clear();
+    
+    cauchy_coeffs.clear();
+    
+    sellmeier_B.clear();
+    sellmeier_C.clear();
+    
+    er_spline.clear();
+    ei_spline.clear();
+    
+    if(is_effective_material)
+    {
+        is_effective_material=false;
+        
+        effective_type=MAT_EFF_BRUGGEMAN;
+        
+        delete eff_mat_1;
+        delete eff_mat_2;
+        
+        eff_mat_1=nullptr;
+        eff_mat_2=nullptr;
+        
+        is_effective_material=false;
+        
+        eff_weight=0;
+    }
     
     name="";
     description="";
