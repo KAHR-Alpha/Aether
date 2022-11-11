@@ -86,14 +86,28 @@ add_crit_point(1.3700,6.4269e15,-0.087341,6.7371e14)
 validity_range(400e-9,1000e-9)
 \end{lstlisting}
 
-\section{Data table based materials}
+\section{Data tables based materials}
 
-%	Dans le cas où les propriétés du matériau ne sont pas connues analytiquement mais tabulées, il est possible de définir un modèle interpolant ces données par des splines cubiques. Le matériau est alors simplement défini par la fonction \lfc{set\_data\_file}(\lsg{file}) où \lsg{file} est le chemin vers le fichier de données. Ce chemin est soit relatif au programme, soit relatif au script de matériau.
-%	
-%	Le fichier de données doit être composé de trois colonnes séparées par des espaces, la première étant la longueur d'onde \textcolor{red}{en mètres}, la seconde la partie réelle de l'indice et la troisième sa partie imaginaire.
-%	
-%	\textbf{\textcolor{red}{Attention: ce matériau n'est pas compatible avec la FDTD.}}
-\fwarn
+Sometimes, the dielectric model of a particular material is not known, and only tabulated data is available. It is possible to use that data to define a material within Aether.
+
+This data is to be defined through three Lua tables, that will then be fed to a function:
+\begin{itemize}
+	\item the wavelength, in meters
+	\item the real part of the input
+	\item the imaginary part of the input
+\end{itemize}
+Those three tables must contain the same number of points. Then, they are passed as arguments to either
+\begin{enumerate}
+	\item \lfc{add\_data\_epsilon}(\lud{lambda},\lud{real},\lud{imag}): takes the permittivity as an input
+	\item \lfc{add\_data\_index}(\lud{lambda},\lud{real},\lud{imag}): takes the refractive index as an input, which is internally turned into a permittivity  before being memorized by the material
+\end{enumerate}
+Example:
 \begin{lstlisting}
-set_data_file("data/Si_400_1000.dat")
+lambda={400e-9,500e-9,600e-9}
+nr={2.3,2.04,1.96}
+ni={2e-2,1e-2,1e-2}
+
+add_data_index(lambda,nr,ni)
 \end{lstlisting}
+
+Of course, it is impossible to provide data for every wavelength. As such, \textbf{the permittivity between the data points is reconstructed through cubic splines interpolation}.

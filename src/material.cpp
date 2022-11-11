@@ -45,6 +45,10 @@ Material::Material(Material const &mat)
      cauchy_coeffs(mat.cauchy_coeffs),
      sellmeier_B(mat.sellmeier_B),
      sellmeier_C(mat.sellmeier_C),
+     spd_lambda(mat.spd_lambda),
+     spd_r(mat.spd_r),
+     spd_i(mat.spd_i),
+     spd_type_index(mat.spd_type_index),
      er_spline(mat.er_spline),
      ei_spline(mat.ei_spline),
      is_effective_material(mat.is_effective_material), // Effective material
@@ -76,6 +80,57 @@ Material::~Material()
 {
     if(eff_mat_1!=nullptr) delete eff_mat_1;
     if(eff_mat_2!=nullptr) delete eff_mat_2;
+}
+
+void Material::add_spline_data(std::vector<double> const &lambda,
+                               std::vector<double> const &data_r,
+                               std::vector<double> const &data_i,
+                               bool type_index)
+{
+    spd_lambda.push_back(lambda);
+    spd_r.push_back(data_r);
+    spd_i.push_back(data_i);
+    spd_type_index.push_back(type_index);
+    
+    std::size_t i,Nl=lambda.size();
+    
+    std::vector<double> w(Nl),er(Nl),ei(Nl);
+    
+    for(i=0;i<Nl;i++)
+        w[i]=m_to_rad_Hz(lambda[i]); // Back to radians
+    
+    er=data_r;
+    ei=data_i;
+        
+    if(type_index) // Index to permittivity
+    {
+        for(i=0;i<Nl;i++)
+        {
+            Imdouble eps=er[i]+ei[i]*Im;
+            eps=eps*eps;
+            
+            er[i]=eps.real();
+            ei[i]=eps.imag();
+        }
+    }
+    
+    if(w[0]>w[Nl-1])
+    {
+        for(i=0;i<Nl/2;i++)
+        {
+            std::swap(w[i],w[Nl-1-i]);
+            std::swap(er[i],er[Nl-1-i]);
+            std::swap(ei[i],ei[Nl-1-i]);
+        }
+    }
+    
+    Cspline sp_er,sp_ei;
+    
+    sp_er.init(w,er);
+    sp_ei.init(w,ei);
+    
+    er_spline.push_back(sp_er);
+    ei_spline.push_back(sp_ei);
 }
 
 bool Material::fdtd_compatible()
@@ -431,6 +486,12 @@ void Material::operator = (Material const &mat)
     sellmeier_B=mat.sellmeier_B;
     sellmeier_C=mat.sellmeier_C;
     
+    spd_lambda=mat.spd_lambda;
+    spd_r=mat.spd_r;
+    spd_i=mat.spd_i;
+    
+    spd_type_index=mat.spd_type_index;
+    
     er_spline=mat.er_spline;
     ei_spline=mat.ei_spline;
     
@@ -484,7 +545,6 @@ bool Material::operator == (Material const &mat) const
     return true;
 }
 
-
 void Material::reset()
 {
     eps_inf=1.0;
@@ -501,6 +561,12 @@ void Material::reset()
     
     sellmeier_B.clear();
     sellmeier_C.clear();
+    
+    spd_lambda.clear();
+    spd_r.clear();
+    spd_i.clear();
+    
+    spd_type_index.clear();
     
     er_spline.clear();
     ei_spline.clear();

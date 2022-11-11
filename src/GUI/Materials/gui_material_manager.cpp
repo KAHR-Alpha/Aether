@@ -203,6 +203,8 @@ namespace MatGUI
 //   MaterialEditor
 //####################
 
+wxDEFINE_EVENT(EVT_MATERIAL_EDITOR,wxCommandEvent);
+
 MaterialEditor::MaterialEditor(wxWindow *parent)
     :wxPanel(parent)
 {
@@ -244,6 +246,7 @@ MaterialEditor::MaterialEditor(wxWindow *parent)
     model_choice->Append("Debye");
     model_choice->Append("Drude");
     model_choice->Append("Lorentz");
+    model_choice->Append("Tabulated Data");
     model_choice->Append("Sellmeier");
     
     model_choice->SetSelection(3);
@@ -288,6 +291,13 @@ void MaterialEditor::rebuild_elements_list()
                                                              &material.sellmeier_C[i],i);
     
     material_elements->Layout();
+}
+
+void MaterialEditor::throw_event()
+{
+    wxCommandEvent event(EVT_MATERIAL_EDITOR);
+    
+    wxPostEvent(this,event);
 }
 
 void MaterialEditor::update_controls()

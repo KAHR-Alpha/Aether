@@ -39,6 +39,7 @@ int null_lua(lua_State *L);
 namespace lua_tools
 {
     int lua_adaptive_trapeze_integral(lua_State *L);
+    void extract_vector(std::vector<double> &vec,lua_State *L,int index);
     
     class lua_type
     {

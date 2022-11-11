@@ -134,95 +134,21 @@ int lmat_add_cauchy(lua_State *L)
 }
 
 template<int type>
-int lmat_add_data_file(lua_State *L)
+int lmat_add_data_table(lua_State *L)
 {
     Material *mat=get_mat_pointer(L,"binded_material");
     
-    std::string fname=lua_tostring(L,1);
+    std::vector<double> lambda,data_r,data_i;
     
-    lua_getglobal(L,"lua_caller_path");
+    lua_tools::extract_vector(lambda,L,1); // Wavelength at this point
+    lua_tools::extract_vector(data_r,L,2); // Input real part
+    lua_tools::extract_vector(data_i,L,3); // Input imag part
     
-    std::filesystem::path *p_parent_path=reinterpret_cast<std::filesystem::path*>(lua_touserdata(L,-1));
-    std::filesystem::path parent_path=*p_parent_path;
+    bool type_index=false;
     
-    std::ifstream file(parent_path/fname,std::ios::in|std::ios::binary);
+    if constexpr(type==0) type_index=true;
     
-//    if(!file.is_open())
-//    {
-//        lua_getglobal(L,"script_path");
-//        std::string fname_relat=lua_tostring(L,-1);
-//        fname_relat.append(fname);
-//        
-//        std::cout<<"Cannot open '"<<fname<<"' , checking for '"<<fname_relat<<"'"<<std::endl;
-//        
-//        file.open(fname_relat,std::ios::in|std::ios::binary);
-//        
-//        if(!file.is_open())
-//        {
-//            std::cout<<"Cannot open '"<<fname_relat<<"' , aborting"<<std::endl;
-//            std::exit(0);
-//        }
-//        else
-//        {
-//            std::cout<<"'"<<fname_relat<<"' found"<<std::endl;
-//            fname=fname_relat;
-//        }
-//    }
-    
-    int Nl=fcountlines((parent_path/fname).generic_string());
-    
-    double lambda;
-    std::vector<double> w(Nl),er(Nl),ei(Nl);
-    
-    if constexpr(type==0)
-    {
-        double n,k;
-        
-        for(int i=0;i<Nl;i++)
-        {
-            file>>lambda;
-            file>>n;
-            file>>k;
-            
-            w[i]=2.0*Pi*c_light/lambda;
-            
-            Imdouble eps=n+k*Im;
-            eps=eps*eps;
-            
-            er[i]=eps.real();
-            ei[i]=eps.imag();
-        }
-    }
-    else
-    {
-        for(int i=0;i<Nl;i++)
-        {
-            file>>lambda;
-            
-            w[i]=2.0*Pi*c_light/lambda;
-            
-            file>>er[i];
-            file>>ei[i];
-        }
-    }
-    
-    if(w[0]>w[Nl-1])
-    {
-        for(int i=0;i<Nl/2;i++)
-        {
-            std::swap(w[i],w[Nl-1-i]);
-            std::swap(er[i],er[Nl-1-i]);
-            std::swap(ei[i],ei[Nl-1-i]);
-        }
-    }
-    
-    Cspline sp_er,sp_ei;
-    
-    sp_er.init(w,er);
-    sp_ei.init(w,ei);
-    
-    mat->er_spline.push_back(sp_er);
-    mat->ei_spline.push_back(sp_ei);
+    mat->add_spline_data(lambda,data_r,data_i,type_index);
     
     return 0;
 }
@@ -272,8 +198,8 @@ void Material::load_lua_script(std::filesystem::path const &script_path_)
     
     lua_register(L,"add_cauchy",lmat_add_cauchy);
     lua_register(L,"add_crit_point",lmat_add_crit_point);
-    lua_register(L,"add_data_epsilon",lmat_add_data_file<1>);
-    lua_register(L,"add_data_index",lmat_add_data_file<0>);
+    lua_register(L,"add_data_epsilon",lmat_add_data_table<1>);
+    lua_register(L,"add_data_index",lmat_add_data_table<0>);
     lua_register(L,"add_debye",lmat_add_debye);
     lua_register(L,"add_drude",lmat_add_drude);
     lua_register(L,"add_lorentz",lmat_add_lorentz);
@@ -329,6 +255,40 @@ void Material::write_lua_script()
 
     for(i=0;i<sellmeier_B.size();i++)
         file<<"add_sellmeier("<<sellmeier_B[i]<<","<<sellmeier_C[i]<<")\n";
+        
+    for(i=0;i<spd_lambda.size();i++)
+    {
+        file<<"lambda={";
+        for(std::size_t j=0;j<spd_lambda[i].size();j++)
+        {
+            file<<spd_lambda[i][j];
+            
+            if(j+1<spd_lambda[i].size()) file<<",";
+            else file<<"}\n";
+        }
+        file<<"data_r={";
+        for(std::size_t j=0;j<spd_r[i].size();j++)
+        {
+            file<<spd_r[i][j];
+            
+            if(j+1<spd_r[i].size()) file<<",";
+            else file<<"}\n";
+        }
+        file<<"data_i={";
+        for(std::size_t j=0;j<spd_i[i].size();j++)
+        {
+            file<<spd_i[i][j];
+            
+            if(j+1<spd_i[i].size()) file<<",";
+            else file<<"}\n";
+        }
+        
+        file<<"\n";
+        if(spd_type_index[i]) file<<"add_data_index";
+        else file<<"add_data_epsilon";
+        
+        file<<"(lambda,data_r,data_i)\n\n";
+    }
 
 }
 

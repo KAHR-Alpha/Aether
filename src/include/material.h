@@ -53,6 +53,9 @@ class Material
         std::vector<double> sellmeier_B,sellmeier_C;
         
         // For file-based materials
+        std::vector<std::vector<double>> spd_lambda,spd_r,spd_i; // Base data
+        std::vector<bool> spd_type_index;
+        
         std::vector<Cspline> er_spline,ei_spline;
         
         // Effective Material
@@ -70,6 +73,10 @@ class Material
         Material(std::filesystem::path const &script_path);
         ~Material();
         
+        void add_spline_data(std::vector<double> const &lambda,
+                             std::vector<double> const &data_r,
+                             std::vector<double> const &data_i,
+                             bool type_index);
         bool fdtd_compatible();
         Imdouble get_eps(double w) const;
         std::string get_description() const;

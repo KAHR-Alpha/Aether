@@ -299,6 +299,7 @@ class MaterialEditor: public wxPanel
         
         void evt_add_model(wxCommandEvent &event);
         void rebuild_elements_list();
+        void throw_event();
         void update_controls();
 };
 
