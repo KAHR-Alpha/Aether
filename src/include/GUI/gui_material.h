@@ -259,10 +259,12 @@ namespace MatGUI
             int ID;
             std::vector<double> *mat_coeffs;
             
+            NamedTextCtrl<int> *order;
             std::vector<NamedTextCtrl<double>*> coeffs;
             
             CauchyPanel(wxWindow *parent,std::vector<double> *coeffs,int ID);
             
+            void evt_order(wxCommandEvent &event);
             void gui_to_mat();
     };
     
@@ -279,9 +281,30 @@ namespace MatGUI
             
             void gui_to_mat();
     };
+    
+    class DataPanel: public SubmodelPanel
+    {
+        public:
+            int ID;
+            std::vector<double> *lambda;
+            std::vector<double> *data_r;
+            std::vector<double> *data_i;
+            char *index_type;
+            
+            Cspline *er_spline,*ei_spline;
+            
+            DataPanel(wxWindow *parent,int ID,
+                      std::vector<double> *lambda,
+                      std::vector<double> *data_r,
+                      std::vector<double> *data_i,
+                      char *index_type,
+                      Cspline *er_spline,
+                      Cspline *ei_spline);
+            
+            void evt_edit(wxCommandEvent &event);
+            void gui_to_mat();
+    };
 }
-
-wxDECLARE_EVENT(EVT_MATERIAL_EDITOR,wxCommandEvent);
 
 class MaterialEditor: public wxPanel
 {
@@ -298,8 +321,12 @@ class MaterialEditor: public wxPanel
         MaterialEditor(wxWindow *parent);
         
         void evt_add_model(wxCommandEvent &event);
+        void evt_description(wxCommandEvent &event);
+        void evt_model_change(wxCommandEvent &event);
+        void evt_validity(wxCommandEvent &event);
         void rebuild_elements_list();
-        void throw_event();
+        void throw_event_model();
+        void throw_event_spectrum();
         void update_controls();
 };
 
@@ -332,7 +359,9 @@ class MaterialManager: public BaseFrame
         void MaterialManager_Controls();
         void MaterialManager_Display(wxPanel *display_panel);
         
-        void disp_choice_event(wxCommandEvent &event);
+        void evt_display_choice(wxCommandEvent &event);
+        void evt_material_editor_model(wxCommandEvent &event);
+        void evt_material_editor_spectrum(wxCommandEvent &event);
 //        void evt_material_selector(wxCommandEvent &event);
         void evt_menu(wxCommandEvent &event);
         void evt_menu_exit();

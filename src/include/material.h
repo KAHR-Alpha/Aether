@@ -54,7 +54,7 @@ class Material
         
         // For file-based materials
         std::vector<std::vector<double>> spd_lambda,spd_r,spd_i; // Base data
-        std::vector<bool> spd_type_index;
+        std::vector<char> spd_type_index;
         
         std::vector<Cspline> er_spline,ei_spline;
         

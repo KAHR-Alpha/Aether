@@ -937,6 +937,8 @@ void WavelengthSelector::lock()
 
 void WavelengthSelector::set_lambda(double lambda_)
 {
+    lambda=lambda_;
+    
     update_value_display();
 }
 
