@@ -302,7 +302,6 @@ namespace MatGUI
                       Cspline *ei_spline);
             
             void evt_edit(wxCommandEvent &event);
-            void gui_to_mat();
     };
 }
 

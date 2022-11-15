@@ -51,6 +51,7 @@ Cspline::Cspline(std::vector<double> const &xp_,std::vector<double> const &yp_,i
 
 void Cspline::calc_coeffs()
 {
+    reorder();
     rescale();
     
     int i,j;
@@ -212,6 +213,30 @@ bool Cspline::is_empty() const
     return Np==0;
 }
 
+void Cspline::show() const
+{
+    std::cout<<"Np: "<<Np<<"\n";
+    std::cout<<"end_mod: "<<end_mode<<"\n";
+    std::cout<<"offset_x: "<<offset_x<<"\n";
+    std::cout<<"offset_y: "<<offset_y<<"\n";
+    std::cout<<"scale_x: "<<scale_x<<"\n";
+    std::cout<<"scale_y: "<<scale_y<<"\n";
+    
+    std::cout<<"xp:\n";
+    for(std::size_t i=0;i<xp.size();i++)
+        std::cout<<xp[i]<<" ";
+    std::cout<<"\nyp:\n";
+    for(std::size_t i=0;i<yp.size();i++)
+        std::cout<<yp[i]<<" ";
+    std::cout<<"\ncoeffs:\n";
+    for(int i=0;i<coeffs.L1();i++)
+    {
+        for(int j=0;j<coeffs.L2();j++)
+            std::cout<<coeffs(i,j)<<" ";
+        std::cout<<"\n";
+    }
+}
+
 double Cspline::operator () (double const &x) const { return eval(x); }
 
 void Cspline::operator = (Cspline const &spline)
@@ -246,6 +271,20 @@ bool Cspline::operator == (Cspline const &spline)
        !(coeffs==spline.coeffs)) return false;
     
     return true;
+}
+
+void Cspline::reorder()
+{
+    if(xp.size()>1 && xp[1]<xp[0])
+    {
+        std::size_t N=xp.size();
+        
+        for(std::size_t i=0;i<N/2;i++)
+        {
+            std::swap(xp[i],xp[N-1-i]);
+            std::swap(yp[i],yp[N-1-i]);
+        }
+    }
 }
 
 void Cspline::rescale()

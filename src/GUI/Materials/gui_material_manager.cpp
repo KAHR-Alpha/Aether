@@ -18,7 +18,10 @@ limitations under the License.*/
 
 #include <gui_material.h>
 
+#include <wx/grid.h>
 #include <wx/splitter.h>
+
+extern const Imdouble Im;
 
 //###################
 //   MatGUI Panels
@@ -244,6 +247,230 @@ namespace MatGUI
         *mat_C=C->get_lambda();
     }
     
+    class DataPanelDialog: public wxDialog
+    {
+        public:
+            std::vector<double> &lambda,&data_r,&data_i;
+            char &index_type;
+            
+            wxChoice *type;
+            wxGrid *data;
+            
+            wxMenu popup;
+            int popup_target;
+            
+            class Converter
+            {
+                public:
+                    std::stringstream buffer;
+                    
+                    std::string operator () (double const &value)
+                    {
+                        buffer.str("");
+                        buffer<<value;
+                        return buffer.str();
+                    }
+            };
+            
+            Converter cnv;
+            
+            enum
+            {
+                MENU_DELETE,
+                MENU_INSERT
+            };
+            
+            DataPanelDialog(std::vector<double> *lambda_,
+                            std::vector<double> *data_r_,
+                            std::vector<double> *data_i_,char *index_type_)
+                :wxDialog(nullptr,wxID_ANY,"Spline data",
+                          wxGetApp().default_dialog_origin()),
+                 lambda(*lambda_),
+                 data_r(*data_r_),
+                 data_i(*data_i_),
+                 index_type(*index_type_)
+                 
+            {
+                wxBoxSizer *sizer=new wxBoxSizer(wxVERTICAL);
+                
+                // Type
+                
+                wxBoxSizer *type_sizer=new wxBoxSizer(wxHORIZONTAL);
+                
+                type=new wxChoice(this,wxID_ANY);
+                type->Append("Permittivity");
+                type->Append("Index");
+                
+                type->SetSelection(index_type);
+                type->Bind(wxEVT_CHOICE,&DataPanelDialog::evt_type,this);
+                
+                type_sizer->Add(new wxStaticText(this,wxID_ANY,"Data type: "),wxSizerFlags().Align(wxALIGN_CENTER_VERTICAL));
+                type_sizer->Add(type);
+                
+                sizer->Add(type_sizer);
+                
+                // Datasheet
+                
+                int N=lambda.size();
+                
+                data=new wxGrid(this,wxID_ANY);
+                data->Bind(wxEVT_GRID_CELL_CHANGING,&DataPanelDialog::evt_cell,this);
+                data->Bind(wxEVT_GRID_LABEL_RIGHT_CLICK,&DataPanelDialog::evt_grid_label_rclick,this);
+                
+                data->CreateGrid(N,3);
+                
+                data->SetColLabelValue(0,"Lambda");
+                determine_labels();
+                fill_table();
+                
+                sizer->Add(data,wxSizerFlags(1).Expand());
+                
+                // Wrapping up
+                
+                popup.Append(MENU_DELETE,"Delete");
+                popup.Append(MENU_INSERT,"Insert");
+                
+                Bind(wxEVT_MENU,&DataPanelDialog::evt_menu,this);
+                
+                SetSizer(sizer);
+            }
+            
+            void determine_labels()
+            {
+                if(index_type)
+                {
+                    data->SetColLabelValue(1,"real(n)");
+                    data->SetColLabelValue(2,"imag(n)");
+                }
+                else
+                {
+                    data->SetColLabelValue(1,"real(eps)");
+                    data->SetColLabelValue(2,"imag(eps)");
+                }
+            }
+            
+            void evt_cell(wxGridEvent &event)
+            {
+                std::size_t row=event.GetRow();
+                std::size_t col=event.GetCol();
+                
+                double value=std::stod(event.GetString().ToStdString());
+                
+                if(col==0)
+                {
+                    lambda[row]=value;
+                    
+                    bool unsorted=false;
+                    
+                    if(row>0 && lambda[row-1]>lambda[row]) unsorted=true;
+                    if(row+1<lambda.size() && lambda[row+1]<lambda[row]) unsorted=true;
+                    
+                    if(unsorted)
+                    {
+                        for(std::size_t i=0;i<lambda.size();i++)
+                        {
+                            for(std::size_t j=i+1;j<lambda.size();j++)
+                            {
+                                if(lambda[j]<lambda[i])
+                                {
+                                    std::swap(lambda[i],lambda[j]);
+                                    std::swap(data_r[i],data_r[j]);
+                                    std::swap(data_i[i],data_i[j]);
+                                }
+                            }
+                        }
+                        
+                        event.Veto();
+                        
+                        data->ClearGrid();
+                        fill_table();
+                    }
+                }
+                else if(col==1) data_r[row]=value;
+                else data_i[row]=value;
+            }
+            
+            void evt_grid_label_rclick(wxGridEvent &event)
+            {
+                int row=event.GetRow();
+                
+                if(row>=0)
+                {
+                    popup_target=row;
+                    
+                    PopupMenu(&popup);
+                }
+            }
+            
+            void evt_menu(wxCommandEvent &event)
+            {
+                if(event.GetId()==MENU_DELETE)
+                {
+                    data->DeleteRows(popup_target);
+                    
+                    lambda.erase(lambda.begin()+popup_target);
+                    data_r.erase(data_r.begin()+popup_target);
+                    data_i.erase(data_i.begin()+popup_target);
+                }
+                else if(event.GetId()==MENU_INSERT)
+                {
+                    double new_lambda=0;
+                    
+                    if(popup_target>0)
+                    {
+                        new_lambda=0.5*(lambda[popup_target-1]+
+                                        lambda[popup_target]);
+                    }
+                    
+                    data->InsertRows(popup_target);
+                    
+                    data->SetCellValue(popup_target,0,cnv(new_lambda));
+                    data->SetCellValue(popup_target,1,cnv(0.0));
+                    data->SetCellValue(popup_target,2,cnv(0.0));
+                    
+                    lambda.insert(lambda.begin()+popup_target,new_lambda);
+                    data_r.insert(data_r.begin()+popup_target,0);
+                    data_i.insert(data_i.begin()+popup_target,0);
+                }
+            }
+            
+            void evt_type(wxCommandEvent &event)
+            {
+                int selection=type->GetSelection();
+                
+                if(selection!=index_type)
+                {
+                    index_type=selection;
+                    
+                    for(std::size_t i=0;i<data_r.size();i++)
+                    {
+                        Imdouble new_data=data_r[i]+data_i[i]*Im;
+                        
+                        if(index_type) new_data=std::sqrt(new_data);  // To index
+                        else new_data=new_data*new_data;  // To permittivity
+                        
+                        data_r[i]=new_data.real();
+                        data_i[i]=new_data.imag();
+                        
+                        data->SetCellValue(i,1,cnv(data_r[i]));
+                        data->SetCellValue(i,2,cnv(data_i[i]));
+                    }
+                    
+                    determine_labels();
+                }
+            }
+            
+            void fill_table()
+            {
+                for(std::size_t i=0;i<lambda.size();i++)
+                {
+                    data->SetCellValue(i,0,cnv(lambda[i]));
+                    data->SetCellValue(i,1,cnv(data_r[i]));
+                    data->SetCellValue(i,2,cnv(data_i[i]));
+                }
+            }
+    };
+    
     // DataPanel
     
     DataPanel::DataPanel(wxWindow *parent,int ID_,
@@ -260,6 +487,8 @@ namespace MatGUI
          er_spline(er_spline_),
          ei_spline(ei_spline_)
     {
+        set_title("Spline "+std::to_string(ID));
+        
         wxButton *edit_btn=new wxButton(this,wxID_ANY,"Edit Data");
         edit_btn->Bind(wxEVT_BUTTON,&DataPanel::evt_edit,this);
         
@@ -268,10 +497,38 @@ namespace MatGUI
     
     void DataPanel::evt_edit(wxCommandEvent &event)
     {
-    }
-    
-    void DataPanel::gui_to_mat()
-    {
+        DataPanelDialog dialog(lambda,data_r,data_i,index_type);
+        dialog.ShowModal();
+        
+        std::vector<double> w(lambda->size());
+        
+        for(std::size_t i=0;i<w.size();i++)
+            w[i]=m_to_rad_Hz((*lambda)[i]);
+        
+        if(*index_type)
+        {
+            std::vector<double> er(lambda->size()),ei(lambda->size());
+            
+            for(std::size_t i=0;i<er.size();i++)
+            {
+                Imdouble eps=(*data_r)[i]+(*data_i)[i]*Im;
+                eps=eps*eps;
+                
+                er[i]=eps.real();
+                ei[i]=eps.imag();
+            }
+            
+            er_spline->init(w,er);
+            ei_spline->init(w,ei);
+        }
+        else
+        {
+            er_spline->init(w,*data_r);
+            ei_spline->init(w,*data_i);
+        }
+                    
+        wxCommandEvent event_out(EVT_NAMEDTXTCTRL);
+        wxPostEvent(this,event_out); // Will be caught by the editor
     }
 }
 
