@@ -56,6 +56,7 @@ class PathManager
                                      user_profile_path,
                                      user_profile_materials;
         
+        static bool belongs_to_resources(std::filesystem::path path);
         static std::filesystem::path locate_file(std::filesystem::path const &path,
                                                  std::filesystem::path const &caller_path=pwd);
         static std::filesystem::path locate_resource(std::filesystem::path const &path);

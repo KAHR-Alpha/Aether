@@ -17,7 +17,8 @@ limitations under the License.*/
 #include <phys_tools.h>
 #include <string_tools.h>
 
-#include <gui_material.h>
+#include <gui_material_editor.h>
+#include <gui_material_editor_panels.h>
 
 extern const Imdouble Im;
 
@@ -81,7 +82,7 @@ MaterialEditor::MaterialEditor(wxWindow *parent)
     
     choice_sizer->Add(model_choice,wxSizerFlags(1));
     
-    wxButton *add_btn=new wxButton(this,wxID_ANY,"Add",wxDefaultPosition,wxDefaultSize,wxBU_EXACTFIT);
+    add_btn=new wxButton(this,wxID_ANY,"Add",wxDefaultPosition,wxDefaultSize,wxBU_EXACTFIT);
     add_btn->Bind(wxEVT_BUTTON,&MaterialEditor::evt_add_model,this);
     
     choice_sizer->Add(add_btn,wxSizerFlags().Expand());
@@ -237,6 +238,17 @@ void MaterialEditor::evt_description(wxCommandEvent &event)
 void MaterialEditor::evt_model_change(wxCommandEvent &event) { throw_event_model(); }
 void MaterialEditor::evt_validity(wxCommandEvent &event) { throw_event_spectrum(); }
 
+void MaterialEditor::lock()
+{
+    description->SetEditable(false);
+    validity_min->lock();
+    validity_max->lock();
+    add_btn->Disable();
+    
+    for(std::size_t i=0;i<material_elements->get_size();i++)
+        material_elements->get_panel(i)->lock();
+}
+
 void MaterialEditor::rebuild_elements_list()
 {
     material_elements->clear();
@@ -285,6 +297,17 @@ void MaterialEditor::throw_event_spectrum()
     wxCommandEvent event(EVT_MATERIAL_EDITOR_SPECTRUM);
     
     wxPostEvent(this,event);
+}
+
+void MaterialEditor::unlock()
+{
+    description->SetEditable(true);
+    validity_min->unlock();
+    validity_max->unlock();
+    add_btn->Enable();
+    
+    for(std::size_t i=0;i<material_elements->get_size();i++)
+        material_elements->get_panel(i)->unlock();
 }
 
 void MaterialEditor::update_controls()

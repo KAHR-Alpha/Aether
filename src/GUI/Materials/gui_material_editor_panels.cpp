@@ -12,14 +12,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include <filehdl.h>
 #include <phys_tools.h>
-#include <string_tools.h>
 
-#include <gui_material.h>
+#include <gui_material_editor_panels.h>
 
 #include <wx/grid.h>
-#include <wx/splitter.h>
 
 extern const Imdouble Im;
 
@@ -60,7 +57,6 @@ namespace MatGUI
     void SubmodelPanel::apoptose(wxCommandEvent &event)
     {
         signal_type();
-//        PanelsListBase::apoptose(event);
     }
     
     void SubmodelPanel::evt_modification(wxCommandEvent &event)
@@ -92,73 +88,16 @@ namespace MatGUI
         *mat_eps_inf=eps_inf->get_value();
     }
     
-    // DebyePanel
-    
-    // DrudePanel
-    
-    DrudePanel::DrudePanel(wxWindow *parent,DrudeModel *drude_,int ID_)
-        :SubmodelPanel(parent),
-         ID(ID_), mat_drude(drude_)
+    void EpsInfPanel::lock()
     {
-        set_title("Drude "+std::to_string(ID));
-        
-        wd=new WavelengthSelector(this,"wd: ",rad_Hz_to_m(mat_drude->wd));
-        g=new WavelengthSelector(this,"g: ",rad_Hz_to_m(mat_drude->g));
-        
-        wd->change_unit("rad Hz");
-        g->change_unit("rad Hz");
-                
-        sizer->Add(wd,wxSizerFlags().Expand());
-        sizer->Add(g,wxSizerFlags().Expand());
+        eps_inf->lock();
+        PanelsListBase::lock();
     }
     
-    void DrudePanel::gui_to_mat()
+    void EpsInfPanel::unlock()
     {
-        mat_drude->set(m_to_rad_Hz(wd->get_lambda()),
-                       m_to_rad_Hz(g->get_lambda()));
-    }
-    
-    void DrudePanel::signal_type()
-    {
-        wxCommandEvent event(EVT_DELETE_DRUDE);
-        
-        event.SetId(ID);
-        wxPostEvent(this,event);
-    }
-    
-    // LorentzPanel
-    
-    LorentzPanel::LorentzPanel(wxWindow *parent,LorentzModel *lorentz_,int ID_)
-        :SubmodelPanel(parent),
-         ID(ID_), mat_lorentz(lorentz_)
-    {
-        set_title("Lorentz "+std::to_string(ID));
-        
-        A=new NamedTextCtrl<double>(this,"A: ",mat_lorentz->A,true);
-        O=new WavelengthSelector(this,"O: ",rad_Hz_to_m(mat_lorentz->O));
-        G=new WavelengthSelector(this,"G: ",rad_Hz_to_m(mat_lorentz->G));
-        
-        O->change_unit("rad Hz");
-        G->change_unit("rad Hz");
-                
-        sizer->Add(A,wxSizerFlags().Expand());
-        sizer->Add(O,wxSizerFlags().Expand());
-        sizer->Add(G,wxSizerFlags().Expand());
-    }
-    
-    void LorentzPanel::gui_to_mat()
-    {
-        mat_lorentz->set(A->get_value(),
-                         m_to_rad_Hz(O->get_lambda()),
-                         m_to_rad_Hz(G->get_lambda()));
-    }
-    
-    void LorentzPanel::signal_type()
-    {
-        wxCommandEvent event(EVT_DELETE_LORENTZ);
-        
-        event.SetId(ID);
-        wxPostEvent(this,event);
+        eps_inf->unlock();
+        PanelsListBase::unlock();
     }
     
     // CritpointPanel
@@ -191,12 +130,32 @@ namespace MatGUI
                            m_to_rad_Hz(G->get_lambda()));
     }
     
+    void CritpointPanel::lock()
+    {
+        A->lock();
+        P->lock();
+        O->lock();
+        G->lock();
+        
+        PanelsListBase::lock();
+    }
+    
     void CritpointPanel::signal_type()
     {
         wxCommandEvent event(EVT_DELETE_CRITPOINT);
         
         event.SetId(ID);
         wxPostEvent(this,event);
+    }
+    
+    void CritpointPanel::unlock()
+    {
+        A->unlock();
+        P->unlock();
+        O->unlock();
+        G->unlock();
+        
+        PanelsListBase::unlock();
     }
     
     // CauchyPanel
@@ -268,12 +227,135 @@ namespace MatGUI
         }
     }
     
+    void CauchyPanel::lock()
+    {
+        order->lock();
+        
+        for(std::size_t i=0;i<coeffs.size();i++)
+            coeffs[i]->lock();
+            
+        PanelsListBase::lock();
+    }
+    
     void CauchyPanel::signal_type()
     {
         wxCommandEvent event(EVT_DELETE_CAUCHY);
         
         event.SetId(ID);
         wxPostEvent(this,event);
+    }
+    
+    void CauchyPanel::unlock()
+    {
+        order->unlock();
+        
+        for(std::size_t i=0;i<coeffs.size();i++)
+            coeffs[i]->unlock();
+            
+        PanelsListBase::unlock();
+    }
+    
+    // DebyePanel
+    
+    // DrudePanel
+    
+    DrudePanel::DrudePanel(wxWindow *parent,DrudeModel *drude_,int ID_)
+        :SubmodelPanel(parent),
+         ID(ID_), mat_drude(drude_)
+    {
+        set_title("Drude "+std::to_string(ID));
+        
+        wd=new WavelengthSelector(this,"wd: ",rad_Hz_to_m(mat_drude->wd));
+        g=new WavelengthSelector(this,"g: ",rad_Hz_to_m(mat_drude->g));
+        
+        wd->change_unit("rad Hz");
+        g->change_unit("rad Hz");
+                
+        sizer->Add(wd,wxSizerFlags().Expand());
+        sizer->Add(g,wxSizerFlags().Expand());
+    }
+    
+    void DrudePanel::gui_to_mat()
+    {
+        mat_drude->set(m_to_rad_Hz(wd->get_lambda()),
+                       m_to_rad_Hz(g->get_lambda()));
+    }
+    
+    void DrudePanel::lock()
+    {
+        wd->lock();
+        g->lock();
+        
+        PanelsListBase::lock();
+    }
+    
+    void DrudePanel::signal_type()
+    {
+        wxCommandEvent event(EVT_DELETE_DRUDE);
+        
+        event.SetId(ID);
+        wxPostEvent(this,event);
+    }
+    
+    void DrudePanel::unlock()
+    {
+        wd->unlock();
+        g->unlock();
+        
+        PanelsListBase::unlock();
+    }
+    
+    // LorentzPanel
+    
+    LorentzPanel::LorentzPanel(wxWindow *parent,LorentzModel *lorentz_,int ID_)
+        :SubmodelPanel(parent),
+         ID(ID_), mat_lorentz(lorentz_)
+    {
+        set_title("Lorentz "+std::to_string(ID));
+        
+        A=new NamedTextCtrl<double>(this,"A: ",mat_lorentz->A,true);
+        O=new WavelengthSelector(this,"O: ",rad_Hz_to_m(mat_lorentz->O));
+        G=new WavelengthSelector(this,"G: ",rad_Hz_to_m(mat_lorentz->G));
+        
+        O->change_unit("rad Hz");
+        G->change_unit("rad Hz");
+                
+        sizer->Add(A,wxSizerFlags().Expand());
+        sizer->Add(O,wxSizerFlags().Expand());
+        sizer->Add(G,wxSizerFlags().Expand());
+    }
+    
+    void LorentzPanel::gui_to_mat()
+    {
+        mat_lorentz->set(A->get_value(),
+                         m_to_rad_Hz(O->get_lambda()),
+                         m_to_rad_Hz(G->get_lambda()));
+    }
+    
+    void LorentzPanel::lock()
+    {
+        A->lock();
+        O->lock();
+        G->lock();
+        
+        PanelsListBase::lock();
+    }
+    
+    void LorentzPanel::signal_type()
+    {
+        wxCommandEvent event(EVT_DELETE_LORENTZ);
+        
+        event.SetId(ID);
+        wxPostEvent(this,event);
+    }
+    
+    void LorentzPanel::unlock()
+    {
+        A->unlock();
+        O->unlock();
+        G->unlock();
+        
+        PanelsListBase::unlock();
     }
     
     // SellmeierPanel
@@ -297,12 +379,28 @@ namespace MatGUI
         *mat_C=C->get_lambda();
     }
     
+    void SellmeierPanel::lock()
+    {
+        B->lock();
+        C->lock();
+        
+        PanelsListBase::lock();
+    }
+    
     void SellmeierPanel::signal_type()
     {
         wxCommandEvent event(EVT_DELETE_SELLMEIER);
         
         event.SetId(ID);
         wxPostEvent(this,event);
+    }
+    
+    void SellmeierPanel::unlock()
+    {
+        B->unlock();
+        C->unlock();
+        
+        PanelsListBase::unlock();
     }
     
     // DataPanelDialog
@@ -549,7 +647,7 @@ namespace MatGUI
     {
         set_title("Spline "+std::to_string(ID));
         
-        wxButton *edit_btn=new wxButton(this,wxID_ANY,"Edit Data");
+        edit_btn=new wxButton(this,wxID_ANY,"Edit Data");
         edit_btn->Bind(wxEVT_BUTTON,&DataPanel::evt_edit,this);
         
         sizer->Add(edit_btn,wxSizerFlags().Expand());
@@ -591,11 +689,25 @@ namespace MatGUI
         wxPostEvent(this,event_out); // Will be caught by the editor
     }
     
+    void DataPanel::lock()
+    {
+        edit_btn->Disable();
+        
+        PanelsListBase::lock();
+    }
+    
     void DataPanel::signal_type()
     {
         wxCommandEvent event(EVT_DELETE_SPLINE);
         
         event.SetId(ID);
         wxPostEvent(this,event);
+    }
+    
+    void DataPanel::unlock()
+    {
+        edit_btn->Enable();
+        
+        PanelsListBase::unlock();
     }
 }
