@@ -189,6 +189,14 @@ class MaterialExplorer: public BaseFrame
         void recompute_model();
 };
 
+wxDECLARE_EVENT(EVT_DELETE_CAUCHY,wxCommandEvent);
+wxDECLARE_EVENT(EVT_DELETE_CRITPOINT,wxCommandEvent);
+wxDECLARE_EVENT(EVT_DELETE_DEBYE,wxCommandEvent);
+wxDECLARE_EVENT(EVT_DELETE_DRUDE,wxCommandEvent);
+wxDECLARE_EVENT(EVT_DELETE_LORENTZ,wxCommandEvent);
+wxDECLARE_EVENT(EVT_DELETE_SELLMEIER,wxCommandEvent);
+wxDECLARE_EVENT(EVT_DELETE_SPLINE,wxCommandEvent);
+
 namespace MatGUI
 {
     class SubmodelPanel: public PanelsListBase
@@ -198,8 +206,10 @@ namespace MatGUI
             
             SubmodelPanel(wxWindow *parent);
             
+            void apoptose(wxCommandEvent &event);
             void evt_modification(wxCommandEvent &event);
             virtual void gui_to_mat();
+            virtual void signal_type();
     };
     
     class EpsInfPanel: public SubmodelPanel
@@ -223,6 +233,7 @@ namespace MatGUI
             DrudePanel(wxWindow *parent,DrudeModel *drude,int ID);
             
             void gui_to_mat();
+            void signal_type();
     };
     
     class LorentzPanel: public SubmodelPanel
@@ -237,6 +248,7 @@ namespace MatGUI
             LorentzPanel(wxWindow *parent,LorentzModel *lorentz,int ID);
             
             void gui_to_mat();
+            void signal_type();
     };
     
     class CritpointPanel: public SubmodelPanel
@@ -251,6 +263,7 @@ namespace MatGUI
             CritpointPanel(wxWindow *parent,CritpointModel *critpoint,int ID);
             
             void gui_to_mat();
+            void signal_type();
     };
     
     class CauchyPanel: public SubmodelPanel
@@ -266,6 +279,7 @@ namespace MatGUI
             
             void evt_order(wxCommandEvent &event);
             void gui_to_mat();
+            void signal_type();
     };
     
     class SellmeierPanel: public SubmodelPanel
@@ -280,6 +294,7 @@ namespace MatGUI
             SellmeierPanel(wxWindow *parent,double *B,double *C,int ID);
             
             void gui_to_mat();
+            void signal_type();
     };
     
     class DataPanel: public SubmodelPanel
@@ -302,8 +317,12 @@ namespace MatGUI
                       Cspline *ei_spline);
             
             void evt_edit(wxCommandEvent &event);
+            void signal_type();
     };
 }
+
+wxDECLARE_EVENT(EVT_MATERIAL_EDITOR_MODEL,wxCommandEvent);
+wxDECLARE_EVENT(EVT_MATERIAL_EDITOR_SPECTRUM,wxCommandEvent);
 
 class MaterialEditor: public wxPanel
 {
@@ -327,6 +346,16 @@ class MaterialEditor: public wxPanel
         void throw_event_model();
         void throw_event_spectrum();
         void update_controls();
+        
+        // Deletion events
+        
+        void evt_delete_cauchy(wxCommandEvent &event);
+        void evt_delete_critpoint(wxCommandEvent &event);
+        void evt_delete_debye(wxCommandEvent &event);
+        void evt_delete_drude(wxCommandEvent &event);
+        void evt_delete_lorentz(wxCommandEvent &event);
+        void evt_delete_sellmeier(wxCommandEvent &event);
+        void evt_delete_spline(wxCommandEvent &event);
 };
 
 class MaterialManager: public BaseFrame
