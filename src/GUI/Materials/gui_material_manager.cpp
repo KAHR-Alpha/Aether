@@ -307,7 +307,6 @@ void MaterialManager::evt_menu_load()
         
         material_path->set_value(new_path.generic_string());
         
-        chk_var(new_path);
         if(PathManager::belongs_to_resources(new_path))
         {
             library_material=true;

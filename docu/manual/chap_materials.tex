@@ -1,24 +1,46 @@
 \chapter{The Materials Library}
 \label{matsection}
 
-\section{Constant materials}
+At their core, materials in Aether are defined through their permittivity. The idea is that the total permittivity is the sum of several dielectric model
+\begin{equation}
+	\varepsilon=\sum_i \varepsilon_i
+\end{equation}
+where each $\varepsilon_i$ is a specific model with its own set of parameters. This is done in a dedicated Lua script, much like the simulation setup, with a specific function for each model.
 
-Those are the most simple materials. They are characterized by a real, constant refractive index for every wavelength. They are first defined through the \lfc{set\_constant}() function, and the refractive index is then specified through either the \lfc{index\_infty}(\lft{index}) function, or the \lfc{epsilon\_infty}(\lft{epsilon}) function, $\varepsilon_r$ being the argument in the latter case.\\ Example:
+\section{Constant model}
 
+This is the most simple model and can be used to create constant materials materials. It leads to a real, constant permittivity for every wavelength and is often referred to as $\varepsilon_\infty$.
+
+This constant part is set either through the \lfc{epsilon\_infinity}(\lft{epsilon}) function, or, as a convenience, through the They are first defined through the \lfc{index\_infinity}(\lft{index}) function. In the latter case, the refractive index is turned into a permittivity internally. Example
 \begin{lstlisting}
-set_constant()
-index_infty(1.5)
+index_infinity(1.5)
 \end{lstlisting}
 
 As explained in \ref{fdtd_fc_material}, in the case of a constant material the whole material script can also be replaced in the main script by a call to \lfc{const\_material}.
 
-\section{Simple dispersive materials}
+\section{Simple dispersive models}
 
 Those are the simplest models that are used to define materials like glasses in the spectral range where they are transparent. \textcolor{red}{Those materials are not FDTD compatible.}
 
 \subsection{Cauchy}
 
-\subsection{Sellmeier terms}
+The Cauchy dispersion formula can be thought of as an expansion on the refractive index in the form
+\begin{equation}
+	n=A+\frac{B}{\lambda^2}+\frac{C}{\lambda^4}+\cdots
+\end{equation}
+since the permittivity is built buy summing other permittivity, it was decided the one associated with the Cauchy model would then be
+\begin{equation}
+	\varepsilon^C=\left(A+\frac{B}{\lambda^2}+\frac{C}{\lambda^4}+\cdots\right)^2
+\end{equation}
+This is instanced through the function \lfc{add\_cauchy}(\lft{A},\lft{B},\lft{C},\lft{...}) which takes as many arguments as there are in the expansion.
+
+Example:
+\begin{lstlisting}
+add_cauchy(1.5,0.01e-12,0.0002e-24)
+\end{lstlisting}
+Note that if your material was originally strictly defined by a Cauchy formula, it is important to set $\varepsilon_\infty$ to 0.
+
+\subsection{Sellmeier}
 
 The Sellmeier formula is usually written as
 \begin{equation}
@@ -36,55 +58,41 @@ Since $C_i$ obviously must have a dimension of m$^2$, it was decided it would be
 \end{equation}
 so that $C_i$ and $\lambda$ are homogeneous.
 
-As such each Sellmeier term is added to the material dielectric model with the function \lfc{add\_sellmeier(\lft{B},\lft{C})}, where $\lft{C}$ is the square-root of what is usually found in material databases.
+As such each Sellmeier term is added to the material dielectric model with the function \lfc{add\_sellmeier(\lft{B},\lft{C})}, where $\lft{C}$ is the square-root of what is usually found in material databases. Note that the refractive index becomes undefined when $\lambda=C_i$.
 
-\section{Absorbing dispersive materials}
+Example:
+\begin{lstlisting}
+add_sellmeier(2.0,100e-9)
+\end{lstlisting}
 
-	Those materials are another kind of elementary material, mostly used to describe metals. They are implemented in the software through the recursive convolution method \cite{Luebbers:90}.
+\section{Absorbing dispersive models}
+
+	Those models are another kind of elementary models, mostly used to describe metals. They are FDTD compatible, and are implemented in it through the recursive convolution method \cite{Luebbers:90}.
 	
-	First, the material is set as dielectric through the \lfc{set\_dielectric}() function. \lft{$\varepsilon_\infty$} is then defined thanks to \lfc{epsilon\_infty}(\lft{$\varepsilon_\infty$}). This value is real. The full dielectric model can be a combination of the elementary dielectric models, and is thus defined through successive calls of the \lfc{add\_drude}, \lfc{add\_lorentz} or \lfc{add\_crit\_points} functions. As the number of elementary dielectric models increases, so will the amount of needed computer memory, and the computation time.
-	
-	Finally, the \lfc{evaluate}(\lin{Nl},\lft{$\lambda_1$},\lft{$\lambda_2$}) function evualuates the dielectric model between \lft{$\lambda_1$} and \lft{$\lambda_2$} with \lin{Nl} sampling points. The result is written in a file called \lsgnq{mat\_eval.m}. It can be loaded in MatLab or GNU Octave.
-
 \subsection{Drude model}
 
 This basic model is very useful to describe metals in the infrared part of the spectrum. It is defined by
 \begin{equation}
-\varepsilon(\omega)=\varepsilon_\infty-\frac{\dsp \omega_D^2}{\dsp \omega^2+i\gamma\omega}
+\varepsilon^D=-\frac{\dsp \omega_D^2}{\dsp \omega^2+i\gamma\omega}
 \end{equation}
-and is turned into through \lfc{add\_drude}(\lft{$\omega_D$},\lft{$\gamma$}). This model is FDTD compatible.
+and is defined through \lfc{add\_drude}(\lft{$\omega_D$},\lft{$\gamma$}).
 
 \subsection{Lorentz model}
 
 Another basic model useful for the description of metals, defined by
 \begin{equation}
-\varepsilon(\omega)=\varepsilon_\infty+A\frac{\dsp \Omega^2}{\dsp \Omega^2-\omega^2-i\Gamma\omega}
+\varepsilon^L=A\frac{\dsp \Omega^2}{\dsp \Omega^2-\omega^2-i\Gamma\omega}
 \end{equation}
-it is defined through \lfc{add\_lorentz}(\lft{$A$},\lft{$\Omega$},\lft{$\Gamma$}) This model is FDTD compatible.
+it is defined through \lfc{add\_lorentz}(\lft{$A$},\lft{$\Omega$},\lft{$\Gamma$})
 
 \subsection{Critical points model}
 
 This model was initially introduced to described the permittivity of gold in the blue part of the spectrum \cite{Etchegoin:06}, and was then adapted to FDTD by \cite{Vial:07}. Its dielectric function is
 	
 \begin{equation}
-\varepsilon(\omega)=\varepsilon_\infty+A\Omega\left(\frac{\dsp e^{\dsp i\varphi}}{\dsp \Omega-\omega-i\Gamma}+\frac{\dsp e^{\dsp -i\varphi}}{\dsp \Omega+\omega+i\Gamma}\right)
+\varepsilon^{Cr}=\Omega\left(\frac{\dsp e^{\dsp i\varphi}}{\dsp \Omega-\omega-i\Gamma}+\frac{\dsp e^{\dsp -i\varphi}}{\dsp \Omega+\omega+i\Gamma}\right)
 \end{equation}
-and this model is used through \lfc{add\_crit\_point}(\lft{$A$},\lft{$\Omega$},\lft{$\varphi$},\lft{$\Gamma$}). This model is FDTD compatible.
-
-\subsection{Full example}
-
-The following example defines a gold dielectric model from 400 to 1000 nm. The permittivity first is set to 1.03, and a drude model and two critical points models are then added. The validity range is then set based on the original data fit.
-
-\begin{lstlisting}
-set_dielectric()
-
-epsilon_infty(1.03)
-add_drude(1.3064e16,1.1274e14)
-add_crit_point(0.86822,4.0812e15,-0.60756,7.3277e14)
-add_crit_point(1.3700,6.4269e15,-0.087341,6.7371e14)
-
-validity_range(400e-9,1000e-9)
-\end{lstlisting}
+and this model is used through \lfc{add\_crit\_point}(\lft{$A$},\lft{$\Omega$},\lft{$\varphi$},\lft{$\Gamma$}).
 
 \section{Data tables based materials}
 
@@ -111,3 +119,26 @@ add_data_index(lambda,nr,ni)
 \end{lstlisting}
 
 Of course, it is impossible to provide data for every wavelength. As such, \textbf{the permittivity between the data points is reconstructed through cubic splines interpolation}.
+
+\section{Additional functions}
+
+\subsection[description]{\lfc{description}(\lsg{test})}
+
+This function is used to add information to the material. Its primary use is to document it in a way the GUI can read it.
+
+\subsection[validity\_range]{\lfc{validity\_range}(\lft{$\lambda_\textrm{min}$},\lft{$\lambda_\textrm{max}$})}
+
+Any dielectric model has a limited validity range. This function is there to document this to the software. It will define the validity range between
+
+\section{Full example}
+
+The following example defines a gold dielectric model from 400 to 1000 nm. The permittivity first is set to 1.03, and a drude model and two critical points models are then added. The validity range is then set based on the original data fit.
+
+\begin{lstlisting}
+epsilon_infty(1.03)
+add_drude(1.3064e16,1.1274e14)
+add_crit_point(0.86822,4.0812e15,-0.60756,7.3277e14)
+add_crit_point(1.3700,6.4269e15,-0.087341,6.7371e14)
+
+validity_range(400e-9,1000e-9)
+\end{lstlisting}

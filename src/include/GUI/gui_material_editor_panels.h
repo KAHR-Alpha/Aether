@@ -56,6 +56,21 @@ namespace MatGUI
             void unlock();
     };
     
+    class DebyePanel: public SubmodelPanel
+    {
+        public:
+            int ID;
+            DebyeModel *mat_debye;
+            NamedTextCtrl<double> *ds,*t0;
+            
+            DebyePanel(wxWindow *parent,DebyeModel *debye,int ID);
+            
+            void gui_to_mat();
+            void lock();
+            void signal_type();
+            void unlock();
+    };
+    
     class DrudePanel: public SubmodelPanel
     {
         public:

@@ -249,10 +249,7 @@ bool PathManager::belongs_to_resources(std::filesystem::path path)
         
         std::string path_string=path.generic_string();
         std::string rsc_string=rsc_path.generic_string();
-        
-        chk_var(path_string);
-        chk_var(rsc_string);
-        
+                
         if(rsc_string.size()>path_string.size()) return false;
         
         int start=0;

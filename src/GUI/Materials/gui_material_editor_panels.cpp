@@ -257,6 +257,48 @@ namespace MatGUI
     
     // DebyePanel
     
+    DebyePanel::DebyePanel(wxWindow *parent,DebyeModel *debye_,int ID_)
+        :SubmodelPanel(parent),
+         ID(ID_), mat_debye(debye_)
+    {
+        set_title("Debye "+std::to_string(ID));
+        
+        ds=new NamedTextCtrl(this,"ds",mat_debye->ds,true);
+        t0=new NamedTextCtrl(this,"t0",mat_debye->t0,true);
+                
+        sizer->Add(ds,wxSizerFlags().Expand());
+        sizer->Add(t0,wxSizerFlags().Expand());
+    }
+    
+    void DebyePanel::gui_to_mat()
+    {
+        mat_debye->set(ds->get_value(),t0->get_value());
+    }
+    
+    void DebyePanel::lock()
+    {
+        ds->lock();
+        t0->lock();
+        
+        PanelsListBase::lock();
+    }
+    
+    void DebyePanel::signal_type()
+    {
+        wxCommandEvent event(EVT_DELETE_DEBYE);
+        
+        event.SetId(ID);
+        wxPostEvent(this,event);
+    }
+    
+    void DebyePanel::unlock()
+    {
+        ds->unlock();
+        t0->unlock();
+        
+        PanelsListBase::unlock();
+    }
+    
     // DrudePanel
     
     DrudePanel::DrudePanel(wxWindow *parent,DrudeModel *drude_,int ID_)

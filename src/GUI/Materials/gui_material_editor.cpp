@@ -255,6 +255,9 @@ void MaterialEditor::rebuild_elements_list()
     
     material_elements->add_panel<MatGUI::EpsInfPanel>(&material.eps_inf);
     
+    for(std::size_t i=0;i<material.debye.size();i++)
+        material_elements->add_panel<MatGUI::DebyePanel>(&material.debye[i],i);
+        
     for(std::size_t i=0;i<material.drude.size();i++)
         material_elements->add_panel<MatGUI::DrudePanel>(&material.drude[i],i);
     
