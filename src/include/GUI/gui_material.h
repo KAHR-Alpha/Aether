@@ -36,6 +36,7 @@ enum
 };
 
 class MaterialSelector;
+class MaterialManager;
 
 bool default_material_validator(Material *material);
 
@@ -43,6 +44,7 @@ class MaterialsLib
 {
     private:
         static int Nm;
+        static MaterialManager *manager;
         static std::vector<std::filesystem::path> mat_fname;
         static std::vector<Material*> mat_arr;
         static std::vector<bool> user_material;
@@ -52,12 +54,15 @@ class MaterialsLib
         static void load_material(std::filesystem::path const &fname,bool user_material=true);
     public:
         static void add_material(std::filesystem::path const &fname);
+        static void forget_manager();
+        static MaterialManager* get_manager();
         static Material* get_material(unsigned int n);
-        static Material* knows_material(unsigned int &n,Material const &material,
-                                        bool (*validator)(Material*)=&default_material_validator);
         static std::filesystem::path get_material_name(unsigned int n);
         static int get_N_materials();
+        static bool has_manager();
         static void initialize();
+        static Material* knows_material(unsigned int &n,Material const &material,
+                                        bool (*validator)(Material*)=&default_material_validator);
         static void register_material_selector(MaterialSelector *selector);
         static void remove_material_selector(MaterialSelector *selector);
 };
@@ -212,6 +217,7 @@ class MaterialManager: public BaseFrame
         wxChoice *disp_choice;
         
         MaterialManager(wxString const &title);
+        ~MaterialManager();
         
         void MaterialManager_Controls();
         void MaterialManager_Display(wxPanel *display_panel);

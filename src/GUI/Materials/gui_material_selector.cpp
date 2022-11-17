@@ -302,6 +302,11 @@ void MaterialSelector::const_index_event(wxCommandEvent &event)
 
 void MaterialSelector::evt_add_to_library(wxCommandEvent &event)
 {
+    if(MaterialsLib::has_manager())
+    {
+        wxMessageBox("This function is disabled while the Materials Editor is open");
+        return;
+    }
     MaterialsLib::add_material(script);
 }
 

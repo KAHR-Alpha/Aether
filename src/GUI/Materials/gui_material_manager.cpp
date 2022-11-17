@@ -164,6 +164,11 @@ MaterialManager::MaterialManager(wxString const &title)
     Maximize();
 }
 
+MaterialManager::~MaterialManager()
+{
+    MaterialsLib::forget_manager();
+}
+
 void MaterialManager::MaterialManager_Controls()
 {
     wxBoxSizer *ctrl_sizer=new wxBoxSizer(wxVERTICAL);

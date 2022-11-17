@@ -393,6 +393,8 @@ class MainFrame: public wxFrame
             Raise();
         }
         
+        void evt_open_materials_manager(wxCommandEvent &event);
+        
         void evt_about_help(wxCommandEvent &event);
 };
 
