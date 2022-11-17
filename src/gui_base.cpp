@@ -136,7 +136,7 @@ bool Aether::OnInit()
 //    FitterFrame *mfr=new FitterFrame("Aether");
 //    LayerFitter *mfr=new LayerFitter("Aether");
 //    MaterialExplorer *mfr=new MaterialExplorer("Aether");
-    MaterialManager *mfr=new MaterialManager("Aether");
+    MaterialsManager *mfr=new MaterialsManager("Aether");
     mfr->Maximize();
     mfr->Show(true);
     
@@ -701,7 +701,7 @@ void MainFrame::evt_about_help(wxCommandEvent &event)
 
 void MainFrame::evt_open_materials_manager(wxCommandEvent &event)
 {
-    MaterialManager *frame=MaterialsLib::get_manager();
+    MaterialsManager *frame=MaterialsLib::get_manager();
     frame->Show(true);
     frame->Maximize();
     

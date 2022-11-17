@@ -16,7 +16,7 @@ limitations under the License.*/
 #include <gui_material.h>
 
 int MaterialsLib::Nm=0;
-MaterialManager* MaterialsLib::manager=nullptr;
+MaterialsManager* MaterialsLib::manager=nullptr;
 std::vector<std::filesystem::path> MaterialsLib::mat_fname(0);
 std::vector<Material*> MaterialsLib::mat_arr;
 std::vector<bool> MaterialsLib::user_material;
@@ -41,11 +41,11 @@ void MaterialsLib::add_material(std::filesystem::path const &fname)
 
 void MaterialsLib::forget_manager() { manager=nullptr; }
 
-MaterialManager* MaterialsLib::get_manager()
+MaterialsManager* MaterialsLib::get_manager()
 {
     if(manager==nullptr)
     {
-        manager=new MaterialManager("Materials Editor");
+        manager=new MaterialsManager("Materials Editor");
     }
     
     return manager;
