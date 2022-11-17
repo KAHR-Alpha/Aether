@@ -309,7 +309,7 @@ MiniMaterialSelector::MiniMaterialSelector(wxWindow *parent,
     
     material=material_;
         
-    if(material.type==MAT_CONST)
+    if(material.is_const())
     {
         mat_name->SetValue(std::to_string(material.get_n(0).real()));
     }
@@ -362,7 +362,7 @@ MiniMaterialSelector::MiniMaterialSelector(wxWindow *parent,
     {
         material.load_lua_script(script_);
         
-        if(material.type==MAT_CONST)
+        if(material.is_const())
         {
             mat_name->SetValue(std::to_string(material.get_n(0).real()));
         }
@@ -452,7 +452,7 @@ void MiniMaterialSelector::set_material(std::filesystem::path const &script_fnam
 {
     material.load_lua_script(script_fname);
         
-    if(material.type==MAT_CONST)
+    if(material.is_const())
     {
         mat_name->SetValue(std::to_string(material.get_n(0).real()));
     }

@@ -1,6 +1,6 @@
 -- 181018
 
-set_dielectric()
+
 
 epsilon_infty(1.0)
 add_drude(8.07619e15,5.83082e14)

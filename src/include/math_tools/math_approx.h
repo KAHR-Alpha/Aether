@@ -163,6 +163,7 @@ class Cspline
         Grid2<double> coeffs;
         
         void calc_coeffs();
+        void reorder();
         void rescale();
         
     public:
@@ -171,11 +172,17 @@ class Cspline
         Cspline(std::vector<double> const &x,std::vector<double> const &y,int end_mode=CSPLINE_NATURAL);
         
         double eval(double const &x) const;
+        std::size_t get_N() const;
+        double get_x_base(std::size_t const &i) const;
+        double get_y_base(std::size_t const &i) const;
         void init(std::vector<double> const &x,std::vector<double> const &y,int end_mode=CSPLINE_NATURAL);
+        bool is_empty() const;
+        void show() const;
         
         double operator () (double const &x) const;
         void operator = (Cspline const &spline);
         bool operator == (Cspline const &spline);
+        
 };
 
 class Cspline_2fct

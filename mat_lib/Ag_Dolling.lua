@@ -1,4 +1,4 @@
-set_dielectric()
+
 
 epsilon_infty(1.0)
 

@@ -393,6 +393,8 @@ class MainFrame: public wxFrame
             Raise();
         }
         
+        void evt_open_materials_manager(wxCommandEvent &event);
+        
         void evt_about_help(wxCommandEvent &event);
 };
 
@@ -430,12 +432,13 @@ class WavelengthSelector: public wxPanel
         
         WavelengthSelector(wxWindow *parent,std::string name,double lambda);
         
+        void change_unit(std::string const &unit);
         double get_lambda();
-        
         void lock();
         void set_lambda(double lambda);
         void unit_event(wxCommandEvent &event);
         void unlock();
+        void update_value_display();
         void value_change();
         void value_enter_event(wxCommandEvent &event);
         void value_focus_event(wxFocusEvent &event);

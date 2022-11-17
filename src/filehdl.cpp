@@ -236,6 +236,38 @@ std::filesystem::path PathManager::pwd;
 std::filesystem::path PathManager::resources_path;
 std::filesystem::path PathManager::tmp_path;
 std::filesystem::path PathManager::user_profile_path;
+std::filesystem::path PathManager::user_profile_materials;
+
+bool PathManager::belongs_to_resources(std::filesystem::path path)
+{
+    namespace fs=std::filesystem;
+    
+    if(fs::exists(path))
+    {
+        path=fs::canonical(path);
+        std::filesystem::path rsc_path=fs::canonical(resources_path);
+        
+        std::string path_string=path.generic_string();
+        std::string rsc_string=rsc_path.generic_string();
+                
+        if(rsc_string.size()>path_string.size()) return false;
+        
+        int start=0;
+        
+        #ifdef WIN32
+        if(std::tolower(rsc_string[0])!=std::tolower(path_string[0])) return false;
+        start=1;
+        #endif
+        
+        for(std::size_t i=start;i<rsc_string.size();i++)
+        {
+            if(rsc_string[i]!=path_string[i]) return false;
+        }
+        
+        return true;
+    }
+    else return false;
+}
 
 std::filesystem::path PathManager::locate_file(std::filesystem::path const &path_,
                                                std::filesystem::path const &caller_path)
@@ -355,6 +387,7 @@ void PathManager::initialize()
     
     create_directories(tmp_path);
     create_directories(user_profile_path);
+    create_directories(user_profile_materials);
     
     std::cout<<"Default directories initialization...\n";
     std::cout<<"Executable directory: "<<executable_path.generic_string()<<"\n";
@@ -421,6 +454,7 @@ void PathManager::retrieve_user_profile_path()
     #endif
     
     user_profile_path/="Aether/";
+    user_profile_materials=user_profile_path/"materials_library";
 }
 
 #ifdef _WIN32

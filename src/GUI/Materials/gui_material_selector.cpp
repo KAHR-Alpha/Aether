@@ -144,7 +144,7 @@ MaterialSelector::MaterialSelector(wxWindow *parent,std::string name,bool no_box
     }
     else
     {
-        if(material.type==MAT_CONST || input_ok==false)
+        if(material.is_const() || input_ok==false)
         {
             set_const_model(material.get_n(0).real());
         }
@@ -302,6 +302,11 @@ void MaterialSelector::const_index_event(wxCommandEvent &event)
 
 void MaterialSelector::evt_add_to_library(wxCommandEvent &event)
 {
+    if(MaterialsLib::has_manager())
+    {
+        wxMessageBox("This function is disabled while the Materials Editor is open");
+        return;
+    }
     MaterialsLib::add_material(script);
 }
 

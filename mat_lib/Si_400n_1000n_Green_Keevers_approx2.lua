@@ -1,4 +1,4 @@
-set_dielectric()
+
 
 epsilon_infty(2.15881)
 add_drude(4e14,2e14)

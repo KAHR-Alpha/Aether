@@ -138,4 +138,17 @@ namespace lua_tools
         
         return 1;
     }
+    
+    void extract_vector(std::vector<double> &vec,lua_State *L,int index)
+    {
+        vec.clear();
+        
+        lua_pushnil(L);
+        
+        while(lua_next(L,index)!=0)
+        {
+            vec.push_back(lua_tonumber(L,-1));
+            lua_pop(L,1);
+        }
+    }
 }

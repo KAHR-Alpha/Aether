@@ -15,11 +15,9 @@ limitations under the License.*/
 #ifndef GUI_MATERIAL_H_INCLUDED
 #define GUI_MATERIAL_H_INCLUDED
 
-#include <material.h>
-
 #include <gui.h>
 #include <gui_graph.h>
-#include <gui_panels_list.h>
+#include <gui_material_editor.h>
 #include <gui_rsc.h>
 //#include <phys_tools.h>
 
@@ -38,6 +36,7 @@ enum
 };
 
 class MaterialSelector;
+class MaterialManager;
 
 bool default_material_validator(Material *material);
 
@@ -45,6 +44,7 @@ class MaterialsLib
 {
     private:
         static int Nm;
+        static MaterialManager *manager;
         static std::vector<std::filesystem::path> mat_fname;
         static std::vector<Material*> mat_arr;
         static std::vector<bool> user_material;
@@ -54,12 +54,15 @@ class MaterialsLib
         static void load_material(std::filesystem::path const &fname,bool user_material=true);
     public:
         static void add_material(std::filesystem::path const &fname);
+        static void forget_manager();
+        static MaterialManager* get_manager();
         static Material* get_material(unsigned int n);
-        static Material* knows_material(unsigned int &n,Material const &material,
-                                        bool (*validator)(Material*)=&default_material_validator);
         static std::filesystem::path get_material_name(unsigned int n);
         static int get_N_materials();
+        static bool has_manager();
         static void initialize();
+        static Material* knows_material(unsigned int &n,Material const &material,
+                                        bool (*validator)(Material*)=&default_material_validator);
         static void register_material_selector(MaterialSelector *selector);
         static void remove_material_selector(MaterialSelector *selector);
 };
@@ -186,6 +189,51 @@ class MaterialExplorer: public BaseFrame
         void export_event(wxCommandEvent &event);
         void material_selector_event(wxCommandEvent &event);
         void spectrum_selector_event(wxCommandEvent &event);
+        void recompute_model();
+};
+
+class MaterialManager: public BaseFrame
+{
+    public:
+        unsigned int Np;
+        double lambda_min,lambda_max;
+        
+        bool library_material;
+        
+        std::vector<double> lambda,disp_lambda,disp_real,disp_imag;
+        
+        // Controls
+        
+        NamedTextCtrl<std::string> *material_path;
+        
+        wxScrolledWindow *ctrl_panel;
+        
+        MaterialEditor *editor;
+        
+        // Display
+        
+        Graph *mat_graph;
+        SpectrumSelector *sp_selector;
+        wxChoice *disp_choice;
+        
+        MaterialManager(wxString const &title);
+        ~MaterialManager();
+        
+        void MaterialManager_Controls();
+        void MaterialManager_Display(wxPanel *display_panel);
+        
+        void evt_display_choice(wxCommandEvent &event);
+        void evt_material_editor_model(wxCommandEvent &event);
+        void evt_material_editor_spectrum(wxCommandEvent &event);
+//        void evt_material_selector(wxCommandEvent &event);
+        void evt_menu(wxCommandEvent &event);
+        void evt_menu_exit();
+        void evt_menu_load();
+        void evt_menu_new();
+        void evt_menu_save();
+        void evt_menu_save_as();
+        void evt_spectrum_selector(wxCommandEvent &event);
+//        void export_event(wxCommandEvent &event);
         void recompute_model();
 };
 

@@ -851,18 +851,6 @@ bool FDTD::mats_in_grid(unsigned int ind)
     return false;
 }
 
-void FDTD::set_material(unsigned int ind,std::string fname)
-{
-    if(mats_in_grid(ind))
-    {
-        mats[ind].link_fdtd(Dx,Dy,Dz,Dt);
-        mats[ind].link_grid(matsgrid,ind);
-        mats[ind].load_mfile(fname);
-        
-        if(mats[ind].needs_D_field()) dt_D_comp=true;
-    }
-}
-
 void FDTD::set_material(unsigned int ind,Material const &material_)
 {
     if(mats_in_grid(ind))

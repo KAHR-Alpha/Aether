@@ -1,6 +1,6 @@
 -- Fit Si approximatif visible
 
-set_dielectric()
+
 
 epsilon_infty(1.2596)
 add_drude(8.5712e15,1.861e16)

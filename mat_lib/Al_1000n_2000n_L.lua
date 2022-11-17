@@ -1,6 +1,6 @@
 -- Fit Al luxpop entre 1000nm et 2000nm
 
-set_dielectric()
+
 
 epsilon_infty(4.5651)
 add_drude(2.0294e16,1.8159e14)

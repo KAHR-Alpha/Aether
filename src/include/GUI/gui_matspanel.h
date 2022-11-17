@@ -66,15 +66,15 @@ class ModelPanel: public wxPanel
         
         // Models
         
-        dielec_drude drude_model;
-        dielec_lorentz lorentz_model;
-        dielec_critpoint critpoints_model;
+        DrudeModel drude_model;
+        LorentzModel lorentz_model;
+        CritpointModel critpoints_model;
         
         // Models mutation
         
-        dielec_drude drude_model_mut;
-        dielec_lorentz lorentz_model_mut;
-        dielec_critpoint critpoints_model_mut;
+        DrudeModel drude_model_mut;
+        LorentzModel lorentz_model_mut;
+        CritpointModel critpoints_model_mut;
         
         int N_data;
         std::vector<double> w,real_part,imag_part;

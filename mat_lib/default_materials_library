@@ -15,6 +15,7 @@ mat_lib/N-BK7.lua
 mat_lib/Si_400n_1000n_approx.lua
 mat_lib/Si_400n_1000n_Green_Keevers_approx.lua
 mat_lib/TiN_Plfuger_RIinfo.lua
+mat_lib/TiN_Plfuger_RIinfo_spline.lua
 mat_lib/ZnO_250n_1250n_approx.lua
 mat_lib/ZnO_400n_1250n_approx.lua
 mat_lib/ZnS_thin_film_Amotchkina_400n_1000n_spline.lua

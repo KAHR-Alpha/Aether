@@ -129,12 +129,14 @@ bool Aether::OnInit()
 //    HAPSolverFrame *mfr=new HAPSolverFrame("Aether");
 //    EMGeometry_Frame *mfr=new EMGeometry_Frame("Aether");
 //    SamplesFrame *mfr=new SamplesFrame("Aether");
-    SelGUI::SeleneFrame *mfr=new SelGUI::SeleneFrame("Aether");
+//    SelGUI::SeleneFrame *mfr=new SelGUI::SeleneFrame("Aether");
 //    SelGUI::RayCounterFrame *mfr=new SelGUI::RayCounterFrame("Aether");
 //    SEM_2D_Frame *mfr=new SEM_2D_Frame("Aether");
 //    FDTD_Frame *mfr=new FDTD_Frame("Aether");
 //    FitterFrame *mfr=new FitterFrame("Aether");
 //    LayerFitter *mfr=new LayerFitter("Aether");
+//    MaterialExplorer *mfr=new MaterialExplorer("Aether");
+    MaterialManager *mfr=new MaterialManager("Aether");
     mfr->Maximize();
     mfr->Show(true);
     
@@ -558,7 +560,11 @@ MainFrame::MainFrame(std::string title,wxPoint const &pos, wxSize const &size)
     layer_fit_btn->Disable();
     #endif
     
-    wxButton *material_explr_btn=new wxButton(base_panel,wxID_ANY,"Material Explorer");
+    wxButton *material_editor_btn=new wxButton(base_panel,wxID_ANY,"Materials Editor");
+    material_editor_btn->Bind(wxEVT_BUTTON,&MainFrame::evt_open_materials_manager,this);
+    util_sizer->Add(material_editor_btn,wxSizerFlags().Expand());
+    
+    wxButton *material_explr_btn=new wxButton(base_panel,wxID_ANY,"Materials Explorer");
     material_explr_btn->Bind(wxEVT_BUTTON,&MainFrame::open_frame<MaterialExplorer,mat_explr_name>,this);
     util_sizer->Add(material_explr_btn,wxSizerFlags().Expand());
     
@@ -691,6 +697,15 @@ MainFrame::~MainFrame()
 void MainFrame::evt_about_help(wxCommandEvent &event)
 {
     AboutDialog dialog{};
+}
+
+void MainFrame::evt_open_materials_manager(wxCommandEvent &event)
+{
+    MaterialManager *frame=MaterialsLib::get_manager();
+    frame->Show(true);
+    frame->Maximize();
+    
+    Raise();
 }
 
 class TestFrame: public wxFrame
