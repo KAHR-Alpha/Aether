@@ -15,6 +15,7 @@ limitations under the License.*/
 #include <gui.h>
 #include <gui_curve_extractor.h>
 #include <gui_diffract_orders.h>
+#include <gui_diffract_pattern.h>
 #include <gui_ellifr.h>
 #include <gui_ellipso3.h>
 #include <gui_fd_ms.h>
@@ -428,6 +429,7 @@ void BaseFrame::save_project(wxFileName const &fname)
 //###############
 
 char diff_orders_name[]="Diffraction orders";
+char diff_pattern_name[]="Diffraction pattern";
 char eff_model_name[]="Effective models";
 char elli_name[]="Ellipsometry";
 char elli3_name[]="Ellipsometry 3D";
@@ -498,6 +500,10 @@ MainFrame::MainFrame(std::string title,wxPoint const &pos, wxSize const &size)
     wxButton *diff_orders_btn=new wxButton(base_panel,wxID_ANY,"Diffraction Orders");
     diff_orders_btn->Bind(wxEVT_BUTTON,&MainFrame::open_frame<DiffOrdersFrame,diff_orders_name>,this);
     util_sizer->Add(diff_orders_btn,wxSizerFlags().Expand());
+    
+    wxButton *diff_pattern_btn=new wxButton(base_panel,wxID_ANY,"Diffraction Pattern");
+    diff_pattern_btn->Bind(wxEVT_BUTTON,&MainFrame::open_frame<DiffPatternFrame,diff_pattern_name>,this);
+    util_sizer->Add(diff_pattern_btn,wxSizerFlags().Expand());
     
     #ifdef DISABLE_GUI_DIFFRACTION_ORDERS
     diff_orders_btn->Disable();
