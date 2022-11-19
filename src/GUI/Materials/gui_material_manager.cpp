@@ -45,6 +45,8 @@ class MaterialsLibDialog: public wxDialog
             for(int i=0;i<Nmat;i++)
                 choice->Append(MaterialsLib::get_material_name(i).generic_string());
             
+            if(Nmat>0) choice->SetSelection(0);
+            
             sizer->Add(choice,wxSizerFlags().Expand().Border(wxALL,2));
             
             // Buttons
@@ -83,7 +85,7 @@ class MaterialsLibDialog: public wxDialog
 };
 
 //#####################
-//   MaterialManager
+//   MaterialsManager
 //#####################
 
 enum
@@ -95,7 +97,7 @@ enum
     MENU_EXIT
 };
 
-MaterialManager::MaterialManager(wxString const &title)
+MaterialsManager::MaterialsManager(wxString const &title)
     :BaseFrame(title),
      Np(401),
      lambda_min(400e-9), lambda_max(800e-9),
@@ -122,12 +124,12 @@ MaterialManager::MaterialManager(wxString const &title)
     
     ctrl_panel=new wxScrolledWindow(splitter);
 //    ctrl_panel=new wxPanel(splitter);
-    MaterialManager_Controls();
+    MaterialsManager_Controls();
     
     // - Display
  
     wxPanel *display_panel=new wxPanel(splitter);   
-    MaterialManager_Display(display_panel);
+    MaterialsManager_Display(display_panel);
     
     // - Splitting wrapping up
     
@@ -156,20 +158,20 @@ MaterialManager::MaterialManager(wxString const &title)
     
     // General Bindings
     
-    Bind(wxEVT_MENU,&MaterialManager::evt_menu,this);
-    Bind(EVT_MATERIAL_EDITOR_MODEL,&MaterialManager::evt_material_editor_model,this);
-    Bind(EVT_MATERIAL_EDITOR_SPECTRUM,&MaterialManager::evt_material_editor_spectrum,this);
+    Bind(wxEVT_MENU,&MaterialsManager::evt_menu,this);
+    Bind(EVT_MATERIAL_EDITOR_MODEL,&MaterialsManager::evt_material_editor_model,this);
+    Bind(EVT_MATERIAL_EDITOR_SPECTRUM,&MaterialsManager::evt_material_editor_spectrum,this);
     
     Show();
     Maximize();
 }
 
-MaterialManager::~MaterialManager()
+MaterialsManager::~MaterialsManager()
 {
     MaterialsLib::forget_manager();
 }
 
-void MaterialManager::MaterialManager_Controls()
+void MaterialsManager::MaterialsManager_Controls()
 {
     wxBoxSizer *ctrl_sizer=new wxBoxSizer(wxVERTICAL);
     
@@ -184,7 +186,7 @@ void MaterialManager::MaterialManager_Controls()
     ctrl_panel->FitInside();
 }
 
-void MaterialManager::MaterialManager_Display(wxPanel *display_panel)
+void MaterialsManager::MaterialsManager_Display(wxPanel *display_panel)
 {
     wxBoxSizer *display_sizer=new wxBoxSizer(wxVERTICAL);
     wxBoxSizer *display_subsizer=new wxBoxSizer(wxHORIZONTAL);
@@ -193,7 +195,7 @@ void MaterialManager::MaterialManager_Display(wxPanel *display_panel)
     
     mat_graph=new Graph(display_panel);
     sp_selector=new SpectrumSelector(display_panel,lambda_min,lambda_max,Np);
-    sp_selector->Bind(EVT_SPECTRUM_SELECTOR,&MaterialManager::evt_spectrum_selector,this);
+    sp_selector->Bind(EVT_SPECTRUM_SELECTOR,&MaterialsManager::evt_spectrum_selector,this);
     
     wxStaticBoxSizer *index_sizer=new wxStaticBoxSizer(wxVERTICAL,display_panel,"Display");
     
@@ -201,7 +203,7 @@ void MaterialManager::MaterialManager_Display(wxPanel *display_panel)
     
     disp_choice=new wxChoice(index_sizer->GetStaticBox(),wxID_ANY,wxDefaultPosition,wxDefaultSize,2,disp_str);
     disp_choice->SetSelection(0);
-    disp_choice->Bind(wxEVT_CHOICE,&MaterialManager::evt_display_choice,this);
+    disp_choice->Bind(wxEVT_CHOICE,&MaterialsManager::evt_display_choice,this);
     
     index_sizer->Add(disp_choice);
     
@@ -212,12 +214,12 @@ void MaterialManager::MaterialManager_Display(wxPanel *display_panel)
     display_sizer->Add(display_subsizer);
 }
 
-void MaterialManager::evt_display_choice(wxCommandEvent &event)
+void MaterialsManager::evt_display_choice(wxCommandEvent &event)
 {
     recompute_model();
 }
 
-void MaterialManager::evt_material_editor_model(wxCommandEvent &event)
+void MaterialsManager::evt_material_editor_model(wxCommandEvent &event)
 {
     ctrl_panel->Layout();
     ctrl_panel->FitInside();
@@ -225,7 +227,7 @@ void MaterialManager::evt_material_editor_model(wxCommandEvent &event)
     recompute_model();
 }
 
-void MaterialManager::evt_material_editor_spectrum(wxCommandEvent &event)
+void MaterialsManager::evt_material_editor_spectrum(wxCommandEvent &event)
 {
     sp_selector->set_spectrum(editor->validity_min->get_lambda(),
                               editor->validity_max->get_lambda());
@@ -236,7 +238,7 @@ void MaterialManager::evt_material_editor_spectrum(wxCommandEvent &event)
     recompute_model();
 }
 
-void MaterialManager::evt_menu(wxCommandEvent &event)
+void MaterialsManager::evt_menu(wxCommandEvent &event)
 {
     int ID=event.GetId();
     
@@ -250,12 +252,12 @@ void MaterialManager::evt_menu(wxCommandEvent &event)
     }
 }
 
-void MaterialManager::evt_menu_exit()
+void MaterialsManager::evt_menu_exit()
 {
     Close();
 }
 
-void MaterialManager::evt_menu_load()
+void MaterialsManager::evt_menu_load()
 {
     std::vector<wxString> choices(2);
     
@@ -280,7 +282,6 @@ void MaterialManager::evt_menu_load()
             
             material_path->set_value(editor->material.script_path.generic_string());
             
-            chk_var(editor->material.script_path);
             if(PathManager::belongs_to_resources(editor->material.script_path))
             {
                 library_material=true;
@@ -325,7 +326,7 @@ void MaterialManager::evt_menu_load()
     }
 }
 
-void MaterialManager::evt_menu_new()
+void MaterialsManager::evt_menu_new()
 {
     wxFileName data_tmp=wxFileSelector("Please create a new material file",
                                        wxString(PathManager::user_profile_materials.generic_string()),
@@ -351,15 +352,16 @@ void MaterialManager::evt_menu_new()
     editor->unlock();
 }
 
-void MaterialManager::evt_menu_save()
+void MaterialsManager::evt_menu_save()
 {
     if(!library_material)
     {
         editor->material.write_lua_script();
     }
+    else evt_menu_save_as();
 }
 
-void MaterialManager::evt_menu_save_as()
+void MaterialsManager::evt_menu_save_as()
 {
     wxFileName data_tmp=wxFileSelector("Please create a new material file",
                                        wxString(PathManager::user_profile_materials.generic_string()),
@@ -387,7 +389,7 @@ void MaterialManager::evt_menu_save_as()
     material_path->set_value(new_path.generic_string());
 }
 
-void MaterialManager::evt_spectrum_selector(wxCommandEvent &event)
+void MaterialsManager::evt_spectrum_selector(wxCommandEvent &event)
 {
     lambda_min=sp_selector->get_lambda_min();
     lambda_max=sp_selector->get_lambda_max();
@@ -401,7 +403,7 @@ void MaterialManager::evt_spectrum_selector(wxCommandEvent &event)
     recompute_model();
 }
 
-void MaterialManager::recompute_model()
+void MaterialsManager::recompute_model()
 {
     Material &material=editor->material;
     

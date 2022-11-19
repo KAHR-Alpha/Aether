@@ -36,7 +36,7 @@ enum
 };
 
 class MaterialSelector;
-class MaterialManager;
+class MaterialsManager;
 
 bool default_material_validator(Material *material);
 
@@ -44,7 +44,7 @@ class MaterialsLib
 {
     private:
         static int Nm;
-        static MaterialManager *manager;
+        static MaterialsManager *manager;
         static std::vector<std::filesystem::path> mat_fname;
         static std::vector<Material*> mat_arr;
         static std::vector<bool> user_material;
@@ -55,7 +55,7 @@ class MaterialsLib
     public:
         static void add_material(std::filesystem::path const &fname);
         static void forget_manager();
-        static MaterialManager* get_manager();
+        static MaterialsManager* get_manager();
         static Material* get_material(unsigned int n);
         static std::filesystem::path get_material_name(unsigned int n);
         static int get_N_materials();
@@ -192,7 +192,7 @@ class MaterialExplorer: public BaseFrame
         void recompute_model();
 };
 
-class MaterialManager: public BaseFrame
+class MaterialsManager: public BaseFrame
 {
     public:
         unsigned int Np;
@@ -216,11 +216,11 @@ class MaterialManager: public BaseFrame
         SpectrumSelector *sp_selector;
         wxChoice *disp_choice;
         
-        MaterialManager(wxString const &title);
-        ~MaterialManager();
+        MaterialsManager(wxString const &title);
+        ~MaterialsManager();
         
-        void MaterialManager_Controls();
-        void MaterialManager_Display(wxPanel *display_panel);
+        void MaterialsManager_Controls();
+        void MaterialsManager_Display(wxPanel *display_panel);
         
         void evt_display_choice(wxCommandEvent &event);
         void evt_material_editor_model(wxCommandEvent &event);
