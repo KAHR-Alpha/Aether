@@ -639,7 +639,7 @@ void SeleneFrame::evt_add_element(wxCommandEvent &event)
         radius=1.5*std::sqrt(radius);
         
         gl->set_camera_target(Vector3(x_center,y_center,z_center));
-        gl->set_camera_radius(radius);
+        if(radius>0) gl->set_camera_radius(radius);
     }
     
     event.Skip();

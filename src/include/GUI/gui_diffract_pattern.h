@@ -16,13 +16,38 @@ limitations under the License.*/
 #define GUI_DIFFRACT_PATTERN_H_INCLUDED
 
 #include <gui.h>
+#include <gui_gl.h>
 
 class DiffPatternFrame: public BaseFrame
 {
     public:
+        int Nx_d,Ny_d,
+            Nx_s,Ny_s;
+        double Dx;
+        Grid2<double> data,screen_data;
+        
+        std::vector<std::vector<int>> compressed_data_start,compressed_data_end;
+        
+        // Controls
+        
+        wxScrolledWindow *ctrl_panel;
+        
+        FileSelector *input_data;
+        WavelengthSelector *lambda;
+        LengthSelector *input_scale,*screen_distance;
+        
+        NamedTextCtrl<int> *screen_x_res,*screen_y_res;
+        
+        // Display
+        
+        GL_2D_display *input_display,*output_display;
+        
         DiffPatternFrame(wxString const &title);
         ~DiffPatternFrame();
         
+        Imdouble compute_data_spectrum(double kx,double ky);
+        void evt_compute(wxCommandEvent &event);
+        void evt_new_data(wxCommandEvent &event);
         
 };
 
