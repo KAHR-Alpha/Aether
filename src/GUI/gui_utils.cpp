@@ -706,14 +706,64 @@ void PMLPanel::get_parameters(int &N_pml,double &k_max,double &s_max,double &a_m
     a_max=a_max_ctrl->get_value();
 }
 
-//#########################
-//   WavelengthSelector
-//#########################
+///##########################################
+///             Selector classes
+///##########################################
 
-wxDEFINE_EVENT(EVT_SPECTRUM_UPDATE,wxCommandEvent);
+//##################
+//   FileSelector
+//##################
 
+FileSelector::FileSelector(wxWindow *parent,std::string const &name)
+    :wxPanel(parent,wxID_ANY),
+     default_path(wxEmptyString),
+     default_file(wxEmptyString),
+     default_extension(wxEmptyString),
+     default_wildcards(wxFileSelectorDefaultWildcardStr)
+{
+    wxStaticBoxSizer *sizer=new wxStaticBoxSizer(wxHORIZONTAL,this,name);
+    
+    path_ctrl=new wxTextCtrl(sizer->GetStaticBox(),wxID_ANY);
+    path_ctrl->SetEditable(false);
+    
+    wxButton *btn=new wxButton(sizer->GetStaticBox(),wxID_ANY,"...",wxDefaultPosition,wxDefaultSize,wxBU_EXACTFIT);
+    btn->Bind(wxEVT_BUTTON,&FileSelector::evt_file,this);
+    
+    sizer->Add(path_ctrl,wxSizerFlags(1).Expand());
+    sizer->Add(btn,wxSizerFlags().Expand());
+    
+    SetSizer(sizer);
+}
+
+void FileSelector::evt_file(wxCommandEvent &event)
+{
+    wxString file=wxFileSelector("Please select a file:",
+                                 default_path,
+                                 default_file,
+                                 default_extension,
+                                 default_wildcards);
+    
+    
+    path=file.ToStdString();
+    
+    if(!path.empty())
+    {
+        path_ctrl->ChangeValue(path.generic_string());
+        
+        wxCommandEvent event_out(EVT_FILE_SELECTOR);
+        wxPostEvent(this,event_out);
+    }
+}
+
+//####################
+//   LengthSelector
+//####################
+
+
+wxDEFINE_EVENT(EVT_FILE_SELECTOR,wxCommandEvent);
 wxDEFINE_EVENT(EVT_LENGTH_SELECTOR,wxCommandEvent);
 wxDEFINE_EVENT(EVT_SPECTRUM_SELECTOR,wxCommandEvent);
+wxDEFINE_EVENT(EVT_SPECTRUM_UPDATE,wxCommandEvent);
 wxDEFINE_EVENT(EVT_WAVELENGTH_SELECTOR,wxCommandEvent);
 
 LengthSelector::LengthSelector(wxWindow *parent,std::string name,double L_,bool static_style,std::string const &zero_unit)

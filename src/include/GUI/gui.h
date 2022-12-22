@@ -398,9 +398,26 @@ class MainFrame: public wxFrame
         void evt_about_help(wxCommandEvent &event);
 };
 
+wxDECLARE_EVENT(EVT_FILE_SELECTOR,wxCommandEvent);
 wxDECLARE_EVENT(EVT_LENGTH_SELECTOR,wxCommandEvent);
 wxDECLARE_EVENT(EVT_SPECTRUM_SELECTOR,wxCommandEvent);
 wxDECLARE_EVENT(EVT_WAVELENGTH_SELECTOR,wxCommandEvent);
+
+class FileSelector: public wxPanel
+{
+    public:
+        std::filesystem::path path;
+        wxTextCtrl *path_ctrl;
+        
+        wxString default_path,
+                 default_file,
+                 default_extension,
+                 default_wildcards;
+        
+        FileSelector(wxWindow *parent,std::string const &name);
+        
+        void evt_file(wxCommandEvent &event);
+};
 
 class LengthSelector: public wxPanel
 {

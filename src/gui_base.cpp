@@ -15,6 +15,7 @@ limitations under the License.*/
 #include <gui.h>
 #include <gui_curve_extractor.h>
 #include <gui_diffract_orders.h>
+#include <gui_diffract_pattern.h>
 #include <gui_ellifr.h>
 #include <gui_ellipso3.h>
 #include <gui_fd_ms.h>
@@ -119,6 +120,7 @@ bool Aether::OnInit()
     #else
 //    Curve_Extract_Frame *mfr=new Curve_Extract_Frame("Aether");
 //    DiffOrdersFrame *mfr=new DiffOrdersFrame("Aether");
+    DiffPatternFrame *mfr=new DiffPatternFrame("Aether");
 //    FieldBlockExplorer *mfr=new FieldBlockExplorer("Aether");
 //    FresnelFrame *mfr=new FresnelFrame("Aether");
 //    EffModelFrame *mfr=new EffModelFrame("Aether");
@@ -136,7 +138,7 @@ bool Aether::OnInit()
 //    FitterFrame *mfr=new FitterFrame("Aether");
 //    LayerFitter *mfr=new LayerFitter("Aether");
 //    MaterialExplorer *mfr=new MaterialExplorer("Aether");
-    MaterialsManager *mfr=new MaterialsManager("Aether");
+//    MaterialsManager *mfr=new MaterialsManager("Aether");
     mfr->Maximize();
     mfr->Show(true);
     
@@ -428,6 +430,7 @@ void BaseFrame::save_project(wxFileName const &fname)
 //###############
 
 char diff_orders_name[]="Diffraction orders";
+char diff_pattern_name[]="Diffraction pattern";
 char eff_model_name[]="Effective models";
 char elli_name[]="Ellipsometry";
 char elli3_name[]="Ellipsometry 3D";
@@ -486,30 +489,20 @@ MainFrame::MainFrame(std::string title,wxPoint const &pos, wxSize const &size)
     fbexplr_btn->Bind(wxEVT_BUTTON,&MainFrame::open_frame<FieldBlockExplorer,fbexplr>,this);
     fdtd_sizer->Add(fbexplr_btn,wxSizerFlags().Expand());
     
-    #ifdef DISABLE_GUI_FINITE_DIFFERENCES
-    fdtd_btn->Disable();
-    fdfd_btn->Disable();
-    struct_des_btn->Disable();
-    fbexplr_btn->Disable();
-    #endif
-        
     // Utilities
     
     wxButton *diff_orders_btn=new wxButton(base_panel,wxID_ANY,"Diffraction Orders");
     diff_orders_btn->Bind(wxEVT_BUTTON,&MainFrame::open_frame<DiffOrdersFrame,diff_orders_name>,this);
     util_sizer->Add(diff_orders_btn,wxSizerFlags().Expand());
     
-    #ifdef DISABLE_GUI_DIFFRACTION_ORDERS
-    diff_orders_btn->Disable();
-    #endif
+//    wxButton *diff_pattern_btn=new wxButton(base_panel,wxID_ANY,"Diffraction Pattern");
+//    diff_pattern_btn->Bind(wxEVT_BUTTON,&MainFrame::open_frame<DiffPatternFrame,diff_pattern_name>,this);
+//    util_sizer->Add(diff_pattern_btn,wxSizerFlags().Expand());
+    
     
 //    wxButton *eff_model_btn=new wxButton(base_panel,wxID_ANY,"Effective Models");
 //    eff_model_btn->Bind(wxEVT_BUTTON,&MainFrame::open_frame<EffModelFrame,eff_model_name>,this);
 //    util_sizer->Add(eff_model_btn,wxSizerFlags().Expand());
-    
-    #ifdef DISABLE_GUI_EFFECTIVE_MODELS
-    eff_model_btn->Disable();
-    #endif
     
     wxButton *elli_btn=new wxButton(base_panel,wxID_ANY,"Ellipsometry 2D");
     elli_btn->Bind(wxEVT_BUTTON,&MainFrame::open_frame<ElliFrame,elli_name>,this);
@@ -522,12 +515,7 @@ MainFrame::MainFrame(std::string title,wxPoint const &pos, wxSize const &size)
     wxButton *sem_2d_btn=new wxButton(base_panel,wxID_ANY,"SEM 2D");
     sem_2d_btn->Bind(wxEVT_BUTTON,&MainFrame::open_frame<SEM_2D_Frame,sem_2d_name>,this);
     class_sizer->Add(sem_2d_btn,wxSizerFlags().Expand());
-    
-    #ifdef DISABLE_GUI_ELLIPSOMETRY
-    elli_btn->Disable();
-    elli_3d_btn->Disable();
-    #endif
-    
+        
 //    wxButton *fresnel_tool_btn=new wxButton(base_panel,wxID_ANY,"Fresnel");
 //    fresnel_tool_btn->Bind(wxEVT_BUTTON,&MainFrame::open_frame<FresnelFrame,fresnel_name>,this);
 //    util_sizer->Add(fresnel_tool_btn,wxSizerFlags().Expand());
@@ -540,25 +528,13 @@ MainFrame::MainFrame(std::string title,wxPoint const &pos, wxSize const &size)
     fitter_btn->Bind(wxEVT_BUTTON,&MainFrame::open_frame<FitterFrame,fitter_name>,this);
     util_sizer->Add(fitter_btn,wxSizerFlags().Expand());
     
-    #ifdef DISABLE_GUI_FITTER
-    fitter_btn->Disable();
-    #endif
-    
     wxButton *gradient_btn=new wxButton(base_panel,wxID_ANY,"Geometric Gradient");
     gradient_btn->Bind(wxEVT_BUTTON,&MainFrame::open_frame<GeoGradientFrame,gradient_name>,this);
     util_sizer->Add(gradient_btn,wxSizerFlags().Expand());
     
-    #ifdef DISABLE_GUI_GRADIENT
-    gradient_btn->Disable();
-    #endif
-    
     wxButton *layer_fit_btn=new wxButton(base_panel,wxID_ANY,"Layer Fitter");
     layer_fit_btn->Bind(wxEVT_BUTTON,&MainFrame::open_frame<LayerFitter,layer_fit>,this);
     util_sizer->Add(layer_fit_btn,wxSizerFlags().Expand());
-    
-    #ifdef DISABLE_GUI_LAYER_FITTER
-    layer_fit_btn->Disable();
-    #endif
     
     wxButton *material_editor_btn=new wxButton(base_panel,wxID_ANY,"Materials Editor");
     material_editor_btn->Bind(wxEVT_BUTTON,&MainFrame::evt_open_materials_manager,this);
@@ -572,81 +548,41 @@ MainFrame::MainFrame(std::string title,wxPoint const &pos, wxSize const &size)
     mats_fit_btn->Bind(wxEVT_BUTTON,&MainFrame::open_frame<MatsFitter,mats_fit>,this);
     util_sizer->Add(mats_fit_btn,wxSizerFlags().Expand());
     
-    #ifdef DISABLE_GUI_MATERIALS_FITTER
-    mats_fit_btn->Disable();
-    #endif
-    
     wxButton *mie_tool_btn=new wxButton(base_panel,wxID_ANY,"Mie");
     mie_tool_btn->Bind(wxEVT_BUTTON,&MainFrame::open_frame<MieTool,mie_name>,this);
     util_sizer->Add(mie_tool_btn,wxSizerFlags().Expand());
-    
-    #ifdef DISABLE_GUI_MIE
-    mie_tool_btn->Disable();
-    #endif
     
     wxButton *multilayer_btn=new wxButton(base_panel,wxID_ANY,"Multilayers");
     multilayer_btn->Bind(wxEVT_BUTTON,&MainFrame::open_frame<MultilayerFrame,multi_name>,this);
     util_sizer->Add(multilayer_btn,wxSizerFlags().Expand());
     
-    #ifdef DISABLE_GUI_MULTILAYERS
-    multilayer_btn->Disable();
-    #endif
-    
     wxButton *optical_fibers_btn=new wxButton(base_panel,wxID_ANY,"Optical Fibers");
     optical_fibers_btn->Bind(wxEVT_BUTTON,&MainFrame::open_frame<OptFibersFrame,opt_fibers_name>,this);
     util_sizer->Add(optical_fibers_btn,wxSizerFlags().Expand());
-    
-    #ifdef DISABLE_GUI_OPTICAL_FIBERS
-    optical_fibers_btn->Disable();
-    #endif
     
     wxButton *param_visu_btn=new wxButton(base_panel,wxID_ANY,"Parametric Visualizer");
     param_visu_btn->Bind(wxEVT_BUTTON,&MainFrame::open_frame<PVisuFrame,param_visu_name>,this);
     util_sizer->Add(param_visu_btn,wxSizerFlags().Expand());
     
-    #ifdef DISABLE_GUI_PARAMETRIC_VISUALIZER
-    param_visu_btn->Disable();
-    #endif
-    
     wxButton *planar_solver_btn=new wxButton(base_panel,wxID_ANY,"Planar Modes Solver");
     util_sizer->Add(planar_solver_btn,wxSizerFlags().Expand());
     planar_solver_btn->Disable();
-    
-    #ifdef DISABLE_GUI_PLANAR_MODES_SOlVER
-    planar_solver_btn->Disable();
-    #endif
     
     wxButton *ha_planar_solver_btn=new wxButton(base_panel,wxID_ANY,"Planar Modes Solver (Human-Assisted)");
     ha_planar_solver_btn->Bind(wxEVT_BUTTON,&MainFrame::open_frame<HAPSolverFrame,haps_name>,this);
     util_sizer->Add(ha_planar_solver_btn,wxSizerFlags().Expand());
     
-    #ifdef DISABLE_GUI_PLANAR_MODES_SOLVER_HA
-    ha_planar_solver_btn->Disable();
-    #endif
-    
     wxButton *samples_btn=new wxButton(base_panel,wxID_ANY,"Samples Explorer");
     samples_btn->Bind(wxEVT_BUTTON,&MainFrame::open_frame<SamplesFrame,sample_exp_name>,this);
     util_sizer->Add(samples_btn,wxSizerFlags().Expand());
-    
-    #ifdef DISABLE_GUI_SAMPLES_EXPLORER
-    samples_btn->Disable();
-    #endif
     
     wxButton *spp_btn=new wxButton(base_panel,wxID_ANY,"SPP");
     spp_btn->Bind(wxEVT_BUTTON,&MainFrame::open_frame<SppFrame,spp_name>,this);
     util_sizer->Add(spp_btn,wxSizerFlags().Expand());
     
-    #ifdef DISABLE_GUI_SPP
-    spp_btn->Disable();
-    #endif
-    
     wxButton *subdiff_btn=new wxButton(base_panel,wxID_ANY,"Subdiffractive Limit");
     subdiff_btn->Bind(wxEVT_BUTTON,&MainFrame::open_frame<DiffOrdersSDFrame,subdiff_name>,this);
     util_sizer->Add(subdiff_btn,wxSizerFlags().Expand());
-    
-    #ifdef DISABLE_GUI_DIFFRACTION_ORDERS
-    subdiff_btn->Disable();
-    #endif
     
     // Selene
     
@@ -661,11 +597,6 @@ MainFrame::MainFrame(std::string title,wxPoint const &pos, wxSize const &size)
 //    wxButton *lenses_btn=new wxButton(base_panel,wxID_ANY,"Lenses");
 //    selene_sizer->Add(lenses_btn,wxSizerFlags().Expand());
 //    lenses_btn->Disable();
-    
-    #ifdef DISABLE_GUI_SELENE
-    selene_btn->Disable();
-    lenses_btn->Disable();
-    #endif
     
     col1_sizer->Add(fdtd_sizer,wxSizerFlags().Expand().Border(wxALL,2));
     col1_sizer->Add(selene_sizer,wxSizerFlags().Expand().Border(wxALL,2));
