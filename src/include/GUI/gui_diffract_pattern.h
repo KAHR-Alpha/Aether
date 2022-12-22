@@ -47,6 +47,9 @@ class DiffPatternFrame: public BaseFrame
         
         Imdouble compute_data_spectrum(double kx,double ky);
         void evt_compute(wxCommandEvent &event);
+        void evt_compute_double_FFT();
+        void evt_compute_fraunhofer();
+        void evt_compute_FT_growth();
         void evt_new_data(wxCommandEvent &event);
         
 };
