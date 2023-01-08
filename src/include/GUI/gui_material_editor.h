@@ -26,6 +26,7 @@ class MaterialEditor: public wxPanel
 {
     public:
         Material material;
+        bool library_material;
         
         wxTextCtrl *description;
         WavelengthSelector *validity_min,*validity_max;
@@ -36,6 +37,15 @@ class MaterialEditor: public wxPanel
         PanelsList<MatGUI::SubmodelPanel> *material_elements;
         
         MaterialEditor(wxWindow *parent);
+        
+        //
+        
+        void load();
+        void reset();
+        bool save();
+        bool save_as();
+        
+        //
         
         void evt_add_model(wxCommandEvent &event);
         void evt_description(wxCommandEvent &event);

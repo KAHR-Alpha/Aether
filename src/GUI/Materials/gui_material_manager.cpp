@@ -22,68 +22,6 @@ limitations under the License.*/
 
 extern const Imdouble Im;
 
-class MaterialsLibDialog: public wxDialog
-{
-    public:
-        bool selection_ok;
-        Material material;
-        wxChoice *choice;
-        
-        MaterialsLibDialog()
-            :wxDialog(nullptr,wxID_ANY,"Select a material",
-                      wxGetApp().default_dialog_origin()),
-             selection_ok(false)
-        {
-            wxBoxSizer *sizer=new wxBoxSizer(wxVERTICAL);
-            
-            // Choice
-            
-            choice=new wxChoice(this,wxID_ANY);
-            
-            int Nmat=MaterialsLib::get_N_materials();
-            
-            for(int i=0;i<Nmat;i++)
-                choice->Append(MaterialsLib::get_material_name(i).generic_string());
-            
-            if(Nmat>0) choice->SetSelection(0);
-            
-            sizer->Add(choice,wxSizerFlags().Expand().Border(wxALL,2));
-            
-            // Buttons
-            
-            wxBoxSizer *btn_sizer=new wxBoxSizer(wxHORIZONTAL);
-            
-            wxButton *ok_btn=new wxButton(this,wxID_ANY,"Ok");
-            wxButton *cancel_btn=new wxButton(this,wxID_ANY,"Cancel");
-            
-            ok_btn->Bind(wxEVT_BUTTON,&MaterialsLibDialog::evt_ok,this);
-            cancel_btn->Bind(wxEVT_BUTTON,&MaterialsLibDialog::evt_cancel,this);
-            
-            btn_sizer->Add(new wxPanel(this),wxSizerFlags(1).Expand());
-            btn_sizer->Add(ok_btn);
-            btn_sizer->Add(cancel_btn);
-            
-            sizer->Add(btn_sizer,wxSizerFlags().Expand().Border(wxALL,2));
-            
-            SetSizerAndFit(sizer);
-        }
-        
-        void evt_cancel(wxCommandEvent &event)
-        {
-            Close();
-        }
-        
-        void evt_ok(wxCommandEvent &event)
-        {
-            selection_ok=true;
-            
-            int selection=choice->GetSelection();
-            
-            material=*(MaterialsLib::get_material(selection));
-            Close();
-        }
-};
-
 //#####################
 //   MaterialsManager
 //#####################
@@ -101,7 +39,6 @@ MaterialsManager::MaterialsManager(wxString const &title)
     :BaseFrame(title),
      Np(401),
      lambda_min(400e-9), lambda_max(800e-9),
-     library_material(false),
      lambda(Np), disp_lambda(Np),
      disp_real(Np), disp_imag(Np)
 {
@@ -259,71 +196,9 @@ void MaterialsManager::evt_menu_exit()
 
 void MaterialsManager::evt_menu_load()
 {
-    std::vector<wxString> choices(2);
+    editor->load();
     
-    choices[0]="Library";
-    choices[1]="File";
-    
-    ChoiceDialog dialog("Load from:",choices);
-    
-    if(!dialog.choice_ok) return;
-    
-    if(dialog.choice==0)
-    {
-        MaterialsLibDialog dialog;
-        dialog.ShowModal();
-        
-        if(dialog.selection_ok)
-        {
-            editor->material=dialog.material;
-            
-            editor->update_controls();
-            editor->rebuild_elements_list();
-            
-            material_path->set_value(editor->material.script_path.generic_string());
-            
-            if(PathManager::belongs_to_resources(editor->material.script_path))
-            {
-                library_material=true;
-                editor->lock();
-            }
-            else
-            {
-                library_material=false;
-                editor->unlock();
-            }
-        }
-    }
-    else
-    {
-        wxFileName data_tmp=wxFileSelector("Please select a material file",
-                                           wxString(PathManager::user_profile_materials.generic_string()),
-                                           wxEmptyString,wxEmptyString,
-                                           "Lua script (*.lua)|*.lua",
-                                           wxFD_OPEN);
-                                       
-        if(data_tmp.IsOk()==false) return;
-        
-        std::filesystem::path new_path=data_tmp.GetFullPath().ToStdString();
-        
-        editor->material.load_lua_script(new_path);
-        
-        editor->update_controls();
-        editor->rebuild_elements_list();
-        
-        material_path->set_value(new_path.generic_string());
-        
-        if(PathManager::belongs_to_resources(new_path))
-        {
-            library_material=true;
-            editor->lock();
-        }
-        else
-        {
-            library_material=false;
-            editor->unlock();
-        }
-    }
+    material_path->set_value(editor->material.script_path.generic_string());
 }
 
 void MaterialsManager::evt_menu_new()
@@ -338,55 +213,25 @@ void MaterialsManager::evt_menu_new()
     if(data_tmp.IsOk()==false) return;
     
     std::filesystem::path new_path=data_tmp.GetFullPath().ToStdString();
-        
-    editor->material.reset();
+    
+    editor->reset();
+    
     editor->material.script_path=new_path;
     editor->material.write_lua_script();
     
-    editor->update_controls();
-    editor->rebuild_elements_list();
-    
     material_path->set_value(new_path.generic_string());
-    
-    library_material=false;
-    editor->unlock();
 }
 
 void MaterialsManager::evt_menu_save()
 {
-    if(!library_material)
-    {
-        editor->material.write_lua_script();
-    }
-    else evt_menu_save_as();
+    editor->save();
 }
 
 void MaterialsManager::evt_menu_save_as()
 {
-    wxFileName data_tmp=wxFileSelector("Please create a new material file",
-                                       wxString(PathManager::user_profile_materials.generic_string()),
-                                       "temporary_material",
-                                       ".lua",
-                                       "Lua script (*.lua)|*.lua",
-                                       wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
-                                       
-    if(data_tmp.IsOk()==false) return;
+    bool editor_ok=editor->save_as();
     
-    std::filesystem::path new_path=data_tmp.GetFullPath().ToStdString();
-    
-    if(PathManager::belongs_to_resources(new_path))
-    {
-        wxMessageBox("Error: overwriting default library materials is forbidden.\nTry another file.");
-        return;
-    }
-    
-    editor->material.script_path=new_path;
-    editor->material.write_lua_script();
-    
-    editor->rebuild_elements_list();
-    editor->update_controls();
-    
-    material_path->set_value(new_path.generic_string());
+    if(editor_ok) material_path->set_value(editor->material.script_path.generic_string());
 }
 
 void MaterialsManager::evt_spectrum_selector(wxCommandEvent &event)

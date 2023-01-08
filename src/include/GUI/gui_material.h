@@ -198,8 +198,6 @@ class MaterialsManager: public BaseFrame
         unsigned int Np;
         double lambda_min,lambda_max;
         
-        bool library_material;
-        
         std::vector<double> lambda,disp_lambda,disp_real,disp_imag;
         
         // Controls

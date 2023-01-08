@@ -120,7 +120,7 @@ bool Aether::OnInit()
     #else
 //    Curve_Extract_Frame *mfr=new Curve_Extract_Frame("Aether");
 //    DiffOrdersFrame *mfr=new DiffOrdersFrame("Aether");
-    DiffPatternFrame *mfr=new DiffPatternFrame("Aether");
+//    DiffPatternFrame *mfr=new DiffPatternFrame("Aether");
 //    FieldBlockExplorer *mfr=new FieldBlockExplorer("Aether");
 //    FresnelFrame *mfr=new FresnelFrame("Aether");
 //    EffModelFrame *mfr=new EffModelFrame("Aether");
@@ -138,7 +138,7 @@ bool Aether::OnInit()
 //    FitterFrame *mfr=new FitterFrame("Aether");
 //    LayerFitter *mfr=new LayerFitter("Aether");
 //    MaterialExplorer *mfr=new MaterialExplorer("Aether");
-//    MaterialsManager *mfr=new MaterialsManager("Aether");
+    MaterialsManager *mfr=new MaterialsManager("Aether");
     mfr->Maximize();
     mfr->Show(true);
     
