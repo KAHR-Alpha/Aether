@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2023 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ class MaterialEditor: public wxPanel
 {
     public:
         Material material;
-        bool library_material;
+        bool read_only_material;
         
         wxTextCtrl *description;
         WavelengthSelector *validity_min,*validity_max;
@@ -36,9 +36,14 @@ class MaterialEditor: public wxPanel
         
         PanelsList<MatGUI::SubmodelPanel> *material_elements;
         
-        MaterialEditor(wxWindow *parent);
+        MaterialEditor(wxWindow *parent,bool stand_alone);
         
         //
+        
+        void evt_load(wxCommandEvent &event);
+        void evt_reset(wxCommandEvent &event);
+        void evt_save(wxCommandEvent &event);
+        void evt_save_as(wxCommandEvent &event);
         
         void load();
         void reset();

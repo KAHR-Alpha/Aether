@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2023 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -217,7 +217,6 @@ void MaterialExplorer::recompute_model()
 // MiniMaterialSelector
 //######################
 
-
 class MMS_Dialog:public wxDialog
 {
     public:
@@ -225,25 +224,52 @@ class MMS_Dialog:public wxDialog
         MaterialSelector *selector;
         Material material;
         
+        wxButton *ok_btn;
+        wxPanel *container_panel;
+        wxScrolledWindow *selector_panel;
+        
         MMS_Dialog(Material const &material)
-            :wxDialog(0,wxID_ANY,"Select the material",wxDefaultPosition,wxDefaultSize,wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER),
+            :wxDialog(0,wxID_ANY,"Select the material",
+                      wxGetApp().default_dialog_origin(),wxDefaultSize),
              selection_ok(false)
         {
-            wxBoxSizer *sizer=new wxBoxSizer(wxVERTICAL);
+            wxBoxSizer *top_sizer=new wxBoxSizer(wxVERTICAL);
             wxBoxSizer *btn_sizer=new wxBoxSizer(wxHORIZONTAL);
             
-            selector=new MaterialSelector(this,"Material",false,material);
+            // Container Panel
             
-            wxButton *ok_btn=new wxButton(this,wxID_ANY,"Ok");
+            container_panel=new wxPanel(this);
+            
+            wxBoxSizer *container_sizer=new wxBoxSizer(wxVERTICAL);
+            
+            // Inside Panel
+            
+            selector_panel=new wxScrolledWindow(container_panel,wxID_ANY);
+            
+            wxBoxSizer *selector_sizer=new wxBoxSizer(wxVERTICAL);
+            selector=new MaterialSelector(selector_panel,"Material",false,material);
+            
+            selector_sizer->Add(selector,wxSizerFlags());
+            
+            selector_panel->SetSizerAndFit(selector_sizer);
+            selector_panel->SetScrollRate(50,50);
+            
+            container_sizer->Add(selector_panel,wxSizerFlags(1).Expand());
+            container_panel->SetSizer(container_sizer);
+            
+            top_sizer->Add(container_panel,wxSizerFlags(1).Expand());
+            
+            // Buttons
+            
+            ok_btn=new wxButton(this,wxID_ANY,"Ok");
             wxButton *cancel_btn=new wxButton(this,wxID_ANY,"Cancel");
             
             btn_sizer->Add(ok_btn);
             btn_sizer->Add(cancel_btn);
             
-            sizer->Add(selector,wxSizerFlags().Expand());
-            sizer->Add(btn_sizer,wxSizerFlags().Align(wxALIGN_RIGHT));
+            top_sizer->Add(btn_sizer,wxSizerFlags().Align(wxALIGN_RIGHT));
             
-            SetSizerAndFit(sizer);
+            SetSizerAndFit(top_sizer);
             
             ok_btn->Bind(wxEVT_BUTTON,&MMS_Dialog::evt_ok,this);
             cancel_btn->Bind(wxEVT_BUTTON,&MMS_Dialog::evt_cancel,this);
@@ -252,7 +278,7 @@ class MMS_Dialog:public wxDialog
             
             ShowModal();
         }
-        
+                
         void evt_cancel(wxCommandEvent &event)
         {
             selection_ok=false;
@@ -261,7 +287,18 @@ class MMS_Dialog:public wxDialog
         
         void evt_material(wxCommandEvent &event)
         {
-            Fit();
+            SetClientSize(wxSize(20,20));
+            selector_panel->Layout();
+            selector_panel->FitInside();
+            
+            int x,y,xb,yb;
+            selector_panel->GetVirtualSize(&x,&y);
+            ok_btn->GetClientSize(&xb,&yb);
+            wxSize max_size=wxGetApp().default_dialog_size();
+            
+            SetClientSize(wxSize(std::min(max_size.x,x),std::min(max_size.y,y+yb+3)));
+            
+            selector_panel->FitInside();
         }
         
         void evt_ok(wxCommandEvent &event)

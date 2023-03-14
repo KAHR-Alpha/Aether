@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2023 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -39,13 +39,14 @@ MaterialSelector::MaterialSelector(wxWindow *parent,std::string name,bool no_box
     if(no_box) sizer=new wxBoxSizer(wxHORIZONTAL);
     else sizer=new wxStaticBoxSizer(wxHORIZONTAL,this,wxString(name));
     
-    wxString choices[]={"Library","Real Index","Script","Real Eps","Effective"};
+    wxString choices[]={"Library","Real Index","Script","Real Eps","Effective","Custom"};
     
-    mat_type_ctrl=new wxChoice(this,wxID_ANY,wxDefaultPosition,wxDefaultSize,5,choices);
+    mat_type_ctrl=new wxChoice(this,wxID_ANY,wxDefaultPosition,wxDefaultSize,6,choices);
     mat_type_ctrl->SetSelection(0);
     
     MaterialSelector_LibraryList(this);
     MaterialSelector_EffPanel(this);
+    MaterialSelector_CustomPanel(this);
     
     mat_txt=new wxTextCtrl(this,wxID_ANY,"1.0",wxDefaultPosition,wxDefaultSize,wxTE_PROCESS_ENTER);
     load_btn=new wxButton(this,wxID_ANY,"Load");
@@ -56,6 +57,7 @@ MaterialSelector::MaterialSelector(wxWindow *parent,std::string name,bool no_box
     sizer->Add(library_list_ctrl,wxSizerFlags(1));
     sizer->Add(mat_txt,wxSizerFlags(1));
     sizer->Add(eff_panel,wxSizerFlags(1));
+    sizer->Add(custom_editor,wxSizerFlags(1));
     sizer->Add(load_btn,wxSizerFlags().Expand());
     sizer->Add(add_lib_btn,wxSizerFlags().Expand());
     sizer->Add(inspect_btn,wxSizerFlags().Expand());
@@ -90,13 +92,14 @@ MaterialSelector::MaterialSelector(wxWindow *parent,std::string name,bool no_box
     if(no_box) sizer=new wxBoxSizer(wxHORIZONTAL);
     else sizer=new wxStaticBoxSizer(wxHORIZONTAL,this,wxString(name));
     
-    wxString choices[]={"Library","Real Index","Script","Real Eps","Effective"};
+    wxString choices[]={"Library","Real Index","Script","Real Eps","Effective","Custom"};
     
-    mat_type_ctrl=new wxChoice(this,wxID_ANY,wxDefaultPosition,wxDefaultSize,5,choices);
+    mat_type_ctrl=new wxChoice(this,wxID_ANY,wxDefaultPosition,wxDefaultSize,6,choices);
     mat_type_ctrl->SetSelection(0);
     
     MaterialSelector_LibraryList(this);
     MaterialSelector_EffPanel(this);
+    MaterialSelector_CustomPanel(this);
     
     mat_txt=new wxTextCtrl(this,wxID_ANY,"1.0",wxDefaultPosition,wxDefaultSize,wxTE_PROCESS_ENTER);
     load_btn=new wxButton(this,wxID_ANY,"Load");
@@ -107,6 +110,7 @@ MaterialSelector::MaterialSelector(wxWindow *parent,std::string name,bool no_box
     sizer->Add(library_list_ctrl,wxSizerFlags(1));
     sizer->Add(mat_txt,wxSizerFlags(1));
     sizer->Add(eff_panel,wxSizerFlags(1));
+    sizer->Add(custom_editor,wxSizerFlags(1));
     sizer->Add(load_btn,wxSizerFlags().Expand());
     sizer->Add(add_lib_btn,wxSizerFlags().Expand());
     sizer->Add(inspect_btn,wxSizerFlags().Expand());
@@ -230,6 +234,12 @@ void MaterialSelector::MaterialSelector_LibraryList(wxWindow *parent)
     set_library_model(reinterpret_cast<Material*>(library_list_ctrl->GetClientData(0)));
 }
 
+void MaterialSelector::MaterialSelector_CustomPanel(wxWindow *parent)
+{
+    custom_editor=new MaterialEditor(parent,true);
+    custom_editor->Bind(EVT_MATERIAL_EDITOR_MODEL,&MaterialSelector::evt_custom_material,this);
+}
+
 MaterialSelector::~MaterialSelector()
 {
     MaterialsLib::remove_material_selector(this);
@@ -332,6 +342,11 @@ void MaterialSelector::evt_const_index_focus(wxFocusEvent &event)
     event.Skip();
 }
 
+void MaterialSelector::evt_custom_material(wxCommandEvent &event)
+{
+    throw_event();
+}
+
 int MaterialSelector::get_effective_material_type()
 {
     switch(eff_type->GetSelection())
@@ -426,6 +441,7 @@ void MaterialSelector::evt_mat_type(wxCommandEvent &event)
     else if(selection==2) mat_type=GUI_MAT_SCRIPT;
     else if(selection==3) mat_type=GUI_MAT_REAL_EPS;
     else if(selection==4) mat_type=GUI_MAT_EFFECTIVE;
+    else if(selection==5) mat_type=GUI_MAT_CUSTOM;
     
     if(mat_type==GUI_MAT_REAL_N)
     {
@@ -449,6 +465,10 @@ void MaterialSelector::evt_mat_type(wxCommandEvent &event)
     {
         allocate_effective_materials();
         layout_effective();
+    }
+    else if(mat_type==GUI_MAT_CUSTOM)
+    {
+        layout_custom();
     }
     
     throw_event();
@@ -636,6 +656,25 @@ void MaterialSelector::layout_const()
     
     eff_panel->Hide();
     
+    custom_editor->Hide();
+    
+    Layout();
+}
+
+void MaterialSelector::layout_custom()
+{
+    mat_txt->Hide();
+    
+    library_list_ctrl->Hide();
+    
+    load_btn->Hide();
+    add_lib_btn->Hide();
+    inspect_btn->Hide();
+    
+    eff_panel->Hide();
+    
+    custom_editor->Show();
+    
     Layout();
 }
 
@@ -653,6 +692,8 @@ void MaterialSelector::layout_effective()
     inspect_btn->Enable();
     
     eff_panel->Show();
+    
+    custom_editor->Hide();
     
     Layout();
 }
@@ -672,6 +713,8 @@ void MaterialSelector::layout_library()
     
     eff_panel->Hide();
     
+    custom_editor->Hide();
+    
     Layout();
 }
 
@@ -690,6 +733,8 @@ void MaterialSelector::layout_script()
     inspect_btn->Enable();
     
     eff_panel->Hide();
+    
+    custom_editor->Hide();
     
     Layout();
 }

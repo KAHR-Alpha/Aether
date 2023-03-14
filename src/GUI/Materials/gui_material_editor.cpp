@@ -1,5 +1,4 @@
-
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2023 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -92,15 +91,17 @@ class MaterialsLibDialog: public wxDialog
 wxDEFINE_EVENT(EVT_MATERIAL_EDITOR_MODEL,wxCommandEvent);
 wxDEFINE_EVENT(EVT_MATERIAL_EDITOR_SPECTRUM,wxCommandEvent);
 
-MaterialEditor::MaterialEditor(wxWindow *parent)
+MaterialEditor::MaterialEditor(wxWindow *parent,bool stand_alone)
     :wxPanel(parent),
-     library_material(false)
+     read_only_material(true)
 {
     wxBoxSizer *sizer=new wxBoxSizer(wxVERTICAL);
     
     // Description
     
-    wxStaticBoxSizer *description_sizer=new wxStaticBoxSizer(wxVERTICAL,this,"Description");
+    wxPanel *description_panel=new wxPanel(this);
+    
+    wxStaticBoxSizer *description_sizer=new wxStaticBoxSizer(wxVERTICAL,description_panel,"Description");
     
     description=new wxTextCtrl(description_sizer->GetStaticBox(),
                                wxID_ANY,wxEmptyString,
@@ -109,13 +110,16 @@ MaterialEditor::MaterialEditor(wxWindow *parent)
     description->Bind(wxEVT_TEXT,&MaterialEditor::evt_description,this);
     description->SetMinClientSize(wxSize(-1,150));
     
-    
     description_sizer->Add(description,wxSizerFlags().Expand());
-    sizer->Add(description_sizer,wxSizerFlags().Expand());
+    description_panel->SetSizer(description_sizer);
+    
+    sizer->Add(description_panel,wxSizerFlags().Expand());
     
     // Validity Range
     
-    wxStaticBoxSizer *validity_sizer=new wxStaticBoxSizer(wxVERTICAL,this,"Validity Range");
+    wxPanel *validity_panel=new wxPanel(this);
+    
+    wxStaticBoxSizer *validity_sizer=new wxStaticBoxSizer(wxVERTICAL,validity_panel,"Validity Range");
     
     validity_min=new WavelengthSelector(validity_sizer->GetStaticBox(),"Min: ",400e-9);
     validity_max=new WavelengthSelector(validity_sizer->GetStaticBox(),"Max: ",800e-9);
@@ -126,7 +130,9 @@ MaterialEditor::MaterialEditor(wxWindow *parent)
     validity_sizer->Add(validity_min,wxSizerFlags().Expand());
     validity_sizer->Add(validity_max,wxSizerFlags().Expand());
     
-    sizer->Add(validity_sizer,wxSizerFlags().Expand());
+    validity_panel->SetSizer(validity_sizer);
+    
+    sizer->Add(validity_panel,wxSizerFlags().Expand());
     
     // Model Addition
     
@@ -158,7 +164,41 @@ MaterialEditor::MaterialEditor(wxWindow *parent)
     
     sizer->Add(material_elements,wxSizerFlags(1).Expand());
     
-    SetSizer(sizer);
+    if(stand_alone)
+    {
+        wxBoxSizer *stand_alone_sizer=new wxBoxSizer(wxHORIZONTAL);
+        wxBoxSizer *stand_alone_buttons=new wxBoxSizer(wxVERTICAL);
+        
+        wxButton *clear_btn=new wxButton(this,wxID_ANY,"Clear");
+        wxButton *load_btn=new wxButton(this,wxID_ANY,"Load");
+        wxButton *save_btn=new wxButton(this,wxID_ANY,"Save");
+        wxButton *save_as_btn=new wxButton(this,wxID_ANY,"Save As");
+        
+        clear_btn->Bind(wxEVT_BUTTON,&MaterialEditor::evt_reset,this);
+        load_btn->Bind(wxEVT_BUTTON,&MaterialEditor::evt_load,this);
+        save_btn->Bind(wxEVT_BUTTON,&MaterialEditor::evt_save,this);
+        save_as_btn->Bind(wxEVT_BUTTON,&MaterialEditor::evt_save_as,this);
+        
+        stand_alone_buttons->Add(clear_btn);
+        stand_alone_buttons->Add(load_btn);
+        stand_alone_buttons->Add(save_btn);
+        stand_alone_buttons->Add(save_as_btn);
+        
+        stand_alone_sizer->Add(sizer,wxSizerFlags(1).Expand());
+        stand_alone_sizer->Add(stand_alone_buttons,wxSizerFlags(0).Expand());
+        
+        description_panel->Hide();
+        validity_panel->Hide();
+        
+        SetSizer(stand_alone_sizer);
+    }
+    else
+    {
+        SetSizer(sizer);
+    }
+    
+    update_controls();
+    rebuild_elements_list();
     
     // General bindings
     
@@ -299,7 +339,12 @@ void MaterialEditor::evt_description(wxCommandEvent &event)
     material.description=replace_special_characters(description->GetValue().ToStdString());
 }
 
+void MaterialEditor::evt_load(wxCommandEvent &event) { load(); }
+
 void MaterialEditor::evt_model_change(wxCommandEvent &event) { throw_event_model(); }
+void MaterialEditor::evt_reset(wxCommandEvent &event) { reset(); }
+void MaterialEditor::evt_save(wxCommandEvent &event) { save(); }
+void MaterialEditor::evt_save_as(wxCommandEvent &event) { save_as(); }
 void MaterialEditor::evt_validity(wxCommandEvent &event) { throw_event_spectrum(); }
 
 void MaterialEditor::load()
@@ -327,12 +372,12 @@ void MaterialEditor::load()
             
             if(PathManager::belongs_to_resources(material.script_path))
             {
-                library_material=true;
+                read_only_material=true;
                 lock();
             }
             else
             {
-                library_material=false;
+                read_only_material=false;
                 unlock();
             }
         }
@@ -356,12 +401,12 @@ void MaterialEditor::load()
         
         if(PathManager::belongs_to_resources(new_path))
         {
-            library_material=true;
+            read_only_material=true;
             lock();
         }
         else
         {
-            library_material=false;
+            read_only_material=false;
             unlock();
         }
     }
@@ -424,13 +469,13 @@ void MaterialEditor::reset()
     update_controls();
     rebuild_elements_list();
     
-    library_material=false;
+    read_only_material=true;
     unlock();
 }
 
 bool MaterialEditor::save()
 {
-    if(!library_material)
+    if(!read_only_material)
     {
         material.write_lua_script();
         return true;
@@ -459,6 +504,7 @@ bool MaterialEditor::save_as()
     
     material.script_path=new_path;
     material.write_lua_script();
+    read_only_material=false;
     
     rebuild_elements_list();
     update_controls();

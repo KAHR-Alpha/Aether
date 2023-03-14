@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2023 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -125,7 +125,7 @@ bool Aether::OnInit()
 //    FresnelFrame *mfr=new FresnelFrame("Aether");
 //    EffModelFrame *mfr=new EffModelFrame("Aether");
 //    GeoGradientFrame *mfr=new GeoGradientFrame("Aether");
-//    MultilayerFrame *mfr=new MultilayerFrame("Aether");
+    MultilayerFrame *mfr=new MultilayerFrame("Aether");
 //    SppFrame *mfr=new SppFrame("Aether");
 //    MieTool *mfr=new MieTool("Aether");
 //    HAPSolverFrame *mfr=new HAPSolverFrame("Aether");
@@ -138,7 +138,7 @@ bool Aether::OnInit()
 //    FitterFrame *mfr=new FitterFrame("Aether");
 //    LayerFitter *mfr=new LayerFitter("Aether");
 //    MaterialExplorer *mfr=new MaterialExplorer("Aether");
-    MaterialsManager *mfr=new MaterialsManager("Aether");
+//    MaterialsManager *mfr=new MaterialsManager("Aether");
     mfr->Maximize();
     mfr->Show(true);
     

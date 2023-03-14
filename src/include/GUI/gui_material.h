@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2023 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -32,7 +32,8 @@ enum
     GUI_MAT_REAL_EPS,
     GUI_MAT_COMPLEX_EPS,
     GUI_MAT_SCRIPT,
-    GUI_MAT_LIBRARY
+    GUI_MAT_LIBRARY,
+    GUI_MAT_CUSTOM
 };
 
 class MaterialSelector;
@@ -91,6 +92,10 @@ class MaterialSelector: public wxPanel
                          *eff_mat_2_selector;
         NamedTextCtrl<double> *eff_weight;
         
+        // Custom
+        
+        MaterialEditor *custom_editor;
+        
         // Validator
         
         bool (*accept_material)(Material*);
@@ -101,6 +106,7 @@ class MaterialSelector: public wxPanel
                          bool (*validator)(Material*)=&default_material_validator);
         void MaterialSelector_LibraryList(wxWindow *parent);
         void MaterialSelector_EffPanel(wxWindow *parent);
+        void MaterialSelector_CustomPanel(wxWindow *parent);
         ~MaterialSelector();
         
         void allocate_effective_materials();
@@ -110,6 +116,7 @@ class MaterialSelector: public wxPanel
         void const_index_event(wxCommandEvent &event);
         void evt_add_to_library(wxCommandEvent &event);
         void evt_const_index_focus(wxFocusEvent &event);
+        void evt_custom_material(wxCommandEvent &event);
         void evt_effective_material(wxCommandEvent &event);
         void evt_inspect(wxCommandEvent &event);
         void evt_load(wxCommandEvent &event);
@@ -126,6 +133,7 @@ class MaterialSelector: public wxPanel
         double get_lambda_validity_max();
         double get_weight();
         void layout_const();
+        void layout_custom();
         void layout_effective();
         void layout_library();
         void layout_script();

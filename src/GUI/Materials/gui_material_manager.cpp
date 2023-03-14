@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2023 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -112,7 +112,7 @@ void MaterialsManager::MaterialsManager_Controls()
 {
     wxBoxSizer *ctrl_sizer=new wxBoxSizer(wxVERTICAL);
     
-    editor=new MaterialEditor(ctrl_panel);
+    editor=new MaterialEditor(ctrl_panel,false);
     
     ctrl_sizer->Add(editor,wxSizerFlags(1).Expand());
     
@@ -203,23 +203,23 @@ void MaterialsManager::evt_menu_load()
 
 void MaterialsManager::evt_menu_new()
 {
-    wxFileName data_tmp=wxFileSelector("Please create a new material file",
-                                       wxString(PathManager::user_profile_materials.generic_string()),
-                                       "temporary_material",
-                                       ".lua",
-                                       "Lua script (*.lua)|*.lua",
-                                       wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
-                                       
-    if(data_tmp.IsOk()==false) return;
-    
-    std::filesystem::path new_path=data_tmp.GetFullPath().ToStdString();
+//    wxFileName data_tmp=wxFileSelector("Please create a new material file",
+//                                       wxString(PathManager::user_profile_materials.generic_string()),
+//                                       "temporary_material",
+//                                       ".lua",
+//                                       "Lua script (*.lua)|*.lua",
+//                                       wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
+//                                       
+//    if(data_tmp.IsOk()==false) return;
+//    
+//    std::filesystem::path new_path=data_tmp.GetFullPath().ToStdString();
     
     editor->reset();
     
-    editor->material.script_path=new_path;
+    editor->material.script_path.clear();
     editor->material.write_lua_script();
     
-    material_path->set_value(new_path.generic_string());
+    material_path->set_value("");
 }
 
 void MaterialsManager::evt_menu_save()
