@@ -28,6 +28,7 @@ class MaterialEditor: public wxPanel
         Material material;
         bool read_only_material;
         
+        NamedTextCtrl<std::string> *name;
         wxTextCtrl *description;
         WavelengthSelector *validity_min,*validity_max;
         

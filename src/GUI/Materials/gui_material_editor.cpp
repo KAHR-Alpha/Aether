@@ -22,68 +22,6 @@ limitations under the License.*/
 
 extern const Imdouble Im;
 
-class MaterialsLibDialog: public wxDialog
-{
-    public:
-        bool selection_ok;
-        Material material;
-        wxChoice *choice;
-        
-        MaterialsLibDialog()
-            :wxDialog(nullptr,wxID_ANY,"Select a material",
-                      wxGetApp().default_dialog_origin()),
-             selection_ok(false)
-        {
-            wxBoxSizer *sizer=new wxBoxSizer(wxVERTICAL);
-            
-            // Choice
-            
-            choice=new wxChoice(this,wxID_ANY);
-            
-            int Nmat=MaterialsLib::get_N_materials();
-            
-            for(int i=0;i<Nmat;i++)
-                choice->Append(MaterialsLib::get_material_name(i).generic_string());
-            
-            if(Nmat>0) choice->SetSelection(0);
-            
-            sizer->Add(choice,wxSizerFlags().Expand().Border(wxALL,2));
-            
-            // Buttons
-            
-            wxBoxSizer *btn_sizer=new wxBoxSizer(wxHORIZONTAL);
-            
-            wxButton *ok_btn=new wxButton(this,wxID_ANY,"Ok");
-            wxButton *cancel_btn=new wxButton(this,wxID_ANY,"Cancel");
-            
-            ok_btn->Bind(wxEVT_BUTTON,&MaterialsLibDialog::evt_ok,this);
-            cancel_btn->Bind(wxEVT_BUTTON,&MaterialsLibDialog::evt_cancel,this);
-            
-            btn_sizer->Add(new wxPanel(this),wxSizerFlags(1).Expand());
-            btn_sizer->Add(ok_btn);
-            btn_sizer->Add(cancel_btn);
-            
-            sizer->Add(btn_sizer,wxSizerFlags().Expand().Border(wxALL,2));
-            
-            SetSizerAndFit(sizer);
-        }
-        
-        void evt_cancel(wxCommandEvent &event)
-        {
-            Close();
-        }
-        
-        void evt_ok(wxCommandEvent &event)
-        {
-            selection_ok=true;
-            
-            int selection=choice->GetSelection();
-            
-            material=*(MaterialsLib::get_material(selection));
-            Close();
-        }
-};
-
 //####################
 //   MaterialEditor
 //####################
@@ -361,7 +299,6 @@ void MaterialEditor::load()
     if(dialog.choice==0)
     {
         MaterialsLibDialog dialog;
-        dialog.ShowModal();
         
         if(dialog.selection_ok)
         {

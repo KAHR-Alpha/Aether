@@ -314,7 +314,7 @@ MiniMaterialSelector::MiniMaterialSelector(wxWindow *parent,
                                            Material const &material_,
                                            std::string const &name)
     :wxPanel(parent),
-     mat_type(GUI_MAT_REAL_N)
+     mat_type(MatType::REAL_N)
 {
     material.set_const_n(1.0);
     
@@ -354,8 +354,8 @@ MiniMaterialSelector::MiniMaterialSelector(wxWindow *parent,
     {
         unsigned int n;
         
-        if(MaterialsLib::knows_material(n,material)==nullptr) mat_type=GUI_MAT_SCRIPT;
-        else mat_type=GUI_MAT_LIBRARY;
+        if(MaterialsLib::knows_material(n,material)==nullptr) mat_type=MatType::SCRIPT;
+        else mat_type=MatType::LIBRARY;
         
         mat_name->SetValue(material.script_path.generic_string());
     }
@@ -365,7 +365,7 @@ MiniMaterialSelector::MiniMaterialSelector(wxWindow *parent,
                                            std::string const &name,
                                            std::filesystem::path const &script_)
     :wxPanel(parent),
-     mat_type(GUI_MAT_REAL_N)
+     mat_type(MatType::REAL_N)
 {
     material.set_const_n(1.0);
     
@@ -407,8 +407,8 @@ MiniMaterialSelector::MiniMaterialSelector(wxWindow *parent,
         {
             unsigned int n;
             
-            if(MaterialsLib::knows_material(n,material)==nullptr) mat_type=GUI_MAT_SCRIPT;
-            else mat_type=GUI_MAT_LIBRARY;
+            if(MaterialsLib::knows_material(n,material)==nullptr) mat_type=MatType::SCRIPT;
+            else mat_type=MatType::LIBRARY;
             
             mat_name->SetValue(script_.filename().generic_string());
         }
@@ -497,8 +497,8 @@ void MiniMaterialSelector::set_material(std::filesystem::path const &script_fnam
     {
         unsigned int n;
         
-        if(MaterialsLib::knows_material(n,material)==nullptr) mat_type=GUI_MAT_SCRIPT;
-        else mat_type=GUI_MAT_LIBRARY;
+        if(MaterialsLib::knows_material(n,material)==nullptr) mat_type=MatType::SCRIPT;
+        else mat_type=MatType::LIBRARY;
         
         mat_name->SetValue(script_fname.filename().generic_string());
     }
@@ -508,33 +508,39 @@ void MiniMaterialSelector::set_material(std::filesystem::path const &script_fnam
 
 void MiniMaterialSelector::update_label()
 {
-         if(mat_type==GUI_MAT_REAL_N)
+         if(mat_type==MatType::REAL_N)
     {
         mat_txt->Hide();
         mat_bmp->Show();
         mat_bmp->SetBitmap(ImagesManager::get_bitmap(PathManager::locate_resource("resources/n_16.png").generic_string()));
     }
-    else if(mat_type==GUI_MAT_REAL_EPS)
+    else if(mat_type==MatType::REAL_EPS)
     {
         mat_txt->Hide();
         mat_bmp->Show();
         mat_bmp->SetBitmap(ImagesManager::get_bitmap(PathManager::locate_resource("resources/varepsilon_16.png").generic_string()));
     }
-    else if(mat_type==GUI_MAT_LIBRARY)
+    else if(mat_type==MatType::LIBRARY)
     {
         mat_txt->SetLabel("Lib");
         mat_txt->Show();
         mat_bmp->Hide();
     }
-    else if(mat_type==GUI_MAT_SCRIPT)
+    else if(mat_type==MatType::SCRIPT)
     {
         mat_txt->SetLabel("Scr");
         mat_txt->Show();
         mat_bmp->Hide();
     }
-    else if(mat_type==GUI_MAT_EFFECTIVE)
+    else if(mat_type==MatType::EFFECTIVE)
     {
         mat_txt->SetLabel("Eff");
+        mat_txt->Show();
+        mat_bmp->Hide();
+    }
+    else if(mat_type==MatType::CUSTOM)
+    {
+        mat_txt->SetLabel("Ctm");
         mat_txt->Show();
         mat_bmp->Hide();
     }

@@ -20,14 +20,10 @@ limitations under the License.*/
 //  MaterialSelector
 //####################
 
-// - MaterialSelector constructor/destructor
-
-bool default_material_validator(Material *material) { return true; }
-
 MaterialSelector::MaterialSelector(wxWindow *parent,std::string name,bool no_box,
                                    bool (*validator)(Material*))
     :wxPanel(parent),
-     mat_type(GUI_MAT_LIBRARY),
+     mat_type(MatType::LIBRARY),
      const_index(1.0),
      weight(1.0),
      eff_mat_1_selector(nullptr),
@@ -44,27 +40,21 @@ MaterialSelector::MaterialSelector(wxWindow *parent,std::string name,bool no_box
     mat_type_ctrl=new wxChoice(this,wxID_ANY,wxDefaultPosition,wxDefaultSize,6,choices);
     mat_type_ctrl->SetSelection(0);
     
-    MaterialSelector_LibraryList(this);
     MaterialSelector_EffPanel(this);
     MaterialSelector_CustomPanel(this);
     
     mat_txt=new wxTextCtrl(this,wxID_ANY,"1.0",wxDefaultPosition,wxDefaultSize,wxTE_PROCESS_ENTER);
     load_btn=new wxButton(this,wxID_ANY,"Load");
-    add_lib_btn=new wxButton(this,wxID_ANY,"Add to library");
     inspect_btn=new wxButton(this,wxID_ANY,"Inspect");
     
     sizer->Add(mat_type_ctrl);
-    sizer->Add(library_list_ctrl,wxSizerFlags(1));
     sizer->Add(mat_txt,wxSizerFlags(1));
     sizer->Add(eff_panel,wxSizerFlags(1));
     sizer->Add(custom_editor,wxSizerFlags(1));
     sizer->Add(load_btn,wxSizerFlags().Expand());
-    sizer->Add(add_lib_btn,wxSizerFlags().Expand());
     sizer->Add(inspect_btn,wxSizerFlags().Expand());
     
-    add_lib_btn->Bind(wxEVT_BUTTON,&MaterialSelector::evt_add_to_library,this);
     inspect_btn->Bind(wxEVT_BUTTON,&MaterialSelector::evt_inspect,this);
-    library_list_ctrl->Bind(wxEVT_CHOICE,&MaterialSelector::evt_mat_list,this);
     load_btn->Bind(wxEVT_BUTTON,&MaterialSelector::evt_load,this);
     mat_txt->Bind(wxEVT_TEXT_ENTER,&MaterialSelector::const_index_event,this);
     mat_txt->Bind(wxEVT_KILL_FOCUS,&MaterialSelector::evt_const_index_focus,this);
@@ -73,14 +63,12 @@ MaterialSelector::MaterialSelector(wxWindow *parent,std::string name,bool no_box
     layout_library();
     
     SetSizer(sizer);
-    
-    MaterialsLib::register_material_selector(this);
 }
 
 MaterialSelector::MaterialSelector(wxWindow *parent,std::string name,bool no_box,Material const &material,
                                    bool (*validator)(Material*))
     :wxPanel(parent),
-     mat_type(GUI_MAT_LIBRARY),
+     mat_type(MatType::LIBRARY),
      const_index(1.0),
      weight(1.0),
      eff_mat_1_selector(nullptr),
@@ -97,27 +85,21 @@ MaterialSelector::MaterialSelector(wxWindow *parent,std::string name,bool no_box
     mat_type_ctrl=new wxChoice(this,wxID_ANY,wxDefaultPosition,wxDefaultSize,6,choices);
     mat_type_ctrl->SetSelection(0);
     
-    MaterialSelector_LibraryList(this);
     MaterialSelector_EffPanel(this);
     MaterialSelector_CustomPanel(this);
     
     mat_txt=new wxTextCtrl(this,wxID_ANY,"1.0",wxDefaultPosition,wxDefaultSize,wxTE_PROCESS_ENTER);
     load_btn=new wxButton(this,wxID_ANY,"Load");
-    add_lib_btn=new wxButton(this,wxID_ANY,"Add to library");
     inspect_btn=new wxButton(this,wxID_ANY,"Inspect");
     
     sizer->Add(mat_type_ctrl);
-    sizer->Add(library_list_ctrl,wxSizerFlags(1));
     sizer->Add(mat_txt,wxSizerFlags(1));
     sizer->Add(eff_panel,wxSizerFlags(1));
     sizer->Add(custom_editor,wxSizerFlags(1));
     sizer->Add(load_btn,wxSizerFlags().Expand());
-    sizer->Add(add_lib_btn,wxSizerFlags().Expand());
     sizer->Add(inspect_btn,wxSizerFlags().Expand());
     
-    add_lib_btn->Bind(wxEVT_BUTTON,&MaterialSelector::evt_add_to_library,this);
     inspect_btn->Bind(wxEVT_BUTTON,&MaterialSelector::evt_inspect,this);
-    library_list_ctrl->Bind(wxEVT_CHOICE,&MaterialSelector::evt_mat_list,this);
     load_btn->Bind(wxEVT_BUTTON,&MaterialSelector::evt_load,this);
     mat_txt->Bind(wxEVT_TEXT_ENTER,&MaterialSelector::const_index_event,this);
     mat_txt->Bind(wxEVT_KILL_FOCUS,&MaterialSelector::evt_const_index_focus,this);
@@ -128,7 +110,7 @@ MaterialSelector::MaterialSelector(wxWindow *parent,std::string name,bool no_box
     
     if(material.is_effective_material)
     {
-        mat_type=GUI_MAT_EFFECTIVE;
+        mat_type=MatType::EFFECTIVE;
         
         allocate_effective_materials(*(material.eff_mat_1),*(material.eff_mat_2));
         
@@ -159,29 +141,25 @@ MaterialSelector::MaterialSelector(wxWindow *parent,std::string name,bool no_box
             
             if(pm==nullptr)
             {
-                mat_type=GUI_MAT_SCRIPT;
+                mat_type=MatType::SCRIPT;
                 mat_type_ctrl->SetSelection(2);
                 
                 script_model=material;
                 script=material.script_path;
                 
                 mat_txt->ChangeValue(wxString(script.generic_string()));
-                layout_script();
+                //layout_script();
             }
             else
             {
-                mat_type=GUI_MAT_LIBRARY;
+                mat_type=MatType::LIBRARY;
                 mat_type_ctrl->SetSelection(0);
-                library_list_ctrl->SetSelection(l);
-                set_library_model(MaterialsLib::get_material(l));
                 layout_library();
             }
         }
     }
     
     SetSizer(sizer);
-    
-    MaterialsLib::register_material_selector(this);
 }
 
 void MaterialSelector::MaterialSelector_EffPanel(wxWindow *parent)
@@ -213,27 +191,6 @@ void MaterialSelector::MaterialSelector_EffPanel(wxWindow *parent)
     sizer->Add(eff_weight,wxSizerFlags().Align(wxALIGN_CENTER_VERTICAL));
 }
 
-void MaterialSelector::MaterialSelector_LibraryList(wxWindow *parent)
-{
-    int Nmat=MaterialsLib::get_N_materials();
-    
-    library_list_ctrl=new wxChoice(parent,wxID_ANY,wxDefaultPosition,wxDefaultSize);
-    
-    for(int i=0;i<Nmat;i++)
-    {
-        Material *tmp_material=MaterialsLib::get_material(i);
-        
-        if(accept_material(tmp_material))
-        {
-            library_list_ctrl->Append(MaterialsLib::get_material_name(i).generic_string(),
-                                      reinterpret_cast<void*>(tmp_material));
-        }
-    }
-    
-    library_list_ctrl->SetSelection(0);
-    set_library_model(reinterpret_cast<Material*>(library_list_ctrl->GetClientData(0)));
-}
-
 void MaterialSelector::MaterialSelector_CustomPanel(wxWindow *parent)
 {
     custom_editor=new MaterialEditor(parent,true);
@@ -242,7 +199,6 @@ void MaterialSelector::MaterialSelector_CustomPanel(wxWindow *parent)
 
 MaterialSelector::~MaterialSelector()
 {
-    MaterialsLib::remove_material_selector(this);
 }
 
 // - MaterialSelector member functions
@@ -292,8 +248,8 @@ void MaterialSelector::allocate_effective_materials(Material const &eff_mat_1_,
 
 void MaterialSelector::const_index_event(wxCommandEvent &event)
 {
-         if(mat_type==GUI_MAT_REAL_N) textctrl_to_T(mat_txt,const_index);
-    else if(mat_type==GUI_MAT_REAL_EPS)
+         if(mat_type==MatType::REAL_N) textctrl_to_T(mat_txt,const_index);
+    else if(mat_type==MatType::REAL_EPS)
     {
         double tmp=1.0;
         textctrl_to_T(mat_txt,tmp);
@@ -310,20 +266,10 @@ void MaterialSelector::const_index_event(wxCommandEvent &event)
     throw_event();
 }
 
-void MaterialSelector::evt_add_to_library(wxCommandEvent &event)
-{
-    if(MaterialsLib::has_manager())
-    {
-        wxMessageBox("This function is disabled while the Materials Editor is open");
-        return;
-    }
-    MaterialsLib::add_material(script);
-}
-
 void MaterialSelector::evt_const_index_focus(wxFocusEvent &event)
 {
-         if(mat_type==GUI_MAT_REAL_N) textctrl_to_T(mat_txt,const_index);
-    else if(mat_type==GUI_MAT_REAL_EPS)
+         if(mat_type==MatType::REAL_N) textctrl_to_T(mat_txt,const_index);
+    else if(mat_type==MatType::REAL_EPS)
     {
         double tmp=1.0;
         textctrl_to_T(mat_txt,tmp);
@@ -422,28 +368,18 @@ void MaterialSelector::evt_load(wxCommandEvent &event)
     throw_event();
 }
 
-void MaterialSelector::evt_mat_list(wxCommandEvent &event)
-{
-    int selection_index=library_list_ctrl->GetSelection();
-    Material *material=reinterpret_cast<Material*>(library_list_ctrl->GetClientData(selection_index));
-    
-    set_library_model(material);
-    
-    throw_event();
-}
-
 void MaterialSelector::evt_mat_type(wxCommandEvent &event)
 {
     int selection=mat_type_ctrl->GetSelection();
     
-         if(selection==0) mat_type=GUI_MAT_LIBRARY;
-    else if(selection==1) mat_type=GUI_MAT_REAL_N;
-    else if(selection==2) mat_type=GUI_MAT_SCRIPT;
-    else if(selection==3) mat_type=GUI_MAT_REAL_EPS;
-    else if(selection==4) mat_type=GUI_MAT_EFFECTIVE;
-    else if(selection==5) mat_type=GUI_MAT_CUSTOM;
+         if(selection==0) mat_type=MatType::LIBRARY;
+    else if(selection==1) mat_type=MatType::REAL_N;
+    else if(selection==2) mat_type=MatType::SCRIPT;
+    else if(selection==3) mat_type=MatType::REAL_EPS;
+    else if(selection==4) mat_type=MatType::EFFECTIVE;
+    else if(selection==5) mat_type=MatType::CUSTOM;
     
-    if(mat_type==GUI_MAT_REAL_N)
+    if(mat_type==MatType::REAL_N)
     {
         layout_const();
         
@@ -451,7 +387,7 @@ void MaterialSelector::evt_mat_type(wxCommandEvent &event)
         strm<<const_index;
         mat_txt->SetValue(strm.str());
     }
-    else if(mat_type==GUI_MAT_REAL_EPS)
+    else if(mat_type==MatType::REAL_EPS)
     {
         layout_const();
         
@@ -459,14 +395,14 @@ void MaterialSelector::evt_mat_type(wxCommandEvent &event)
         strm<<const_index*const_index;
         mat_txt->SetValue(strm.str());
     }
-    else if(mat_type==GUI_MAT_LIBRARY) layout_library();
-    else if(mat_type==GUI_MAT_SCRIPT) layout_script();
-    else if(mat_type==GUI_MAT_EFFECTIVE)
+    else if(mat_type==MatType::LIBRARY) layout_library();
+    //else if(mat_type==MatType::SCRIPT) layout_script();
+    else if(mat_type==MatType::EFFECTIVE)
     {
         allocate_effective_materials();
         layout_effective();
     }
-    else if(mat_type==GUI_MAT_CUSTOM)
+    else if(mat_type==MatType::CUSTOM)
     {
         layout_custom();
     }
@@ -476,18 +412,18 @@ void MaterialSelector::evt_mat_type(wxCommandEvent &event)
 
 Imdouble MaterialSelector::get_eps(double w)
 {
-    if(mat_type==GUI_MAT_REAL_N || mat_type==GUI_MAT_REAL_EPS) return const_index*const_index;
-    else if(mat_type==GUI_MAT_LIBRARY)
+    if(mat_type==MatType::REAL_N || mat_type==MatType::REAL_EPS) return const_index*const_index;
+    else if(mat_type==MatType::LIBRARY)
     {
         return library_model.get_eps(w);
     }
-    else if(mat_type==GUI_MAT_SCRIPT)
+    else if(mat_type==MatType::SCRIPT)
     {
         if(script.empty()) return 1.0;
         
         return script_model.get_eps(w);
     }
-    else if(mat_type==GUI_MAT_EFFECTIVE)
+    else if(mat_type==MatType::EFFECTIVE)
     {
         return eff_material.get_eps(w);
     }
@@ -499,8 +435,8 @@ double MaterialSelector::get_lambda_validity_min()
 {
     double lambda_min=400e-9;
     
-    if(mat_type==GUI_MAT_LIBRARY) lambda_min=library_model.lambda_valid_min;
-    else if(mat_type==GUI_MAT_SCRIPT) lambda_min=script_model.lambda_valid_min;
+    if(mat_type==MatType::LIBRARY) lambda_min=library_model.lambda_valid_min;
+    else if(mat_type==MatType::SCRIPT) lambda_min=script_model.lambda_valid_min;
     
     return lambda_min;
 }
@@ -509,25 +445,25 @@ double MaterialSelector::get_lambda_validity_max()
 {
     double lambda_max=1000e-9;
     
-    if(mat_type==GUI_MAT_LIBRARY) lambda_max=library_model.lambda_valid_max;
-    else if(mat_type==GUI_MAT_SCRIPT) lambda_max=script_model.lambda_valid_max;
+    if(mat_type==MatType::LIBRARY) lambda_max=library_model.lambda_valid_max;
+    else if(mat_type==MatType::SCRIPT) lambda_max=script_model.lambda_valid_max;
     
     return lambda_max;
 }
 
 std::string MaterialSelector::get_lua()
 {
-    if(mat_type==GUI_MAT_LIBRARY)
+    if(mat_type==MatType::LIBRARY)
     {
         std::string tmp_str;
-        std::string ref_item=library_list_ctrl->GetString(library_list_ctrl->GetSelection()).ToStdString();
-        std::ifstream file(ref_item,std::ios::in|std::ios::binary);
-        
-        std::getline(file,tmp_str,'\0');
+//        std::string ref_item=library_list_ctrl->GetString(library_list_ctrl->GetSelection()).ToStdString();
+//        std::ifstream file(ref_item,std::ios::in|std::ios::binary);
+//        
+//        std::getline(file,tmp_str,'\0');
         
         return tmp_str;
     }
-    else if(mat_type==GUI_MAT_REAL_N || mat_type==GUI_MAT_REAL_EPS)
+    else if(mat_type==MatType::REAL_N || mat_type==MatType::REAL_EPS)
     {
         std::stringstream strm;
         strm<<"set_constant()"<<std::endl;
@@ -550,11 +486,11 @@ Material MaterialSelector::get_material()
 {
     Material out;
     
-         if(mat_type==GUI_MAT_REAL_N) out.set_const_n(const_index);
-    else if(mat_type==GUI_MAT_REAL_EPS) out.set_const_eps(const_index*const_index);
-    else if(mat_type==GUI_MAT_LIBRARY) out=library_model;
-    else if(mat_type==GUI_MAT_SCRIPT) out=script_model;
-    else if(mat_type==GUI_MAT_EFFECTIVE) out=eff_material;
+         if(mat_type==MatType::REAL_N) out.set_const_n(const_index);
+    else if(mat_type==MatType::REAL_EPS) out.set_const_eps(const_index*const_index);
+    else if(mat_type==MatType::LIBRARY) out=library_model;
+    else if(mat_type==MatType::SCRIPT) out=script_model;
+    else if(mat_type==MatType::EFFECTIVE) out=eff_material;
     
     return out;
 }
@@ -563,27 +499,27 @@ wxString MaterialSelector::get_name()
 {
     wxString out;
     
-         if(mat_type==GUI_MAT_REAL_N)
+         if(mat_type==MatType::REAL_N)
     {
         out<<const_index;
     }
-    else if(mat_type==GUI_MAT_REAL_EPS)
+    else if(mat_type==MatType::REAL_EPS)
     {
         out<<const_index*const_index;
     }
-    else if(mat_type==GUI_MAT_LIBRARY)
+    else if(mat_type==MatType::LIBRARY)
     {
         wxFileName w_script;
-        w_script.SetFullName(library_list_ctrl->GetString(library_list_ctrl->GetSelection()));
+        //w_script.SetFullName(library_list_ctrl->GetString(library_list_ctrl->GetSelection()));
         out=w_script.GetName();
     }
-    else if(mat_type==GUI_MAT_SCRIPT)
+    else if(mat_type==MatType::SCRIPT)
     {
         wxFileName w_script;
         w_script.SetFullName(wxString(script));
         out=w_script.GetName();
     }
-    else if(mat_type==GUI_MAT_EFFECTIVE)
+    else if(mat_type==MatType::EFFECTIVE)
     {
         wxString w_script_1,w_script_2;
         
@@ -613,24 +549,24 @@ wxString MaterialSelector::get_title()
     wxString out;
     std::stringstream strm;
     
-         if(mat_type==GUI_MAT_REAL_N)
+         if(mat_type==MatType::REAL_N)
     {
         strm<<const_index;
         out="Const refractive index: ";
         out.Append(strm.str());
     }
-    else if(mat_type==GUI_MAT_REAL_EPS)
+    else if(mat_type==MatType::REAL_EPS)
     {
         strm<<const_index*const_index;
         out="Const permittivity: ";
         out.Append(strm.str());
     }
-    else if(mat_type==GUI_MAT_LIBRARY)
+    else if(mat_type==MatType::LIBRARY)
     {
         out="Library material: ";
-        out.Append(library_list_ctrl->GetString(library_list_ctrl->GetSelection()));
+        //out.Append(library_list_ctrl->GetString(library_list_ctrl->GetSelection()));
     }
-    else if(mat_type==GUI_MAT_SCRIPT)
+    else if(mat_type==MatType::SCRIPT)
     {
         out="Script: ";
         out.Append(mat_txt->GetValue());
@@ -639,7 +575,7 @@ wxString MaterialSelector::get_title()
     return out;
 }
 
-int MaterialSelector::get_type() { return mat_type; }
+MatType MaterialSelector::get_type() { return mat_type; }
 
 double MaterialSelector::get_weight() { return weight; }
 
@@ -648,10 +584,7 @@ void MaterialSelector::layout_const()
     mat_txt->Enable();
     mat_txt->Show();
     
-    library_list_ctrl->Hide();
-    
     load_btn->Hide();
-    add_lib_btn->Hide();
     inspect_btn->Hide();
     
     eff_panel->Hide();
@@ -665,10 +598,7 @@ void MaterialSelector::layout_custom()
 {
     mat_txt->Hide();
     
-    library_list_ctrl->Hide();
-    
     load_btn->Hide();
-    add_lib_btn->Hide();
     inspect_btn->Hide();
     
     eff_panel->Hide();
@@ -681,10 +611,8 @@ void MaterialSelector::layout_custom()
 void MaterialSelector::layout_effective()
 {
     mat_txt->Hide();
-    library_list_ctrl->Hide();
     
     load_btn->Hide();
-    add_lib_btn->Hide();
     inspect_btn->Hide();
     
     mat_txt->Disable();
@@ -701,36 +629,13 @@ void MaterialSelector::layout_effective()
 void MaterialSelector::layout_library()
 {
     mat_txt->Hide();
-    library_list_ctrl->Show();
     
     load_btn->Hide();
-    add_lib_btn->Hide();
     inspect_btn->Show();
     
-    mat_txt->Disable();
-    load_btn->Disable();
-    inspect_btn->Enable();
-    
-    eff_panel->Hide();
-    
-    custom_editor->Hide();
-    
-    Layout();
-}
-
-void MaterialSelector::layout_script()
-{
     mat_txt->Show();
-    library_list_ctrl->Hide();
-    
     load_btn->Show();
-    add_lib_btn->Show();
     inspect_btn->Show();
-    
-    mat_txt->SetValue(script.generic_string());
-    mat_txt->Disable();
-    load_btn->Enable();
-    inspect_btn->Enable();
     
     eff_panel->Hide();
     
@@ -741,7 +646,7 @@ void MaterialSelector::layout_script()
 
 void MaterialSelector::set_const_model(double n)
 {
-    mat_type=GUI_MAT_REAL_N;
+    mat_type=MatType::REAL_N;
     
     const_index=n;
     mat_type_ctrl->SetSelection(1);
@@ -750,16 +655,8 @@ void MaterialSelector::set_const_model(double n)
     mat_txt->ChangeValue(std::to_string(const_index));
 }
 
-void MaterialSelector::set_library_model(Material *material)
-{
-    if(material!=nullptr) library_model=*material;
-    else library_model.reset();
-}
-
 void MaterialSelector::operator = (MaterialSelector const &selector)
 {
-    update_library_list();
-    
     mat_type=selector.mat_type;
     const_index=selector.const_index;
     weight=selector.weight;
@@ -770,51 +667,18 @@ void MaterialSelector::operator = (MaterialSelector const &selector)
     library_model=selector.library_model;
     
     mat_type_ctrl->SetSelection(selector.mat_type_ctrl->GetSelection());
-    library_list_ctrl->SetSelection(selector.library_list_ctrl->GetSelection());
     
     mat_txt->SetValue(selector.mat_txt->GetValue());
     
-         if(mat_type==GUI_MAT_REAL_N || mat_type==GUI_MAT_REAL_EPS) layout_const();
-    else if(mat_type==GUI_MAT_LIBRARY) layout_library();
-    else if(mat_type==GUI_MAT_SCRIPT) layout_script();
+         if(mat_type==MatType::REAL_N || mat_type==MatType::REAL_EPS) layout_const();
+    else if(mat_type==MatType::LIBRARY) layout_library();
+    //else if(mat_type==MatType::SCRIPT) layout_script();
 }
-
 
 void MaterialSelector::throw_event()
 {
     wxCommandEvent event(EVT_MAT_SELECTOR);
     wxPostEvent(this,event);
-}
-
-void MaterialSelector::update_library_list()
-{
-    unsigned int current_selection=library_list_ctrl->GetSelection();
-    std::filesystem::path ref_item=MaterialsLib::get_material_name(current_selection);
-    
-    int ref_index=0,N_append=0;
-    int Nmat=MaterialsLib::get_N_materials();
-    
-    library_list_ctrl->Clear();
-    
-    for(int i=0;i<Nmat;i++)
-    {
-        std::filesystem::path tmp=MaterialsLib::get_material_name(i);
-        Material *material=MaterialsLib::get_material(i);
-        
-        if(accept_material(material))
-        {
-            library_list_ctrl->Append(tmp.generic_string(),reinterpret_cast<void*>(material));
-        
-            if(std::filesystem::equivalent(ref_item,tmp)) ref_index=N_append;
-            
-            N_append++;
-        }
-    }
-    
-    library_list_ctrl->SetSelection(ref_index);
-    set_library_model(reinterpret_cast<Material*>(library_list_ctrl->GetClientData(ref_index)));
-    
-    throw_event();
 }
 
 //void MaterialSelector::weight_change_event(wxCommandEvent &event)
