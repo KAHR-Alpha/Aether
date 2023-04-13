@@ -53,6 +53,7 @@ class MaterialsLib
         
         static bool has_manager();
         static void load_material(std::filesystem::path const &fname,MatType type);
+        static void write_user_lib();
         static void reorder_materials();
     public:
         static void add_material(std::filesystem::path const &fname);

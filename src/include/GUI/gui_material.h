@@ -35,7 +35,8 @@ class MaterialSelector: public wxPanel
         double const_index,weight;
         std::filesystem::path script;
         
-        Material script_model,library_model;
+        Material library_model;
+        [[deprecated]] Material script_model;
         
         wxChoice *mat_type_ctrl;
         wxButton *load_btn;
@@ -62,7 +63,7 @@ class MaterialSelector: public wxPanel
         
         MaterialSelector(wxWindow *parent,std::string name,bool no_box=false,
                          bool (*validator)(Material*)=&default_material_validator);
-        MaterialSelector(wxWindow *parent,std::string name,bool no_box,Material const &material,
+        [[deprecated]] MaterialSelector(wxWindow *parent,std::string name,bool no_box,Material const &material,
                          bool (*validator)(Material*)=&default_material_validator);
         void MaterialSelector_EffPanel(wxWindow *parent);
         void MaterialSelector_CustomPanel(wxWindow *parent);
@@ -195,34 +196,6 @@ class MaterialsManager: public BaseFrame
         void evt_spectrum_selector(wxCommandEvent &event);
 //        void export_event(wxCommandEvent &event);
         void recompute_model();
-};
-
-class MaterialsListSub: public PanelsListBase
-{
-    public:
-        MaterialSelector *material;
-        
-        MaterialsListSub(wxWindow *parent);
-        MaterialsListSub(wxWindow *parent,Material const &material);
-};
-
-class MaterialsListDialog: public wxDialog
-{
-    public:
-        bool list_changed;
-        std::vector<Material> *materials;
-        
-        wxScrolledWindow *mats_panel;
-        PanelsList<> *materials_list;
-        
-        MaterialsListDialog(std::vector<Material> &materials);
-        ~MaterialsListDialog();
-        
-        void evt_delete_material(wxCommandEvent &event);
-        void evt_new_material(wxCommandEvent &event);
-        void evt_material(wxCommandEvent &event);
-        void evt_materials_reorder(wxCommandEvent &event);
-        void materials_renumber();
 };
 
 #endif // GUI_MATERIAL_H_INCLUDED

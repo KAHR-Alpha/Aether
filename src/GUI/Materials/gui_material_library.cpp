@@ -126,7 +126,7 @@ void MaterialsLibDialog::evt_ok(wxCommandEvent &event)
     if(data!=nullptr)
     {
         selection_ok=true;
-        //material=*(data->material);
+        material=data->data->material;
     }
 
     Close();
@@ -175,18 +175,15 @@ void MaterialsLib::add_material(std::filesystem::path const &fname)
 {
     load_material(fname,MatType::USER_LIBRARY);
     
-    std::ofstream file(PathManager::to_userprofile_path("materials_library"),std::ios::out|std::ios::trunc);
-    
-    for(std::size_t i=0;i<data.size();i++)
-    {
-        if(data[i]->type==MatType::USER_LIBRARY) file<<data[i]->path.generic_string()<<std::endl;
-    }
+    write_user_lib();
 }
 
 void MaterialsLib::add_to_library(MaterialData *data_)
 {
     if(data_->type==MatType::SCRIPT)
         data_->type=MatType::USER_LIBRARY;
+    
+    write_user_lib();
 }
 
 void MaterialsLib::forget_manager() { manager=nullptr; }
@@ -247,7 +244,7 @@ void MaterialsLib::initialize()
     
     // User Library
     
-    std::ifstream file(PathManager::to_userprofile_path("materials_library"),std::ios::in);
+    std::ifstream file(PathManager::to_userprofile_path("user_materials_library"),std::ios::in);
     
     if(!file.is_open())
     {
@@ -348,5 +345,15 @@ void MaterialsLib::reorder_materials()
         {
             if(data[j]->path<data[i]->path) std::swap(data[i],data[j]);
         }
+    }
+}
+
+void MaterialsLib::write_user_lib()
+{
+    std::ofstream file(PathManager::to_userprofile_path("user_materials_library"),std::ios::out|std::ios::trunc);
+    
+    for(std::size_t i=0;i<data.size();i++)
+    {
+        if(data[i]->type==MatType::USER_LIBRARY) file<<data[i]->path.generic_string()<<std::endl;
     }
 }
