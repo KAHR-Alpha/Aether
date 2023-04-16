@@ -138,9 +138,9 @@ void MaterialExplorer::export_event(wxCommandEvent &event)
     }
     else
     {
-        Material mat=mat_selector->get_material();
+        GUI::Material *mat=mat_selector->get_material();
         
-        file<<mat.get_matlab(data_tmp.GetFullPath().ToStdString());
+        file<<mat->get_matlab(data_tmp.GetFullPath().ToStdString());
     }
 }
 
@@ -222,13 +222,13 @@ class MMS_Dialog:public wxDialog
     public:
         bool selection_ok;
         MaterialSelector *selector;
-        Material material;
+        GUI::Material material;
         
         wxButton *ok_btn;
         wxPanel *container_panel;
         wxScrolledWindow *selector_panel;
         
-        MMS_Dialog(Material const &material)
+        MMS_Dialog(GUI::Material *material)
             :wxDialog(0,wxID_ANY,"Select the material",
                       wxGetApp().default_dialog_origin(),wxDefaultSize),
              selection_ok(false)
@@ -304,14 +304,14 @@ class MMS_Dialog:public wxDialog
         void evt_ok(wxCommandEvent &event)
         {
             selection_ok=true;
-            material=selector->get_material();
+            material=*(selector->get_material());
             
             Close();
         }
 };
 
 MiniMaterialSelector::MiniMaterialSelector(wxWindow *parent,
-                                           Material const &material_,
+                                           GUI::Material *material_,
                                            std::string const &name)
     :wxPanel(parent),
      mat_type(MatType::REAL_N)
@@ -344,7 +344,8 @@ MiniMaterialSelector::MiniMaterialSelector(wxWindow *parent,
     
     edit_btn->Bind(wxEVT_BUTTON,&MiniMaterialSelector::evt_edit,this);
     
-    material=material_;
+    // TODO
+    //material=material_;
         
     if(material.is_const())
     {
@@ -428,7 +429,7 @@ void MiniMaterialSelector::copy_material(MiniMaterialSelector *mat_)
 
 void MiniMaterialSelector::evt_edit(wxCommandEvent &event)
 {
-    MMS_Dialog dialog(material);
+    MMS_Dialog dialog(&material);
     
     if(dialog.selection_ok)
     {
@@ -483,7 +484,8 @@ wxString MiniMaterialSelector::get_lua()
 
 Imdouble MiniMaterialSelector::get_n(double w) { return material.get_n(w); }
 
-Material& MiniMaterialSelector::get_material() { return material; }
+// TODO
+GUI::Material& MiniMaterialSelector::get_material() { return material; }
 
 void MiniMaterialSelector::set_material(std::filesystem::path const &script_fname)
 {
@@ -508,6 +510,8 @@ void MiniMaterialSelector::set_material(std::filesystem::path const &script_fnam
 
 void MiniMaterialSelector::update_label()
 {
+    // TODO
+    /*
          if(mat_type==MatType::REAL_N)
     {
         mat_txt->Hide();
@@ -543,7 +547,7 @@ void MiniMaterialSelector::update_label()
         mat_txt->SetLabel("Ctm");
         mat_txt->Show();
         mat_bmp->Hide();
-    }
+    }*/
     
     Layout();
 }

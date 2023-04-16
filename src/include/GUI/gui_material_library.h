@@ -8,22 +8,20 @@ enum class MatType
 {
     EFFECTIVE,
     REAL_N,
-    COMPLEX_N,
-    REAL_EPS,
-    COMPLEX_EPS,
-    SCRIPT,
     LIBRARY,
+    SCRIPT,
     USER_LIBRARY,
     CUSTOM
 };
 
-class MaterialData
+namespace GUI
+{
+class Material: public ::Material
 {
     public:
-        Material material;
         MatType type;
-        std::filesystem::path path;
 };
+}
 
 bool default_material_validator(Material *material);
 
@@ -31,7 +29,7 @@ class MaterialsLibDialog: public wxDialog
 {
     public:
         bool selection_ok;
-        Material material;
+        GUI::Material material;
         wxTreeCtrl *materials;
         
         bool (*accept_material)(Material*); // Validator
@@ -49,7 +47,7 @@ class MaterialsLib
 {
     private:
         static MaterialsManager *manager;
-        static std::vector<MaterialData*> data;
+        static std::vector<GUI::Material*> data;
         
         static bool has_manager();
         static void load_material(std::filesystem::path const &fname,MatType type);
@@ -57,10 +55,10 @@ class MaterialsLib
         static void reorder_materials();
     public:
         static void add_material(std::filesystem::path const &fname);
-        static void add_to_library(MaterialData *data);
+        static void add_to_library(GUI::Material *data);
         static void forget_manager();
         static MaterialsManager* get_manager();
-        static MaterialData* get_material_data(unsigned int n);
+        static GUI::Material* get_material_data(unsigned int n);
         static std::filesystem::path get_material_name(unsigned int n);
         static MatType get_material_type(unsigned int n);
         static std::size_t get_N_materials();
@@ -68,6 +66,7 @@ class MaterialsLib
         static Material* knows_material(unsigned int &n,Material const &material,
                                         bool (*validator)(Material*)=&default_material_validator);
         static void load_script(std::filesystem::path const &path);
+        [[nodiscard]] static GUI::Material* request_material(MatType type);
 };
 
 #endif // GUI_MATERIAL_LIBRARY_H_INCLUDED

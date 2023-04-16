@@ -32,7 +32,8 @@ MaterialPanel::MaterialPanel(wxWindow *parent,
     title->Hide();
     
     name=new NamedTextCtrl<std::string>(this,"Name : ",material.name);
-    selector=new MaterialSelector(this,"",true,material);
+    // TODO
+    //selector=new MaterialSelector(this,"",true,material);
     
     sizer->Add(name);
     sizer->Add(selector,wxSizerFlags().Expand());
@@ -151,7 +152,8 @@ void MaterialsDialog::evt_ok(wxCommandEvent &event)
         if(original_materials[i]==nullptr) materials[i]=new Material;
         else materials[i]=original_materials[i];
         
-        *materials[i]=panels[i]->selector->get_material();
+        // TODO
+        //*materials[i]=panels[i]->selector->get_material();
         materials[i]->name=panels[i]->name->get_value();
     }
     
@@ -224,8 +226,9 @@ IRF_Panel::IRF_Panel(wxWindow *parent,Sel::IRF const &irf)
     
     layers=new PanelsList<LayerPanel>(multilayer_panel);
     
-    for(std::size_t i=0;i<irf.ml_heights.size();i++)
-        layers->add_panel<LayerPanel>(irf.ml_heights[i],0,irf.ml_materials[i],false);
+    //TODO
+    /*for(std::size_t i=0;i<irf.ml_heights.size();i++)
+        layers->add_panel<LayerPanel>(irf.ml_heights[i],0,irf.ml_materials[i],false);*/
     
     wxButton *add_layer_btn=new wxButton(multilayer_panel,wxID_ANY,"Add Layer");
     add_layer_btn->Bind(wxEVT_BUTTON,&IRF_Panel::evt_add_layer,this);

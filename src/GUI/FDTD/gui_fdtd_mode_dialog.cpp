@@ -29,17 +29,19 @@ class FDTD_Material_Panel: public PanelsListBase
     public:
         MaterialSelector *material;
         
-        FDTD_Material_Panel(wxWindow *parent,Material const &material_)
+        FDTD_Material_Panel(wxWindow *parent,Material *material_)
             :PanelsListBase(parent)
         {
             set_title("Material");
             
-            material=new MaterialSelector(this,"",true,material_,&fdtd_material_validator);
+            // TODO
+            //material=new MaterialSelector(this,"",true,material_,&fdtd_material_validator);
             
             sizer->Add(material,wxSizerFlags().Expand().Border(wxALL,2));
         }
         
-        Material get_material() { return material->get_material(); }
+        // TODO
+        GUI::Material* get_material() { return material->get_material(); }
 };
 
 //#######################
@@ -488,11 +490,12 @@ void FDTD_Mode_Dialog::FDTD_Mode_Dialog_Materials(wxNotebook *book,int target_pa
     
     mats_list=new PanelsList<>(mats_panel);
     
-    for(unsigned int i=0;i<data->materials.size();i++)
+    // TODO
+    /*for(unsigned int i=0;i<data->materials.size();i++)
     {
         FDTD_Material_Panel *panel=mats_list->add_panel<FDTD_Material_Panel>((data->materials)[i]);
         panel->set_title("Material "+std::to_string(i));
-    }
+    }*/
     
     wxButton *mats_add_btn=new wxButton(mats_panel,wxID_ANY,"Add Material");
     mats_add_btn->Bind(wxEVT_BUTTON,&FDTD_Mode_Dialog::evt_add_material,this);
@@ -558,7 +561,9 @@ void FDTD_Mode_Dialog::FDTD_Mode_Dialog_Structure(wxNotebook *book,int target_pa
 
 void FDTD_Mode_Dialog::evt_add_material(wxCommandEvent &event)
 {
-    Material material;
+    // TODO
+    
+    /*Material material;
     material.set_const_n(1.0);
     
     PanelsListBase *panel=mats_list->add_panel<FDTD_Material_Panel>(material);
@@ -569,7 +574,7 @@ void FDTD_Mode_Dialog::evt_add_material(wxCommandEvent &event)
     
     mats_panel->FitInside();
     
-    event.Skip();
+    event.Skip();*/
 }
 
 void FDTD_Mode_Dialog::evt_cancel(wxCommandEvent &event)
@@ -686,7 +691,8 @@ void FDTD_Mode_Dialog::evt_ok(wxCommandEvent &event)
     for(unsigned int i=0;i<N_mats;i++)
     {
         FDTD_Material_Panel *panel=dynamic_cast<FDTD_Material_Panel*>(mats_list->get_panel(i));
-        (data->materials)[i]=panel->get_material();
+        // TODO
+        //(data->materials)[i]=panel->get_material();
     }
     
     // Boundaries

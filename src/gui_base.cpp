@@ -137,8 +137,8 @@ bool Aether::OnInit()
 //    FDTD_Frame *mfr=new FDTD_Frame("Aether");
 //    FitterFrame *mfr=new FitterFrame("Aether");
 //    LayerFitter *mfr=new LayerFitter("Aether");
-//    MaterialExplorer *mfr=new MaterialExplorer("Aether");
-    MaterialsManager *mfr=new MaterialsManager("Aether");
+    MaterialExplorer *mfr=new MaterialExplorer("Aether");
+ //   MaterialsManager *mfr=new MaterialsManager("Aether");
     mfr->Maximize();
     mfr->Show(true);
     

@@ -101,7 +101,7 @@ LayerPanel::LayerPanel(wxWindow *parent,double height_,double std_dev_,Material 
     
     height_ctrl=new LengthSelector(this,"h: ",height_);
     
-    selector=new MiniMaterialSelector(this,material_,"");
+    //selector=new MiniMaterialSelector(this,material_,"");
     
     if(wavy)
     {

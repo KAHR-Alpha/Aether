@@ -24,9 +24,9 @@ bool default_material_validator(Material *material) { return true; }
 class MaterialTreeData: public wxTreeItemData
 {
     public:
-        MaterialData *data;
+        GUI::Material *material;
         
-        MaterialTreeData(MaterialData *data_) : data(data_) {}
+        MaterialTreeData(GUI::Material *material_) : material(material_) {}
 };
 
 MaterialsLibDialog::MaterialsLibDialog(bool (*validator)(Material*))
@@ -81,7 +81,7 @@ void MaterialsLibDialog::evt_add_to_lib(wxCommandEvent &event)
     
     if(tree_data!=nullptr)
     {
-        MaterialsLib::add_to_library(tree_data->data);
+        MaterialsLib::add_to_library(tree_data->material);
         rebuild_tree();
     }
 }
@@ -126,7 +126,7 @@ void MaterialsLibDialog::evt_ok(wxCommandEvent &event)
     if(data!=nullptr)
     {
         selection_ok=true;
-        material=data->data->material;
+        material=*(data->material);
     }
 
     Close();
@@ -169,7 +169,7 @@ void MaterialsLibDialog::rebuild_tree()
 //########################
 
 MaterialsManager* MaterialsLib::manager=nullptr;
-std::vector<MaterialData*> MaterialsLib::data;
+std::vector<GUI::Material*> MaterialsLib::data;
 
 void MaterialsLib::add_material(std::filesystem::path const &fname)
 {
@@ -178,7 +178,7 @@ void MaterialsLib::add_material(std::filesystem::path const &fname)
     write_user_lib();
 }
 
-void MaterialsLib::add_to_library(MaterialData *data_)
+void MaterialsLib::add_to_library(GUI::Material *data_)
 {
     if(data_->type==MatType::SCRIPT)
         data_->type=MatType::USER_LIBRARY;
@@ -198,7 +198,7 @@ MaterialsManager* MaterialsLib::get_manager()
     return manager;
 }
 
-MaterialData* MaterialsLib::get_material_data(unsigned int n)
+GUI::Material* MaterialsLib::get_material_data(unsigned int n)
 {
     if(n>=data.size()) return nullptr;
     return data[n];
@@ -207,7 +207,7 @@ MaterialData* MaterialsLib::get_material_data(unsigned int n)
 std::filesystem::path MaterialsLib::get_material_name(unsigned int n)
 {
     if(n>=data.size()) return "";
-    return data[n]->path;
+    return data[n]->script_path;
 }
 
 MatType MaterialsLib::get_material_type(unsigned int n)
@@ -269,9 +269,9 @@ Material* MaterialsLib::knows_material(unsigned int &n,Material const &material,
     
     for(std::size_t i=0;i<data.size();i++)
     {
-        if(material==data[i]->material) return &data[i]->material;
+        if(material==*(data[i])) return data[i];
         
-        if((*validator)(&data[i]->material)) n++; // Deal with lists with "holes" compared to the Mats library
+        if((*validator)(data[i])) n++; // Deal with lists with "holes" compared to the Mats library
     }
     
     return nullptr;
@@ -292,18 +292,14 @@ void MaterialsLib::load_material(std::filesystem::path const &fname,MatType type
         return;
     }
     
-    for(std::size_t i=0;i<data.size();i++) if(std::filesystem::equivalent(material_path,data[i]->path))
+    for(std::size_t i=0;i<data.size();i++) if(std::filesystem::equivalent(material_path,data[i]->script_path))
     {
         std::cout<<" ... duplicate"<<std::endl;
         return;
     }
     
-    Material new_material{material_path};
-    MaterialData *new_data=new MaterialData;
-    
-    new_data->path=material_path;
-    new_data->material=new_material;
-    new_data->type=type;
+    GUI::Material *new_data=new GUI::Material;
+    new_data->load_lua_script(material_path);
     
     data.push_back(new_data);
     
@@ -319,22 +315,28 @@ void MaterialsLib::load_script(std::filesystem::path const &path)
     }
     
     for(std::size_t i=0;i<data.size();i++)
-        if(std::filesystem::equivalent(path,data[i]->path))
+        if(std::filesystem::equivalent(path,data[i]->script_path))
         {
             wxMessageBox("Duplicate material","Error");
             return;
         }
     
-    Material new_material{path};
-    MaterialData *new_data=new MaterialData;
-    
-    new_data->path=path;
-    new_data->material=new_material;
-    new_data->type=MatType::SCRIPT;
+    GUI::Material *new_data=new GUI::Material;
+    new_data->load_lua_script(path);
     
     data.push_back(new_data);
     
     reorder_materials();
+}
+
+GUI::Material* MaterialsLib::request_material(MatType type)
+{
+    GUI::Material *new_mat=new GUI::Material;
+    new_mat->type=type;
+    
+    data.push_back(new_mat);
+    
+    return new_mat;
 }
 
 void MaterialsLib::reorder_materials()
@@ -343,7 +345,7 @@ void MaterialsLib::reorder_materials()
     {
         for(std::size_t j=i+1;j<data.size();j++)
         {
-            if(data[j]->path<data[i]->path) std::swap(data[i],data[j]);
+            if(data[j]->script_path<data[i]->script_path) std::swap(data[i],data[j]);
         }
     }
 }
@@ -354,6 +356,6 @@ void MaterialsLib::write_user_lib()
     
     for(std::size_t i=0;i<data.size();i++)
     {
-        if(data[i]->type==MatType::USER_LIBRARY) file<<data[i]->path.generic_string()<<std::endl;
+        if(data[i]->type==MatType::USER_LIBRARY) file<<data[i]->script_path.generic_string()<<std::endl;
     }
 }
