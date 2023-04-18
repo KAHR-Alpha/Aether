@@ -16,11 +16,17 @@ enum class MatType
 
 namespace GUI
 {
-class Material: public ::Material
-{
-    public:
-        MatType type;
-};
+    class Material: public ::Material
+    {
+        public:
+            MatType type;
+    };
+
+    void create_material_metatable(lua_State *L);
+    int lua_create_material(lua_State *L);
+    int lua_material_set_index(lua_State *L);
+    int lua_material_set_name(lua_State *L);
+    int lua_material_set_script(lua_State *L);
 }
 
 bool default_material_validator(Material *material);
@@ -55,7 +61,7 @@ class MaterialsLib
         static void reorder_materials();
     public:
         static void add_material(std::filesystem::path const &fname);
-        static void add_to_library(GUI::Material *data);
+        [[deprecated]] static void add_to_library(GUI::Material *data);
         static void forget_manager();
         static MaterialsManager* get_manager();
         static GUI::Material* get_material_data(unsigned int n);
@@ -67,6 +73,7 @@ class MaterialsLib
                                         bool (*validator)(Material*)=&default_material_validator);
         static void load_script(std::filesystem::path const &path);
         [[nodiscard]] static GUI::Material* request_material(MatType type);
+        static void update_type(GUI::Material *material);
 };
 
 #endif // GUI_MATERIAL_LIBRARY_H_INCLUDED

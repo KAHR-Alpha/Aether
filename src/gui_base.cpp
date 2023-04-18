@@ -131,13 +131,13 @@ bool Aether::OnInit()
 //    HAPSolverFrame *mfr=new HAPSolverFrame("Aether");
 //    EMGeometry_Frame *mfr=new EMGeometry_Frame("Aether");
 //    SamplesFrame *mfr=new SamplesFrame("Aether");
-//    SelGUI::SeleneFrame *mfr=new SelGUI::SeleneFrame("Aether");
+    SelGUI::SeleneFrame *mfr=new SelGUI::SeleneFrame("Aether");
 //    SelGUI::RayCounterFrame *mfr=new SelGUI::RayCounterFrame("Aether");
 //    SEM_2D_Frame *mfr=new SEM_2D_Frame("Aether");
 //    FDTD_Frame *mfr=new FDTD_Frame("Aether");
 //    FitterFrame *mfr=new FitterFrame("Aether");
 //    LayerFitter *mfr=new LayerFitter("Aether");
-    MaterialExplorer *mfr=new MaterialExplorer("Aether");
+//    MaterialExplorer *mfr=new MaterialExplorer("Aether");
  //   MaterialsManager *mfr=new MaterialsManager("Aether");
     mfr->Maximize();
     mfr->Show(true);

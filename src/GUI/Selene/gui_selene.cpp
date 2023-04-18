@@ -1046,7 +1046,7 @@ void SeleneFrame::load_project(wxFileName const &fname_)
     
     // Allocation functions
     
-    lua_register(L,"Material",&SelGUI::lua_allocate_material);
+    //lua_register(L,"Material",&GUI::lua_create_material);
     lua_register(L,"Selene_IRF",&lua_allocate_selene_IRF);
     lua_register(L,"Selene_light",&lua_allocate_selene_light);
     lua_register(L,"Selene_object",&lua_allocate_selene_object);
@@ -1055,11 +1055,13 @@ void SeleneFrame::load_project(wxFileName const &fname_)
     
     // - Materials
     
-    create_obj_metatable(L,"metatable_material");
+    GUI::create_material_metatable(L);
+    
+    /*create_obj_metatable(L,"metatable_material");
     
     metatable_add_func(L,"name",lua_material_set_name);
     metatable_add_func(L,"refractive_index",lua_material_set_index);
-    metatable_add_func(L,"load_script",lua_material_set_script);
+    metatable_add_func(L,"load_script",lua_material_set_script);*/
     
     // - Simulations parameters
     

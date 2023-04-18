@@ -17,6 +17,66 @@ limitations under the License.*/
 
 bool default_material_validator(Material *material) { return true; }
 
+// Lua bindings
+
+namespace GUI
+{
+    void create_material_metatable(lua_State *L)
+    {
+        lua_register(L,"Material",&lua_create_material);
+        
+        create_obj_metatable(L,"metatable_material");
+    
+        metatable_add_func(L,"name",lua_material_set_name);
+        metatable_add_func(L,"refractive_index",lua_material_set_index);
+        metatable_add_func(L,"load_script",lua_material_set_script);
+    }
+    
+    int lua_create_material(lua_State *L)
+    {
+        Material *p_material=MaterialsLib::request_material(MatType::CUSTOM);
+        lua_set_metapointer(L,"metatable_material",p_material);
+        
+        if(lua_gettop(L)>0)
+        {
+                 if(lua_isnumber(L,1)) p_material->set_const_n(lua_tonumber(L,1));
+            else if(lua_isstring(L,1)) p_material->load_lua_script(lua_tostring(L,1));
+        }
+        
+        MaterialsLib::update_type(p_material);
+        
+        return 1;
+    }
+    
+    int lua_material_set_index(lua_State *L)
+    {
+        GUI::Material *mat=lua_get_metapointer<GUI::Material>(L,1);
+        mat->set_const_n(lua_tonumber(L,2));
+        mat->type=MatType::REAL_N;
+        
+        return 0;
+    }
+
+    int lua_material_set_name(lua_State *L)
+    {
+        GUI::Material *mat=lua_get_metapointer<GUI::Material>(L,1);
+        mat->name=lua_tostring(L,2);
+        
+        return 0;
+    }
+
+    int lua_material_set_script(lua_State *L)
+    {
+        GUI::Material *mat=lua_get_metapointer<GUI::Material>(L,1);
+        mat->load_lua_script(lua_tostring(L,2));
+        
+        MaterialsLib::update_type(mat);
+        
+        return 0;
+    }
+}
+
+
 //########################
 //   MaterialsLibDialog
 //########################
@@ -346,6 +406,34 @@ void MaterialsLib::reorder_materials()
         for(std::size_t j=i+1;j<data.size();j++)
         {
             if(data[j]->script_path<data[i]->script_path) std::swap(data[i],data[j]);
+        }
+    }
+}
+
+void MaterialsLib::update_type(GUI::Material *material)
+{
+    for(std::size_t i=0;i<data.size();i++)
+    {
+        if(data[i]->Material::operator == (*material))
+        {
+            delete material;
+            material=data[i];
+            
+            return;
+        }
+    }
+    
+    material->type=MatType::CUSTOM; // default assumption
+    
+         if(material->is_effective_material) material->type=MatType::EFFECTIVE;
+    else if(material->is_const()) material->type=MatType::REAL_N;
+    else if(!material->script_path.empty())
+    {
+        Material tmp_material{material->script_path};
+        
+        if(tmp_material==(*material))
+        {
+            material->type=MatType::SCRIPT;
         }
     }
 }
