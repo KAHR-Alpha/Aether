@@ -71,7 +71,7 @@ class Material
         Material();
         Material(Material const &mat);
         Material(std::filesystem::path const &script_path);
-        ~Material();
+        virtual ~Material();
         
         void add_spline_data(std::vector<double> const &lambda,
                              std::vector<double> const &data_r,

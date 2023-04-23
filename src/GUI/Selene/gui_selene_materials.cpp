@@ -25,7 +25,7 @@ namespace SelGUI
 //###################
     
 MaterialPanel::MaterialPanel(wxWindow *parent,
-                             Material const &material)
+                             GUI::Material const &material)
     :PanelsListBase(parent),
      original_material(nullptr)
 {
@@ -40,7 +40,7 @@ MaterialPanel::MaterialPanel(wxWindow *parent,
 }
 
 MaterialPanel::MaterialPanel(wxWindow *parent,
-                             Material *material)
+                             GUI::Material *material)
     :MaterialPanel(parent,*material)
 {
     original_material=material;
@@ -52,7 +52,7 @@ MaterialPanel::MaterialPanel(wxWindow *parent,
 
 int mat_ID=0;
 
-MaterialsDialog::MaterialsDialog(std::vector<Material*> &materials_)
+MaterialsDialog::MaterialsDialog(std::vector<GUI::Material*> &materials_)
     :wxDialog(NULL,-1,"Materials",
               wxGetApp().default_dialog_origin(),
               wxGetApp().default_dialog_size()),
@@ -107,7 +107,8 @@ MaterialsDialog::MaterialsDialog(std::vector<Material*> &materials_)
 
 void MaterialsDialog::evt_add_material(wxCommandEvent &event)
 {
-    Material new_mat;
+    // TODO
+    /*Material new_mat;
     new_mat.set_const_n(1.0);
     
     new_mat.name="Material "+std::to_string(mat_ID);
@@ -116,7 +117,7 @@ void MaterialsDialog::evt_add_material(wxCommandEvent &event)
     materials_panels->add_panel<MaterialPanel>(new_mat);
     
     panel->Layout();
-    panel->FitInside();
+    panel->FitInside();*/
     
     event.Skip();
 }
@@ -128,7 +129,8 @@ void MaterialsDialog::evt_cancel(wxCommandEvent &event)
 
 void MaterialsDialog::evt_ok(wxCommandEvent &event)
 {
-    std::size_t N=materials_panels->get_size();
+    // TODO
+    /*std::size_t N=materials_panels->get_size();
     
     // Need to make sure some of the previous materials haven't been deleted
     
@@ -155,7 +157,7 @@ void MaterialsDialog::evt_ok(wxCommandEvent &event)
         // TODO
         //*materials[i]=panels[i]->selector->get_material();
         materials[i]->name=panels[i]->name->get_value();
-    }
+    }*/
     
     Close();
 }

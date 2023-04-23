@@ -72,7 +72,7 @@ class ObjectDialog: public FrameDialog
 {
     public:
         Sel::Object *object;
-        std::vector<Material*> const &materials;
+        std::vector<GUI::Material*> const &materials;
         std::vector<Sel::IRF*> const &irfs;
         
         wxArrayString materials_str;
@@ -109,7 +109,7 @@ class ObjectDialog: public FrameDialog
         
         ObjectDialog(Sel::Object *object,
                      std::vector<Sel::Frame*> const &frames,
-                     std::vector<Material*> const &materials,
+                     std::vector<GUI::Material*> const &materials,
                      std::vector<Sel::IRF*> const &irfs);
         void ObjectDialogSensor();
         
@@ -134,7 +134,7 @@ class BoxDialog: public ObjectDialog
         
         BoxDialog(Sel::Object *data,
                   std::vector<Sel::Frame*> const &frames,
-                  std::vector<Material*> const &materials,
+                  std::vector<GUI::Material*> const &materials,
                   std::vector<Sel::IRF*> const &irfs);
         
         double mesh(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr);
@@ -149,7 +149,7 @@ class ConicSectionDialog: public ObjectDialog
         
         ConicSectionDialog(Sel::Object *data,
                            std::vector<Sel::Frame*> const &frames,
-                           std::vector<Material*> const &materials,
+                           std::vector<GUI::Material*> const &materials,
                            std::vector<Sel::IRF*> const &irfs);
         
         double mesh(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr);
@@ -164,7 +164,7 @@ class CylinderDialog: public ObjectDialog
         
         CylinderDialog(Sel::Object *data,
                        std::vector<Sel::Frame*> const &frames,
-                       std::vector<Material*> const &materials,
+                       std::vector<GUI::Material*> const &materials,
                        std::vector<Sel::IRF*> const &irfs);
         
         double mesh(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr);
@@ -178,7 +178,7 @@ class DiskDialog: public ObjectDialog
         
         DiskDialog(Sel::Object *data,
                    std::vector<Sel::Frame*> const &frames,
-                   std::vector<Material*> const &materials,
+                   std::vector<GUI::Material*> const &materials,
                    std::vector<Sel::IRF*> const &irfs);
         
         double mesh(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr);
@@ -192,7 +192,7 @@ class LensDialog: public ObjectDialog
         
         LensDialog(Sel::Object *data,
                    std::vector<Sel::Frame*> const &frames,
-                   std::vector<Material*> const &materials,
+                   std::vector<GUI::Material*> const &materials,
                    std::vector<Sel::IRF*> const &irfs);
         
         double mesh(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr);
@@ -213,7 +213,7 @@ class FacesGroupPanel: public PanelsListBase
         
         FacesGroupPanel(wxWindow *parent,
                         Sel::SelFace const &face,int group_start,int group_end,
-                        std::vector<Material*> const &materials,wxArrayString const &materials_str,
+                        std::vector<GUI::Material*> const &materials,wxArrayString const &materials_str,
                         std::vector<Sel::IRF*> const &irfs,wxArrayString const &irfs_str);
         
 };
@@ -237,7 +237,7 @@ class MeshDialog: public ObjectDialog
         
         MeshDialog(Sel::Object *data,
                    std::vector<Sel::Frame*> const &frames,
-                   std::vector<Material*> const &materials,
+                   std::vector<GUI::Material*> const &materials,
                    std::vector<Sel::IRF*> const &irfs);
         
         void evt_add_group(wxCommandEvent &event);
@@ -262,7 +262,7 @@ class ParabolaDialog: public ObjectDialog
         
         ParabolaDialog(Sel::Object *data,
                        std::vector<Sel::Frame*> const &frames,
-                       std::vector<Material*> const &materials,
+                       std::vector<GUI::Material*> const &materials,
                        std::vector<Sel::IRF*> const &irfs);
         
         double mesh(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr);
@@ -276,7 +276,7 @@ class RectangleDialog: public ObjectDialog
         
         RectangleDialog(Sel::Object *data,
                         std::vector<Sel::Frame*> const &frames,
-                        std::vector<Material*> const &materials,
+                        std::vector<GUI::Material*> const &materials,
                         std::vector<Sel::IRF*> const &irfs);
         
         double mesh(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr);
@@ -291,7 +291,7 @@ class SphereDialog: public ObjectDialog
         
         SphereDialog(Sel::Object *data,
                      std::vector<Sel::Frame*> const &frames,
-                     std::vector<Material*> const &materials,
+                     std::vector<GUI::Material*> const &materials,
                      std::vector<Sel::IRF*> const &irfs);
         
         double mesh(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr);
@@ -306,7 +306,7 @@ class SpherePatchDialog: public ObjectDialog
         
         SpherePatchDialog(Sel::Object *data,
                           std::vector<Sel::Frame*> const &frames,
-                          std::vector<Material*> const &materials,
+                          std::vector<GUI::Material*> const &materials,
                           std::vector<Sel::IRF*> const &irfs);
         
         double mesh(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr);
@@ -320,7 +320,7 @@ class SpherePatchDialog: public ObjectDialog
 class SourceDialog: public FrameDialog
 {
     public:
-        std::vector<Material*> &materials;
+        std::vector<GUI::Material*> &materials;
         Sel::Light *light;
         
         NamedTextCtrl<double> *power;
@@ -377,7 +377,7 @@ class SourceDialog: public FrameDialog
         
         SourceDialog(Sel::Light *light,
                      std::vector<Sel::Frame*> const &frames,
-                     std::vector<Material*> &materials);
+                     std::vector<GUI::Material*> &materials);
         
         void evt_add_polymono(wxCommandEvent &event);
         void evt_delete_polymono(wxCommandEvent &event);
@@ -416,27 +416,27 @@ class SourceDialog: public FrameDialog
 class MaterialPanel: public PanelsListBase
 {
     public:
-        Material *original_material;
+        GUI::Material *original_material;
         
         NamedTextCtrl<std::string> *name;
         MaterialSelector *selector;
         
         MaterialPanel(wxWindow *parent,
-                      Material const &material);
+                      GUI::Material const &material);
         
         MaterialPanel(wxWindow *parent,
-                      Material *original_material);
+                      GUI::Material *original_material);
 };
 
 class MaterialsDialog: public wxDialog
 {
     public:
-        std::vector<Material*> &materials;
+        std::vector<GUI::Material*> &materials;
 
         wxScrolledWindow *panel;
         PanelsList<MaterialPanel> *materials_panels;
         
-        MaterialsDialog(std::vector<Material*> &materials);
+        MaterialsDialog(std::vector<GUI::Material*> &materials);
         
         void evt_add_material(wxCommandEvent &event);
         void evt_cancel(wxCommandEvent &event);
@@ -543,7 +543,7 @@ class SeleneFrame: public BaseFrame
         std::vector<wxTreeItemId> frames_ID;
         std::vector<SeleneVAO*> frames_vao;
         
-        std::vector<Material*> materials;
+        std::vector<GUI::Material*> materials;
         
         std::vector<Sel::IRF> irfs;
         std::vector<Sel::IRF*> user_irfs;

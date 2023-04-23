@@ -43,7 +43,7 @@ namespace GUI
             else if(lua_isstring(L,1)) p_material->load_lua_script(lua_tostring(L,1));
         }
         
-        MaterialsLib::update_type(p_material);
+        MaterialsLib::consolidate(p_material);
         
         return 1;
     }
@@ -70,7 +70,7 @@ namespace GUI
         GUI::Material *mat=lua_get_metapointer<GUI::Material>(L,1);
         mat->load_lua_script(lua_tostring(L,2));
         
-        MaterialsLib::update_type(mat);
+        MaterialsLib::consolidate(mat);
         
         return 0;
     }
@@ -410,7 +410,7 @@ void MaterialsLib::reorder_materials()
     }
 }
 
-void MaterialsLib::update_type(GUI::Material *material)
+void MaterialsLib::consolidate(GUI::Material *material)
 {
     for(std::size_t i=0;i<data.size();i++)
     {

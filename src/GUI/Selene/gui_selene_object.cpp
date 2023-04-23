@@ -26,7 +26,7 @@ namespace SelGUI
 
 ObjectDialog::ObjectDialog(Sel::Object *object_,
                            std::vector<Sel::Frame*> const &frames_,
-                           std::vector<Material*> const &materials_,
+                           std::vector<GUI::Material*> const &materials_,
                            std::vector<Sel::IRF*> const &irfs_)
     :FrameDialog(dynamic_cast<Sel::Frame*>(object_),frames_),
      object(object_),
@@ -189,7 +189,7 @@ ObjectDialog::ObjectDialog(Sel::Object *object_,
                 mat->Set(materials_str);
                 mat->SetSelection(0);
                 
-                k=vector_locate(found,materials,mats_ud[j]);
+                k=vector_locate(found,materials,dynamic_cast<GUI::Material*>(mats_ud[j]));
                 
                 if(found) mat->SetSelection(k);
                 
@@ -589,7 +589,7 @@ void ObjectDialog::save_object()
 //#####################
 
 BoxDialog::BoxDialog(Sel::Object *object_,std::vector<Sel::Frame*> const &frames_,
-                     std::vector<Material*> const &materials_,
+                     std::vector<GUI::Material*> const &materials_,
                      std::vector<Sel::IRF*> const &irfs_)
     :ObjectDialog(object_,frames_,materials_,irfs_)
 {
@@ -641,7 +641,7 @@ void BoxDialog::save_object_geometry()
 
 ConicSectionDialog::ConicSectionDialog(Sel::Object *object_,
                                        std::vector<Sel::Frame*> const &frames_,
-                                       std::vector<Material*> const &materials_,
+                                       std::vector<GUI::Material*> const &materials_,
                                        std::vector<Sel::IRF*> const &irfs_)
     :ObjectDialog(object_,frames_,materials_,irfs_)
 {
@@ -689,7 +689,7 @@ void ConicSectionDialog::save_object_geometry()
 
 CylinderDialog::CylinderDialog(Sel::Object *object_,
                                std::vector<Sel::Frame*> const &frames_,
-                               std::vector<Material*> const &materials_,
+                               std::vector<GUI::Material*> const &materials_,
                                std::vector<Sel::IRF*> const &irfs_)
     :ObjectDialog(object_,frames_,materials_,irfs_)
 {
@@ -734,7 +734,7 @@ void CylinderDialog::save_object_geometry()
 
 DiskDialog::DiskDialog(Sel::Object *object_,
                        std::vector<Sel::Frame*> const &frames_,
-                       std::vector<Material*> const &materials_,
+                       std::vector<GUI::Material*> const &materials_,
                        std::vector<Sel::IRF*> const &irfs_)
     :ObjectDialog(object_,frames_,materials_,irfs_)
 {
@@ -772,7 +772,7 @@ void DiskDialog::save_object_geometry()
 
 LensDialog::LensDialog(Sel::Object *object_,
                        std::vector<Sel::Frame*> const &frames_,
-                       std::vector<Material*> const &materials_,
+                       std::vector<GUI::Material*> const &materials_,
                        std::vector<Sel::IRF*> const &irfs_)
     :ObjectDialog(object_,frames_,materials_,irfs_)
 {
@@ -830,7 +830,7 @@ void LensDialog::save_object_geometry()
 
 ParabolaDialog::ParabolaDialog(Sel::Object *object_,
                                std::vector<Sel::Frame*> const &frames_,
-                               std::vector<Material*> const &materials_,
+                               std::vector<GUI::Material*> const &materials_,
                                std::vector<Sel::IRF*> const &irfs_)
     :ObjectDialog(object_,frames_,materials_,irfs_)
 {
@@ -874,7 +874,7 @@ void ParabolaDialog::save_object_geometry()
 //#####################
 
 RectangleDialog::RectangleDialog(Sel::Object *object_,std::vector<Sel::Frame*> const &frames_,
-                     std::vector<Material*> const &materials_,
+                     std::vector<GUI::Material*> const &materials_,
                      std::vector<Sel::IRF*> const &irfs_)
     :ObjectDialog(object_,frames_,materials_,irfs_)
 {
@@ -912,7 +912,7 @@ void RectangleDialog::save_object_geometry()
 
 SphereDialog::SphereDialog(Sel::Object *object_,
                                std::vector<Sel::Frame*> const &frames_,
-                               std::vector<Material*> const &materials_,
+                               std::vector<GUI::Material*> const &materials_,
                                std::vector<Sel::IRF*> const &irfs_)
     :ObjectDialog(object_,frames_,materials_,irfs_)
 {
@@ -950,7 +950,7 @@ void SphereDialog::save_object_geometry()
 
 SpherePatchDialog::SpherePatchDialog(Sel::Object *object_,
                                      std::vector<Sel::Frame*> const &frames_,
-                                     std::vector<Material*> const &materials_,
+                                     std::vector<GUI::Material*> const &materials_,
                                      std::vector<Sel::IRF*> const &irfs_)
     :ObjectDialog(object_,frames_,materials_,irfs_)
 {

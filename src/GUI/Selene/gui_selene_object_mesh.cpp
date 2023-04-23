@@ -26,7 +26,7 @@ namespace SelGUI
 
 FacesGroupPanel::FacesGroupPanel(wxWindow *parent,
                                  Sel::SelFace const &face,int group_start_,int group_end_,
-                                 std::vector<Material*> const &materials,wxArrayString const &materials_str,
+                                 std::vector<GUI::Material*> const &materials,wxArrayString const &materials_str,
                                  std::vector<Sel::IRF*> const &irfs,wxArrayString const &irfs_str)
     :PanelsListBase(parent)
 {
@@ -99,7 +99,7 @@ FacesGroupPanel::FacesGroupPanel(wxWindow *parent,
         mat->Set(materials_str);
         mat->SetSelection(0);
         
-        k=vector_locate(found,materials,mats_ud[j]);
+        k=vector_locate(found,materials,dynamic_cast<GUI::Material*>(mats_ud[j]));
         
         if(found) mat->SetSelection(k);
         
@@ -138,7 +138,7 @@ FacesGroupPanel::FacesGroupPanel(wxWindow *parent,
 
 MeshDialog::MeshDialog(Sel::Object *object_,
                        std::vector<Sel::Frame*> const &frames_,
-                       std::vector<Material*> const &materials_,
+                       std::vector<GUI::Material*> const &materials_,
                        std::vector<Sel::IRF*> const &irfs_)
     :ObjectDialog(object_,frames_,materials_,irfs_)
 {

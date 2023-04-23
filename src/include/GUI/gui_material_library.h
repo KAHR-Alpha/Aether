@@ -62,6 +62,7 @@ class MaterialsLib
     public:
         static void add_material(std::filesystem::path const &fname);
         [[deprecated]] static void add_to_library(GUI::Material *data);
+        static void consolidate(GUI::Material *material);
         static void forget_manager();
         static MaterialsManager* get_manager();
         static GUI::Material* get_material_data(unsigned int n);
@@ -73,7 +74,6 @@ class MaterialsLib
                                         bool (*validator)(Material*)=&default_material_validator);
         static void load_script(std::filesystem::path const &path);
         [[nodiscard]] static GUI::Material* request_material(MatType type);
-        static void update_type(GUI::Material *material);
 };
 
 #endif // GUI_MATERIAL_LIBRARY_H_INCLUDED
