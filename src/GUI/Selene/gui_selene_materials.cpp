@@ -25,25 +25,17 @@ namespace SelGUI
 //###################
     
 MaterialPanel::MaterialPanel(wxWindow *parent,
-                             GUI::Material const &material)
+                             GUI::Material *material)
     :PanelsListBase(parent),
      original_material(nullptr)
 {
     title->Hide();
     
-    name=new NamedTextCtrl<std::string>(this,"Name : ",material.name);
-    // TODO
-    //selector=new MaterialSelector(this,"",true,material);
+    name=new NamedTextCtrl<std::string>(this,"Name : ",material->name);
+    selector=new MaterialSelector(this,"",true,material);
     
     sizer->Add(name);
     sizer->Add(selector,wxSizerFlags().Expand());
-}
-
-MaterialPanel::MaterialPanel(wxWindow *parent,
-                             GUI::Material *material)
-    :MaterialPanel(parent,*material)
-{
-    original_material=material;
 }
 
 //#####################

@@ -613,7 +613,8 @@ void MultilayerFrame::load_project(wxFileName const &fname_)
     
     create_obj_metatable(L,"metatable_multilayer_frame");
     
-    lua_wrapper<0,MultilayerFrame,double,double,std::string>::bind(L,"add_layer",&MultilayerFrame::lua_add_layer);
+    // TODO
+    //lua_wrapper<0,MultilayerFrame,double,double,std::string>::bind(L,"add_layer",&MultilayerFrame::lua_add_layer);
     lua_wrapper<1,MultilayerFrame,double,double,std::string,
                                   double,double,std::string,
                                   double,double,std::string,
@@ -659,7 +660,7 @@ void MultilayerFrame::load_project(wxFileName const &fname_)
     recompute();
 }
 
-void MultilayerFrame::lua_add_layer(double height,double std_dev,std::string material)
+void MultilayerFrame::lua_add_layer(double height,double std_dev,GUI::Material *material)
 {
     layers_list->add_panel<LayerPanel>(height,std_dev,material,true);
 }

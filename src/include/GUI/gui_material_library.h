@@ -1,6 +1,7 @@
 #ifndef GUI_MATERIAL_LIBRARY_H_INCLUDED
 #define GUI_MATERIAL_LIBRARY_H_INCLUDED
 
+class MaterialsLib;
 class MaterialSelector;
 class MaterialsManager;
 
@@ -20,6 +21,14 @@ namespace GUI
     {
         public:
             MatType type;
+            
+            std::string get_description();
+            std::string get_short_description();
+            
+            double get_lambda_validity_min();
+            double get_lambda_validity_max();        
+        
+        friend MaterialsLib;
     };
 
     void create_material_metatable(lua_State *L);
@@ -35,7 +44,7 @@ class MaterialsLibDialog: public wxDialog
 {
     public:
         bool selection_ok;
-        GUI::Material material;
+        GUI::Material *material;
         wxTreeCtrl *materials;
         
         bool (*accept_material)(Material*); // Validator
@@ -66,7 +75,7 @@ class MaterialsLib
         static void forget_manager();
         static MaterialsManager* get_manager();
         static GUI::Material* get_material_data(unsigned int n);
-        static std::filesystem::path get_material_name(unsigned int n);
+        static std::filesystem::path get_material_path(unsigned int n);
         static MatType get_material_type(unsigned int n);
         static std::size_t get_N_materials();
         static void initialize();

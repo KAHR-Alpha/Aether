@@ -302,7 +302,8 @@ void MaterialEditor::load()
         
         if(dialog.selection_ok)
         {
-            material=dialog.material;
+            // TODO
+            material=*(dialog.material);
             
             update_controls();
             rebuild_elements_list();

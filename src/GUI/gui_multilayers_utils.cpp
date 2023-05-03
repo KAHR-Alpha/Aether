@@ -93,7 +93,7 @@ LayerPanel::LayerPanel(wxWindow *parent,bool wavy)
     sizer->Add(selector,wxSizerFlags().Expand());
 }
 
-LayerPanel::LayerPanel(wxWindow *parent,double height_,double std_dev_,Material const &material_,bool wavy)
+LayerPanel::LayerPanel(wxWindow *parent,double height_,double std_dev_,GUI::Material *material,bool wavy)
     :LayerPanelBase(parent),
      std_dev(std_dev_)
 {
@@ -101,35 +101,7 @@ LayerPanel::LayerPanel(wxWindow *parent,double height_,double std_dev_,Material 
     
     height_ctrl=new LengthSelector(this,"h: ",height_);
     
-    //selector=new MiniMaterialSelector(this,material_,"");
-    
-    if(wavy)
-    {
-        wxButton *waviness_ctrl=new wxButton(this,wxID_ANY,"+",wxDefaultPosition,wxDefaultSize,wxBU_EXACTFIT);
-        
-        wxBoxSizer *height_sizer=new wxBoxSizer(wxHORIZONTAL);
-        
-        height_sizer->Add(height_ctrl,wxSizerFlags(1));
-        height_sizer->Add(waviness_ctrl,wxSizerFlags().Border(wxLEFT,3).Align(wxALIGN_CENTER_VERTICAL));
-        
-        waviness_ctrl->Bind(wxEVT_BUTTON,&LayerPanel::evt_waviness,this);
-        
-        sizer->Add(height_sizer,wxSizerFlags().Expand());
-    }
-    else sizer->Add(height_ctrl,wxSizerFlags().Expand());
-    
-    sizer->Add(selector,wxSizerFlags().Expand());
-}
-
-LayerPanel::LayerPanel(wxWindow *parent,double height_,double std_dev_,std::filesystem::path const &material_,bool wavy)
-    :LayerPanelBase(parent),
-     std_dev(std_dev_)
-{
-    if(std_dev!=0) statistical=true;
-    
-    height_ctrl=new LengthSelector(this,"h: ",height_);
-    
-    selector=new MiniMaterialSelector(this,"",material_);
+    selector=new MiniMaterialSelector(this,material);
     
     if(wavy)
     {
@@ -216,7 +188,9 @@ BraggPanel::BraggPanel(wxWindow *parent,
     :LayerPanelBase(parent),
      std_dev_1(std_dev_1_), std_dev_2(std_dev_2_), std_dev_core(std_dev_core_)
 {
-    if(std_dev_1!=0 || std_dev_2!=0 || std_dev_core!=0 || global_std_dev!=0) statistical=true;
+    // TODO
+    
+    /*if(std_dev_1!=0 || std_dev_2!=0 || std_dev_core!=0 || global_std_dev!=0) statistical=true;
     
     // Material 1
     
@@ -302,7 +276,7 @@ BraggPanel::BraggPanel(wxWindow *parent,
     sizer->Add(g_factor,wxSizerFlags().Expand());
     
     top_rep_ctrl->Bind(EVT_NAMEDTXTCTRL,&BraggPanel::evt_periods,this);
-    bottom_rep_ctrl->Bind(EVT_NAMEDTXTCTRL,&BraggPanel::evt_periods,this);
+    bottom_rep_ctrl->Bind(EVT_NAMEDTXTCTRL,&BraggPanel::evt_periods,this);*/
 }
 
 void BraggPanel::check_statistical()

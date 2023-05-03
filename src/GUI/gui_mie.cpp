@@ -136,7 +136,8 @@ MieTool::MieTool(wxString const &title)
     
     // Material
     
-    mat_selector=new MaterialSelector(particle_panel,"Particle Material");
+    GUI::Material *tmp_material=nullptr;
+    mat_selector=new MaterialSelector(particle_panel,"Particle Material",false,tmp_material);
     mat_selector->Bind(EVT_MAT_SELECTOR,&MieTool::load_material,this);
     
     // Environment sizer

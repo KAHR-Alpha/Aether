@@ -422,10 +422,7 @@ class MaterialPanel: public PanelsListBase
         MaterialSelector *selector;
         
         MaterialPanel(wxWindow *parent,
-                      GUI::Material const &material);
-        
-        MaterialPanel(wxWindow *parent,
-                      GUI::Material *original_material);
+                      GUI::Material *material);
 };
 
 class MaterialsDialog: public wxDialog
@@ -568,6 +565,7 @@ class SeleneFrame: public BaseFrame
         void evt_ray_display_type(wxCommandEvent &event);
         void evt_trace(wxCommandEvent &event);
         void evt_tree_right_click(wxMouseEvent &event);
+        void gather_materials();
         std::string get_IRF_script_name(Sel::IRF *irf);
         void load_project(wxFileName const &fname);
         void rebuild_tree();
@@ -577,11 +575,13 @@ class SeleneFrame: public BaseFrame
 
 // Lua bindings
 
-int lua_allocate_material(lua_State *L);
+//int lua_allocate_material(lua_State *L);
 int lua_allocate_SeleneFrame_pointer(lua_State *L);
 int lua_allocate_selene_object(lua_State *L);
 int lua_allocate_selene_IRF(lua_State *L);
 int lua_allocate_selene_light(lua_State *L);
+// TODO
+int lua_register_material(lua_State *L);
 
 int lua_selene_add_light(lua_State *L);
 int lua_selene_add_object(lua_State *L);

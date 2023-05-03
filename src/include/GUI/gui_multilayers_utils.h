@@ -48,8 +48,7 @@ class LayerPanel: public LayerPanelBase
         MiniMaterialSelector *selector;
         
         LayerPanel(wxWindow *parent,bool wavy=false);
-        [[deprecated]] LayerPanel(wxWindow *parent,double height,double std_dev,Material const &material,bool wavy);
-        LayerPanel(wxWindow *parent,double height,double std_dev,std::filesystem::path const &material_path,bool wavy);
+        LayerPanel(wxWindow *parent,double height,double std_dev,GUI::Material *material,bool wavy);
         
         void evt_waviness(wxCommandEvent &event);
         wxString get_base_name();

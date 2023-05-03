@@ -320,8 +320,8 @@ GeoGradientFrame::GeoGradientFrame(wxString const &title)
     angles_ctrl=new NamedTextCtrl<int>(ctrl_panel,"N Angles",901,true);
     ctrl_sizer->Add(angles_ctrl,std_flags);
     
-    superstrate=new MiniMaterialSelector(ctrl_panel,"Superstrate");
-    substrate=new MiniMaterialSelector(ctrl_panel,"Substrate");
+    superstrate=new MiniMaterialSelector(ctrl_panel,nullptr,"Superstrate");
+    substrate=new MiniMaterialSelector(ctrl_panel,nullptr,"Substrate");
     
     ctrl_sizer->Add(superstrate,std_flags);
     ctrl_sizer->Add(substrate,std_flags);

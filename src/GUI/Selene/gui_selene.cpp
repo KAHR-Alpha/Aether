@@ -885,17 +885,42 @@ void SeleneFrame::evt_trace(wxCommandEvent &event)
     event.Skip();
 }
 
-/*int lua_allocate_material(lua_State *L)
+void SeleneFrame::gather_materials()
 {
-    lua_getglobal(L,"bound_class");
-    SeleneFrame *frame=reinterpret_cast<SeleneFrame*>(lua_touserdata(L,-1));
+    materials.clear();
     
-    Material *mat=lua_allocate_metapointer<Material>(L,"metatable_material");
-    
-    frame->materials.push_back(mat);
-    
-    return 1;
-}*/
+    for(std::size_t i=0;i<frames.size();i++)
+    {
+        Sel::Object *object=dynamic_cast<Sel::Object*>(frames[i]);
+        Sel::Light *light=dynamic_cast<Sel::Light*>(frames[i]);
+        
+        if(object!=nullptr)
+        {
+            int N=object->get_N_faces();
+            
+            for(int j=0;j<N;j++)
+            {
+                Sel::SelFace &face=object->face(j);
+                
+                GUI::Material *down_mat=dynamic_cast<GUI::Material*>(face.down_mat);
+                GUI::Material *up_mat=dynamic_cast<GUI::Material*>(face.up_mat);
+                
+                if(!vector_contains(materials,down_mat))
+                    materials.push_back(down_mat);
+                
+                if(!vector_contains(materials,up_mat))
+                    materials.push_back(up_mat);
+            }
+        }
+        else if(light!=nullptr)
+        {
+            GUI::Material *mat=dynamic_cast<GUI::Material*>(light->amb_mat);
+            
+            if(!vector_contains(materials,mat))
+                materials.push_back(mat);
+        }
+    }
+}
 
 int lua_allocate_selene_IRF(lua_State *L)
 {
@@ -1121,6 +1146,13 @@ void SeleneFrame::load_project(wxFileName const &fname_)
     }
     
     item_count=frames.size();
+    
+    gather_materials();
+    
+//    for(GUI::Material *m : materials)
+//    {
+//        std::cout<<m->name<<std::endl;
+//    }
     
     rebuild_tree();
 }

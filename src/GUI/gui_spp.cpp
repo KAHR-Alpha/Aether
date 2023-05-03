@@ -59,7 +59,9 @@ SppFrame::SppFrame(wxString const &title)
     
     // Metal
     
-    mat_selector=new MaterialSelector(ctrl_panel,"Metal");
+    GUI::Material *tmp_mat=nullptr;
+    
+    mat_selector=new MaterialSelector(ctrl_panel,"Metal",false,tmp_mat);
     mat_selector->Bind(EVT_MAT_SELECTOR,&SppFrame::load_material,this);
     
     // Dielectric sizer

@@ -377,7 +377,7 @@ class HAPSolverFrame: public BaseFrame
         
         // Lua Loaders
         
-        void lua_add_layer(double height,double std_dev,std::string material);
+        [[deprecated]] void lua_add_layer(double height,double std_dev,GUI::Material *material);
         void lua_set_substrate(std::string material);
         void lua_set_superstrate(std::string material);
 };

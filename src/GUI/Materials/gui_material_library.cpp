@@ -50,18 +50,25 @@ namespace GUI
     
     int lua_material_set_index(lua_State *L)
     {
+        chk_var("Index");
         GUI::Material *mat=lua_get_metapointer<GUI::Material>(L,1);
+        
         mat->set_const_n(lua_tonumber(L,2));
         mat->type=MatType::REAL_N;
         
+        MaterialsLib::consolidate(mat);
+        
+        chk_var("Index/");
         return 0;
     }
 
     int lua_material_set_name(lua_State *L)
     {
+        chk_var("name");
         GUI::Material *mat=lua_get_metapointer<GUI::Material>(L,1);
         mat->name=lua_tostring(L,2);
-        
+        chk_var(mat->name);
+        chk_var("name/");
         return 0;
     }
 
@@ -73,6 +80,113 @@ namespace GUI
         MaterialsLib::consolidate(mat);
         
         return 0;
+    }
+    
+    //##############
+    //   Material
+    //##############
+    
+    std::string Material::get_description()
+    {
+        std::stringstream strm;
+        
+             if(type==MatType::REAL_N)
+        {
+            strm<<"Const refractive index: ";
+            strm<<std::sqrt(eps_inf);
+        }
+        else if(   type==MatType::LIBRARY
+                || type==MatType::USER_LIBRARY
+                || type==MatType::SCRIPT)
+        {
+            strm<<"Library material: ";
+            strm<<script_path.generic_string();
+        }
+        else if(type==MatType::CUSTOM)
+        {
+            strm<<"Custom material: ";
+            if(!drude.empty()) strm<<"drude ";
+            if(!debye.empty()) strm<<"debye ";
+            if(!lorentz.empty()) strm<<"lorentz ";
+            if(!critpoint.empty()) strm<<"critpoint ";
+            if(!cauchy_coeffs.empty()) strm<<"cauchy ";
+            if(!sellmeier_B.empty()) strm<<"sellmeier ";
+            if(!spd_lambda.empty()) strm<<"tabulated ";
+        }
+        else if(type==MatType::EFFECTIVE)
+        {
+            strm<<"Effective material";
+        }
+        
+        return strm.str();
+    }
+    
+    double Material::get_lambda_validity_min()
+    {
+             if(type==MatType::REAL_N) 1e-100;
+        else if(type==MatType::EFFECTIVE)
+        {
+            return std::max(eff_mat_1->lambda_valid_min,
+                            eff_mat_2->lambda_valid_min);
+        }
+        else return lambda_valid_min;
+    }
+
+    double Material::get_lambda_validity_max()
+    {
+             if(type==MatType::REAL_N) return 1e100;
+        else if(type==MatType::EFFECTIVE)
+        {
+            return std::min(eff_mat_1->lambda_valid_max,
+                            eff_mat_2->lambda_valid_max);
+        }
+        else return lambda_valid_max;
+    }
+    
+    std::string Material::get_short_description()
+    {
+        std::stringstream out;
+        
+        switch(type)
+        {
+            case MatType::REAL_N:
+                out<<std::sqrt(eps_inf);
+                break;
+            case MatType::LIBRARY:
+                out<<script_path.generic_string();
+                break;
+            case MatType::SCRIPT:
+                out<<script_path.generic_string();
+                break;
+            case MatType::USER_LIBRARY:
+                out<<script_path.generic_string();
+                break;
+            case MatType::EFFECTIVE:
+                {
+                    // TODO
+                    /*wxString w_script_1,w_script_2;
+                    
+                    w_script_1=eff_mat_1_selector->get_name();
+                    w_script_2=eff_mat_2_selector->get_name();
+                    
+                    int eff_mat_type=get_effective_material_type();*/
+                    
+                    switch(effective_type)
+                    {
+                        case MAT_EFF_BRUGGEMAN: out<<"Brugg"; break;
+                        case MAT_EFF_MG1: out<<"MG1"; break;
+                        case MAT_EFF_MG2: out<<"MG2"; break;
+                        case MAT_EFF_LOYENGA: out<<"Loy"; break;
+                        case MAT_EFF_SUM: out<<"Sum"; break;
+                        case MAT_EFF_SUM_INV: out<<"ISum"; break;
+                    }
+                    
+                    //out<<" | "<<w_script_1<<" | "<<w_script_2;
+                }
+                break;
+        }
+    
+        return out.str();
     }
 }
 
@@ -94,6 +208,7 @@ MaterialsLibDialog::MaterialsLibDialog(bool (*validator)(Material*))
               wxGetApp().default_dialog_origin(),
               wxGetApp().default_dialog_size()),
      selection_ok(false),
+     material(nullptr),
      accept_material(validator)
 {
     wxBoxSizer *sizer=new wxBoxSizer(wxHORIZONTAL);
@@ -186,7 +301,7 @@ void MaterialsLibDialog::evt_ok(wxCommandEvent &event)
     if(data!=nullptr)
     {
         selection_ok=true;
-        material=*(data->material);
+        material=data->material;
     }
 
     Close();
@@ -204,6 +319,7 @@ void MaterialsLibDialog::rebuild_tree()
     wxTreeItemId user_lib=materials->AppendItem(root,"User Library");
     wxTreeItemId scripts=materials->AppendItem(root,"Scripts");
     wxTreeItemId custom_mats=materials->AppendItem(root,"Custom Materials");
+    wxTreeItemId effective_mats=materials->AppendItem(root,"Effective Materials");
     
     for(int i=0;i<Nmat;i++)
     {
@@ -212,11 +328,20 @@ void MaterialsLibDialog::rebuild_tree()
         wxTreeItemId parent;
         
              if(mat_type==MatType::LIBRARY) parent=default_lib;
+        else if(mat_type==MatType::USER_LIBRARY) parent=user_lib;
         else if(mat_type==MatType::SCRIPT) parent=scripts;
-        else parent=user_lib;
+        else if(    mat_type==MatType::CUSTOM
+                 || mat_type==MatType::REAL_N) parent=custom_mats;
+        else if(mat_type==MatType::EFFECTIVE) parent=effective_mats;
+        else continue;
         
-        std::string mat_name=MaterialsLib::get_material_name(i).generic_string();
-        MaterialTreeData *data=new MaterialTreeData(MaterialsLib::get_material_data(i));
+        GUI::Material *insert_mat=MaterialsLib::get_material_data(i);
+        
+        std::string mat_name=insert_mat->name;
+        if(mat_name.empty()) mat_name=insert_mat->script_path.generic_string();
+        if(mat_name.empty()) continue;
+        
+        MaterialTreeData *data=new MaterialTreeData(insert_mat);
         
         materials->AppendItem(parent,mat_name,-1,-1,data);
     }
@@ -264,7 +389,7 @@ GUI::Material* MaterialsLib::get_material_data(unsigned int n)
     return data[n];
 }
 
-std::filesystem::path MaterialsLib::get_material_name(unsigned int n)
+std::filesystem::path MaterialsLib::get_material_path(unsigned int n)
 {
     if(n>=data.size()) return "";
     return data[n]->script_path;
@@ -360,6 +485,7 @@ void MaterialsLib::load_material(std::filesystem::path const &fname,MatType type
     
     GUI::Material *new_data=new GUI::Material;
     new_data->load_lua_script(material_path);
+    new_data->type=type;
     
     data.push_back(new_data);
     
@@ -412,14 +538,17 @@ void MaterialsLib::reorder_materials()
 
 void MaterialsLib::consolidate(GUI::Material *material)
 {
-    for(std::size_t i=0;i<data.size();i++)
+    if(!vector_contains(data,material))
     {
-        if(data[i]->Material::operator == (*material))
+        for(std::size_t i=0;i<data.size();i++)
         {
-            delete material;
-            material=data[i];
-            
-            return;
+            if(data[i]->Material::operator == (*material))
+            {
+                delete material;
+                material=data[i];
+                
+                return;
+            }
         }
     }
     

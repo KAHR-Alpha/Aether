@@ -19,7 +19,6 @@ limitations under the License.*/
 #include <gui_material.h>
 
 wxDEFINE_EVENT(EVT_MAT_SELECTOR,wxCommandEvent);
-wxDEFINE_EVENT(EVT_MINIMAT_SELECTOR,wxCommandEvent);
 
 //####################
 // MaterialExplorer
@@ -50,7 +49,10 @@ MaterialExplorer::MaterialExplorer(double lambda_min_,double lambda_max_,int Np_
     wxBoxSizer *mat_sizer=new wxBoxSizer(wxHORIZONTAL);
     wxStaticBoxSizer *index_sizer=new wxStaticBoxSizer(wxVERTICAL,ctrl_panel,"Display");
     
-    mat_selector=new MaterialSelector(ctrl_panel,"Material");
+    GUI::Material *external_mat=nullptr;
+    if(selector!=nullptr) external_mat=selector->material;
+    
+    mat_selector=new MaterialSelector(ctrl_panel,"Material",true,external_mat);
     sp_selector=new SpectrumSelector(ctrl_panel,lambda_min,lambda_max,Np);
     
     wxString disp_str[]={"Index","Permittivity"};
@@ -82,10 +84,8 @@ MaterialExplorer::MaterialExplorer(double lambda_min_,double lambda_max_,int Np_
     disp_choice->Bind(wxEVT_CHOICE,&MaterialExplorer::disp_choice_event,this);
     mat_selector->Bind(EVT_MAT_SELECTOR,&MaterialExplorer::material_selector_event,this);
     sp_selector->Bind(EVT_SPECTRUM_SELECTOR,&MaterialExplorer::spectrum_selector_event,this);
-    
-    if(selector!=nullptr) *mat_selector=*selector;
-        
-    SetTitle(mat_selector->get_title());
+
+    SetTitle(mat_selector->material->get_description());
     
     SetSizer(top_sizer);
     
@@ -146,12 +146,12 @@ void MaterialExplorer::export_event(wxCommandEvent &event)
 
 void MaterialExplorer::material_selector_event(wxCommandEvent &event)
 {
-    lambda_min=mat_selector->get_lambda_validity_min();
-    lambda_max=mat_selector->get_lambda_validity_max();
+    lambda_min=mat_selector->material->get_lambda_validity_min();
+    lambda_max=mat_selector->material->get_lambda_validity_max();
     
     sp_selector->set_spectrum(lambda_min,lambda_max);
     
-    SetTitle(mat_selector->get_title());
+    SetTitle(mat_selector->material->get_description());
     
     recompute_model();
 }
@@ -211,343 +211,4 @@ void MaterialExplorer::recompute_model()
     }
     
     mat_graph->autoscale();
-}
-
-//######################
-// MiniMaterialSelector
-//######################
-
-class MMS_Dialog:public wxDialog
-{
-    public:
-        bool selection_ok;
-        MaterialSelector *selector;
-        GUI::Material material;
-        
-        wxButton *ok_btn;
-        wxPanel *container_panel;
-        wxScrolledWindow *selector_panel;
-        
-        MMS_Dialog(GUI::Material *material)
-            :wxDialog(0,wxID_ANY,"Select the material",
-                      wxGetApp().default_dialog_origin(),wxDefaultSize),
-             selection_ok(false)
-        {
-            wxBoxSizer *top_sizer=new wxBoxSizer(wxVERTICAL);
-            wxBoxSizer *btn_sizer=new wxBoxSizer(wxHORIZONTAL);
-            
-            // Container Panel
-            
-            container_panel=new wxPanel(this);
-            
-            wxBoxSizer *container_sizer=new wxBoxSizer(wxVERTICAL);
-            
-            // Inside Panel
-            
-            selector_panel=new wxScrolledWindow(container_panel,wxID_ANY);
-            
-            wxBoxSizer *selector_sizer=new wxBoxSizer(wxVERTICAL);
-            selector=new MaterialSelector(selector_panel,"Material",false,material);
-            
-            selector_sizer->Add(selector,wxSizerFlags());
-            
-            selector_panel->SetSizerAndFit(selector_sizer);
-            selector_panel->SetScrollRate(50,50);
-            
-            container_sizer->Add(selector_panel,wxSizerFlags(1).Expand());
-            container_panel->SetSizer(container_sizer);
-            
-            top_sizer->Add(container_panel,wxSizerFlags(1).Expand());
-            
-            // Buttons
-            
-            ok_btn=new wxButton(this,wxID_ANY,"Ok");
-            wxButton *cancel_btn=new wxButton(this,wxID_ANY,"Cancel");
-            
-            btn_sizer->Add(ok_btn);
-            btn_sizer->Add(cancel_btn);
-            
-            top_sizer->Add(btn_sizer,wxSizerFlags().Align(wxALIGN_RIGHT));
-            
-            SetSizerAndFit(top_sizer);
-            
-            ok_btn->Bind(wxEVT_BUTTON,&MMS_Dialog::evt_ok,this);
-            cancel_btn->Bind(wxEVT_BUTTON,&MMS_Dialog::evt_cancel,this);
-            
-            Bind(EVT_MAT_SELECTOR,&MMS_Dialog::evt_material,this);
-            
-            ShowModal();
-        }
-                
-        void evt_cancel(wxCommandEvent &event)
-        {
-            selection_ok=false;
-            Close();
-        }
-        
-        void evt_material(wxCommandEvent &event)
-        {
-            SetClientSize(wxSize(20,20));
-            selector_panel->Layout();
-            selector_panel->FitInside();
-            
-            int x,y,xb,yb;
-            selector_panel->GetVirtualSize(&x,&y);
-            ok_btn->GetClientSize(&xb,&yb);
-            wxSize max_size=wxGetApp().default_dialog_size();
-            
-            SetClientSize(wxSize(std::min(max_size.x,x),std::min(max_size.y,y+yb+3)));
-            
-            selector_panel->FitInside();
-        }
-        
-        void evt_ok(wxCommandEvent &event)
-        {
-            selection_ok=true;
-            material=*(selector->get_material());
-            
-            Close();
-        }
-};
-
-MiniMaterialSelector::MiniMaterialSelector(wxWindow *parent,
-                                           GUI::Material *material_,
-                                           std::string const &name)
-    :wxPanel(parent),
-     mat_type(MatType::REAL_N)
-{
-    material.set_const_n(1.0);
-    
-    wxSizer *sizer=nullptr;
-    if(name=="") sizer=new wxBoxSizer(wxHORIZONTAL);
-    else sizer=new wxStaticBoxSizer(wxHORIZONTAL,this,wxString(name));
-    
-    mat_bmp=new wxGenericStaticBitmap(this,wxID_ANY,ImagesManager::get_bitmap(PathManager::locate_resource("resources/n_16.png").generic_string()));
-    mat_txt=new wxStaticText(this,wxID_ANY,"");
-    mat_name=new wxTextCtrl(this,wxID_ANY,"1.0");
-    eff_weight=new NamedTextCtrl<double>(this,"",0,false,4);
-    edit_btn=new wxButton(this,wxID_ANY,"...",wxDefaultPosition,wxDefaultSize,wxBU_EXACTFIT);
-    
-    mat_name->Disable();
-    mat_txt->Hide();
-    
-    eff_weight->Hide();
-    eff_weight->Bind(EVT_NAMEDTXTCTRL,&MiniMaterialSelector::evt_weight,this);
-    
-    sizer->Add(mat_bmp,wxSizerFlags().Align(wxALIGN_CENTER_VERTICAL).Border(wxLEFT,5).Border(wxRIGHT,5)); //to be replaced with CenterVertical
-    sizer->Add(mat_txt,wxSizerFlags().Align(wxALIGN_CENTER_VERTICAL).Border(wxLEFT,5).Border(wxRIGHT,5));
-    sizer->Add(mat_name,wxSizerFlags(1).Expand());
-    sizer->Add(eff_weight,wxSizerFlags());
-    sizer->Add(edit_btn,wxSizerFlags());
-    
-    SetSizer(sizer);
-    
-    edit_btn->Bind(wxEVT_BUTTON,&MiniMaterialSelector::evt_edit,this);
-    
-    // TODO
-    //material=material_;
-        
-    if(material.is_const())
-    {
-        mat_name->SetValue(std::to_string(material.get_n(0).real()));
-    }
-    else
-    {
-        unsigned int n;
-        
-        if(MaterialsLib::knows_material(n,material)==nullptr) mat_type=MatType::SCRIPT;
-        else mat_type=MatType::LIBRARY;
-        
-        mat_name->SetValue(material.script_path.generic_string());
-    }
-}
-
-MiniMaterialSelector::MiniMaterialSelector(wxWindow *parent,
-                                           std::string const &name,
-                                           std::filesystem::path const &script_)
-    :wxPanel(parent),
-     mat_type(MatType::REAL_N)
-{
-    material.set_const_n(1.0);
-    
-    wxSizer *sizer=nullptr;
-    if(name=="") sizer=new wxBoxSizer(wxHORIZONTAL);
-    else sizer=new wxStaticBoxSizer(wxHORIZONTAL,this,wxString(name));
-    
-    mat_bmp=new wxGenericStaticBitmap(this,wxID_ANY,ImagesManager::get_bitmap(PathManager::locate_resource("resources/n_16.png").generic_string()));
-    mat_txt=new wxStaticText(this,wxID_ANY,"");
-    mat_name=new wxTextCtrl(this,wxID_ANY,"1.0");
-    eff_weight=new NamedTextCtrl<double>(this,"",0,false,4);
-    edit_btn=new wxButton(this,wxID_ANY,"...",wxDefaultPosition,wxDefaultSize,wxBU_EXACTFIT);
-    
-    mat_name->Disable();
-    mat_txt->Hide();
-    
-    eff_weight->Hide();
-    eff_weight->Bind(EVT_NAMEDTXTCTRL,&MiniMaterialSelector::evt_weight,this);
-    
-    sizer->Add(mat_bmp,wxSizerFlags().Align(wxALIGN_CENTER_VERTICAL).Border(wxLEFT,5).Border(wxRIGHT,5)); //to be replaced with CenterVertical
-    sizer->Add(mat_txt,wxSizerFlags().Align(wxALIGN_CENTER_VERTICAL).Border(wxLEFT,5).Border(wxRIGHT,5));
-    sizer->Add(mat_name,wxSizerFlags(1).Expand());
-    sizer->Add(eff_weight,wxSizerFlags());
-    sizer->Add(edit_btn,wxSizerFlags());
-    
-    SetSizer(sizer);
-    
-    edit_btn->Bind(wxEVT_BUTTON,&MiniMaterialSelector::evt_edit,this);
-    
-    if(!script_.empty())
-    {
-        material.load_lua_script(script_);
-        
-        if(material.is_const())
-        {
-            mat_name->SetValue(std::to_string(material.get_n(0).real()));
-        }
-        else
-        {
-            unsigned int n;
-            
-            if(MaterialsLib::knows_material(n,material)==nullptr) mat_type=MatType::SCRIPT;
-            else mat_type=MatType::LIBRARY;
-            
-            mat_name->SetValue(script_.filename().generic_string());
-        }
-        
-        update_label();
-    }
-}
-
-void MiniMaterialSelector::copy_material(MiniMaterialSelector *mat_)
-{
-    mat_type=mat_->mat_type;
-    material=mat_->material;
-    mat_name->SetValue(mat_->mat_name->GetValue());
-    
-    update_label();
-}
-
-void MiniMaterialSelector::evt_edit(wxCommandEvent &event)
-{
-    MMS_Dialog dialog(&material);
-    
-    if(dialog.selection_ok)
-    {
-        mat_type=dialog.selector->get_type();
-        update_label();
-        
-        wxString name=dialog.selector->get_name();
-        
-        mat_name->ChangeValue(name);
-        edit_btn->SetToolTip(name);
-        
-        material=dialog.material;
-        
-        if(material.is_effective_material)
-        {
-            eff_weight->Show();
-            eff_weight->set_value(material.eff_weight);
-        }
-        else eff_weight->Hide();
-        
-        Layout();
-        
-        wxCommandEvent event_out(EVT_MINIMAT_SELECTOR);
-        wxPostEvent(this,event_out);
-    }
-    
-    event.Skip();
-}
-
-void MiniMaterialSelector::evt_weight(wxCommandEvent &event)
-{
-    double val=std::clamp(eff_weight->get_value(),0.0,1.0);
-    
-    material.eff_weight=val;
-    eff_weight->set_value(val);
-    
-    wxCommandEvent event_out(EVT_MINIMAT_SELECTOR);
-    wxPostEvent(this,event_out);
-}
-
-Imdouble MiniMaterialSelector::get_eps(double w) { return material.get_eps(w); }
-
-wxString MiniMaterialSelector::get_lua()
-{
-    wxString str;
-        
-    if(material.is_const()) str<<"const_material("<<material.get_n(0).real()<<")";
-    else str<<"\""<<material.script_path.generic_string()<<"\"";
-    
-    return str;
-}
-
-Imdouble MiniMaterialSelector::get_n(double w) { return material.get_n(w); }
-
-// TODO
-GUI::Material& MiniMaterialSelector::get_material() { return material; }
-
-void MiniMaterialSelector::set_material(std::filesystem::path const &script_fname)
-{
-    material.load_lua_script(script_fname);
-        
-    if(material.is_const())
-    {
-        mat_name->SetValue(std::to_string(material.get_n(0).real()));
-    }
-    else
-    {
-        unsigned int n;
-        
-        if(MaterialsLib::knows_material(n,material)==nullptr) mat_type=MatType::SCRIPT;
-        else mat_type=MatType::LIBRARY;
-        
-        mat_name->SetValue(script_fname.filename().generic_string());
-    }
-    
-    update_label();
-}
-
-void MiniMaterialSelector::update_label()
-{
-    // TODO
-    /*
-         if(mat_type==MatType::REAL_N)
-    {
-        mat_txt->Hide();
-        mat_bmp->Show();
-        mat_bmp->SetBitmap(ImagesManager::get_bitmap(PathManager::locate_resource("resources/n_16.png").generic_string()));
-    }
-    else if(mat_type==MatType::REAL_EPS)
-    {
-        mat_txt->Hide();
-        mat_bmp->Show();
-        mat_bmp->SetBitmap(ImagesManager::get_bitmap(PathManager::locate_resource("resources/varepsilon_16.png").generic_string()));
-    }
-    else if(mat_type==MatType::LIBRARY)
-    {
-        mat_txt->SetLabel("Lib");
-        mat_txt->Show();
-        mat_bmp->Hide();
-    }
-    else if(mat_type==MatType::SCRIPT)
-    {
-        mat_txt->SetLabel("Scr");
-        mat_txt->Show();
-        mat_bmp->Hide();
-    }
-    else if(mat_type==MatType::EFFECTIVE)
-    {
-        mat_txt->SetLabel("Eff");
-        mat_txt->Show();
-        mat_bmp->Hide();
-    }
-    else if(mat_type==MatType::CUSTOM)
-    {
-        mat_txt->SetLabel("Ctm");
-        mat_txt->Show();
-        mat_bmp->Hide();
-    }*/
-    
-    Layout();
 }

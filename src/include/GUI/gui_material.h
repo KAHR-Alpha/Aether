@@ -31,14 +31,19 @@ class MaterialsManager;
 class MaterialSelector: public wxPanel
 {
     public:
-        MatType mat_type;
-        double const_index,weight;
+        GUI::Material *material;
+        double const_index;
+        double weight;
         
-        GUI::Material *const_model;
-        GUI::Material *library_model;
+        // Header
         
-        wxChoice *mat_type_ctrl;
-        wxButton *load_btn;
+        NamedTextCtrl<std::string> *name_ctrl;
+        wxChoice *type_ctrl;
+        wxStaticText *type_description;
+        
+        // Material Edition
+        
+        NamedTextCtrl<double> *index_ctrl;
         wxButton *inspect_btn;
         wxTextCtrl *mat_txt;
         
@@ -52,6 +57,9 @@ class MaterialSelector: public wxPanel
                          *eff_mat_2_selector;
         NamedTextCtrl<double> *eff_weight;
         
+        std::vector<MaterialSelector*> eff_selector;
+        //std::vector<NamedTextCtrl<double>*> eff_weight;
+        
         // Custom
         
         MaterialEditor *custom_editor;
@@ -60,8 +68,6 @@ class MaterialSelector: public wxPanel
         
         bool (*accept_material)(Material*);
         
-        MaterialSelector(wxWindow *parent,std::string name,bool no_box=false,
-                         bool (*validator)(Material*)=&default_material_validator);
         MaterialSelector(wxWindow *parent,std::string name,bool no_box,GUI::Material *material,
                          bool (*validator)(Material*)=&default_material_validator);
         void MaterialSelector_EffPanel(wxWindow *parent);
@@ -71,61 +77,46 @@ class MaterialSelector: public wxPanel
         void allocate_effective_materials();
         void allocate_effective_materials(GUI::Material *eff_mat_1,
                                           GUI::Material *eff_mat_2);
-//        virtual bool accept_material(Material *material);
-        void const_index_event(wxCommandEvent &event);
-        void evt_const_index_focus(wxFocusEvent &event);
+        void evt_const_index(wxCommandEvent &event);
         void evt_custom_material(wxCommandEvent &event);
         void evt_effective_material(wxCommandEvent &event);
         void evt_inspect(wxCommandEvent &event);
-        void evt_load(wxCommandEvent &event);
+        void evt_library(wxCommandEvent &event);
         void evt_mat_type(wxCommandEvent &event);
+        void evt_name(wxCommandEvent &event);
         Imdouble get_eps(double w);
         int get_effective_material_type();
-        std::string get_lua();
         GUI::Material* get_material();
-        wxString get_name();
-        wxString get_title();
-        MatType get_type();
-        double get_lambda_validity_min();
-        double get_lambda_validity_max();
         double get_weight();
-        void layout_const();
-        void layout_custom();
-        void layout_effective();
-        void layout_library();
-        void operator = (MaterialSelector const &selector);
-        void set_const_model(double n);
         void throw_event();
+        void update_header();
+        void update_layout();
 };
 
 class MiniMaterialSelector: public wxPanel
 {
     public:
-        MatType mat_type;
-        wxGenericStaticBitmap *mat_bmp;
+        GUI::Material *material;
+        
         wxStaticText *mat_txt;
-        wxTextCtrl *mat_name;
+        wxTextCtrl *mat_description;
         wxButton *edit_btn;
         NamedTextCtrl<double> *eff_weight;
         
-        GUI::Material material;
-        
         MiniMaterialSelector(wxWindow *parent,
-                             GUI::Material *material,
+                             GUI::Material *material=nullptr,
                              std::string const &name="");
-        
-        MiniMaterialSelector(wxWindow *parent,
-                             std::string const &name="",
-                             std::filesystem::path const &script_fname="");
         
         void copy_material(MiniMaterialSelector *mat);
         void evt_edit(wxCommandEvent &event);
         void evt_weight(wxCommandEvent &event);
         Imdouble get_eps(double w);
-        wxString get_lua();
+        [[deprecated]] wxString get_lua();
         Imdouble get_n(double w);
-        [[deprecated]]GUI::Material& get_material();
+        GUI::Material& get_material();
+        // TODO
         void set_material(std::filesystem::path const &script_fname);
+        void update_display();
         void update_label();
 };
 
