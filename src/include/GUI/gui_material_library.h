@@ -1,8 +1,10 @@
 #ifndef GUI_MATERIAL_LIBRARY_H_INCLUDED
 #define GUI_MATERIAL_LIBRARY_H_INCLUDED
 
+#include <material.h>
+#include <lua_base.h>
+
 class MaterialsLib;
-class MaterialSelector;
 class MaterialsManager;
 
 enum class MatType

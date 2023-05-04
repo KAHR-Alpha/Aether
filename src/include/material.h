@@ -79,7 +79,7 @@ class Material
                              bool type_index);
         bool fdtd_compatible();
         Imdouble get_eps(double w) const;
-        std::string get_description() const;
+        //[[deprecated]] std::string get_description() const;
         std::string get_matlab(std::string const &fname) const;
         Imdouble get_n(double w) const;
         bool is_const() const;

@@ -221,7 +221,7 @@ Imdouble Material::get_eps(double w) const
     return 1.0;
 }
 
-std::string Material::get_description() const
+/*std::string Material::get_description() const
 {
     std::string out;
     
@@ -233,7 +233,7 @@ std::string Material::get_description() const
 //    else if(type==MAT_SELLMEIER) { out="sellmeier: "; out.append(script_name); }
     
     return out;
-}
+}*/
 
 std::string Material::get_matlab(std::string const &fname_) const
 {

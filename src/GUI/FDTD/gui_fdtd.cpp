@@ -499,6 +499,8 @@ void FDTD_Frame::evt_popup_menu(wxCommandEvent &event)
 
 void FDTD_Frame::evt_run(wxCommandEvent &event)
 {
+    fdtd_parameters.consolidate_materials();
+    
     FDTD_Run_Dialog dialog(this,fdtd_parameters);
     
     event.Skip();
@@ -584,6 +586,16 @@ int FDTD_Frame_lua_mode(lua_State *L)
     return 1;
 }
 
+namespace GUI
+{
+    int fdtd_set_material(lua_State *L)
+    {
+        GUI::Material *mat=dynamic_cast<GUI::Material*>(lua_get_metapointer<::Material>(L,1));
+        
+        return 0;
+    }
+}
+
 void FDTD_Frame::load(wxFileName const &fname_)
 {
     std::filesystem::path fname=fname_.GetFullPath().ToStdString();
@@ -620,6 +632,8 @@ void FDTD_Frame::load(wxFileName const &fname_)
     lua_register(L,"nearest_integer",nearest_integer);
     
     FDTD_Mode_create_metatable(L);
+    metatable_add_func(L,"material",&GUI::fdtd_set_material); // Override of the FDTD Mode Loading
+    
     Source_generator_create_metatable(L);
     Sensor_generator_create_metatable(L);
     
@@ -640,21 +654,6 @@ void FDTD_Frame::load(wxFileName const &fname_)
     lua_close(L);
     
     // Converting materials
-    
-    #ifdef OLDMAT
-    unsigned int N_mats=fdtd_parameters.materials_str.size();
-    
-    fdtd_parameters.materials.resize(N_mats);
-    
-    for(unsigned int i=0;i<N_mats;i++)
-    {
-        Material mat(fdtd_parameters.materials_str[i]);
-        
-        if(!mat.fdtd_compatible()) mat.set_const_n(1.0);
-        
-        fdtd_parameters.materials[i]=mat;
-    }
-    #endif
     
     for(unsigned int i=0;i<fdtd_parameters.materials.size();i++)
     {
@@ -775,12 +774,12 @@ void FDTD_Frame::reconstruct_tree()
     
     materials_ID=tree->AppendItem(root_ID,"Materials");
     
-    for(unsigned int i=0;i<fdtd_parameters.materials.size();i++)
+    for(unsigned int i=0;i<fdtd_parameters.g_materials.size();i++)
     {
-        Material &material=fdtd_parameters.materials[i];
+        GUI::Material *material=fdtd_parameters.g_materials[i];
         
         wxString str;
-        str<<i<<": "<<material.get_description();
+        str<<i<<": "<<material->get_short_description();
         
         tree->AppendItem(materials_ID,str);
     }

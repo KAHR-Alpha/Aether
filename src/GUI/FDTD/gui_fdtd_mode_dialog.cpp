@@ -29,18 +29,16 @@ class FDTD_Material_Panel: public PanelsListBase
     public:
         MaterialSelector *material;
         
-        FDTD_Material_Panel(wxWindow *parent,Material *material_)
+        FDTD_Material_Panel(wxWindow *parent,GUI::Material *material_)
             :PanelsListBase(parent)
         {
             set_title("Material");
             
-            // TODO
-            //material=new MaterialSelector(this,"",true,material_,&fdtd_material_validator);
+            material=new MaterialSelector(this,"",true,material_,&fdtd_material_validator);
             
             sizer->Add(material,wxSizerFlags().Expand().Border(wxALL,2));
         }
         
-        // TODO
         GUI::Material* get_material() { return material->get_material(); }
 };
 
@@ -228,7 +226,7 @@ void FD_Boundary_Panel::layout_periodic()
 //   FDTD_Mode_Dialog
 //######################
 
-FDTD_Mode_Dialog::FDTD_Mode_Dialog(FDTD_Mode *data_,int target_panel)
+FDTD_Mode_Dialog::FDTD_Mode_Dialog(GUI::FDTD_Mode *data_,int target_panel)
     :wxDialog(0,wxID_ANY,"FDTD Parameters",
               wxGetApp().default_dialog_origin(),
               wxGetApp().default_dialog_size()),
@@ -490,12 +488,11 @@ void FDTD_Mode_Dialog::FDTD_Mode_Dialog_Materials(wxNotebook *book,int target_pa
     
     mats_list=new PanelsList<>(mats_panel);
     
-    // TODO
-    /*for(unsigned int i=0;i<data->materials.size();i++)
+    for(unsigned int i=0;i<data->g_materials.size();i++)
     {
-        FDTD_Material_Panel *panel=mats_list->add_panel<FDTD_Material_Panel>((data->materials)[i]);
+        FDTD_Material_Panel *panel=mats_list->add_panel<FDTD_Material_Panel>((data->g_materials)[i]);
         panel->set_title("Material "+std::to_string(i));
-    }*/
+    }
     
     wxButton *mats_add_btn=new wxButton(mats_panel,wxID_ANY,"Add Material");
     mats_add_btn->Bind(wxEVT_BUTTON,&FDTD_Mode_Dialog::evt_add_material,this);
@@ -561,10 +558,7 @@ void FDTD_Mode_Dialog::FDTD_Mode_Dialog_Structure(wxNotebook *book,int target_pa
 
 void FDTD_Mode_Dialog::evt_add_material(wxCommandEvent &event)
 {
-    // TODO
-    
-    /*Material material;
-    material.set_const_n(1.0);
+    GUI::Material *material=MaterialsLib::request_material(MatType::REAL_N);
     
     PanelsListBase *panel=mats_list->add_panel<FDTD_Material_Panel>(material);
     
@@ -574,7 +568,7 @@ void FDTD_Mode_Dialog::evt_add_material(wxCommandEvent &event)
     
     mats_panel->FitInside();
     
-    event.Skip();*/
+    event.Skip();
 }
 
 void FDTD_Mode_Dialog::evt_cancel(wxCommandEvent &event)
@@ -686,13 +680,12 @@ void FDTD_Mode_Dialog::evt_ok(wxCommandEvent &event)
     
     unsigned int N_mats=mats_list->get_size();
     
-    data->materials.resize(N_mats);
+    data->g_materials.resize(N_mats);
     
     for(unsigned int i=0;i<N_mats;i++)
     {
         FDTD_Material_Panel *panel=dynamic_cast<FDTD_Material_Panel*>(mats_list->get_panel(i));
-        // TODO
-        //(data->materials)[i]=panel->get_material();
+        (data->g_materials)[i]=panel->get_material();
     }
     
     // Boundaries
@@ -776,7 +769,7 @@ void FDTD_Mode_Dialog::rename_materials()
 //   FDTD_Run_Dialog
 //#####################
 
-FDTD_Run_Dialog::FDTD_Run_Dialog(wxWindow *parent,FDTD_Mode const &data)
+FDTD_Run_Dialog::FDTD_Run_Dialog(wxWindow *parent,GUI::FDTD_Mode const &data)
     :wxDialog(parent,wxID_ANY,"Simulation",
               wxGetApp().default_dialog_origin(),
               wxGetApp().default_dialog_size(),wxCAPTION),
@@ -897,7 +890,7 @@ void FDTD_Run_Dialog::evt_timed_refresh(wxTimerEvent &event)
     }
 }
 
-void FDTD_Run_Dialog::run_computation(FDTD_Mode const &data)
+void FDTD_Run_Dialog::run_computation(GUI::FDTD_Mode const &data)
 {
          if(data.type==FDTD_Mode::FDTD_CUSTOM) mode_default_fdtd(data,&end_computation,&dsp,&display->bitmap);
     else if(data.type==FDTD_Mode::FDTD_NORMAL) FDTD_normal_incidence(data,&end_computation,&dsp,&display->bitmap);
