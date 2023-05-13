@@ -1,0 +1,123 @@
+name: Windows Dependencies
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
+
+defaults:
+  run:
+    shell: pwsh
+
+jobs:
+  build_eigen:
+    runs-on: windows-latest
+    steps:
+      - name: build
+        run: Invoke-WebRequest -URI https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.zip -OutFile eigen-3.4.0.zip
+      - run: Expand-Archive ./eigen-3.4.0.zip
+      - run: |
+          cd eigen-3.4.0/eigen-3.4.0
+          cmake -B ${{github.workspace}}/build -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/Eigen_build -DCMAKE_BUILD_TYPE=Release
+      - run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+      - name: 'Upload Eigen Artifact'
+        uses: actions/upload-artifact@v3
+        with:
+          name: eigen_build
+          path: Eigen_build/*
+          retention-days: 1
+    
+  build_lua:
+    runs-on: windows-latest
+    steps:
+      - name: Add MSBuild to PATH
+        uses: microsoft/setup-msbuild@v1.0.2
+      - run: Invoke-WebRequest -URI https://www.lua.org/ftp/lua-5.4.4.tar.gz -OutFile lua-5.4.4.tar.gz
+      - run: tar -xzf lua-5.4.4.tar.gz
+      - working-directory: lua-5.4.4
+        run: nmake
+      - name: 'Upload Lua Artifact'
+        uses: actions/upload-artifact@v3
+        with:
+          name: lua_build
+          path: lua-5.4.4/*
+          retention-days: 1
+  
+  build_FFTW:
+    runs-on: ubuntu-latest
+    steps:
+      - run: wget --no-check-certificate https://www.fftw.org/fftw-3.3.10.tar.gz
+      - run: tar -xzf fftw-3.3.10.tar.gz
+      - working-directory: fftw-3.3.10
+        run: ./configure --prefix=${{github.workspace}}/fftw_build && make && make install
+      - name: 'Upload FFTW Artifact'
+        uses: actions/upload-artifact@v3
+        with:
+          name: fftw_build
+          path: fftw_build/*
+          retention-days: 1
+    
+  build_zlib:
+    runs-on: ubuntu-latest
+    steps:
+      - run: wget https://zlib.net/zlib-1.2.13.tar.gz
+      - run: tar -xzf zlib-1.2.13.tar.gz
+      - run: |
+          cd zlib-1.2.13
+          cmake -B ${{github.workspace}}/build -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/zlib_build -DCMAKE_BUILD_TYPE=Release
+          cd ${{github.workspace}}/build
+          make
+          make install
+      - name: 'Upload zlib Artifact'
+        uses: actions/upload-artifact@v3
+        with:
+          name: zlib_build
+          path: zlib_build/*
+          retention-days: 1
+  
+  build_libpng:
+    runs-on: ubuntu-latest
+    steps:
+      - run: wget http://prdownloads.sourceforge.net/libpng/libpng-1.6.39.tar.gz
+      - run: tar -xzf libpng-1.6.39.tar.gz
+      - run: |
+          cd libpng-1.6.39
+          cmake -B ${{github.workspace}}/build/ -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/libpng_build -DCMAKE_BUILD_TYPE=Release
+          cd ${{github.workspace}}/build
+          make
+          make install
+      - name: 'Upload libpng Artifact'
+        uses: actions/upload-artifact@v3
+        with:
+          name: libpng_build
+          path: libpng_build/*
+          retention-days: 1
+    
+  collect_dependencies:
+    needs: [build_eigen,build_lua,build_FFTW,build_zlib,build_libpng]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download dependencies
+        uses: actions/download-artifact@v3
+      
+      - name: Aggregate dependencies
+        run: |
+          mkdir dependencies
+          cp -rf eigen_build/* dependencies/
+          cp -rf fftw_build/* dependencies/
+          cp -rf libpng_build/* dependencies/
+          cp -rf lua_build/* dependencies/
+          cp -rf zlib_build/* dependencies/
+          cd dependencies
+          ls -la
+        
+      - name: 'Upload aggregated dependencies'
+        uses: actions/upload-artifact@v3
+        with:
+          name: ubuntu_dependencies
+          path: dependencies/*
+          retention-days: 1
