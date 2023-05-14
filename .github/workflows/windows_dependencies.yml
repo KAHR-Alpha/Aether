@@ -13,111 +13,131 @@ defaults:
     shell: pwsh
 
 jobs:
-  build_eigen:
+  build_wx:
     runs-on: windows-latest
     steps:
-      - name: build
-        run: Invoke-WebRequest -URI https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.zip -OutFile eigen-3.4.0.zip
-      - run: Expand-Archive ./eigen-3.4.0.zip
-      - run: |
-          cd eigen-3.4.0/eigen-3.4.0
-          cmake -B ${{github.workspace}}/build -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/Eigen_build -DCMAKE_BUILD_TYPE=Release
-      - run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
-      - name: 'Upload Eigen Artifact'
+      - run: Invoke-WebRequest -URI https://github.com/wxWidgets/wxWidgets/releases/download/v3.2.2.1/wxWidgets-3.2.2.1.zip -OutFile sources.zip
+      - run: Expand-Archive ./sources.zip
+      - run: mkdir wx_build
+      - run: mkdir cmake_build
+      - run: cmake -B ../cmake_build -DCMAKE_INSTALL_PREFIX="../wx_build" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+        working-directory: sources
+      - run: cmake --build ../cmake_build --config ${{env.BUILD_TYPE}}
+        working-directory: sources
+      - run: cmake --install ../cmake_build
+        working-directory: sources
+      - name: 'Upload wxWidgets Artifact'
         uses: actions/upload-artifact@v3
         with:
-          name: eigen_build
-          path: Eigen_build/*
+          name: wx_build
+          path: wx_build/*
           retention-days: 1
-    
+  
   build_lua:
     runs-on: windows-latest
     steps:
-      - name: Add MSBuild to PATH
-        uses: microsoft/setup-msbuild@v1.0.2
       - run: Invoke-WebRequest -URI https://www.lua.org/ftp/lua-5.4.4.tar.gz -OutFile lua-5.4.4.tar.gz
       - run: tar -xzf lua-5.4.4.tar.gz
       - working-directory: lua-5.4.4
-        run: nmake
+        run: make generic
       - name: 'Upload Lua Artifact'
         uses: actions/upload-artifact@v3
         with:
           name: lua_build
           path: lua-5.4.4/*
           retention-days: 1
-  
-  build_FFTW:
-    runs-on: ubuntu-latest
-    steps:
-      - run: wget --no-check-certificate https://www.fftw.org/fftw-3.3.10.tar.gz
-      - run: tar -xzf fftw-3.3.10.tar.gz
-      - working-directory: fftw-3.3.10
-        run: ./configure --prefix=${{github.workspace}}/fftw_build && make && make install
-      - name: 'Upload FFTW Artifact'
-        uses: actions/upload-artifact@v3
-        with:
-          name: fftw_build
-          path: fftw_build/*
-          retention-days: 1
-    
+            
   build_zlib:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
-      - run: wget https://zlib.net/zlib-1.2.13.tar.gz
-      - run: tar -xzf zlib-1.2.13.tar.gz
-      - run: |
-          cd zlib-1.2.13
-          cmake -B ${{github.workspace}}/build -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/zlib_build -DCMAKE_BUILD_TYPE=Release
-          cd ${{github.workspace}}/build
-          make
-          make install
+      - run: Invoke-WebRequest -URI https://zlib.net/zlib1213.zip -OutFile sources.zip
+      - run: Expand-Archive ./sources.zip
+      #- run: mkdir cmake_build
+      #- run: mkdir libpng_build
+      - run: cmake -B "${{github.workspace}}/cmake_build" -DCMAKE_INSTALL_PREFIX="${{github.workspace}}/zlib_build" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+        working-directory: sources/zlib-1.2.13
+      - run: cmake --build "${{github.workspace}}/cmake_build" --config ${{env.BUILD_TYPE}}
+        working-directory: sources/zlib-1.2.13
+      - run: cmake --install "${{github.workspace}}/cmake_build"
+        working-directory: sources/zlib-1.2.13
       - name: 'Upload zlib Artifact'
         uses: actions/upload-artifact@v3
         with:
           name: zlib_build
           path: zlib_build/*
           retention-days: 1
-  
+          
   build_libpng:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
+    needs: build_zlib
     steps:
-      - run: wget http://prdownloads.sourceforge.net/libpng/libpng-1.6.39.tar.gz
-      - run: tar -xzf libpng-1.6.39.tar.gz
-      - run: |
-          cd libpng-1.6.39
-          cmake -B ${{github.workspace}}/build/ -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/libpng_build -DCMAKE_BUILD_TYPE=Release
-          cd ${{github.workspace}}/build
-          make
-          make install
+      - name: Download a Build Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: zlib_build
+          path: zlib_build
+      - run: Invoke-WebRequest -UserAgent "Wget" -URI https://sourceforge.net/projects/libpng/files/latest/download -OutFile sources.zip
+      - run: Expand-Archive ./sources.zip
+      #- run: mkdir cmake_build
+      #- run: mkdir libpng_build
+      - run: cmake -B "${{github.workspace}}/cmake_build" -DCMAKE_INSTALL_PREFIX="${{github.workspace}}/libpng_build" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_PREFIX_PATH="../../zlib_build"
+        working-directory: sources/lpng1639
+      - run: cmake --build "${{github.workspace}}/cmake_build" --config ${{env.BUILD_TYPE}}
+        working-directory: sources/lpng1639
+      - run: cmake --install "${{github.workspace}}/cmake_build"
+        working-directory: sources/lpng1639
       - name: 'Upload libpng Artifact'
         uses: actions/upload-artifact@v3
         with:
           name: libpng_build
           path: libpng_build/*
           retention-days: 1
-    
-  collect_dependencies:
-    needs: [build_eigen,build_lua,build_FFTW,build_zlib,build_libpng]
-    runs-on: ubuntu-latest
-
+          
+  build_freetype:
+    runs-on: windows-latest
     steps:
-      - name: Download dependencies
-        uses: actions/download-artifact@v3
-      
-      - name: Aggregate dependencies
-        run: |
-          mkdir dependencies
-          cp -rf eigen_build/* dependencies/
-          cp -rf fftw_build/* dependencies/
-          cp -rf libpng_build/* dependencies/
-          cp -rf lua_build/* dependencies/
-          cp -rf zlib_build/* dependencies/
-          cd dependencies
-          ls -la
-        
-      - name: 'Upload aggregated dependencies'
+      - run: Invoke-WebRequest -UserAgent "Wget" -URI https://sourceforge.net/projects/freetype/files/latest/download -OutFile sources.zip
+      - run: Expand-Archive ./sources.zip
+      - run: cmake -B "${{github.workspace}}/cmake_build" -DCMAKE_INSTALL_PREFIX="${{github.workspace}}/freetype_build" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+        working-directory: sources/freetype-2.13.0
+      - run: cmake --build "${{github.workspace}}/cmake_build" --config ${{env.BUILD_TYPE}}
+        working-directory: sources/freetype-2.13.0
+      - run: cmake --install "${{github.workspace}}/cmake_build"
+        working-directory: sources/freetype-2.13.0
+      - name: 'Upload libpng Artifact'
         uses: actions/upload-artifact@v3
         with:
-          name: ubuntu_dependencies
-          path: dependencies/*
+          name: freetype_build
+          path: freetype_build/*
+          retention-days: 1
+          
+  get_fftw:
+    runs-on: windows-latest
+    steps:
+      - run: Invoke-WebRequest -URI https://fftw.org/pub/fftw/fftw-3.3.5-dll64.zip -OutFile fftw.zip
+      - run: Expand-Archive ./fftw.zip
+      - name: 'Upload fftw Artifact'
+        uses: actions/upload-artifact@v3
+        with:
+          name: fftw
+          path: fftw/*
+          retention-days: 1
+
+  build_eigen:
+    runs-on: windows-latest
+    steps:
+      - run: Invoke-WebRequest -URI https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.zip -OutFile eigen-3.4.0.zip
+      - run: Expand-Archive ./eigen-3.4.0.zip
+      - name: build
+        run: cmake -B "${{github.workspace}}/build" -DCMAKE_INSTALL_PREFIX="${{github.workspace}}/Eigen_build" -DCMAKE_BUILD_TYPE=Release
+        working-directory: eigen-3.4.0/eigen-3.4.0
+      - run: cmake --build "${{github.workspace}}/build"
+        working-directory: eigen-3.4.0/eigen-3.4.0
+      - run: cmake --install "${{github.workspace}}/build"
+        working-directory: eigen-3.4.0/eigen-3.4.0
+      - name: 'Upload Eigen Artifact'
+        uses: actions/upload-artifact@v3
+        with:
+          name: eigen_build
+          path: Eigen_build/*
           retention-days: 1
