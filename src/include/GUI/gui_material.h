@@ -114,8 +114,7 @@ class MiniMaterialSelector: public wxPanel
         [[deprecated]] wxString get_lua();
         Imdouble get_n(double w);
         GUI::Material& get_material();
-        // TODO
-        void set_material(std::filesystem::path const &script_fname);
+        void set_material(GUI::Material *material);
         void update_display();
         void update_label();
 };

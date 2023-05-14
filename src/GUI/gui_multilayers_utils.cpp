@@ -181,16 +181,14 @@ wxString LayerPanel::get_lua_string()
 //################
 
 BraggPanel::BraggPanel(wxWindow *parent,
-                       double height_1_,double std_dev_1_,std::string material_1_,
-                       double height_2_,double std_dev_2_,std::string material_2_,
-                       double height_core_,double std_dev_core_,std::string material_core_,
+                       double height_1_,double std_dev_1_,GUI::Material *material_1_,
+                       double height_2_,double std_dev_2_,GUI::Material *material_2_,
+                       double height_core_,double std_dev_core_,GUI::Material *material_core_,
                        double global_std_dev_,double g_factor_,int N_top_,int N_bottom_)
     :LayerPanelBase(parent),
      std_dev_1(std_dev_1_), std_dev_2(std_dev_2_), std_dev_core(std_dev_core_)
 {
-    // TODO
-    
-    /*if(std_dev_1!=0 || std_dev_2!=0 || std_dev_core!=0 || global_std_dev!=0) statistical=true;
+    if(std_dev_1!=0 || std_dev_2!=0 || std_dev_core!=0 || global_std_dev!=0) statistical=true;
     
     // Material 1
     
@@ -207,7 +205,7 @@ BraggPanel::BraggPanel(wxWindow *parent,
         
     waviness_ctrl_1->Bind(wxEVT_BUTTON,&BraggPanel::evt_waviness,this);
     
-    selector_1=new MiniMaterialSelector(this,"",material_1_);
+    selector_1=new MiniMaterialSelector(this,material_1_,"");
     
     mat_1_sizer->Add(height_sizer_1,wxSizerFlags().Expand());
     mat_1_sizer->Add(selector_1,wxSizerFlags().Expand());
@@ -227,7 +225,7 @@ BraggPanel::BraggPanel(wxWindow *parent,
     
     waviness_ctrl_2->Bind(wxEVT_BUTTON,&BraggPanel::evt_waviness,this);
     
-    selector_2=new MiniMaterialSelector(this,"",material_2_);
+    selector_2=new MiniMaterialSelector(this,material_2_,"");
     
     mat_2_sizer->Add(height_sizer_2,wxSizerFlags().Expand());
     mat_2_sizer->Add(selector_2,wxSizerFlags().Expand());
@@ -249,7 +247,7 @@ BraggPanel::BraggPanel(wxWindow *parent,
         
     waviness_ctrl_core->Bind(wxEVT_BUTTON,&BraggPanel::evt_waviness,this);
     
-    selector_core=new MiniMaterialSelector(this,"",material_core_);
+    selector_core=new MiniMaterialSelector(this,material_core_,"");
     
     core_sizer->Add(height_sizer_core,wxSizerFlags().Expand());
     core_sizer->Add(selector_core,wxSizerFlags().Expand());
@@ -276,7 +274,7 @@ BraggPanel::BraggPanel(wxWindow *parent,
     sizer->Add(g_factor,wxSizerFlags().Expand());
     
     top_rep_ctrl->Bind(EVT_NAMEDTXTCTRL,&BraggPanel::evt_periods,this);
-    bottom_rep_ctrl->Bind(EVT_NAMEDTXTCTRL,&BraggPanel::evt_periods,this);*/
+    bottom_rep_ctrl->Bind(EVT_NAMEDTXTCTRL,&BraggPanel::evt_periods,this);
 }
 
 void BraggPanel::check_statistical()

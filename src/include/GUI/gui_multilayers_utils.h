@@ -74,9 +74,9 @@ class BraggPanel: public LayerPanelBase
         NamedTextCtrl<double> *g_factor;
         
         BraggPanel(wxWindow *parent,
-                   double height_1=0,double std_dev_1=0,std::string material_1="",
-                   double height_2=0,double std_dev_2=0,std::string material_2="",
-                   double height_core=0,double std_dev_core=0,std::string material_core="",
+                   double height_1=0,double std_dev_1=0,GUI::Material *material_1=nullptr,
+                   double height_2=0,double std_dev_2=0,GUI::Material *material_2=nullptr,
+                   double height_core=0,double std_dev_core=0,GUI::Material *material_core=nullptr,
                    double global_std_dev=0,double g_factor=0,int N_top=1,int N_bottom=1);
         
         void check_statistical();

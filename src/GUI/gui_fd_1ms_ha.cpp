@@ -1065,6 +1065,27 @@ int lua_gui_hapms_mode(lua_State *L)
     return 1;
 }
 
+int lua_HAPSF_add_layer(lua_State *L)
+{
+    lua_getglobal(L,"bound_class");
+    HAPSolverFrame *frame=reinterpret_cast<HAPSolverFrame*>(lua_touserdata(L,-1));
+    
+    // TODO
+    return 0;
+}
+
+int lua_HAPSF_set_substrate(lua_State *L)
+{
+    // TODO
+    return 0;
+}
+
+int lua_HAPSF_set_superstrate(lua_State *L)
+{
+    // TODO
+    return 0;
+}
+
 void HAPSolverFrame::load_project(wxFileName const &fname_)
 {
     layers_list->clear();
@@ -1074,20 +1095,24 @@ void HAPSolverFrame::load_project(wxFileName const &fname_)
     lua_State *L=luaL_newstate();
     luaL_openlibs(L);
     
-    HAPSolverFrame *p_frame=this;
-    
-    lua_pushlightuserdata(L,reinterpret_cast<void*>(&p_frame));
-    lua_setglobal(L,"bound_class");
-    
     lua_register(L,"const_material",gen_const_material);
     lua_register(L,"gui_hapms_mode",lua_gui_hapms_mode);
     
+    HAPSolverFrame *p_frame=this;
+    lua_pushlightuserdata(L,reinterpret_cast<void*>(&p_frame));
+    
     create_obj_metatable(L,"metatable_hapms_frame");
+    
+    metatable_add_func(L,"add_layer",&lua_HAPSF_add_layer);
+    metatable_add_func(L,"substrate",&lua_HAPSF_set_substrate);
+    metatable_add_func(L,"superstrate",&lua_HAPSF_set_superstrate);
+    
+    lua_setglobal(L,"bound_class");
     
     // TODO
     //lua_wrapper<0,HAPSolverFrame,double,double,std::string>::bind(L,"add_layer",&HAPSolverFrame::lua_add_layer);
-    lua_wrapper<1,HAPSolverFrame,std::string>::bind(L,"substrate",&HAPSolverFrame::lua_set_substrate);
-    lua_wrapper<2,HAPSolverFrame,std::string>::bind(L,"superstrate",&HAPSolverFrame::lua_set_superstrate);
+//    lua_wrapper<1,HAPSolverFrame,std::string>::bind(L,"substrate",&HAPSolverFrame::lua_set_substrate);
+//    lua_wrapper<2,HAPSolverFrame,std::string>::bind(L,"superstrate",&HAPSolverFrame::lua_set_superstrate);
     
     int load_err = luaL_loadfile(L,fname.c_str());
     
@@ -1118,12 +1143,12 @@ void HAPSolverFrame::lua_add_layer(double height,double std_dev,GUI::Material *m
     layers_list->add_panel<LayerPanel>(height,std_dev,material,true);
 }
 
-void HAPSolverFrame::lua_set_substrate(std::string material)
+void HAPSolverFrame::lua_set_substrate(GUI::Material *material)
 {
     substrate_selector->set_material(material);
 }
 
-void HAPSolverFrame::lua_set_superstrate(std::string material)
+void HAPSolverFrame::lua_set_superstrate(GUI::Material *material)
 {
     superstrate_selector->set_material(material);
 }

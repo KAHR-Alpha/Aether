@@ -615,14 +615,14 @@ void MultilayerFrame::load_project(wxFileName const &fname_)
     
     // TODO
     //lua_wrapper<0,MultilayerFrame,double,double,std::string>::bind(L,"add_layer",&MultilayerFrame::lua_add_layer);
-    lua_wrapper<1,MultilayerFrame,double,double,std::string,
-                                  double,double,std::string,
-                                  double,double,std::string,
-                                  double,double,int,int>::bind(L,"add_bragg",&MultilayerFrame::lua_add_bragg);
+//    lua_wrapper<1,MultilayerFrame,double,double,std::string,
+//                                  double,double,std::string,
+//                                  double,double,std::string,
+//                                  double,double,int,int>::bind(L,"add_bragg",&MultilayerFrame::lua_add_bragg);
     lua_wrapper<2,MultilayerFrame,int>::bind(L,"angles",&MultilayerFrame::lua_set_angles);
     lua_wrapper<3,MultilayerFrame,double,double,int>::bind(L,"spectrum",&MultilayerFrame::lua_set_spectrum);
-    lua_wrapper<4,MultilayerFrame,std::string>::bind(L,"substrate",&MultilayerFrame::lua_set_substrate);
-    lua_wrapper<5,MultilayerFrame,std::string>::bind(L,"superstrate",&MultilayerFrame::lua_set_superstrate);
+//    lua_wrapper<4,MultilayerFrame,std::string>::bind(L,"substrate",&MultilayerFrame::lua_set_substrate);
+//    lua_wrapper<5,MultilayerFrame,std::string>::bind(L,"superstrate",&MultilayerFrame::lua_set_superstrate);
     
     int load_err = luaL_loadfile(L,fname.c_str());
     
@@ -665,9 +665,9 @@ void MultilayerFrame::lua_add_layer(double height,double std_dev,GUI::Material *
     layers_list->add_panel<LayerPanel>(height,std_dev,material,true);
 }
 
-void MultilayerFrame::lua_add_bragg(double height_1,double std_dev_1,std::string material_1,
-                                    double height_2,double std_dev_2,std::string material_2,
-                                    double height_core,double std_dev_core,std::string material_core,
+void MultilayerFrame::lua_add_bragg(double height_1,double std_dev_1,GUI::Material *material_1,
+                                    double height_2,double std_dev_2,GUI::Material *material_2,
+                                    double height_core,double std_dev_core,GUI::Material *material_core,
                                     double global_std_dev,double g_factor,int N_top,int N_bottom)
 {
     layers_list->add_panel<BraggPanel>(height_1,std_dev_1,material_1,
@@ -687,12 +687,12 @@ void MultilayerFrame::lua_set_spectrum(double lambda_min,double lambda_max,int N
     spectrum->set_Np(Nl);
 }
 
-void MultilayerFrame::lua_set_substrate(std::string material)
+void MultilayerFrame::lua_set_substrate(GUI::Material *material)
 {
     substrate_selector->set_material(material);
 }
 
-void MultilayerFrame::lua_set_superstrate(std::string material)
+void MultilayerFrame::lua_set_superstrate(GUI::Material *material)
 {
     superstrate_selector->set_material(material);
 }

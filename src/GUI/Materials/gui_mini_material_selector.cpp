@@ -180,26 +180,11 @@ Imdouble MiniMaterialSelector::get_n(double w) { return material->get_n(w); }
 
 GUI::Material& MiniMaterialSelector::get_material() { return *material; }
 
-void MiniMaterialSelector::set_material(std::filesystem::path const &script_fname)
+void MiniMaterialSelector::set_material(GUI::Material *material_)
 {
-    // TODO
-    /*material.load_lua_script(script_fname);
-        
-    if(material.is_const())
-    {
-        mat_name->SetValue(std::to_string(material.get_n(0).real()));
-    }
-    else
-    {
-        unsigned int n;
-        
-        if(MaterialsLib::knows_material(n,material)==nullptr) mat_type=MatType::SCRIPT;
-        else mat_type=MatType::LIBRARY;
-        
-        mat_name->SetValue(script_fname.filename().generic_string());
-    }
+    material=material_;
     
-    update_label();*/
+    update_display();
 }
 
 void MiniMaterialSelector::update_display()
