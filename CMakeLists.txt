@@ -21,7 +21,13 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel." FORCE)
-set(CMAKE_CXX_FLAGS "-DTHR_NOTIFY_SEPARATE -ftemplate-backtrace-limit=0 -Wno-int-in-bool-context -Wno-attributes" CACHE STRING " " FORCE)
+
+if(WIN32 AND NOT MINGW)
+	set(CMAKE_CXX_FLAGS "-DTHR_NOTIFY_SEPARATE" CACHE STRING " " FORCE)
+else()
+	set(CMAKE_CXX_FLAGS "-DTHR_NOTIFY_SEPARATE -ftemplate-backtrace-limit=0 -Wno-int-in-bool-context -Wno-attributes" CACHE STRING " " FORCE)
+endif()
+
 set(CMAKE_INSTALL_PREFIX ${INSTALL_PATH} CACHE STRING "Install path prefix, prepended onto install directories." FORCE)
 
 ####################
@@ -114,24 +120,12 @@ if(GUI)
 	endif()
 endif()
 				
-# add_executable(Aether_CLI ${base_term} ${extra_sources} ${fd_solver}
-					  # ${fdfd_core} ${fdtd_core} ${fdtd_modes} ${lua_src}
-					  # ${math_src} ${multilayers_src} ${phototracer_src} ${rcwa_src}
-					  # ${sensor_src} ${selene_src} ${source_src})
-
-				
 add_executable(Aether_CLI ${base_term} ${extra_sources} ${fd_solver}
 					  ${fdfd_core} ${fdtd_core} ${fdtd_modes} ${lua_src}
-					  ${math_src} ${multilayers_src} ${phototracer_src}
+					  ${math_src} ${multilayers_src}
 					  ${sensor_src} ${selene_src} ${source_src} ${structure_src})
 
-if(GUI)
-	# add_executable(Aether_GUI WIN32 ${base_gui} ${gui_src} ${gl_tools_src}  ${gl3w}
-						  # ${extra_sources} ${fd_solver} ${fdfd_core} ${fdtd_core}
-						  # ${fdtd_modes} ${lua_src}
-						  # ${math_src} ${multilayers_src} ${rcwa_src} ${sensor_src}
-						  # ${selene_src} ${source_src})
-						  
+if(GUI)						  
 	add_executable(Aether_GUI WIN32 ${base_gui} ${gui_src} ${gl_tools_src}  ${gl3w}
 						  ${extra_sources} ${fd_solver} ${fdfd_core} ${fdtd_core}
 						  ${fdtd_modes} ${lua_src}
