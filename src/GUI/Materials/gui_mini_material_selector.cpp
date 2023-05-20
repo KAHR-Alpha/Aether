@@ -165,17 +165,6 @@ void MiniMaterialSelector::evt_weight(wxCommandEvent &event)
 
 Imdouble MiniMaterialSelector::get_eps(double w) { return material->get_eps(w); }
 
-wxString MiniMaterialSelector::get_lua()
-{
-    wxString str;
-    
-    // TODO
-//    if(material.is_const()) str<<"const_material("<<material.get_n(0).real()<<")";
-//    else str<<"\""<<material.script_path.generic_string()<<"\"";
-    
-    return str;
-}
-
 Imdouble MiniMaterialSelector::get_n(double w) { return material->get_n(w); }
 
 GUI::Material& MiniMaterialSelector::get_material() { return *material; }

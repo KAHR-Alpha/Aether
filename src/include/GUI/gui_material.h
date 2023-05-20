@@ -111,7 +111,6 @@ class MiniMaterialSelector: public wxPanel
         void evt_edit(wxCommandEvent &event);
         void evt_weight(wxCommandEvent &event);
         Imdouble get_eps(double w);
-        [[deprecated]] wxString get_lua();
         Imdouble get_n(double w);
         GUI::Material& get_material();
         void set_material(GUI::Material *material);

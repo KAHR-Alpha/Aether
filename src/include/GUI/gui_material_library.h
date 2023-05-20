@@ -25,10 +25,11 @@ namespace GUI
             MatType type;
             
             std::string get_description();
-            std::string get_short_description();
-            
             double get_lambda_validity_min();
-            double get_lambda_validity_max();        
+            double get_lambda_validity_max();     
+            std::string get_lua();
+            std::string get_short_description();
+               
         
         friend MaterialsLib;
     };

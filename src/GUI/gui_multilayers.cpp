@@ -1106,7 +1106,7 @@ void MultilayerFrame::save_project(wxFileName const &fname_)
     file<<"mode:angles("<<angle_ctrl->get_value()<<")"<<std::endl;
     file<<"mode:spectrum("<<spectrum->get_lambda_min()<<","<<spectrum->get_lambda_max()<<","<<spectrum->get_Np()<<")"<<std::endl;
     
-    file<<"mode:superstrate("<<superstrate_selector->get_lua()<<")"<<std::endl<<std::endl;
+    file<<"mode:superstrate("<<superstrate_selector->get_material().get_lua()<<")"<<std::endl<<std::endl;
     
     for(unsigned int i=0;i<layers_list->get_size();i++)
     {
@@ -1114,7 +1114,7 @@ void MultilayerFrame::save_project(wxFileName const &fname_)
     }
     file<<std::endl;
     
-    file<<"mode:substrate("<<substrate_selector->get_lua()<<")";
+    file<<"mode:substrate("<<substrate_selector->get_material().get_lua()<<")";
     
     file.close();
     

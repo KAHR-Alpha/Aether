@@ -143,6 +143,17 @@ namespace GUI
         else return lambda_valid_max;
     }
     
+    std::string Material::get_lua()
+    {
+        std::string str;
+    
+        // TODO
+        if(is_const()) str = "const_material(" + std::to_string(get_n(0).real()) + ")";
+        else str = "\"" + script_path.generic_string() + "\"";
+        
+        return str;
+    }
+    
     std::string Material::get_short_description()
     {
         std::stringstream out;
