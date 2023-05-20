@@ -144,48 +144,6 @@ int index_fit_mode_set_Ncp(lua_State *L)
     return 1;
 }
 
-//##############
-//   Material
-//##############
-#include <phys_tools.h>
-
-int lua_create_material(lua_State *L)
-{
-    Material *p_material=lua_allocate_metapointer<Material>(L,"metatable_material");
-    
-    if(lua_gettop(L)>0)
-    {
-             if(lua_isnumber(L,1)) p_material->set_const_n(lua_tonumber(L,1));
-        else if(lua_isstring(L,1)) p_material->load_lua_script(lua_tostring(L,1));
-    }
-    
-    return 1;
-}
-
-int lua_material_set_index(lua_State *L)
-{
-    Material *mat=lua_get_metapointer<Material>(L,1);
-    mat->set_const_n(lua_tonumber(L,2));
-    
-    return 0;
-}
-
-int lua_material_set_name(lua_State *L)
-{
-    Material *mat=lua_get_metapointer<Material>(L,1);
-    mat->name=lua_tostring(L,2);
-    
-    return 0;
-}
-
-int lua_material_set_script(lua_State *L)
-{
-    Material *mat=lua_get_metapointer<Material>(L,1);
-    mat->load_lua_script(lua_tostring(L,2));
-    
-    return 0;
-}
-
 //###############
 //     Mie
 //###############

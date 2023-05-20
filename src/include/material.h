@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2023 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -79,7 +79,6 @@ class Material
                              bool type_index);
         bool fdtd_compatible();
         Imdouble get_eps(double w) const;
-        //[[deprecated]] std::string get_description() const;
         std::string get_matlab(std::string const &fname) const;
         Imdouble get_n(double w) const;
         bool is_const() const;

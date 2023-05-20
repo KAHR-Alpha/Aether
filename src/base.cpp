@@ -21,6 +21,7 @@ limitations under the License.*/
 #include <index_utils.h>
 #include <lua_fd.h>
 #include <lua_interface.h>
+#include <lua_material.h>
 #include <lua_multilayers.h>
 #include <lua_selene.h>
 #include <lua_structure.h>

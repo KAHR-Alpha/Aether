@@ -171,7 +171,7 @@ wxString LayerPanel::get_lua_string()
     wxString str;
     str<<"add_layer("<<height_ctrl->get_length()<<","
                      <<std_dev<<","
-                     <<selector->get_material().get_lua()<<")";
+                     <<selector->get_material().get_inline_lua()<<")";
     
     return str;
 }
@@ -338,9 +338,9 @@ wxString BraggPanel::get_lua_string()
 {
     wxString str;
     
-    str<<"add_bragg("<<height_ctrl_1->get_length()<<","<<std_dev_1<<","<<selector_1->get_material().get_lua()<<","
-                     <<height_ctrl_2->get_length()<<","<<std_dev_2<<","<<selector_2->get_material().get_lua()<<","
-                     <<height_ctrl_core->get_length()<<","<<std_dev_core<<","<<selector_core->get_material().get_lua()<<","
+    str<<"add_bragg("<<height_ctrl_1->get_length()<<","<<std_dev_1<<","<<selector_1->get_material().get_inline_lua()<<","
+                     <<height_ctrl_2->get_length()<<","<<std_dev_2<<","<<selector_2->get_material().get_inline_lua()<<","
+                     <<height_ctrl_core->get_length()<<","<<std_dev_core<<","<<selector_core->get_material().get_inline_lua()<<","
                      <<global_std_dev->get_length()<<","<<g_factor->get_value()<<","
                      <<top_rep_ctrl->get_value()<<","<<bottom_rep_ctrl->get_value()<<")";
     

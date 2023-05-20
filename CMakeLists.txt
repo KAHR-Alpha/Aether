@@ -43,7 +43,6 @@ set(extra_sources src/berreman_strat.cpp
 				src/index_utils.cpp
 				src/lua_base.cpp
 				src/lua_interface.cpp
-				src/lua_material.cpp
 				src/material.cpp
 				src/mie.cpp
 				src/mini_svg.cpp

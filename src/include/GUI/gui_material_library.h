@@ -1,3 +1,17 @@
+/*Copyright 2008-2023 - Loïc Le Cunff
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.*/
+
 #ifndef GUI_MATERIAL_LIBRARY_H_INCLUDED
 #define GUI_MATERIAL_LIBRARY_H_INCLUDED
 
@@ -25,9 +39,10 @@ namespace GUI
             MatType type;
             
             std::string get_description();
+            std::string get_inline_lua();
             double get_lambda_validity_min();
-            double get_lambda_validity_max();     
-            std::string get_lua();
+            double get_lambda_validity_max();
+            std::string get_lua(std::string const &script_name);
             std::string get_short_description();
                
         
@@ -36,9 +51,19 @@ namespace GUI
 
     void create_material_metatable(lua_State *L);
     int lua_create_material(lua_State *L);
+    int lua_material_add_cauchy(lua_State *L);
+    int lua_material_add_crit_point(lua_State *L);
+    int lua_material_add_data_epsilon(lua_State *L);
+    int lua_material_add_data_index(lua_State *L);
+    int lua_material_add_debye(lua_State *L);
+    int lua_material_add_drude(lua_State *L);
+    int lua_material_add_sellmeier(lua_State *L);
+    int lua_material_description(lua_State *L);
+    int lua_material_epsilon_infinity(lua_State *L);
     int lua_material_set_index(lua_State *L);
     int lua_material_set_name(lua_State *L);
     int lua_material_set_script(lua_State *L);
+    int lua_material_validity_range(lua_State *L);
 }
 
 bool default_material_validator(Material *material);

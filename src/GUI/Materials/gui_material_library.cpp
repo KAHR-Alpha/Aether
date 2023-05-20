@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2023 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -30,6 +30,23 @@ namespace GUI
         metatable_add_func(L,"name",lua_material_set_name);
         metatable_add_func(L,"refractive_index",lua_material_set_index);
         metatable_add_func(L,"load_script",lua_material_set_script);
+        
+        // Custom Material Functions
+        
+//        metatable_add_func(L,"add_cauchy",lmat_add_cauchy);
+//        metatable_add_func(L,"add_crit_point",lmat_add_crit_point);
+//        metatable_add_func(L,"add_data_epsilon",lmat_add_data_table<1>);
+//        metatable_add_func(L,"add_data_index",lmat_add_data_table<0>);
+//        metatable_add_func(L,"add_debye",lmat_add_debye);
+//        metatable_add_func(L,"add_drude",lmat_add_drude);
+//        metatable_add_func(L,"add_lorentz",lmat_add_lorentz);
+//        metatable_add_func(L,"add_sellmeier",lmat_set_sellmeier);
+//        metatable_add_func(L,"description",lmat_description);
+//        metatable_add_func(L,"epsilon_infinity",lmat_epsilon_infty);
+//        metatable_add_func(L,"epsilon_infty",lmat_epsilon_infty);
+//        metatable_add_func(L,"index_infinity",lmat_index_infty);
+//        metatable_add_func(L,"index_infty",lmat_index_infty);
+//        metatable_add_func(L,"validity_range",lmat_set_validity_range);
     }
     
     int lua_create_material(lua_State *L)
@@ -121,9 +138,20 @@ namespace GUI
         return strm.str();
     }
     
+    std::string Material::get_inline_lua()
+    {
+        std::string str;
+    
+        // TODO
+        if(is_const()) str = "const_material(" + std::to_string(get_n(0).real()) + ")";
+        else str = "\"" + script_path.generic_string() + "\"";
+        
+        return str;
+    }
+    
     double Material::get_lambda_validity_min()
     {
-             if(type==MatType::REAL_N) 1e-100;
+             if(type==MatType::REAL_N) return 1e-100;
         else if(type==MatType::EFFECTIVE)
         {
             return std::max(eff_mat_1->lambda_valid_min,
@@ -143,15 +171,26 @@ namespace GUI
         else return lambda_valid_max;
     }
     
-    std::string Material::get_lua()
+    std::string Material::get_lua(std::string const &script_name)
     {
-        std::string str;
-    
         // TODO
-        if(is_const()) str = "const_material(" + std::to_string(get_n(0).real()) + ")";
-        else str = "\"" + script_path.generic_string() + "\"";
+        std::stringstream strm;
         
-        return str;
+        strm<<script_name<<"=Material()\n";
+        
+        if(!name.empty())
+            strm<<script_name<<":name(\""<<name<<"\")\n";
+        
+        if(type==MatType::REAL_N)
+        {
+            strm<<script_name<<":refractive_index("<<std::to_string(get_n(0).real())<<")\n";
+        }
+        else if(type==MatType::LIBRARY || type==MatType::USER_LIBRARY)
+        {
+            strm<<script_name<<":load_script("<<script_path.generic_string()<<")\n";
+        }
+        
+        return strm.str();
     }
     
     std::string Material::get_short_description()

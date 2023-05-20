@@ -1,0 +1,25 @@
+/*Copyright 2008-2023 - Loïc Le Cunff
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.*/
+
+#ifndef LUA_MATERIAL_H_INCLUDED
+#define LUA_MATERIAL_H_INCLUDED
+
+#include <lua_base.h>
+
+int lua_create_material(lua_State *L);
+int lua_material_set_index(lua_State *L);
+int lua_material_set_script(lua_State *L);
+int lua_material_set_name(lua_State *L);
+
+#endif // LUA_MATERIAL_H_INCLUDED
