@@ -15,7 +15,7 @@ limitations under the License.*/
 #ifndef GUI_MATERIAL_EDITOR_H_INCLUDED
 #define GUI_MATERIAL_EDITOR_H_INCLUDED
 
-#include <material.h>
+#include <gui_material_library.h>
 
 #include <gui_material_editor_panels.h>
 
@@ -25,7 +25,8 @@ wxDECLARE_EVENT(EVT_MATERIAL_EDITOR_SPECTRUM,wxCommandEvent);
 class MaterialEditor: public wxPanel
 {
     public:
-        Material material;
+        // TODO
+        GUI::Material material;
         bool read_only_material;
         
         NamedTextCtrl<std::string> *name;

@@ -13,6 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include <filehdl.h>
+#include <lua_material.h>
 #include <material.h>
 #include <phys_tools.h>
 
@@ -221,81 +222,6 @@ void Material::load_lua_script(std::filesystem::path const &script_path_)
     lua_close(L);
 }
 
-void Material::write_lua_script()
-{
-    std::size_t i;
-    
-    std::ofstream file(script_path,std::ios::out|std::ios::binary|std::ios::trunc);
-    
-    if(!description.empty()) file<<"description(\""<<description<<"\")\n\n";
-    
-    file<<"validity_range("<<lambda_valid_min<<","<<lambda_valid_max<<")\n\n";
-    file<<"epsilon_infinity("<<eps_inf<<")\n\n";
-    
-    for(i=0;i<debye.size();i++)
-        file<<"add_debye("<<debye[i].ds<<","<<debye[i].t0<<")\n";
-        
-    for(i=0;i<drude.size();i++)
-        file<<"add_drude("<<drude[i].wd<<","<<drude[i].g<<")\n";
-        
-    for(i=0;i<lorentz.size();i++)
-        file<<"add_lorentz("<<lorentz[i].A<<","<<lorentz[i].O<<","<<lorentz[i].G<<")\n";
-
-    for(i=0;i<critpoint.size();i++)
-        file<<"add_critpoint("<<critpoint[i].A<<","<<critpoint[i].O<<","<<critpoint[i].P<<","<<critpoint[i].G<<")\n";
-
-    for(i=0;i<cauchy_coeffs.size();i++)
-    {
-        file<<"add_cauchy(";
-        
-        for(std::size_t j=0;j<cauchy_coeffs[i].size();j++)
-        {
-            file<<cauchy_coeffs[i][j];
-            if(j+1!=cauchy_coeffs[i].size()) file<<",";
-        }
-        
-        file<<")\n";
-    }
-
-    for(i=0;i<sellmeier_B.size();i++)
-        file<<"add_sellmeier("<<sellmeier_B[i]<<","<<sellmeier_C[i]<<")\n";
-        
-    for(i=0;i<spd_lambda.size();i++)
-    {
-        file<<"lambda={";
-        for(std::size_t j=0;j<spd_lambda[i].size();j++)
-        {
-            file<<spd_lambda[i][j];
-            
-            if(j+1<spd_lambda[i].size()) file<<",";
-            else file<<"}\n";
-        }
-        file<<"data_r={";
-        for(std::size_t j=0;j<spd_r[i].size();j++)
-        {
-            file<<spd_r[i][j];
-            
-            if(j+1<spd_r[i].size()) file<<",";
-            else file<<"}\n";
-        }
-        file<<"data_i={";
-        for(std::size_t j=0;j<spd_i[i].size();j++)
-        {
-            file<<spd_i[i][j];
-            
-            if(j+1<spd_i[i].size()) file<<",";
-            else file<<"}\n";
-        }
-        
-        file<<"\n";
-        if(spd_type_index[i]) file<<"add_data_index";
-        else file<<"add_data_epsilon";
-        
-        file<<"(lambda,data_r,data_i)\n\n";
-    }
-
-}
-
 int spec_mat_ID=0;
 
 //int gen_absorbing_material(lua_State *L)
@@ -385,39 +311,202 @@ int gen_complex_material(lua_State *L)
 //   Material Metatable
 //########################
 
-int lua_create_material(lua_State *L)
+namespace lua_material
 {
-    Material *p_material=lua_allocate_metapointer<Material>(L,"metatable_material");
-    
-    if(lua_gettop(L)>0)
+    template<int type>
+    int add_data_table(lua_State *L)
     {
-             if(lua_isnumber(L,1)) p_material->set_const_n(lua_tonumber(L,1));
-        else if(lua_isstring(L,1)) p_material->load_lua_script(lua_tostring(L,1));
+        Material *mat=lua_get_metapointer<Material>(L,1);
+        
+        std::vector<double> lambda,data_r,data_i;
+        
+        lua_tools::extract_vector(lambda,L,2); // Wavelength at this point
+        lua_tools::extract_vector(data_r,L,3); // Input real part
+        lua_tools::extract_vector(data_i,L,4); // Input imag part
+        
+        bool type_index=false;
+        
+        if constexpr(type==0) type_index=true;
+        
+        mat->add_spline_data(lambda,data_r,data_i,type_index);
+        
+        return 0;
+    }
+
+    void create_metatable(lua_State *L)
+    {
+        lua_register(L,"Material",allocate);
+        
+        create_obj_metatable(L,"metatable_material");
+        
+        metatable_add_func(L,"name",set_name);
+        metatable_add_func(L,"refractive_index",set_index);
+        metatable_add_func(L,"load_script",set_script);
+        
+        metatable_add_func(L,"add_cauchy",add_cauchy);
+        metatable_add_func(L,"add_crit_point",add_crit_point);
+        metatable_add_func(L,"add_data_epsilon",add_data_table<1>);
+        metatable_add_func(L,"add_data_index",add_data_table<0>);
+        metatable_add_func(L,"add_debye",add_debye);
+        metatable_add_func(L,"add_drude",add_drude);
+        metatable_add_func(L,"add_lorentz",add_lorentz);
+        metatable_add_func(L,"add_sellmeier",add_sellmeier);
+        metatable_add_func(L,"description",description);
+        metatable_add_func(L,"epsilon_infinity",epsilon_infinity);
+        metatable_add_func(L,"validity_range",validity_range);
+    }
+
+    int add_cauchy(lua_State *L)
+    {
+        int N=lua_gettop(L)-1;
+        
+        Material *mat=lua_get_metapointer<Material>(L,1);
+        
+        std::vector<double> coeffs(N);
+        
+        for(int i=0;i<N;i++)
+            coeffs[i]=lua_tonumber(L,i+2);
+        
+        mat->cauchy_coeffs.push_back(coeffs);
+        
+        return 0;
+    }
+
+    int add_crit_point(lua_State *L)
+    {
+        Material *mat=lua_get_metapointer<Material>(L,1);
+        
+        double A=lua_tonumber(L,2);
+        double O=lua_tonumber(L,3);
+        double P=lua_tonumber(L,4);
+        double G=lua_tonumber(L,5);
+        
+        CritpointModel critpoint;
+        critpoint.set(A,O,P,G);
+        
+        mat->critpoint.push_back(critpoint);
+        
+        return 0;
+    }
+
+    int add_debye(lua_State *L)
+    {
+        Material *mat=lua_get_metapointer<Material>(L,1);
+        
+        double ds=lua_tonumber(L,2);
+        double t0=lua_tonumber(L,3);
+        
+        DebyeModel debye;
+        debye.set(ds,t0);
+        
+        mat->debye.push_back(debye);
+        
+        return 0;
+    }
+
+    int add_drude(lua_State *L)
+    {
+        Material *mat=lua_get_metapointer<Material>(L,1);
+        
+        double wd=lua_tonumber(L,2);
+        double g=lua_tonumber(L,3);
+        
+        DrudeModel drude;
+        drude.set(wd,g);
+        
+        mat->drude.push_back(drude);
+        
+        return 0;
+    }
+
+    int add_lorentz(lua_State *L)
+    {
+        Material *mat=lua_get_metapointer<Material>(L,1);
+        
+        double A=lua_tonumber(L,2);
+        double O=lua_tonumber(L,3);
+        double G=lua_tonumber(L,4);
+        
+        LorentzModel lorentz;
+        lorentz.set(A,O,G);
+        
+        mat->lorentz.push_back(lorentz);
+        
+        return 0;
+    }
+
+    int add_sellmeier(lua_State *L)
+    {
+        Material *mat=lua_get_metapointer<Material>(L,1);
+        
+        mat->sellmeier_B.push_back(lua_tonumber(L,2));
+        mat->sellmeier_C.push_back(lua_tonumber(L,3));
+        
+        return 0;
     }
     
-    return 1;
-}
-
-int lua_material_set_index(lua_State *L)
-{
-    Material *mat=lua_get_metapointer<Material>(L,1);
-    mat->set_const_n(lua_tonumber(L,2));
+    int allocate(lua_State *L)
+    {
+        Material *p_material=lua_allocate_metapointer<Material>(L,"metatable_material");
+        
+        if(lua_gettop(L)>0)
+        {
+                 if(lua_isnumber(L,1)) p_material->set_const_n(lua_tonumber(L,1));
+            else if(lua_isstring(L,1)) p_material->load_lua_script(lua_tostring(L,1));
+        }
+        
+        return 1;
+    }
     
-    return 0;
-}
+    int description(lua_State *L)
+    {
+        Material *mat=lua_get_metapointer<Material>(L,1);
+        
+        mat->description=lua_tostring(L,2);
+        
+        return 0;
+    }
 
-int lua_material_set_name(lua_State *L)
-{
-    Material *mat=lua_get_metapointer<Material>(L,1);
-    mat->name=lua_tostring(L,2);
-    
-    return 0;
-}
+    int epsilon_infinity(lua_State *L)
+    {
+        Material *mat=lua_get_metapointer<Material>(L,1);
+        
+        mat->eps_inf=lua_tonumber(L,2);
+        
+        return 0;
+    }
 
-int lua_material_set_script(lua_State *L)
-{
-    Material *mat=lua_get_metapointer<Material>(L,1);
-    mat->load_lua_script(lua_tostring(L,2));
-    
-    return 0;
+    int set_index(lua_State *L)
+    {
+        Material *mat=lua_get_metapointer<Material>(L,1);
+        mat->set_const_n(lua_tonumber(L,2));
+        
+        return 0;
+    }
+
+    int set_name(lua_State *L)
+    {
+        Material *mat=lua_get_metapointer<Material>(L,1);
+        mat->name=lua_tostring(L,2);
+        
+        return 0;
+    }
+
+    int set_script(lua_State *L)
+    {
+        Material *mat=lua_get_metapointer<Material>(L,1);
+        mat->load_lua_script(lua_tostring(L,2));
+        
+        return 0;
+    }
+
+    int validity_range(lua_State *L)
+    {
+        Material *mat=lua_get_metapointer<Material>(L,1);
+        
+        mat->lambda_valid_min=lua_tonumber(L,2);
+        mat->lambda_valid_max=lua_tonumber(L,3);
+        
+        return 0;
+    }
 }

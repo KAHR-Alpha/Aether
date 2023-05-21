@@ -89,7 +89,6 @@ class Material
         void set_const_eps(double eps);
         void set_const_n(double n);
         void set_effective_material(int effective_type,Material const &eff_mat_1,Material const &eff_mat_2);
-        void write_lua_script();
 };
 
 int gen_absorbing_material(lua_State *L);

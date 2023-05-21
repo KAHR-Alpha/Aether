@@ -44,26 +44,18 @@ namespace GUI
             double get_lambda_validity_max();
             std::string get_lua(std::string const &script_name);
             std::string get_short_description();
-               
+            void write_lua_script();
+        
+        private:
+            void stream_lua(std::ostream &strm, std::string const &prefix);
         
         friend MaterialsLib;
     };
 
     void create_material_metatable(lua_State *L);
-    int lua_create_material(lua_State *L);
-    int lua_material_add_cauchy(lua_State *L);
-    int lua_material_add_crit_point(lua_State *L);
-    int lua_material_add_data_epsilon(lua_State *L);
-    int lua_material_add_data_index(lua_State *L);
-    int lua_material_add_debye(lua_State *L);
-    int lua_material_add_drude(lua_State *L);
-    int lua_material_add_sellmeier(lua_State *L);
-    int lua_material_description(lua_State *L);
-    int lua_material_epsilon_infinity(lua_State *L);
+    int allocate(lua_State *L);
     int lua_material_set_index(lua_State *L);
-    int lua_material_set_name(lua_State *L);
     int lua_material_set_script(lua_State *L);
-    int lua_material_validity_range(lua_State *L);
 }
 
 bool default_material_validator(Material *material);
