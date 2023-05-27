@@ -216,8 +216,8 @@ void FDSolverFrame::evt_mono_compute(wxCommandEvent &event)
     lim_up[0]=pad_zp_ctrl->get_value();
     
     Grid1<Material> tmp_materials(Nmat);
-    tmp_materials[0]=superstrate_selector->get_material();
-    tmp_materials[Nmat-1]=substrate_selector->get_material();
+    tmp_materials[0]=*(superstrate_selector->get_material());
+    tmp_materials[Nmat-1]=*(substrate_selector->get_material());
     
     for(k=0;k<Nl;k++)
     {
@@ -229,7 +229,7 @@ void FDSolverFrame::evt_mono_compute(wxCommandEvent &event)
         
         tot_height+=tmp_height;
         
-        tmp_materials[k+1]=panel->get_material();
+        tmp_materials[k+1]=*(panel->get_material());
     }
     
     lim_down.show();

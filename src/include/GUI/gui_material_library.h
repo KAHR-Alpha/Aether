@@ -42,21 +42,51 @@ namespace GUI
             std::string get_inline_lua();
             double get_lambda_validity_min();
             double get_lambda_validity_max();
-            std::string get_lua(std::string const &script_name);
+            //[[deprecated]] std::string get_lua(std::string const &script_name);
             std::string get_short_description();
-            void write_lua_script();
+            //[[deprecated]] void write_lua_script();
         
         private:
-            void stream_lua(std::ostream &strm, std::string const &prefix);
+            //void stream_lua(std::ostream &strm, std::string const &prefix);
         
         friend MaterialsLib;
     };
+}
 
-    void create_material_metatable(lua_State *L);
+namespace lua_gui_material
+{
+    void create_metatable(lua_State *L);
     int allocate(lua_State *L);
     int lua_material_set_index(lua_State *L);
     int lua_material_set_script(lua_State *L);
+    
+    class Translator
+    {
+        public:
+            
+            Translator(std::filesystem::path const &relative_path);
+            
+            void gather(GUI::Material *material);
+            std::string get_header();
+            std::string operator() (GUI::Material *material) const;
+            void save_to_file(GUI::Material *material);
+            
+        private:
+            bool finalized;
+            std::filesystem::path const &relative_path;
+            std::vector<GUI::Material*> materials;
+            
+            std::string header;
+            std::map<GUI::Material*,std::string> name_map;
+            
+            void finalize();
+            void to_lua(GUI::Material *material,
+                        std::ostream &strm,
+                        std::string const &prefix);
+    };
 }
+
+
 
 bool default_material_validator(Material *material);
 
@@ -91,6 +121,7 @@ class MaterialsLib
     public:
         static void add_material(std::filesystem::path const &fname);
         [[deprecated]] static void add_to_library(GUI::Material *data);
+        static void consolidate();
         static void consolidate(GUI::Material *material);
         static void forget_manager();
         static MaterialsManager* get_manager();

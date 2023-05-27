@@ -228,7 +228,7 @@ void MaterialSelector::allocate_effective_materials()
         eff_mat_1_selector->Bind(EVT_MAT_SELECTOR,&MaterialSelector::evt_effective_material,this);
         eff_mat_2_selector->Bind(EVT_MAT_SELECTOR,&MaterialSelector::evt_effective_material,this);
         
-        int eff_mat_type_value=get_effective_material_type();
+        MatEffType eff_mat_type_value=get_effective_material_type();
                 
         eff_material->set_effective_material(eff_mat_type_value,
                                              *(eff_mat_1_selector->get_material()),
@@ -250,7 +250,7 @@ void MaterialSelector::allocate_effective_materials(GUI::Material *eff_mat_1_,
         eff_mat_1_selector->Bind(EVT_MAT_SELECTOR,&MaterialSelector::evt_effective_material,this);
         eff_mat_2_selector->Bind(EVT_MAT_SELECTOR,&MaterialSelector::evt_effective_material,this);
         
-        int eff_mat_type_value=get_effective_material_type();
+        MatEffType eff_mat_type_value=get_effective_material_type();
                 
         eff_material->set_effective_material(eff_mat_type_value,
                                              *(eff_mat_1_selector->get_material()),
@@ -272,23 +272,23 @@ void MaterialSelector::evt_custom_material(wxCommandEvent &event)
     throw_event();
 }
 
-int MaterialSelector::get_effective_material_type()
+MatEffType MaterialSelector::get_effective_material_type()
 {
     switch(eff_type->GetSelection())
     {
-        case 0: return MAT_EFF_BRUGGEMAN;
-        case 1: return MAT_EFF_MG1;
-        case 2: return MAT_EFF_MG2;
-        case 3: return MAT_EFF_LOYENGA;
-        case 4: return MAT_EFF_SUM;
-        case 5: return MAT_EFF_SUM_INV;
-        default: return MAT_EFF_BRUGGEMAN;
+        case 0: return MatEffType::MAT_EFF_BRUGGEMAN;
+        case 1: return MatEffType::MAT_EFF_MG1;
+        case 2: return MatEffType::MAT_EFF_MG2;
+        case 3: return MatEffType::MAT_EFF_LOYENGA;
+        case 4: return MatEffType::MAT_EFF_SUM;
+        case 5: return MatEffType::MAT_EFF_SUM_INV;
+        default: return MatEffType::MAT_EFF_BRUGGEMAN;
     }
 }
 
 void MaterialSelector::evt_effective_material(wxCommandEvent &event)
 {
-    int eff_type_value=get_effective_material_type();
+    MatEffType eff_type_value=get_effective_material_type();
     
     eff_material->set_effective_material(eff_type_value,
                                          *(eff_mat_1_selector->get_material()),

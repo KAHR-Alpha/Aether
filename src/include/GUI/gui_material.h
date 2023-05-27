@@ -85,7 +85,7 @@ class MaterialSelector: public wxPanel
         void evt_mat_type(wxCommandEvent &event);
         void evt_name(wxCommandEvent &event);
         Imdouble get_eps(double w);
-        int get_effective_material_type();
+        MatEffType get_effective_material_type();
         GUI::Material* get_material();
         double get_weight();
         void throw_event();
@@ -112,7 +112,7 @@ class MiniMaterialSelector: public wxPanel
         void evt_weight(wxCommandEvent &event);
         Imdouble get_eps(double w);
         Imdouble get_n(double w);
-        GUI::Material& get_material();
+        GUI::Material* get_material();
         void set_material(GUI::Material *material);
         void update_display();
         void update_label();

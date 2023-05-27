@@ -96,7 +96,7 @@ class MultilayerFrame: public BaseFrame
         
         int N_layers;
         std::vector<double> layers_height;
-        std::vector<Material> layers_material;
+        std::vector<GUI::Material*> layers_material;
         
         MultilayerFrame(wxString const &title);
         ~MultilayerFrame();

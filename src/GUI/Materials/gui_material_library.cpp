@@ -14,6 +14,7 @@ limitations under the License.*/
 
 #include <filehdl.h>
 #include <gui_material.h>
+#include <lua_material.h>
 
 bool default_material_validator(Material *material) { return true; }
 
@@ -21,58 +22,6 @@ bool default_material_validator(Material *material) { return true; }
 
 namespace GUI
 {
-    void create_material_metatable(lua_State *L)
-    {
-        lua_register(L,"Material",&allocate);
-        
-        create_obj_metatable(L,"metatable_material");
-        
-        metatable_add_func(L,"refractive_index",lua_material_set_index);
-        metatable_add_func(L,"load_script",lua_material_set_script);
-    }
-    
-    int allocate(lua_State *L)
-    {
-        Material *p_material=MaterialsLib::request_material(MatType::CUSTOM);
-        
-        lua_set_metapointer<::Material>(L,"metatable_material",p_material);
-        
-        if(lua_gettop(L)>0)
-        {
-                 if(lua_isnumber(L,1)) p_material->set_const_n(lua_tonumber(L,1));
-            else if(lua_isstring(L,1)) p_material->load_lua_script(lua_tostring(L,1));
-        }
-        
-        MaterialsLib::consolidate(p_material);
-        
-        return 1;
-    }
-    
-    int lua_material_set_index(lua_State *L)
-    {
-        // TODO dynamic cast
-        chk_var("Index");
-        GUI::Material *mat=lua_get_metapointer<GUI::Material>(L,1);
-        
-        mat->set_const_n(lua_tonumber(L,2));
-        mat->type=MatType::REAL_N;
-        
-        MaterialsLib::consolidate(mat);
-        
-        chk_var("Index/");
-        return 0;
-    }
-
-    int lua_material_set_script(lua_State *L)
-    {
-        // TODO dynamic cast
-        GUI::Material *mat=lua_get_metapointer<GUI::Material>(L,1);
-        mat->load_lua_script(lua_tostring(L,2));
-        
-        MaterialsLib::consolidate(mat);
-        
-        return 0;
-    }
     
     //##############
     //   Material
@@ -146,32 +95,6 @@ namespace GUI
         else return lambda_valid_max;
     }
     
-    std::string Material::get_lua(std::string const &script_name)
-    {
-        // TODO
-        std::stringstream strm;
-        
-        strm<<script_name<<"=Material()\n";
-        
-        if(!name.empty())
-            strm<<script_name<<":name(\""<<name<<"\")\n";
-        
-        if(type==MatType::REAL_N)
-        {
-            strm<<script_name<<":refractive_index("<<std::to_string(get_n(0).real())<<")\n";
-        }
-        else if(type==MatType::LIBRARY || type==MatType::USER_LIBRARY)
-        {
-            strm<<script_name<<":load_script("<<script_path.generic_string()<<")\n";
-        }
-        else if(type==MatType::CUSTOM)
-        {
-            stream_lua(strm,script_name+":");
-        }
-        
-        return strm.str();
-    }
-    
     std::string Material::get_short_description()
     {
         std::stringstream out;
@@ -202,12 +125,12 @@ namespace GUI
                     
                     switch(effective_type)
                     {
-                        case MAT_EFF_BRUGGEMAN: out<<"Brugg"; break;
-                        case MAT_EFF_MG1: out<<"MG1"; break;
-                        case MAT_EFF_MG2: out<<"MG2"; break;
-                        case MAT_EFF_LOYENGA: out<<"Loy"; break;
-                        case MAT_EFF_SUM: out<<"Sum"; break;
-                        case MAT_EFF_SUM_INV: out<<"ISum"; break;
+                        case MatEffType::MAT_EFF_BRUGGEMAN: out<<"Brugg"; break;
+                        case MatEffType::MAT_EFF_MG1: out<<"MG1"; break;
+                        case MatEffType::MAT_EFF_MG2: out<<"MG2"; break;
+                        case MatEffType::MAT_EFF_LOYENGA: out<<"Loy"; break;
+                        case MatEffType::MAT_EFF_SUM: out<<"Sum"; break;
+                        case MatEffType::MAT_EFF_SUM_INV: out<<"ISum"; break;
                     }
                     
                     //out<<" | "<<w_script_1<<" | "<<w_script_2;
@@ -217,87 +140,280 @@ namespace GUI
     
         return out.str();
     }
+}
 
-    void Material::write_lua_script()
+namespace lua_gui_material
+{
+    void create_metatable(lua_State *L)
     {
-        std::ofstream file(script_path,std::ios::out|std::ios::binary|std::ios::trunc);
+        lua_material::create_metatable(L);
         
-        stream_lua(file,"");
+        lua_register(L,"Material",&allocate); // overload
+        metatable_add_func(L,"refractive_index",lua_material_set_index); // overload
+        metatable_add_func(L,"load_script",lua_material_set_script); // overload
     }
     
-    void Material::stream_lua(std::ostream &strm, std::string const &prefix)
+    int allocate(lua_State *L)
+    {
+        GUI::Material *p_material=MaterialsLib::request_material(MatType::CUSTOM);
+        
+        lua_set_metapointer<::Material>(L,"metatable_material",p_material); // polymorphic allocation
+        
+        if(lua_gettop(L)>0)
+        {
+                 if(lua_isnumber(L,1)) p_material->set_const_n(lua_tonumber(L,1));
+            else if(lua_isstring(L,1)) p_material->load_lua_script(lua_tostring(L,1));
+        }
+        
+        MaterialsLib::consolidate(p_material);
+        
+        return 1;
+    }
+    
+    int lua_material_set_index(lua_State *L)
+    {
+        // TODO dynamic cast
+        chk_var("Index");
+        GUI::Material *mat=lua_get_metapointer<GUI::Material>(L,1);
+        
+        mat->set_const_n(lua_tonumber(L,2));
+        mat->type=MatType::REAL_N;
+        
+        MaterialsLib::consolidate(mat);
+        
+        chk_var("Index/");
+        return 0;
+    }
+    
+    int lua_material_set_script(lua_State *L)
+    {
+        // TODO dynamic cast
+        GUI::Material *mat=lua_get_metapointer<GUI::Material>(L,1);
+        mat->load_lua_script(lua_tostring(L,2));
+        
+        MaterialsLib::consolidate(mat);
+        
+        return 0;
+    }
+    
+    //################
+    //   Translator
+    //################
+    
+    Translator::Translator(std::filesystem::path const &relative_path_)
+        :finalized(false),
+         relative_path(relative_path_)
+    {
+    }
+    
+    void Translator::finalize()
+    {
+        if(finalized) return; 
+        
+        std::stringstream strm;
+        
+        // Mapping pointer - names
+        
+        for(std::size_t i=0;i<materials.size();i++)
+        {
+            name_map[materials[i]]="Material_" + std::to_string(i);
+        }
+        
+        // Materials declaration
+        
+        for(std::size_t i=0;i<materials.size();i++)
+        {
+            strm<<name_map[materials[i]]<<"=Material()\n";
+        }
+        
+        strm<<"\n";
+        
+        // Materials definition
+        
+        for(std::size_t i=0;i<materials.size();i++)
+        {
+            to_lua(materials[i],strm,name_map[materials[i]]+":");
+            
+            strm<<"\n";
+        }
+        
+        header=strm.str();
+        
+        finalized=true;
+    }
+    
+    void Translator::gather(GUI::Material *material)
+    {
+        if(!vector_contains(materials,material))
+        {
+            materials.push_back(material);
+        }
+    }
+    
+    std::string Translator::get_header()
+    {
+        if(!finalized) finalize();
+        
+        return header;
+    }
+    
+    std::string Translator::operator() (GUI::Material *material) const
+    {
+        return name_map.at(material);
+    }
+    
+    void Translator::save_to_file(GUI::Material *material)
+    {
+        std::ofstream file(material->script_path,std::ios::out|std::ios::binary|std::ios::trunc);
+        
+        to_lua(material,file,"");
+    }
+    
+    void Translator::to_lua(GUI::Material *material,std::ostream &strm,std::string const &prefix)
     {
         std::size_t i;
         
-        if(!description.empty()) strm<<prefix<<"description(\""<<description<<"\")\n\n";
+        MatType type=material->type;
         
-        strm<<prefix<<"validity_range("<<lambda_valid_min<<","<<lambda_valid_max<<")\n\n";
-        strm<<prefix<<"epsilon_infinity("<<eps_inf<<")\n\n";
+        if(!material->name.empty()) strm<<prefix<<"name(\""<<material->name<<"\")\n";
         
-        for(i=0;i<debye.size();i++)
-            strm<<prefix<<"add_debye("<<debye[i].ds<<","<<debye[i].t0<<")\n";
-            
-        for(i=0;i<drude.size();i++)
-            strm<<prefix<<"add_drude("<<drude[i].wd<<","<<drude[i].g<<")\n";
-            
-        for(i=0;i<lorentz.size();i++)
-            strm<<prefix<<"add_lorentz("<<lorentz[i].A<<","<<lorentz[i].O<<","<<lorentz[i].G<<")\n";
-
-        for(i=0;i<critpoint.size();i++)
-            strm<<prefix<<"add_critpoint("<<critpoint[i].A<<","<<critpoint[i].O<<","<<critpoint[i].P<<","<<critpoint[i].G<<")\n";
-
-        for(i=0;i<cauchy_coeffs.size();i++)
+        if(type==MatType::REAL_N)
         {
-            strm<<prefix<<"add_cauchy(";
-            
-            for(std::size_t j=0;j<cauchy_coeffs[i].size();j++)
-            {
-                strm<<prefix<<cauchy_coeffs[i][j];
-                if(j+1!=cauchy_coeffs[i].size()) strm<<prefix<<",";
-            }
-            
-            strm<<prefix<<")\n";
+            strm<<prefix<<"refractive_index(\""<<std::real(material->get_n(0))<<"\")\n";
         }
-
-        for(i=0;i<sellmeier_B.size();i++)
-            strm<<prefix<<"add_sellmeier("<<sellmeier_B[i]<<","<<sellmeier_C[i]<<")\n";
-            
-        for(i=0;i<spd_lambda.size();i++)
+        else if(   type==MatType::LIBRARY
+                || type==MatType::USER_LIBRARY
+                || type==MatType::SCRIPT)
         {
-            strm<<prefix<<"lambda={";
-            for(std::size_t j=0;j<spd_lambda[i].size();j++)
+            strm<<prefix<<"load_script(\""<<material->script_path.generic_string()<<"\")\n";
+        }
+        else if(type==MatType::EFFECTIVE)
+        {
+            strm<<prefix<<"effective_material(\"";
+            
+            switch(material->effective_type)
             {
-                strm<<prefix<<spd_lambda[i][j];
-                
-                if(j+1<spd_lambda[i].size()) strm<<prefix<<",";
-                else strm<<prefix<<"}\n";
-            }
-            strm<<prefix<<"data_r={";
-            for(std::size_t j=0;j<spd_r[i].size();j++)
-            {
-                strm<<prefix<<spd_r[i][j];
-                
-                if(j+1<spd_r[i].size()) strm<<prefix<<",";
-                else strm<<prefix<<"}\n";
-            }
-            strm<<prefix<<"data_i={";
-            for(std::size_t j=0;j<spd_i[i].size();j++)
-            {
-                strm<<prefix<<spd_i[i][j];
-                
-                if(j+1<spd_i[i].size()) strm<<prefix<<",";
-                else strm<<prefix<<"}\n";
+                case MatEffType::MAT_EFF_BRUGGEMAN:
+                    strm<<"bruggeman";
+                    break;
+                    
+                case MatEffType::MAT_EFF_MG1:
+                    strm<<"maxwell_garnett_1";
+                    break;
+                    
+                case MatEffType::MAT_EFF_MG2:
+                    strm<<"maxwell_garnett_2";
+                    break;
+                    
+                case MatEffType::MAT_EFF_LOYENGA:
+                    strm<<"loyenga";
+                    break;
+                    
+                case MatEffType::MAT_EFF_SUM:
+                    strm<<"sum";
+                    break;
+                    
+                case MatEffType::MAT_EFF_SUM_INV:
+                    strm<<"inverse_sum";
+                    break;
             }
             
-            strm<<prefix<<"\n";
-            if(spd_type_index[i]) strm<<prefix<<"add_data_index";
-            else strm<<prefix<<"add_data_epsilon";
+            strm<<"\",";
             
-            strm<<prefix<<"(lambda,data_r,data_i)\n\n";
+            for(i=0;i<material->eff_mats.size();i++)
+            {
+                if(vector_contains(materials,dynamic_cast<GUI::Material*>(material->eff_mats[i])))
+                {
+                    strm<<name_map[dynamic_cast<GUI::Material*>(material->eff_mats[i])];
+                }
+                else
+                {
+                    strm<<"\""<<material->eff_mats[i]->script_path.generic_string()<<"\"";
+                }
+                strm<<",";
+                strm<<material->eff_weights[i];
+            }
+            
+            strm<<")\n";
+        }
+        else if(type==MatType::CUSTOM)
+        {
+            if(!material->description.empty()) strm<<prefix<<"description(\""<<material->description<<"\")\n";
+            
+            strm<<prefix<<"validity_range("<<material->lambda_valid_min<<","<<material->lambda_valid_max<<")\n";
+            strm<<prefix<<"epsilon_infinity("<<material->eps_inf<<")\n";
+            
+            for(i=0;i<material->debye.size();i++)
+                strm<<prefix<<"add_debye("<<material->debye[i].ds<<","
+                                          <<material->debye[i].t0<<")\n";
+                
+            for(i=0;i<material->drude.size();i++)
+                strm<<prefix<<"add_drude("<<material->drude[i].wd<<","
+                                          <<material->drude[i].g<<")\n";
+                
+            for(i=0;i<material->lorentz.size();i++)
+                strm<<prefix<<"add_lorentz("<<material->lorentz[i].A<<","
+                                            <<material->lorentz[i].O<<","
+                                            <<material->lorentz[i].G<<")\n";
+
+            for(i=0;i<material->critpoint.size();i++)
+                strm<<prefix<<"add_critpoint("<<material->critpoint[i].A<<","
+                                              <<material->critpoint[i].O<<","
+                                              <<material->critpoint[i].P<<","
+                                              <<material->critpoint[i].G<<")\n";
+
+            for(i=0;i<material->cauchy_coeffs.size();i++)
+            {
+                strm<<prefix<<"add_cauchy(";
+                
+                for(std::size_t j=0;j<material->cauchy_coeffs[i].size();j++)
+                {
+                    strm<<prefix<<material->cauchy_coeffs[i][j];
+                    if(j+1!=material->cauchy_coeffs[i].size()) strm<<prefix<<",";
+                }
+                
+                strm<<prefix<<")\n";
+            }
+
+            for(i=0;i<material->sellmeier_B.size();i++)
+                strm<<prefix<<"add_sellmeier("<<material->sellmeier_B[i]<<","<<material->sellmeier_C[i]<<")\n";
+                
+            for(i=0;i<material->spd_lambda.size();i++)
+            {
+                strm<<prefix<<"lambda={";
+                for(std::size_t j=0;j<material->spd_lambda[i].size();j++)
+                {
+                    strm<<prefix<<material->spd_lambda[i][j];
+                    
+                    if(j+1<material->spd_lambda[i].size()) strm<<prefix<<",";
+                    else strm<<prefix<<"}\n";
+                }
+                strm<<prefix<<"data_r={";
+                for(std::size_t j=0;j<material->spd_r[i].size();j++)
+                {
+                    strm<<prefix<<material->spd_r[i][j];
+                    
+                    if(j+1<material->spd_r[i].size()) strm<<prefix<<",";
+                    else strm<<prefix<<"}\n";
+                }
+                strm<<prefix<<"data_i={";
+                for(std::size_t j=0;j<material->spd_i[i].size();j++)
+                {
+                    strm<<prefix<<material->spd_i[i][j];
+                    
+                    if(j+1<material->spd_i[i].size()) strm<<prefix<<",";
+                    else strm<<prefix<<"}\n";
+                }
+                
+                strm<<prefix<<"\n";
+                if(material->spd_type_index[i]) strm<<prefix<<"add_data_index";
+                else strm<<prefix<<"add_data_epsilon";
+                
+                strm<<prefix<<"(lambda,data_r,data_i)\n";
+            }
         }
     }
 }
-
 
 //########################
 //   MaterialsLibDialog
@@ -640,6 +756,18 @@ void MaterialsLib::reorder_materials()
         for(std::size_t j=i+1;j<data.size();j++)
         {
             if(data[j]->script_path<data[i]->script_path) std::swap(data[i],data[j]);
+        }
+    }
+}
+
+void MaterialsLib::consolidate()
+{
+    for(std::size_t i=0;i<data.size();i++)
+    {
+        if(   data[i]->type!=MatType::LIBRARY
+           && data[i]->type!=MatType::USER_LIBRARY)
+        {
+            consolidate(data[i]);
         }
     }
 }

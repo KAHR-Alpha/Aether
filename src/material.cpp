@@ -25,7 +25,7 @@ Material::Material()
      lambda_valid_min(400e-9),
      lambda_valid_max(1000e-9),
      is_effective_material(false), // Effective material
-     effective_type(MAT_EFF_BRUGGEMAN),
+     effective_type(MatEffType::MAT_EFF_BRUGGEMAN),
      eff_mat_1(nullptr),
      eff_mat_2(nullptr),
      eff_weight(0),
@@ -203,17 +203,17 @@ Imdouble Material::get_eps(double w) const
         
         switch(effective_type)
         {
-            case MAT_EFF_BRUGGEMAN:
+            case MatEffType::MAT_EFF_BRUGGEMAN:
                 return effmodel_bruggeman(eps_1,eps_2,1.0-eff_weight,eff_weight);
-            case MAT_EFF_LOYENGA:
+            case MatEffType::MAT_EFF_LOYENGA:
                 return effmodel_looyenga(eps_1,eps_2,1.0-eff_weight,eff_weight);
-            case MAT_EFF_MG1:
+            case MatEffType::MAT_EFF_MG1:
                 return effmodel_maxwell_garnett_1(eps_1,eps_2,1.0-eff_weight,eff_weight);
-            case MAT_EFF_MG2:
+            case MatEffType::MAT_EFF_MG2:
                 return effmodel_maxwell_garnett_2(eps_1,eps_2,1.0-eff_weight,eff_weight);
-            case MAT_EFF_SUM:
+            case MatEffType::MAT_EFF_SUM:
                 return effmodel_sum(eps_1,eps_2,1.0-eff_weight,eff_weight);
-            case MAT_EFF_SUM_INV:
+            case MatEffType::MAT_EFF_SUM_INV:
                 return effmodel_sum_inv(eps_1,eps_2,1.0-eff_weight,eff_weight);
         }
     }
@@ -575,7 +575,7 @@ void Material::reset()
     {
         is_effective_material=false;
         
-        effective_type=MAT_EFF_BRUGGEMAN;
+        effective_type=MatEffType::MAT_EFF_BRUGGEMAN;
         
         delete eff_mat_1;
         delete eff_mat_2;
@@ -603,7 +603,7 @@ void Material::set_const_n(double n)
     eps_inf=n*n;
 }
 
-void Material::set_effective_material(int effective_type_,Material const &eff_mat_1_,Material const &eff_mat_2_)
+void Material::set_effective_material(MatEffType effective_type_,Material const &eff_mat_1_,Material const &eff_mat_2_)
 {
     is_effective_material=true;
     effective_type=effective_type_;

@@ -21,7 +21,7 @@ limitations under the License.*/
 
 #include <filesystem>
 
-enum
+enum class MatEffType
 {
     MAT_EFF_BRUGGEMAN,
     MAT_EFF_MG1,
@@ -61,9 +61,12 @@ class Material
         // Effective Material
         
         bool is_effective_material;
-        int effective_type;
+        MatEffType effective_type;
         Material *eff_mat_1,*eff_mat_2;
-        double eff_weight;
+        [[deprecated]] double eff_weight;
+        
+        std::vector<Material*> eff_mats;
+        std::vector<double> eff_weights;
         
         std::string name,description;
         std::filesystem::path script_path;
@@ -88,7 +91,7 @@ class Material
         void reset();
         void set_const_eps(double eps);
         void set_const_n(double n);
-        void set_effective_material(int effective_type,Material const &eff_mat_1,Material const &eff_mat_2);
+        void set_effective_material(MatEffType effective_type,Material const &eff_mat_1,Material const &eff_mat_2);
 };
 
 int gen_absorbing_material(lua_State *L);

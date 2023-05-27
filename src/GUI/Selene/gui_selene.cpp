@@ -1071,7 +1071,6 @@ void SeleneFrame::load_project(wxFileName const &fname_)
     
     // Allocation functions
     
-    //lua_register(L,"Material",&GUI::lua_create_material);
     lua_register(L,"Selene_IRF",&lua_allocate_selene_IRF);
     lua_register(L,"Selene_light",&lua_allocate_selene_light);
     lua_register(L,"Selene_object",&lua_allocate_selene_object);
@@ -1080,7 +1079,7 @@ void SeleneFrame::load_project(wxFileName const &fname_)
     
     // - Materials
     
-    GUI::create_material_metatable(L);
+    lua_gui_material::create_metatable(L);
     
     // - Simulations parameters
     
@@ -1147,6 +1146,7 @@ void SeleneFrame::load_project(wxFileName const &fname_)
     
     item_count=frames.size();
     
+    MaterialsLib::consolidate();
     gather_materials();
     
 //    for(GUI::Material *m : materials)

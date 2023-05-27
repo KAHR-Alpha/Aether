@@ -217,7 +217,7 @@ void MaterialsManager::evt_menu_new()
     editor->reset();
     
     editor->material.script_path.clear();
-    editor->material.write_lua_script();
+    //TODO editor->material.write_lua_script();
     
     material_path->set_value("");
 }

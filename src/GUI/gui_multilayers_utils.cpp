@@ -151,9 +151,9 @@ void LayerPanel::get_heights(std::vector<double> &h)
     h.push_back(get_height());
 }
 
-Material LayerPanel::get_material() { return selector->get_material(); }
+GUI::Material* LayerPanel::get_material() { return selector->get_material(); }
 
-void LayerPanel::get_materials(std::vector<Material> &mats)
+void LayerPanel::get_materials(std::vector<GUI::Material*> &mats)
 {
     mats.push_back(selector->get_material());
 }
@@ -166,12 +166,12 @@ void LayerPanel::set_std_dev(double std_dev_)
     if(std_dev!=0) statistical=true;
 }
 
-wxString LayerPanel::get_lua_string()
+wxString LayerPanel::get_lua_string(lua_gui_material::Translator const &mtr)
 {
     wxString str;
     str<<"add_layer("<<height_ctrl->get_length()<<","
                      <<std_dev<<","
-                     <<selector->get_material().get_inline_lua()<<")";
+                     <<mtr(selector->get_material())<<")";
     
     return str;
 }
@@ -334,13 +334,13 @@ void BraggPanel::evt_waviness(wxCommandEvent &event)
 
 wxString BraggPanel::get_base_name() { return "Bragg"; }
 
-wxString BraggPanel::get_lua_string()
+wxString BraggPanel::get_lua_string(lua_gui_material::Translator const &mtr)
 {
     wxString str;
     
-    str<<"add_bragg("<<height_ctrl_1->get_length()<<","<<std_dev_1<<","<<selector_1->get_material().get_inline_lua()<<","
-                     <<height_ctrl_2->get_length()<<","<<std_dev_2<<","<<selector_2->get_material().get_inline_lua()<<","
-                     <<height_ctrl_core->get_length()<<","<<std_dev_core<<","<<selector_core->get_material().get_inline_lua()<<","
+    str<<"add_bragg("<<height_ctrl_1->get_length()<<","<<std_dev_1<<","<<mtr(selector_1->get_material())<<","
+                     <<height_ctrl_2->get_length()<<","<<std_dev_2<<","<<mtr(selector_2->get_material())<<","
+                     <<height_ctrl_core->get_length()<<","<<std_dev_core<<","<<mtr(selector_core->get_material())<<","
                      <<global_std_dev->get_length()<<","<<g_factor->get_value()<<","
                      <<top_rep_ctrl->get_value()<<","<<bottom_rep_ctrl->get_value()<<")";
     
@@ -429,7 +429,7 @@ void BraggPanel::get_heights(std::vector<double> &h)
     for(i=0;i<height_buffer.size();i++) h.push_back(height_buffer[i]);
 }
 
-void BraggPanel::get_materials(std::vector<Material> &mats)
+void BraggPanel::get_materials(std::vector<GUI::Material*> &mats)
 {
     int i,N=0;
     

@@ -355,7 +355,7 @@ namespace lua_material
         metatable_add_func(L,"epsilon_infinity",epsilon_infinity);
         metatable_add_func(L,"validity_range",validity_range);
     }
-
+    
     int add_cauchy(lua_State *L)
     {
         int N=lua_gettop(L)-1;
@@ -371,7 +371,7 @@ namespace lua_material
         
         return 0;
     }
-
+    
     int add_crit_point(lua_State *L)
     {
         Material *mat=lua_get_metapointer<Material>(L,1);
@@ -388,7 +388,7 @@ namespace lua_material
         
         return 0;
     }
-
+    
     int add_debye(lua_State *L)
     {
         Material *mat=lua_get_metapointer<Material>(L,1);
@@ -403,7 +403,7 @@ namespace lua_material
         
         return 0;
     }
-
+    
     int add_drude(lua_State *L)
     {
         Material *mat=lua_get_metapointer<Material>(L,1);
@@ -418,7 +418,7 @@ namespace lua_material
         
         return 0;
     }
-
+    
     int add_lorentz(lua_State *L)
     {
         Material *mat=lua_get_metapointer<Material>(L,1);
@@ -434,7 +434,7 @@ namespace lua_material
         
         return 0;
     }
-
+    
     int add_sellmeier(lua_State *L)
     {
         Material *mat=lua_get_metapointer<Material>(L,1);
@@ -466,7 +466,7 @@ namespace lua_material
         
         return 0;
     }
-
+    
     int epsilon_infinity(lua_State *L)
     {
         Material *mat=lua_get_metapointer<Material>(L,1);

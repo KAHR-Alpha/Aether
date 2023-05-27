@@ -872,7 +872,7 @@ void MultilayerFrame::recompute_statistical_thread()
                                    substrate_selector->get_n(w));
                 
                 for(l=0;l<N_layers;l++)
-                    ml.set_layer(l,layers_height_samples[Nc_samples][l],layers_material[l].get_n(w));
+                    ml.set_layer(l,layers_height_samples[Nc_samples][l],layers_material[l]->get_n(w));
                 
                 ml.compute_power(tmp_R_TE,tmp_T_TE,tmp_A_TE,
                                  tmp_R_TM,tmp_T_TM,tmp_A_TM);
@@ -893,7 +893,7 @@ void MultilayerFrame::recompute_statistical_thread()
                                substrate_selector->get_n(w));
             
             for(l=0;l<N_layers;l++)
-                ml.set_layer(l,layers_height_samples[Nc_samples][l],layers_material[l].get_n(w));
+                ml.set_layer(l,layers_height_samples[Nc_samples][l],layers_material[l]->get_n(w));
             
             for(i=0;i<angle.size();i++)
             {
@@ -986,7 +986,7 @@ void MultilayerFrame::recompute_straight()
                                substrate_selector->get_n(w));
             
             for(l=0;l<Nl;l++)
-                ml.set_layer(l,layers_height[l],layers_material[l].get_n(w));
+                ml.set_layer(l,layers_height[l],layers_material[l]->get_n(w));
             
             ml.compute_power(R_TE[i],T_TE[i],A_TE[i],
                              R_TM[i],T_TM[i],A_TM[i]);
@@ -1011,7 +1011,7 @@ void MultilayerFrame::recompute_straight()
                            substrate_selector->get_n(w));
         
         for(l=0;l<Nl;l++)
-            ml.set_layer(l,layers_height[l],layers_material[l].get_n(w));
+            ml.set_layer(l,layers_height[l],layers_material[l]->get_n(w));
         
         for(i=0;i<angle.size();i++)
         {
@@ -1098,23 +1098,43 @@ void MultilayerFrame::update_aggregate_polar_ctrl()
 
 void MultilayerFrame::save_project(wxFileName const &fname_)
 {
+    // Materials
+    
+    lua_gui_material::Translator mtr("");
+    
+    mtr.gather(superstrate_selector->get_material());
+    mtr.gather(substrate_selector->get_material());
+    
+    for(std::size_t i=0;i<layers_list->get_size();i++)
+    {
+        std::vector<GUI::Material*> layer_mats;
+        layers_list->get_panel(i)->get_materials(layer_mats);
+        
+        for(GUI::Material *mat:layer_mats)
+            mtr.gather(mat);
+    }
+        
+    // Model
+    
     std::string fname=fname_.GetFullPath().ToStdString();
     
     std::ofstream file(fname,std::ios::out|std::ios::trunc);
     
-    file<<"mode=gui_multilayer_mode()"<<std::endl;
-    file<<"mode:angles("<<angle_ctrl->get_value()<<")"<<std::endl;
-    file<<"mode:spectrum("<<spectrum->get_lambda_min()<<","<<spectrum->get_lambda_max()<<","<<spectrum->get_Np()<<")"<<std::endl;
+    file<<mtr.get_header()<<"\n";
     
-    file<<"mode:superstrate("<<superstrate_selector->get_material().get_inline_lua()<<")"<<std::endl<<std::endl;
+    file<<"mode=gui_multilayer_mode()\n";
+    file<<"mode:angles("<<angle_ctrl->get_value()<<")\n";
+    file<<"mode:spectrum("<<spectrum->get_lambda_min()<<","<<spectrum->get_lambda_max()<<","<<spectrum->get_Np()<<")\n";
+    
+    file<<"mode:superstrate("<<mtr(superstrate_selector->get_material())<<")\n";
     
     for(unsigned int i=0;i<layers_list->get_size();i++)
     {
-        file<<"mode:"<<layers_list->get_panel(i)->get_lua_string()<<std::endl;
+        file<<"mode:"<<layers_list->get_panel(i)->get_lua_string(mtr)<<std::endl;
     }
     file<<std::endl;
     
-    file<<"mode:substrate("<<substrate_selector->get_material().get_inline_lua()<<")";
+    file<<"mode:substrate("<<mtr(substrate_selector->get_material())<<")";
     
     file.close();
     

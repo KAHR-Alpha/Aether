@@ -812,7 +812,7 @@ void HAPSolverFrame::compute_map()
     for(l=0;l<Nl;l++)
     {
         LayerPanel *panel=reinterpret_cast<LayerPanel*>(layers_list->get_panel(l));
-        ml.set_layer(l,panel->get_height(),panel->get_material().get_n(w));
+        ml.set_layer(l,panel->get_height(),panel->get_material()->get_n(w));
     }
     
     double nr=1.0,ni=0;
@@ -876,7 +876,7 @@ void HAPSolverFrame::construct_multilayer(Multilayer_TMM &ml)
     for(l=0;l<Nl;l++)
     {
         LayerPanel *panel=dynamic_cast<LayerPanel*>(layers_list->get_panel(l));
-        ml.set_layer(l,panel->get_height(),panel->get_material().get_n(w));
+        ml.set_layer(l,panel->get_height(),panel->get_material()->get_n(w));
     }
 }
 
@@ -1170,7 +1170,7 @@ void HAPSolverFrame::refine_target(MSTarget &target)
     for(l=0;l<Nl;l++)
     {
         LayerPanel *panel=reinterpret_cast<LayerPanel*>(layers_list->get_panel(l));
-        ml.set_layer(l,panel->get_height(),panel->get_material().get_n(w));
+        ml.set_layer(l,panel->get_height(),panel->get_material()->get_n(w));
     }
     
     double span=0.1;
@@ -1220,7 +1220,9 @@ void HAPSolverFrame::request_map_computation()
 
 void HAPSolverFrame::save_project(wxFileName const &fname_)
 {
-    std::string fname=fname_.GetFullPath().ToStdString();
+    //TODO
+    
+    /*std::string fname=fname_.GetFullPath().ToStdString();
     
     std::ofstream file(fname,std::ios::out|std::ios::trunc);
     
@@ -1238,5 +1240,5 @@ void HAPSolverFrame::save_project(wxFileName const &fname_)
     
     file.close();
     
-    SetTitle(wxString("Human Assisted Mode Solver : ").Append(project_fname.GetName()));
+    SetTitle(wxString("Human Assisted Mode Solver : ").Append(project_fname.GetName()));*/
 }

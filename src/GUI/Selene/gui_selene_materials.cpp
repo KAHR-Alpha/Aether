@@ -448,7 +448,7 @@ void IRF_Dialog::evt_ok(wxCommandEvent &event)
             for(std::size_t j=0;j<Nl;j++)
             {
                 irfs[i]->ml_heights[j]=panels[i]->layers->get_panel(j)->get_height();
-                irfs[i]->ml_materials[j]=panels[i]->layers->get_panel(j)->get_material();
+                irfs[i]->ml_materials[j]=*(panels[i]->layers->get_panel(j)->get_material());
             }
         }
         else if(selection==2)

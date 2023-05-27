@@ -415,7 +415,8 @@ bool MaterialEditor::save()
 {
     if(!read_only_material)
     {
-        material.write_lua_script();
+        // TODO
+        //material.write_lua_script();
         return true;
     }
     else return save_as();
@@ -441,7 +442,9 @@ bool MaterialEditor::save_as()
     }
     
     material.script_path=new_path;
-    material.write_lua_script();
+    
+    //TODO
+    //material.write_lua_script();
     read_only_material=false;
     
     rebuild_elements_list();

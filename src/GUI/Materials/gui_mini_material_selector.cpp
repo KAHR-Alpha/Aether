@@ -167,7 +167,7 @@ Imdouble MiniMaterialSelector::get_eps(double w) { return material->get_eps(w); 
 
 Imdouble MiniMaterialSelector::get_n(double w) { return material->get_n(w); }
 
-GUI::Material& MiniMaterialSelector::get_material() { return *material; }
+GUI::Material* MiniMaterialSelector::get_material() { return material; }
 
 void MiniMaterialSelector::set_material(GUI::Material *material_)
 {
