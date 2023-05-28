@@ -62,17 +62,6 @@ namespace GUI
         return strm.str();
     }
     
-    std::string Material::get_inline_lua()
-    {
-        std::string str;
-    
-        // TODO
-        if(is_const()) str = "const_material(" + std::to_string(get_n(0).real()) + ")";
-        else str = "\"" + script_path.generic_string() + "\"";
-        
-        return str;
-    }
-    
     double Material::get_lambda_validity_min()
     {
              if(type==MatType::REAL_N) return 1e-100;
@@ -172,26 +161,22 @@ namespace lua_gui_material
     
     int lua_material_set_index(lua_State *L)
     {
-        // TODO dynamic cast
-        chk_var("Index");
-        GUI::Material *mat=lua_get_metapointer<GUI::Material>(L,1);
+        Material *base_mat=lua_get_metapointer<Material>(L,1);
+        GUI::Material *mat=dynamic_cast<GUI::Material*>(base_mat);
         
         mat->set_const_n(lua_tonumber(L,2));
         mat->type=MatType::REAL_N;
         
-        MaterialsLib::consolidate(mat);
-        
-        chk_var("Index/");
         return 0;
     }
     
     int lua_material_set_script(lua_State *L)
     {
-        // TODO dynamic cast
-        GUI::Material *mat=lua_get_metapointer<GUI::Material>(L,1);
-        mat->load_lua_script(lua_tostring(L,2));
+        Material *base_mat=lua_get_metapointer<Material>(L,1);
+        GUI::Material *mat=dynamic_cast<GUI::Material*>(base_mat);
         
-        MaterialsLib::consolidate(mat);
+        mat->load_lua_script(lua_tostring(L,2));
+        mat->type=MatType::SCRIPT;
         
         return 0;
     }

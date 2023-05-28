@@ -39,15 +39,9 @@ namespace GUI
             MatType type;
             
             std::string get_description();
-            std::string get_inline_lua();
             double get_lambda_validity_min();
             double get_lambda_validity_max();
-            //[[deprecated]] std::string get_lua(std::string const &script_name);
             std::string get_short_description();
-            //[[deprecated]] void write_lua_script();
-        
-        private:
-            //void stream_lua(std::ostream &strm, std::string const &prefix);
         
         friend MaterialsLib;
     };
