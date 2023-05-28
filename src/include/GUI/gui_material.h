@@ -107,6 +107,8 @@ class MiniMaterialSelector: public wxPanel
                              GUI::Material *material=nullptr,
                              std::string const &name="");
         
+        ~MiniMaterialSelector();
+        
         void copy_material(MiniMaterialSelector *mat);
         void evt_edit(wxCommandEvent &event);
         void evt_weight(wxCommandEvent &event);

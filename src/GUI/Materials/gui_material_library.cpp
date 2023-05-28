@@ -279,7 +279,7 @@ namespace lua_gui_material
         
         if(type==MatType::REAL_N)
         {
-            strm<<prefix<<"refractive_index(\""<<std::real(material->get_n(0))<<"\")\n";
+            strm<<prefix<<"refractive_index("<<std::real(material->get_n(0))<<")\n";
         }
         else if(   type==MatType::LIBRARY
                 || type==MatType::USER_LIBRARY
@@ -579,6 +579,7 @@ void MaterialsLibDialog::rebuild_tree()
 
 MaterialsManager* MaterialsLib::manager=nullptr;
 std::vector<GUI::Material*> MaterialsLib::data;
+std::vector<MiniMaterialSelector*> MaterialsLib::mini_mats;
 
 void MaterialsLib::add_material(std::filesystem::path const &fname)
 {
@@ -593,6 +594,74 @@ void MaterialsLib::add_to_library(GUI::Material *data_)
         data_->type=MatType::USER_LIBRARY;
     
     write_user_lib();
+}
+
+void MaterialsLib::consolidate(GUI::Material *material)
+{
+    if(!vector_contains(data,material))
+    {
+        for(std::size_t i=0;i<data.size();i++)
+        {
+            if(data[i]->Material::operator == (*material))
+            {
+                delete material;
+                material=data[i];
+                
+                return;
+            }
+        }
+    }
+    
+    material->type=MatType::CUSTOM; // default assumption
+    
+         if(material->is_effective_material) material->type=MatType::EFFECTIVE;
+    else if(material->is_const()) material->type=MatType::REAL_N;
+    else if(!material->script_path.empty())
+    {
+        Material tmp_material{material->script_path};
+        
+        if(tmp_material==(*material))
+        {
+            material->type=MatType::SCRIPT;
+        }
+    }
+}
+
+void MaterialsLib::consolidate(GUI::Material **pp_material)
+{    
+    for(std::size_t i=0;i<data.size();i++)
+    {
+        if(   data[i]->type==MatType::LIBRARY
+           || data[i]->type==MatType::USER_LIBRARY)
+        {
+            Material *b_data=dynamic_cast<Material*>(data[i]);
+            Material *b_test=dynamic_cast<Material*>(*pp_material);
+            
+            if(   b_data!=b_test
+               && *(b_data)==*(b_test))
+            {
+                *pp_material=data[i];
+                return;
+            }
+        }
+    }
+    
+    consolidate(*pp_material);
+}
+
+void MaterialsLib::forget_control(MiniMaterialSelector *selector)
+{
+    std::size_t i;
+    
+    for(i=0;i<mini_mats.size();i++)
+    {
+        if(mini_mats[i]==selector) break;
+    }
+    
+    if(i<mini_mats.size())
+    {
+        mini_mats.erase(mini_mats.begin()+i);
+    }
 }
 
 void MaterialsLib::forget_manager() { manager=nullptr; }
@@ -739,6 +808,11 @@ void MaterialsLib::load_script(std::filesystem::path const &path)
     reorder_materials();
 }
 
+void MaterialsLib::register_control(MiniMaterialSelector *selector)
+{
+    mini_mats.push_back(selector);
+}
+
 GUI::Material* MaterialsLib::request_material(MatType type)
 {
     GUI::Material *new_mat=new GUI::Material;
@@ -762,44 +836,9 @@ void MaterialsLib::reorder_materials()
 
 void MaterialsLib::consolidate()
 {
-    for(std::size_t i=0;i<data.size();i++)
+    for(std::size_t i=0;i<mini_mats.size();i++)
     {
-        if(   data[i]->type!=MatType::LIBRARY
-           && data[i]->type!=MatType::USER_LIBRARY)
-        {
-            consolidate(data[i]);
-        }
-    }
-}
-
-void MaterialsLib::consolidate(GUI::Material *material)
-{
-    if(!vector_contains(data,material))
-    {
-        for(std::size_t i=0;i<data.size();i++)
-        {
-            if(data[i]->Material::operator == (*material))
-            {
-                delete material;
-                material=data[i];
-                
-                return;
-            }
-        }
-    }
-    
-    material->type=MatType::CUSTOM; // default assumption
-    
-         if(material->is_effective_material) material->type=MatType::EFFECTIVE;
-    else if(material->is_const()) material->type=MatType::REAL_N;
-    else if(!material->script_path.empty())
-    {
-        Material tmp_material{material->script_path};
-        
-        if(tmp_material==(*material))
-        {
-            material->type=MatType::SCRIPT;
-        }
+        consolidate(&(mini_mats[i]->material));
     }
 }
 

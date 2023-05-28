@@ -130,6 +130,13 @@ MiniMaterialSelector::MiniMaterialSelector(wxWindow *parent,
     SetSizer(sizer);
     
     update_display();
+    
+    MaterialsLib::register_control(this);
+}
+
+MiniMaterialSelector::~MiniMaterialSelector()
+{
+    MaterialsLib::forget_control(this);
 }
 
 void MiniMaterialSelector::copy_material(MiniMaterialSelector *mat_)

@@ -415,8 +415,10 @@ bool MaterialEditor::save()
 {
     if(!read_only_material)
     {
-        // TODO
-        //material.write_lua_script();
+        lua_gui_material::Translator mtr("");
+        
+        mtr.save_to_file(&material);
+        
         return true;
     }
     else return save_as();
@@ -443,8 +445,9 @@ bool MaterialEditor::save_as()
     
     material.script_path=new_path;
     
-    //TODO
-    //material.write_lua_script();
+    lua_gui_material::Translator mtr("");
+    mtr.save_to_file(&material);
+    
     read_only_material=false;
     
     rebuild_elements_list();

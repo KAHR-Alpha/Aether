@@ -284,7 +284,7 @@ template<typename T,typename... Args>
 template<typename T>
 void lua_set_metapointer(lua_State *L,std::string const &meta_name,T *arg)
 {
-    T **pp=reinterpret_cast<T**>(lua_newuserdata(L,sizeof(T*)));
+    T **pp=static_cast<T**>(lua_newuserdata(L,sizeof(T*)));
     
     luaL_getmetatable(L,meta_name.c_str());
     lua_setmetatable(L,-2);

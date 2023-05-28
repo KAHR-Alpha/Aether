@@ -258,7 +258,7 @@ void Cspline::operator = (Cspline const &spline)
     coeffs=spline.coeffs;
 }
 
-bool Cspline::operator == (Cspline const &spline)
+bool Cspline::operator == (Cspline const &spline) const
 {
     if(Np!=spline.Np ||
        end_mode!=spline.end_mode ||

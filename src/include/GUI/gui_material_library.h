@@ -108,21 +108,26 @@ class MaterialsLibDialog: public wxDialog
         void rebuild_tree();
 };
 
+class MiniMaterialSelector;
+
 class MaterialsLib
 {
     private:
         static MaterialsManager *manager;
         static std::vector<GUI::Material*> data;
+        static std::vector<MiniMaterialSelector*> mini_mats;
         
         static bool has_manager();
         static void load_material(std::filesystem::path const &fname,MatType type);
         static void write_user_lib();
         static void reorder_materials();
     public:
-        static void add_material(std::filesystem::path const &fname);
+        [[deprecated]] static void add_material(std::filesystem::path const &fname);
         [[deprecated]] static void add_to_library(GUI::Material *data);
         static void consolidate();
         static void consolidate(GUI::Material *material);
+        static void consolidate(GUI::Material **material);
+        static void forget_control(MiniMaterialSelector *selector);
         static void forget_manager();
         static MaterialsManager* get_manager();
         static GUI::Material* get_material_data(unsigned int n);
@@ -133,7 +138,9 @@ class MaterialsLib
         static Material* knows_material(unsigned int &n,Material const &material,
                                         bool (*validator)(Material*)=&default_material_validator);
         static void load_script(std::filesystem::path const &path);
-        [[nodiscard]] static GUI::Material* request_material(MatType type);
+        static void register_control(MiniMaterialSelector *selector);
+        static GUI::Material* request_material(MatType type);
+        
 };
 
 #endif // GUI_MATERIAL_LIBRARY_H_INCLUDED

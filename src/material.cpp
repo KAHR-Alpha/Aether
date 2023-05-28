@@ -511,12 +511,38 @@ void Material::operator = (Material const &mat)
 
 bool Material::operator == (Material const &mat) const
 {
+    if(eps_inf!=mat.eps_inf) return false;
+    
+    // Common dielectric models
+    
+    if(debye!=mat.debye) return false;
+    if(drude!=mat.drude) return false;
+    if(lorentz!=mat.lorentz) return false;
+    if(critpoint!=mat.critpoint) return false;
+        
+    // Cauchy
+    if(cauchy_coeffs!=mat.cauchy_coeffs) return false;
+    
+    // Sellmeier
+    if(sellmeier_B!=mat.sellmeier_B) return false;
+    if(sellmeier_C!=mat.sellmeier_C) return false;
+    
+    // For file-based materials
+    if(spd_lambda!=mat.spd_lambda) return false;
+    if(spd_r!=mat.spd_r) return false;
+    if(spd_i!=mat.spd_i) return false;
+    if(spd_type_index!=mat.spd_type_index) return false;
+    
+    if(er_spline!=mat.er_spline) return false;
+    if(ei_spline!=mat.ei_spline) return false;
+    
+    // Effective Material
+    
+    if(is_effective_material!=mat.is_effective_material) return false;
+    
     if(is_effective_material)
     {
-        if(!mat.is_effective_material) return false;
-        
-        if(   effective_type!=mat.effective_type
-           || eff_weight!=mat.eff_weight) return false;
+        if(effective_type!=mat.effective_type) return false;
         
         if(   eff_mat_1!=nullptr && mat.eff_mat_1!=nullptr
            && eff_mat_2!=nullptr && mat.eff_mat_2!=nullptr)
@@ -526,23 +552,45 @@ bool Material::operator == (Material const &mat) const
         }
         else return false;
         
-        return true;
-    }
-    else
-    {
-        if(is_const())
+        if(eff_weight!=mat.eff_weight) return false;
+        
+        if(eff_weights!=mat.eff_weights) return false; // checks vecvtor size as well
+        
+        bool null_check=true;
+        
+        for(std::size_t i=0;i<eff_mats.size();i++)
         {
-            if(eps_inf!=mat.eps_inf) return false;
-        }
-        else
-        {
-            if(script_path!=mat.script_path) return false;
+            null_check=null_check && (eff_mats[i]!=nullptr && mat.eff_mats[i]!=nullptr);
         }
         
-        return true;
+        if(!null_check) return false;
+        else
+        {
+            for(std::size_t i=0;i<eff_mats.size();i++)
+            {
+                if(*(eff_mats[i])!=*(mat.eff_mats[i])) return false;
+            }
+        }
     }
     
+    bool path1_check=std::filesystem::exists(script_path);
+    bool path2_check=std::filesystem::exists(mat.script_path);
+    
+    if(path1_check==path2_check)
+    {
+        if(path1_check)
+        {
+            if(!std::filesystem::equivalent(script_path,mat.script_path)) return false;
+        }
+    }
+    else return false;
+    
     return true;
+}
+
+bool Material::operator!=(Material const &mat) const
+{
+    return !(*this==mat);
 }
 
 void Material::reset()

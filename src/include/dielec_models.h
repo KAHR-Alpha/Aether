@@ -38,6 +38,7 @@ class DebyeModel
         void show();
         
         void operator = (DebyeModel const &D);
+        bool operator == (DebyeModel const &D) const;
 };
 
 class DrudeModel
@@ -57,6 +58,7 @@ class DrudeModel
         void show();
         
         void operator = (DrudeModel const &D);
+        bool operator == (DrudeModel const &D) const;
 };
 
 class LorentzModel
@@ -75,6 +77,7 @@ class LorentzModel
         void show();
         
         void operator = (LorentzModel const &D);
+        bool operator == (LorentzModel const &D) const;
 };
 
 class CritpointModel
@@ -93,6 +96,7 @@ class CritpointModel
         void show();
         
         void operator = (CritpointModel const &D);
+        bool operator == (CritpointModel const &D) const;
 };
 
 class Dielec_model

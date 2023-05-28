@@ -88,6 +88,7 @@ class Material
         void load_lua_script(std::filesystem::path const &script_name);
         void operator = (Material const &mat);
         bool operator == (Material const &mat) const;
+        bool operator != (Material const &mat) const;
         void reset();
         void set_const_eps(double eps);
         void set_const_n(double n);
