@@ -423,13 +423,32 @@ MaterialsLibDialog::MaterialsLibDialog(wxWindow *requester_,bool (*validator)(Ma
               wxGetApp().default_dialog_origin(),
               wxGetApp().default_dialog_size()),
      selection_ok(false),
+     new_material(false),
      material(nullptr),
      requester(requester_),
+     requester_own_material(nullptr),
      accept_material(validator)
 {
+    // Searching for the caller's material
+    
+    std::size_t Nmat=MaterialsLib::size();
+    
+    for(std::size_t i=0;i<Nmat;i++)
+    {
+        GUI::Material *mat=MaterialsLib::material(i);
+        
+        if(mat->original_requester==requester)
+        {
+            requester_own_material=mat;
+            break;
+        }
+    }
+    
+    // UI
+    
     wxBoxSizer *sizer=new wxBoxSizer(wxHORIZONTAL);
     
-    // Tree
+    // - Tree
     
     materials=new wxTreeCtrl(this,wxID_ANY,wxDefaultPosition,wxDefaultSize,wxTR_DEFAULT_STYLE|wxTR_HIDE_ROOT);
     materials->AddRoot("Materials");
@@ -438,23 +457,38 @@ MaterialsLibDialog::MaterialsLibDialog(wxWindow *requester_,bool (*validator)(Ma
     
     sizer->Add(materials,wxSizerFlags(1).Expand());
     
-    // Buttons
+    // - Buttons
     
     wxBoxSizer *btn_sizer=new wxBoxSizer(wxVERTICAL);
+    wxStaticBoxSizer *new_mats_sizer=new wxStaticBoxSizer(wxVERTICAL,this,"New Material");
     
     wxButton *ok_btn=new wxButton(this,wxID_ANY,"Ok");
-    wxButton *load_script_btn=new wxButton(this,wxID_ANY,"Load Script");
+    
+    wxButton *const_btn=new wxButton(new_mats_sizer->GetStaticBox(),wxID_ANY,"Constant");
+    wxButton *script_btn=new wxButton(new_mats_sizer->GetStaticBox(),wxID_ANY,"Script");
+    wxButton *custom_btn=new wxButton(new_mats_sizer->GetStaticBox(),wxID_ANY,"Custom");
+    wxButton *effective_btn=new wxButton(new_mats_sizer->GetStaticBox(),wxID_ANY,"Effective");
+    
+    new_mats_sizer->Add(const_btn,wxSizerFlags().Expand());
+    new_mats_sizer->Add(script_btn,wxSizerFlags().Expand());
+    new_mats_sizer->Add(custom_btn,wxSizerFlags().Expand());
+    new_mats_sizer->Add(effective_btn,wxSizerFlags().Expand());
+    
     wxButton *add_to_lib_btn=new wxButton(this,wxID_ANY,"Add to Lib");
     wxButton *cancel_btn=new wxButton(this,wxID_ANY,"Cancel");
     
     ok_btn->Bind(wxEVT_BUTTON,&MaterialsLibDialog::evt_ok,this);
-    load_script_btn->Bind(wxEVT_BUTTON,&MaterialsLibDialog::evt_load_script,this);
+    const_btn->Bind(wxEVT_BUTTON,&MaterialsLibDialog::evt_new_const_material,this);
+    script_btn->Bind(wxEVT_BUTTON,&MaterialsLibDialog::evt_load_script,this);
+    custom_btn->Bind(wxEVT_BUTTON,&MaterialsLibDialog::evt_new_custom_material,this);
+    effective_btn->Bind(wxEVT_BUTTON,&MaterialsLibDialog::evt_new_effective_material,this);
     add_to_lib_btn->Bind(wxEVT_BUTTON,&MaterialsLibDialog::evt_add_to_lib,this);
     cancel_btn->Bind(wxEVT_BUTTON,&MaterialsLibDialog::evt_cancel,this);
     
     btn_sizer->Add(ok_btn,wxSizerFlags().Expand());
     btn_sizer->Add(new wxPanel(this),wxSizerFlags(1));
-    btn_sizer->Add(load_script_btn,wxSizerFlags().Expand());
+    btn_sizer->Add(new_mats_sizer,wxSizerFlags().Expand());
+    btn_sizer->Add(new wxPanel(this),wxSizerFlags(1));
     btn_sizer->Add(add_to_lib_btn,wxSizerFlags().Expand());
     btn_sizer->Add(new wxPanel(this),wxSizerFlags(9));
     btn_sizer->Add(cancel_btn,wxSizerFlags().Expand());
@@ -508,6 +542,45 @@ void MaterialsLibDialog::evt_load_script(wxCommandEvent &event)
     }
 }
 
+void MaterialsLibDialog::evt_new_const_material(wxCommandEvent &event)
+{
+    MaterialsLib::forget_material(requester_own_material);
+    
+    material=MaterialsLib::request_material(MatType::REAL_N);
+    material->original_requester=requester;
+    
+    selection_ok=true;
+    new_material=true;
+    
+    Close();
+}
+
+void MaterialsLibDialog::evt_new_custom_material(wxCommandEvent &event)
+{
+    MaterialsLib::forget_material(requester_own_material);
+    
+    material=MaterialsLib::request_material(MatType::CUSTOM);
+    material->original_requester=requester;
+
+    selection_ok=true;
+    new_material=true;
+    
+    Close();
+}
+
+void MaterialsLibDialog::evt_new_effective_material(wxCommandEvent &event)
+{
+    MaterialsLib::forget_material(requester_own_material);
+    
+    material=MaterialsLib::request_material(MatType::EFFECTIVE);
+    material->original_requester=requester;
+
+    selection_ok=true;
+    new_material=true;
+    
+    Close();
+}
+
 void MaterialsLibDialog::evt_ok(wxCommandEvent &event)
 {
     wxTreeItemId selection=materials->GetFocusedItem();
@@ -529,7 +602,7 @@ void MaterialsLibDialog::rebuild_tree()
     
     materials->DeleteChildren(root);
     
-    int Nmat=MaterialsLib::get_N_materials();
+    int Nmat=MaterialsLib::size();
     
     wxTreeItemId default_lib=materials->AppendItem(root,"Default Library");
     wxTreeItemId user_lib=materials->AppendItem(root,"User Library");
@@ -539,7 +612,8 @@ void MaterialsLibDialog::rebuild_tree()
     
     for(int i=0;i<Nmat;i++)
     {
-        MatType mat_type=MaterialsLib::get_material_type(i);
+        GUI::Material *insert_mat=MaterialsLib::material(i);
+        MatType mat_type=insert_mat->type;
         
         wxTreeItemId parent;
         
@@ -569,7 +643,6 @@ void MaterialsLibDialog::rebuild_tree()
         }
         else continue;
         
-        GUI::Material *insert_mat=MaterialsLib::get_material_data(i);
         
         std::string mat_name=insert_mat->name;
         if(mat_name.empty()) mat_name=insert_mat->script_path.generic_string();
@@ -584,7 +657,7 @@ void MaterialsLibDialog::rebuild_tree()
     {
         for(int i=0;i<Nmat;i++)
         {
-            GUI::Material *insert_mat=MaterialsLib::get_material_data(i);
+            GUI::Material *insert_mat=MaterialsLib::material(i);
             
             if(insert_mat->original_requester==requester)
             {
@@ -691,6 +764,18 @@ void MaterialsLib::forget_control(MiniMaterialSelector *selector)
 
 void MaterialsLib::forget_manager() { manager=nullptr; }
 
+void MaterialsLib::forget_material(GUI::Material *material)
+{
+    for(std::size_t i=0;i<data.size();i++)
+    {
+        if(material==data[i])
+        {
+            data.erase(data.begin()+i);
+            return;
+        }
+    }
+}
+
 MaterialsManager* MaterialsLib::get_manager()
 {
     if(manager==nullptr)
@@ -700,25 +785,6 @@ MaterialsManager* MaterialsLib::get_manager()
     
     return manager;
 }
-
-GUI::Material* MaterialsLib::get_material_data(unsigned int n)
-{
-    if(n>=data.size()) return nullptr;
-    return data[n];
-}
-
-std::filesystem::path MaterialsLib::get_material_path(unsigned int n)
-{
-    if(n>=data.size()) return "";
-    return data[n]->script_path;
-}
-
-MatType MaterialsLib::get_material_type(unsigned int n)
-{
-    return data[n]->type;
-}
-
-std::size_t MaterialsLib::get_N_materials() { return data.size(); }
 
 bool MaterialsLib::has_manager() { return manager!=nullptr; }
 
@@ -833,6 +899,12 @@ void MaterialsLib::load_script(std::filesystem::path const &path)
     reorder_materials();
 }
 
+GUI::Material* MaterialsLib::material(std::size_t n)
+{
+    if(n>=data.size()) return nullptr;
+    return data[n];
+}
+
 void MaterialsLib::register_control(MiniMaterialSelector *selector)
 {
     mini_mats.push_back(selector);
@@ -858,6 +930,8 @@ void MaterialsLib::reorder_materials()
         }
     }
 }
+
+std::size_t MaterialsLib::size() { return data.size(); }
 
 void MaterialsLib::consolidate()
 {

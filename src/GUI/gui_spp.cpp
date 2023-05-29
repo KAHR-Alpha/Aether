@@ -147,7 +147,7 @@ void SppFrame::recomp_spp()
 
 void SppFrame::update_dielec(wxCommandEvent &event)
 {
-    textctrl_to_T(n_ctrl,n_dielec);
+    textctrl_to_value(n_ctrl,n_dielec);
     
     if(n_dielec<1.0)
     {

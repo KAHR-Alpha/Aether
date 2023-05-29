@@ -41,15 +41,22 @@ limitations under the License.*/
 wxDECLARE_EVENT(EVT_NAMEDTXTCTRL,wxCommandEvent);
 
 template<typename T>
-void textctrl_to_T(wxTextCtrl *ctrl,T &target)
+void textctrl_to_value(wxTextCtrl *ctrl,T &target)
 {
     std::stringstream stream_in,stream_out;
     
-    stream_in<<ctrl->GetValue();
-    stream_in>>target;
-    
-    stream_out<<target;
-    ctrl->ChangeValue(stream_out.str());
+    if constexpr(std::is_same_v<T,std::string>)
+    {
+        target=ctrl->GetValue().ToStdString();
+    }
+    else
+    {
+        stream_in<<ctrl->GetValue();
+        stream_in>>target;
+        
+        stream_out<<target;
+        ctrl->ChangeValue(stream_out.str());
+    }
 }
 
 template<typename T> class NamedTextCtrl;
@@ -187,7 +194,7 @@ class NamedTextCtrl: public wxPanel
         
         void value_enter(wxCommandEvent &event)
         {
-            textctrl_to_T(txt,val);
+            textctrl_to_value(txt,val);
             
             wxCommandEvent event_out(EVT_NAMEDTXTCTRL);
             wxPostEvent(this,event_out);
@@ -195,7 +202,7 @@ class NamedTextCtrl: public wxPanel
         
         void value_focus(wxFocusEvent &event)
         {
-            textctrl_to_T(txt,val);
+            textctrl_to_value(txt,val);
             
             wxCommandEvent event_out(EVT_NAMEDTXTCTRL);
             wxPostEvent(this,event_out);

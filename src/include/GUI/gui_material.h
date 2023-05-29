@@ -26,7 +26,17 @@ wxDECLARE_EVENT(EVT_MAT_SELECTOR,wxCommandEvent);
 wxDECLARE_EVENT(EVT_MINIMAT_SELECTOR,wxCommandEvent);
 
 class MaterialSelector;
+class MiniMaterialSelector;
 class MaterialsManager;
+
+class EffMaterialPanel: public PanelsListBase
+{
+    public:
+        MiniMaterialSelector *selector;
+        NamedTextCtrl<double> *weight;
+        
+        EffMaterialPanel(wxWindow *parent,GUI::Material *material,double weight);
+};
 
 class MaterialSelector: public wxPanel
 {
@@ -38,9 +48,8 @@ class MaterialSelector: public wxPanel
         
         // Header
         
+        NamedTextCtrl<std::string> *type_description;
         NamedTextCtrl<std::string> *name_ctrl;
-        wxChoice *type_ctrl;
-        wxStaticText *type_description;
         
         // Material Edition
         
@@ -59,7 +68,9 @@ class MaterialSelector: public wxPanel
         NamedTextCtrl<double> *eff_weight;
         
         std::vector<MaterialSelector*> eff_selector;
-        //std::vector<NamedTextCtrl<double>*> eff_weight;
+//        std::vector<NamedTextCtrl<double>*> eff_weight;
+        
+        PanelsList<EffMaterialPanel> *effective_ctrl;
         
         // Custom
         
@@ -72,8 +83,8 @@ class MaterialSelector: public wxPanel
         MaterialSelector(wxWindow *parent,std::string name,bool no_box,
                          GUI::Material *material,
                          bool (*validator)(Material*)=&default_material_validator);
-        void MaterialSelector_EffPanel(wxWindow *parent);
         void MaterialSelector_CustomPanel(wxWindow *parent);
+        void MaterialSelector_EffPanel(wxWindow *parent);
         ~MaterialSelector();
         
         void allocate_effective_materials();
@@ -84,7 +95,6 @@ class MaterialSelector: public wxPanel
         void evt_effective_material(wxCommandEvent &event);
         void evt_inspect(wxCommandEvent &event);
         void evt_library(wxCommandEvent &event);
-        void evt_mat_type(wxCommandEvent &event);
         void evt_name(wxCommandEvent &event);
         Imdouble get_eps(double w);
         MatEffType get_effective_material_type();

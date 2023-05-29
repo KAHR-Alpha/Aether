@@ -16,6 +16,24 @@ limitations under the License.*/
 
 #include <gui_material.h>
 
+//######################
+//   EffMaterialPanel
+//######################
+
+EffMaterialPanel::EffMaterialPanel(wxWindow *parent,GUI::Material *material,double weight_)
+    :PanelsListBase(parent)
+{
+    wxBoxSizer *mat_sizer=new wxBoxSizer(wxHORIZONTAL);
+    
+    selector=new MiniMaterialSelector(this,material,"");
+    weight=new NamedTextCtrl<double>(this," weight: ",weight_,false);
+    
+    mat_sizer->Add(selector);
+    mat_sizer->Add(weight);
+    
+    sizer->Add(mat_sizer);
+}
+
 //####################
 //  MaterialSelector
 //####################
@@ -66,23 +84,16 @@ MaterialSelector::MaterialSelector(wxWindow *parent,
     
     // - Header
     
-    wxBoxSizer *header_sizer=new wxBoxSizer(wxHORIZONTAL);
+    wxBoxSizer *header_sizer=new wxBoxSizer(wxVERTICAL);
+    
+    type_description=new NamedTextCtrl<std::string>(panel,"Type: ","");
+    type_description->lock();
     
     name_ctrl=new NamedTextCtrl<std::string>(panel,"Name: ",material->name);
     name_ctrl->Bind(EVT_NAMEDTXTCTRL,&MaterialSelector::evt_name,this);
     
-    type_ctrl=new wxChoice(panel,wxID_ANY);
-    type_ctrl->Append("Const Index");
-    type_ctrl->Append("Custom");
-    type_ctrl->Append("Effective");
-    type_ctrl->Bind(wxEVT_CHOICE,&MaterialSelector::evt_mat_type,this);
-    
-    type_description=new wxStaticText(panel,wxID_ANY,"Library");
-    
+    header_sizer->Add(type_description);
     header_sizer->Add(name_ctrl);
-    header_sizer->Add(new wxStaticText(panel,wxID_ANY,"  Type: "),wxSizerFlags().Align(wxALIGN_CENTER_VERTICAL));
-    header_sizer->Add(type_ctrl);
-    header_sizer->Add(type_description,wxSizerFlags().Align(wxALIGN_CENTER_VERTICAL));
     
     update_header();
     
@@ -180,8 +191,12 @@ void MaterialSelector::MaterialSelector_EffPanel(wxWindow *parent)
 {
     eff_panel=new wxPanel(parent);
     
-    wxBoxSizer *sizer=new wxBoxSizer(wxHORIZONTAL);
+    wxBoxSizer *sizer=new wxBoxSizer(wxVERTICAL);
     eff_panel->SetSizer(sizer);
+    
+    // Header
+    
+    wxBoxSizer *header_sizer=new wxBoxSizer(wxHORIZONTAL);
     
     eff_type=new wxChoice(eff_panel,wxID_ANY);
     
@@ -195,14 +210,22 @@ void MaterialSelector::MaterialSelector_EffPanel(wxWindow *parent)
     
     eff_type->Bind(wxEVT_CHOICE,&MaterialSelector::evt_effective_material,this);
     
-    eff_sizer=new wxBoxSizer(wxVERTICAL);
+    header_sizer->Add(new wxStaticText(eff_panel,wxID_ANY,"Effective Model: "),wxSizerFlags().Align(wxALIGN_CENTER_VERTICAL));
+    header_sizer->Add(eff_type);
     
-    eff_weight=new NamedTextCtrl<double>(eff_panel," Weight: ",0);
-    eff_weight->Bind(EVT_NAMEDTXTCTRL,&MaterialSelector::evt_effective_material,this);
+    sizer->Add(header_sizer);
     
-    sizer->Add(eff_type,wxSizerFlags().Align(wxALIGN_TOP));
-    sizer->Add(eff_sizer,wxSizerFlags(1));
-    sizer->Add(eff_weight,wxSizerFlags().Align(wxALIGN_CENTER_VERTICAL));
+    // Materials
+    
+    wxStaticBoxSizer *components_sizer=new wxStaticBoxSizer(wxHORIZONTAL,eff_panel,"Components");
+    
+    effective_ctrl=new PanelsList<EffMaterialPanel>(components_sizer->GetStaticBox());
+    wxButton *add_mat_btn=new wxButton(components_sizer->GetStaticBox(),wxID_ANY,"Add");
+    
+    components_sizer->Add(effective_ctrl);
+    components_sizer->Add(add_mat_btn);
+    
+    sizer->Add(components_sizer);    
 }
 
 void MaterialSelector::MaterialSelector_CustomPanel(wxWindow *parent)
@@ -330,26 +353,18 @@ void MaterialSelector::evt_library(wxCommandEvent &event)
     throw_event();
 }
 
-// TODO
-void MaterialSelector::evt_mat_type(wxCommandEvent &event)
-{
-    int selection=type_ctrl->GetSelection();
-    
-    switch(selection)
-    {
-        case 0: material->type=MatType::REAL_N; break;
-        case 1: material->type=MatType::CUSTOM; break;
-        case 2: material->type=MatType::EFFECTIVE; break;
-        default: material->type=MatType::REAL_N;
-    }
-    
-    update_layout();
-    throw_event();
-}
-
 void MaterialSelector::evt_name(wxCommandEvent &event)
 {
     material->name=name_ctrl->get_value();
+    
+    wxWindow *requester=parent_selector;
+    if(requester==nullptr) requester=this;
+    
+    if(   !material->name.empty()
+       && material->original_requester==requester)
+    {
+        material->original_requester=nullptr;
+    }
 }
 
 Imdouble MaterialSelector::get_eps(double w) { return material->get_eps(w); }
@@ -374,47 +389,33 @@ void MaterialSelector::update_header()
     switch(material->type)
     {
         case MatType::REAL_N:
-            type_ctrl->Show();
-            type_ctrl->SetSelection(0);
-            type_description->Hide();
+            type_description->set_value("Constant");
             break;
         
         case MatType::CUSTOM:
-            type_ctrl->Show();
-            type_ctrl->SetSelection(1);
-            type_description->Hide();
+            type_description->set_value("Custom");
             break;
         
         case MatType::EFFECTIVE:
-            type_ctrl->Show();
-            type_ctrl->SetSelection(2);
-            type_description->Hide();
+            type_description->set_value("Effective");
             break;
         
         case MatType::LIBRARY:
-            type_ctrl->Hide();
-            type_description->Show();
-            type_description->SetLabel("Library");
+            type_description->set_value("Library");
             break;
             
         case MatType::SCRIPT:
-            type_ctrl->Hide();
-            type_description->Show();
-            type_description->SetLabel("Script");
+            type_description->set_value("Script");
             break;
         
         case MatType::USER_LIBRARY:
-            type_ctrl->Hide();
-            type_description->Show();
-            type_description->SetLabel("User Library");
+            type_description->set_value("User Library");
             break;
     }
 }
 
 void MaterialSelector::update_layout()
 {
-    type_ctrl->Hide();
-    type_description->Hide();
     mat_txt->Hide();
     index_ctrl->Hide();
     custom_editor->Hide();
@@ -425,37 +426,31 @@ void MaterialSelector::update_layout()
     switch(material->type)
     {
         case MatType::REAL_N:
-            type_ctrl->Show();
             index_ctrl->Show();
             index_ctrl->set_value(std::sqrt(material->eps_inf));
             inspect_btn->Hide();
             break;
         
         case MatType::CUSTOM:
-            type_ctrl->Show();
             custom_editor->Show();
             custom_editor->rebuild_elements_list();
             break;
         
         case MatType::EFFECTIVE:
-            type_ctrl->Show();
             eff_panel->Show();
             break;
         
         case MatType::LIBRARY:
-            type_description->Show();
             mat_txt->Show();
             mat_txt->ChangeValue(material->script_path.generic_string());
             break;
             
         case MatType::SCRIPT:
-            type_description->Show();
             mat_txt->Show();
             mat_txt->ChangeValue(material->script_path.generic_string());
             break;
         
         case MatType::USER_LIBRARY:
-            type_description->Show();
             mat_txt->Show();
             mat_txt->ChangeValue(material->script_path.generic_string());
             break;

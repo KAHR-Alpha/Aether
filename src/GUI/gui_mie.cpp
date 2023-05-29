@@ -350,7 +350,7 @@ void MieTool::switch_disp_mode(wxCommandEvent &event)
 
 void MieTool::update_dielec(wxCommandEvent &event)
 {
-    textctrl_to_T(n_ctrl,n_dielec);
+    textctrl_to_value(n_ctrl,n_dielec);
     
     if(n_dielec<1.0)
     {
@@ -369,7 +369,7 @@ void MieTool::update_directional_radiation_angle(wxCommandEvent &event)
 
 void MieTool::update_radius(wxCommandEvent &event)
 {
-    textctrl_to_T(radius_ctrl,radius);
+    textctrl_to_value(radius_ctrl,radius);
     
     if(radius<0)
     {
@@ -387,7 +387,7 @@ void MieTool::update_spectrum(wxCommandEvent &event)
     lambda_max=sp_selector->get_lambda_max();
     Nl=sp_selector->get_Np();
     
-    textctrl_to_T(rec_ctrl,Nr);
+    textctrl_to_value(rec_ctrl,Nr);
     
          if(Nl<2) { Nl=2; sp_selector->set_Np(2); }
     else if(Nl>1000000) { Nl=1000000; sp_selector->set_Np(1000000); }

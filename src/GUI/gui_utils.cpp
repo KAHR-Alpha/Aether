@@ -909,7 +909,7 @@ void LengthSelector::value_change()
 {
     double input_value=0;
     
-    textctrl_to_T(length_ctrl,input_value);
+    textctrl_to_value(length_ctrl,input_value);
     
     int selection=unit_ctrl->GetSelection();
     
@@ -1027,7 +1027,7 @@ void WavelengthSelector::value_change()
 {
     double input_value=0;
     
-    textctrl_to_T(lambda_ctrl,input_value);
+    textctrl_to_value(lambda_ctrl,input_value);
     
     int selection=unit_ctrl->GetSelection();
     
@@ -1183,7 +1183,7 @@ void SpectrumSelector::spectrum_update()
     
     lambda_min=lambda_min_ctrl->get_lambda();
     lambda_max=lambda_max_ctrl->get_lambda();
-    textctrl_to_T(Np_ctrl,Np);
+    textctrl_to_value(Np_ctrl,Np);
     
     if(lambda_min>lambda_max)
     {
