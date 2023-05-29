@@ -112,7 +112,7 @@ void MaterialsManager::MaterialsManager_Controls()
 {
     wxBoxSizer *ctrl_sizer=new wxBoxSizer(wxVERTICAL);
     
-    editor=new MaterialEditor(ctrl_panel,false);
+    editor=new MaterialEditor(ctrl_panel,nullptr,false);
     
     ctrl_sizer->Add(editor,wxSizerFlags(1).Expand());
     
@@ -198,7 +198,7 @@ void MaterialsManager::evt_menu_load()
 {
     editor->load();
     
-    material_path->set_value(editor->material.script_path.generic_string());
+    material_path->set_value(editor->material->script_path.generic_string());
 }
 
 void MaterialsManager::evt_menu_new()
@@ -216,7 +216,7 @@ void MaterialsManager::evt_menu_new()
     
     editor->reset();
     
-    editor->material.script_path.clear();
+    editor->material->script_path.clear();
     //TODO editor->material.write_lua_script();
     
     material_path->set_value("");
@@ -231,7 +231,7 @@ void MaterialsManager::evt_menu_save_as()
 {
     bool editor_ok=editor->save_as();
     
-    if(editor_ok) material_path->set_value(editor->material.script_path.generic_string());
+    if(editor_ok) material_path->set_value(editor->material->script_path.generic_string());
 }
 
 void MaterialsManager::evt_spectrum_selector(wxCommandEvent &event)
@@ -250,7 +250,7 @@ void MaterialsManager::evt_spectrum_selector(wxCommandEvent &event)
 
 void MaterialsManager::recompute_model()
 {
-    Material &material=editor->material;
+    Material &material=*(editor->material);
     
     int display_type=disp_choice->GetSelection();
         

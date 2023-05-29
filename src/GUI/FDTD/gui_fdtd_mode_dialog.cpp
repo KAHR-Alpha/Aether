@@ -561,6 +561,7 @@ void FDTD_Mode_Dialog::evt_add_material(wxCommandEvent &event)
     GUI::Material *material=MaterialsLib::request_material(MatType::REAL_N);
     
     PanelsListBase *panel=mats_list->add_panel<FDTD_Material_Panel>(material);
+    // TODO material->original_requester=panel;
     
     std::string title("Material ");
     title.append(std::to_string(mats_list->get_size()-1));

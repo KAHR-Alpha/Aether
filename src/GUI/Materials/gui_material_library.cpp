@@ -27,6 +27,12 @@ namespace GUI
     //   Material
     //##############
     
+    Material::Material()
+        :type(MatType::CUSTOM),
+         original_requester(nullptr)
+    {
+    }
+    
     std::string Material::get_description()
     {
         std::stringstream strm;
@@ -412,12 +418,13 @@ class MaterialTreeData: public wxTreeItemData
         MaterialTreeData(GUI::Material *material_) : material(material_) {}
 };
 
-MaterialsLibDialog::MaterialsLibDialog(bool (*validator)(Material*))
+MaterialsLibDialog::MaterialsLibDialog(wxWindow *requester_,bool (*validator)(Material*))
     :wxDialog(nullptr,wxID_ANY,"Select a material",
               wxGetApp().default_dialog_origin(),
               wxGetApp().default_dialog_size()),
      selection_ok(false),
      material(nullptr),
+     requester(requester_),
      accept_material(validator)
 {
     wxBoxSizer *sizer=new wxBoxSizer(wxHORIZONTAL);
@@ -526,9 +533,9 @@ void MaterialsLibDialog::rebuild_tree()
     
     wxTreeItemId default_lib=materials->AppendItem(root,"Default Library");
     wxTreeItemId user_lib=materials->AppendItem(root,"User Library");
-    wxTreeItemId scripts=materials->AppendItem(root,"Scripts");
-    wxTreeItemId custom_mats=materials->AppendItem(root,"Custom Materials");
-    wxTreeItemId effective_mats=materials->AppendItem(root,"Effective Materials");
+    wxTreeItemId scripts;
+    wxTreeItemId custom_mats;
+    wxTreeItemId effective_mats;
     
     for(int i=0;i<Nmat;i++)
     {
@@ -538,10 +545,28 @@ void MaterialsLibDialog::rebuild_tree()
         
              if(mat_type==MatType::LIBRARY) parent=default_lib;
         else if(mat_type==MatType::USER_LIBRARY) parent=user_lib;
-        else if(mat_type==MatType::SCRIPT) parent=scripts;
+        else if(mat_type==MatType::SCRIPT)
+        {
+            if(!scripts.IsOk())
+                scripts=materials->AppendItem(root,"Scripts");
+            
+            parent=scripts;
+        }
         else if(    mat_type==MatType::CUSTOM
-                 || mat_type==MatType::REAL_N) parent=custom_mats;
-        else if(mat_type==MatType::EFFECTIVE) parent=effective_mats;
+                 || mat_type==MatType::REAL_N)
+        {
+            if(!custom_mats.IsOk())
+                custom_mats=materials->AppendItem(root,"Custom Materials");
+            
+            parent=custom_mats;
+        }
+        else if(mat_type==MatType::EFFECTIVE)
+        {
+            if(!effective_mats.IsOk())
+                effective_mats=materials->AppendItem(root,"Effective Materials");
+                
+            parent=effective_mats;
+        }
         else continue;
         
         GUI::Material *insert_mat=MaterialsLib::get_material_data(i);
@@ -553,6 +578,21 @@ void MaterialsLibDialog::rebuild_tree()
         MaterialTreeData *data=new MaterialTreeData(insert_mat);
         
         materials->AppendItem(parent,mat_name,-1,-1,data);
+    }
+    
+    if(requester!=nullptr)
+    {
+        for(int i=0;i<Nmat;i++)
+        {
+            GUI::Material *insert_mat=MaterialsLib::get_material_data(i);
+            
+            if(insert_mat->original_requester==requester)
+            {
+                MaterialTreeData *data=new MaterialTreeData(insert_mat);
+        
+                materials->AppendItem(root,"Selector Own Material",-1,-1,data);
+            }
+        }
     }
     
     materials->ExpandAll();

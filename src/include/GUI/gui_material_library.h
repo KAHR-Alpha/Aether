@@ -31,12 +31,17 @@ enum class MatType
     CUSTOM
 };
 
+class wxWindow;
+
 namespace GUI
 {
     class Material: public ::Material
     {
         public:
             MatType type;
+            wxWindow *original_requester;
+            
+            Material();
             
             std::string get_description();
             double get_lambda_validity_min();
@@ -89,11 +94,13 @@ class MaterialsLibDialog: public wxDialog
     public:
         bool selection_ok;
         GUI::Material *material;
+        wxWindow *requester;
         wxTreeCtrl *materials;
         
         bool (*accept_material)(Material*); // Validator
         
-        MaterialsLibDialog(bool (*validator)(Material*)=&default_material_validator);
+        MaterialsLibDialog(wxWindow *requester,
+                           bool (*validator)(Material*)=&default_material_validator);
         
         void evt_add_to_lib(wxCommandEvent &event);
         void evt_cancel(wxCommandEvent &event);

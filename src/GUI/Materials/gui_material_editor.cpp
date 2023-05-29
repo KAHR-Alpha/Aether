@@ -29,10 +29,14 @@ extern const Imdouble Im;
 wxDEFINE_EVENT(EVT_MATERIAL_EDITOR_MODEL,wxCommandEvent);
 wxDEFINE_EVENT(EVT_MATERIAL_EDITOR_SPECTRUM,wxCommandEvent);
 
-MaterialEditor::MaterialEditor(wxWindow *parent,bool stand_alone)
+MaterialEditor::MaterialEditor(wxWindow *parent,GUI::Material *material_,bool self_controls)
     :wxPanel(parent),
+     material(material_),
      read_only_material(true)
 {
+    if(material==nullptr)
+        MaterialsLib::request_material(MatType::CUSTOM);
+    
     wxBoxSizer *sizer=new wxBoxSizer(wxVERTICAL);
     
     // Description
@@ -102,7 +106,7 @@ MaterialEditor::MaterialEditor(wxWindow *parent,bool stand_alone)
     
     sizer->Add(material_elements,wxSizerFlags(1).Expand());
     
-    if(stand_alone)
+    if(self_controls)
     {
         wxBoxSizer *stand_alone_sizer=new wxBoxSizer(wxHORIZONTAL);
         wxBoxSizer *stand_alone_buttons=new wxBoxSizer(wxVERTICAL);
@@ -161,27 +165,27 @@ void MaterialEditor::evt_add_model(wxCommandEvent &event)
         std::vector<double> new_cauchy(1);
         new_cauchy[0]=0;
         
-        material.cauchy_coeffs.push_back(new_cauchy);
+        material->cauchy_coeffs.push_back(new_cauchy);
     }
     else if(selection==1)
     {
         CritpointModel new_critpoint;
-        material.critpoint.push_back(new_critpoint);
+        material->critpoint.push_back(new_critpoint);
     }
     else if(selection==2)
     {
         DebyeModel new_debye;
-        material.debye.push_back(new_debye);
+        material->debye.push_back(new_debye);
     }
     else if(selection==3)
     {
         DrudeModel new_drude;
-        material.drude.push_back(new_drude);
+        material->drude.push_back(new_drude);
     }
     else if(selection==4)
     {
         LorentzModel new_lorentz;
-        material.lorentz.push_back(new_lorentz);
+        material->lorentz.push_back(new_lorentz);
     }
     else if(selection==5)
     {
@@ -191,12 +195,12 @@ void MaterialEditor::evt_add_model(wxCommandEvent &event)
         data_r[0]=1.0;    data_r[1]=1.0;
         data_i[0]=0;      data_i[1]=0;
         
-        material.add_spline_data(lambda,data_r,data_i,true);
+        material->add_spline_data(lambda,data_r,data_i,true);
     }
     else if(selection==6)
     {
-        material.sellmeier_B.push_back(0);
-        material.sellmeier_C.push_back(0);
+        material->sellmeier_B.push_back(0);
+        material->sellmeier_C.push_back(0);
     }
     
     rebuild_elements_list();
@@ -206,7 +210,7 @@ void MaterialEditor::evt_delete_cauchy(wxCommandEvent &event)
 {
     int ID=event.GetId();
     
-    material.cauchy_coeffs.erase(material.cauchy_coeffs.begin()+ID);
+    material->cauchy_coeffs.erase(material->cauchy_coeffs.begin()+ID);
     
     rebuild_elements_list();
 }
@@ -215,7 +219,7 @@ void MaterialEditor::evt_delete_critpoint(wxCommandEvent &event)
 {
     int ID=event.GetId();
     
-    material.critpoint.erase(material.critpoint.begin()+ID);
+    material->critpoint.erase(material->critpoint.begin()+ID);
     
     rebuild_elements_list();
 }
@@ -224,7 +228,7 @@ void MaterialEditor::evt_delete_debye(wxCommandEvent &event)
 {
     int ID=event.GetId();
     
-    material.debye.erase(material.debye.begin()+ID);
+    material->debye.erase(material->debye.begin()+ID);
     
     rebuild_elements_list();
 }
@@ -233,7 +237,7 @@ void MaterialEditor::evt_delete_drude(wxCommandEvent &event)
 {
     int ID=event.GetId();
     
-    material.drude.erase(material.drude.begin()+ID);
+    material->drude.erase(material->drude.begin()+ID);
     
     rebuild_elements_list();
 }
@@ -242,7 +246,7 @@ void MaterialEditor::evt_delete_lorentz(wxCommandEvent &event)
 {
     int ID=event.GetId();
     
-    material.lorentz.erase(material.lorentz.begin()+ID);
+    material->lorentz.erase(material->lorentz.begin()+ID);
     
     rebuild_elements_list();
 }
@@ -251,8 +255,8 @@ void MaterialEditor::evt_delete_sellmeier(wxCommandEvent &event)
 {
     int ID=event.GetId();
     
-    material.sellmeier_B.erase(material.sellmeier_B.begin()+ID);
-    material.sellmeier_C.erase(material.sellmeier_C.begin()+ID);
+    material->sellmeier_B.erase(material->sellmeier_B.begin()+ID);
+    material->sellmeier_C.erase(material->sellmeier_C.begin()+ID);
     
     rebuild_elements_list();
 }
@@ -261,20 +265,20 @@ void MaterialEditor::evt_delete_spline(wxCommandEvent &event)
 {
     int ID=event.GetId();
     
-    material.spd_lambda.erase(material.spd_lambda.begin()+ID);
-    material.spd_r.erase(material.spd_r.begin()+ID);
-    material.spd_i.erase(material.spd_i.begin()+ID);
-    material.spd_type_index.erase(material.spd_type_index.begin()+ID);
+    material->spd_lambda.erase(material->spd_lambda.begin()+ID);
+    material->spd_r.erase(material->spd_r.begin()+ID);
+    material->spd_i.erase(material->spd_i.begin()+ID);
+    material->spd_type_index.erase(material->spd_type_index.begin()+ID);
     
-    material.er_spline.erase(material.er_spline.begin()+ID);
-    material.ei_spline.erase(material.ei_spline.begin()+ID);
+    material->er_spline.erase(material->er_spline.begin()+ID);
+    material->ei_spline.erase(material->ei_spline.begin()+ID);
     
     rebuild_elements_list();
 }
 
 void MaterialEditor::evt_description(wxCommandEvent &event)
 {
-    material.description=replace_special_characters(description->GetValue().ToStdString());
+    material->description=replace_special_characters(description->GetValue().ToStdString());
 }
 
 void MaterialEditor::evt_load(wxCommandEvent &event) { load(); }
@@ -298,17 +302,16 @@ void MaterialEditor::load()
     
     if(dialog.choice==0)
     {
-        MaterialsLibDialog dialog;
+        MaterialsLibDialog dialog(this);
         
         if(dialog.selection_ok)
         {
-            // TODO
-            material=*(dialog.material);
+            material=dialog.material;
             
             update_controls();
             rebuild_elements_list();
             
-            if(PathManager::belongs_to_resources(material.script_path))
+            if(PathManager::belongs_to_resources(material->script_path))
             {
                 read_only_material=true;
                 lock();
@@ -332,7 +335,7 @@ void MaterialEditor::load()
         
         std::filesystem::path new_path=data_tmp.GetFullPath().ToStdString();
         
-        material.load_lua_script(new_path);
+        material->load_lua_script(new_path);
         
         update_controls();
         rebuild_elements_list();
@@ -365,35 +368,35 @@ void MaterialEditor::rebuild_elements_list()
 {
     material_elements->clear();
     
-    material_elements->add_panel<MatGUI::EpsInfPanel>(&material.eps_inf);
+    material_elements->add_panel<MatGUI::EpsInfPanel>(&material->eps_inf);
     
-    for(std::size_t i=0;i<material.debye.size();i++)
-        material_elements->add_panel<MatGUI::DebyePanel>(&material.debye[i],i);
+    for(std::size_t i=0;i<material->debye.size();i++)
+        material_elements->add_panel<MatGUI::DebyePanel>(&material->debye[i],i);
         
-    for(std::size_t i=0;i<material.drude.size();i++)
-        material_elements->add_panel<MatGUI::DrudePanel>(&material.drude[i],i);
+    for(std::size_t i=0;i<material->drude.size();i++)
+        material_elements->add_panel<MatGUI::DrudePanel>(&material->drude[i],i);
     
-    for(std::size_t i=0;i<material.lorentz.size();i++)
-        material_elements->add_panel<MatGUI::LorentzPanel>(&material.lorentz[i],i);
+    for(std::size_t i=0;i<material->lorentz.size();i++)
+        material_elements->add_panel<MatGUI::LorentzPanel>(&material->lorentz[i],i);
     
-    for(std::size_t i=0;i<material.critpoint.size();i++)
-        material_elements->add_panel<MatGUI::CritpointPanel>(&material.critpoint[i],i);
+    for(std::size_t i=0;i<material->critpoint.size();i++)
+        material_elements->add_panel<MatGUI::CritpointPanel>(&material->critpoint[i],i);
     
-    for(std::size_t i=0;i<material.cauchy_coeffs.size();i++)
-        material_elements->add_panel<MatGUI::CauchyPanel>(&material.cauchy_coeffs[i],i);
+    for(std::size_t i=0;i<material->cauchy_coeffs.size();i++)
+        material_elements->add_panel<MatGUI::CauchyPanel>(&material->cauchy_coeffs[i],i);
     
-    for(std::size_t i=0;i<material.sellmeier_B.size();i++)
-        material_elements->add_panel<MatGUI::SellmeierPanel>(&material.sellmeier_B[i],
-                                                             &material.sellmeier_C[i],i);
+    for(std::size_t i=0;i<material->sellmeier_B.size();i++)
+        material_elements->add_panel<MatGUI::SellmeierPanel>(&material->sellmeier_B[i],
+                                                             &material->sellmeier_C[i],i);
     
-    for(std::size_t i=0;i<material.er_spline.size();i++)
+    for(std::size_t i=0;i<material->er_spline.size();i++)
         material_elements->add_panel<MatGUI::DataPanel>(i,
-                                                        &material.spd_lambda[i],
-                                                        &material.spd_r[i],
-                                                        &material.spd_i[i],
-                                                        &material.spd_type_index[i],
-                                                        &material.er_spline[i],
-                                                        &material.ei_spline[i]);
+                                                        &material->spd_lambda[i],
+                                                        &material->spd_r[i],
+                                                        &material->spd_i[i],
+                                                        &material->spd_type_index[i],
+                                                        &material->er_spline[i],
+                                                        &material->ei_spline[i]);
     
     material_elements->Layout();
     
@@ -402,7 +405,7 @@ void MaterialEditor::rebuild_elements_list()
 
 void MaterialEditor::reset()
 {
-    material.reset();
+    material->reset();
     
     update_controls();
     rebuild_elements_list();
@@ -417,7 +420,7 @@ bool MaterialEditor::save()
     {
         lua_gui_material::Translator mtr("");
         
-        mtr.save_to_file(&material);
+        mtr.save_to_file(material);
         
         return true;
     }
@@ -443,10 +446,10 @@ bool MaterialEditor::save_as()
         return false;
     }
     
-    material.script_path=new_path;
+    material->script_path=new_path;
     
     lua_gui_material::Translator mtr("");
-    mtr.save_to_file(&material);
+    mtr.save_to_file(material);
     
     read_only_material=false;
     
@@ -483,10 +486,10 @@ void MaterialEditor::unlock()
 
 void MaterialEditor::update_controls()
 {
-    description->ChangeValue(material.description);
+    description->ChangeValue(material->description);
     
-    validity_min->set_lambda(material.lambda_valid_min);
-    validity_max->set_lambda(material.lambda_valid_max);
+    validity_min->set_lambda(material->lambda_valid_min);
+    validity_max->set_lambda(material->lambda_valid_max);
     
     throw_event_spectrum();
 }

@@ -33,7 +33,7 @@ class MMS_Dialog:public wxDialog
         wxPanel *container_panel;
         wxScrolledWindow *selector_panel;
         
-        MMS_Dialog(GUI::Material *material_)
+        MMS_Dialog(GUI::Material *material_,wxWindow *parent_selector)
             :wxDialog(0,wxID_ANY,"Select the material",
                       wxGetApp().default_dialog_origin(),wxDefaultSize),
              material(material_)
@@ -52,6 +52,7 @@ class MMS_Dialog:public wxDialog
             
             wxBoxSizer *selector_sizer=new wxBoxSizer(wxVERTICAL);
             selector=new MaterialSelector(selector_panel,"Material",false,material);
+            selector->parent_selector=parent_selector;
             
             selector_sizer->Add(selector,wxSizerFlags());
             
@@ -99,7 +100,10 @@ MiniMaterialSelector::MiniMaterialSelector(wxWindow *parent,
      material(material_)
 {
     if(material==nullptr)
+    {
         material=MaterialsLib::request_material(MatType::REAL_N);
+        material->original_requester=this;
+    }
     
     wxSizer *sizer=nullptr;
     if(name=="") sizer=new wxBoxSizer(wxHORIZONTAL);
@@ -148,7 +152,7 @@ void MiniMaterialSelector::copy_material(MiniMaterialSelector *mat_)
 
 void MiniMaterialSelector::evt_edit(wxCommandEvent &event)
 {
-    MMS_Dialog dialog(material);
+    MMS_Dialog dialog(material,this);
     material=dialog.material;
     
     update_display();

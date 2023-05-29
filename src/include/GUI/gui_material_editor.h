@@ -25,8 +25,7 @@ wxDECLARE_EVENT(EVT_MATERIAL_EDITOR_SPECTRUM,wxCommandEvent);
 class MaterialEditor: public wxPanel
 {
     public:
-        // TODO
-        GUI::Material material;
+        GUI::Material *material;
         bool read_only_material;
         
         NamedTextCtrl<std::string> *name;
@@ -38,7 +37,7 @@ class MaterialEditor: public wxPanel
         
         PanelsList<MatGUI::SubmodelPanel> *material_elements;
         
-        MaterialEditor(wxWindow *parent,bool stand_alone);
+        MaterialEditor(wxWindow *parent,GUI::Material *material,bool self_controls);
         
         //
         

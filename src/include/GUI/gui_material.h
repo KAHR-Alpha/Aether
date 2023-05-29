@@ -32,6 +32,7 @@ class MaterialSelector: public wxPanel
 {
     public:
         GUI::Material *material;
+        wxWindow *parent_selector;
         double const_index;
         double weight;
         
@@ -68,7 +69,8 @@ class MaterialSelector: public wxPanel
         
         bool (*accept_material)(Material*);
         
-        MaterialSelector(wxWindow *parent,std::string name,bool no_box,GUI::Material *material,
+        MaterialSelector(wxWindow *parent,std::string name,bool no_box,
+                         GUI::Material *material,
                          bool (*validator)(Material*)=&default_material_validator);
         void MaterialSelector_EffPanel(wxWindow *parent);
         void MaterialSelector_CustomPanel(wxWindow *parent);

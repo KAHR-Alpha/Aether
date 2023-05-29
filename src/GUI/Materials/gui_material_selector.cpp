@@ -26,6 +26,7 @@ MaterialSelector::MaterialSelector(wxWindow *parent,
                                    bool (*validator)(Material*))
     :wxPanel(parent),
      material(material_),
+     parent_selector(nullptr),
      const_index(1.0),
      weight(1.0),
      eff_mat_1_selector(nullptr),
@@ -33,7 +34,10 @@ MaterialSelector::MaterialSelector(wxWindow *parent,
      accept_material(validator)
 {
     if(material==nullptr)
+    {
         material=MaterialsLib::request_material(MatType::REAL_N);
+        material->original_requester=this;
+    }
     
     wxSizer *sizer=nullptr;
     
@@ -203,7 +207,7 @@ void MaterialSelector::MaterialSelector_EffPanel(wxWindow *parent)
 
 void MaterialSelector::MaterialSelector_CustomPanel(wxWindow *parent)
 {
-    custom_editor=new MaterialEditor(parent,true);
+    custom_editor=new MaterialEditor(parent,material,true);
     custom_editor->Bind(EVT_MATERIAL_EDITOR_MODEL,&MaterialSelector::evt_custom_material,this);
 }
 
@@ -217,10 +221,8 @@ void MaterialSelector::allocate_effective_materials()
 {
     if(eff_mat_1_selector==nullptr)
     {
-        GUI::Material *tmp=nullptr;
-        
-        eff_mat_1_selector=new MaterialSelector(eff_panel,"",true,tmp);
-        eff_mat_2_selector=new MaterialSelector(eff_panel,"",true,tmp);
+        eff_mat_1_selector=new MaterialSelector(eff_panel,"",true,nullptr);
+        eff_mat_2_selector=new MaterialSelector(eff_panel,"",true,nullptr);
         
         eff_sizer->Add(eff_mat_1_selector);
         eff_sizer->Add(eff_mat_2_selector);
@@ -312,7 +314,10 @@ void MaterialSelector::evt_inspect(wxCommandEvent &event)
 
 void MaterialSelector::evt_library(wxCommandEvent &event)
 {
-    MaterialsLibDialog dialog;
+    wxWindow *requester=parent_selector;
+    if(requester==nullptr) requester=this;
+    
+    MaterialsLibDialog dialog(requester);
     
     if(dialog.selection_ok)
     {
@@ -422,12 +427,14 @@ void MaterialSelector::update_layout()
         case MatType::REAL_N:
             type_ctrl->Show();
             index_ctrl->Show();
+            index_ctrl->set_value(std::sqrt(material->eps_inf));
             inspect_btn->Hide();
             break;
         
         case MatType::CUSTOM:
             type_ctrl->Show();
             custom_editor->Show();
+            custom_editor->rebuild_elements_list();
             break;
         
         case MatType::EFFECTIVE:
