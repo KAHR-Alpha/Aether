@@ -26,6 +26,7 @@ EffMaterialPanel::EffMaterialPanel(wxWindow *parent,GUI::Material *material,doub
     wxBoxSizer *mat_sizer=new wxBoxSizer(wxHORIZONTAL);
     
     selector=new MiniMaterialSelector(this,material,"");
+    selector->SetMinClientSize(wxSize(500,-1));
     weight=new NamedTextCtrl<double>(this," weight: ",weight_,false);
     
     mat_sizer->Add(selector);
@@ -187,6 +188,12 @@ MaterialSelector::MaterialSelector(wxWindow *parent,
     SetSizer(sizer);
 }
 
+void MaterialSelector::MaterialSelector_CustomPanel(wxWindow *parent)
+{
+    custom_editor=new MaterialEditor(parent,material,true);
+    custom_editor->Bind(EVT_MATERIAL_EDITOR_MODEL,&MaterialSelector::evt_custom_material,this);
+}
+
 void MaterialSelector::MaterialSelector_EffPanel(wxWindow *parent)
 {
     eff_panel=new wxPanel(parent);
@@ -221,17 +228,12 @@ void MaterialSelector::MaterialSelector_EffPanel(wxWindow *parent)
     
     effective_ctrl=new PanelsList<EffMaterialPanel>(components_sizer->GetStaticBox());
     wxButton *add_mat_btn=new wxButton(components_sizer->GetStaticBox(),wxID_ANY,"Add");
+    add_mat_btn->Bind(wxEVT_BUTTON,&MaterialSelector::evt_add_effective_component,this);
     
     components_sizer->Add(effective_ctrl);
     components_sizer->Add(add_mat_btn);
     
     sizer->Add(components_sizer);    
-}
-
-void MaterialSelector::MaterialSelector_CustomPanel(wxWindow *parent)
-{
-    custom_editor=new MaterialEditor(parent,material,true);
-    custom_editor->Bind(EVT_MATERIAL_EDITOR_MODEL,&MaterialSelector::evt_custom_material,this);
 }
 
 MaterialSelector::~MaterialSelector()
@@ -308,6 +310,36 @@ MatEffType MaterialSelector::get_effective_material_type()
         case 4: return MatEffType::MAT_EFF_SUM;
         case 5: return MatEffType::MAT_EFF_SUM_INV;
         default: return MatEffType::MAT_EFF_BRUGGEMAN;
+    }
+}
+
+void MaterialSelector::evt_add_effective_component(wxCommandEvent &event)
+{
+    GUI::Material *effective_component=MaterialsLib::request_material(MatType::REAL_N);
+    
+    effective_ctrl->add_panel<EffMaterialPanel>(effective_component,1.0);
+    
+    rebuild_effective_material();
+    
+    throw_event();
+}
+
+void MaterialSelector::rebuild_effective_material()
+{
+    material->is_effective_material=true;
+    material->effective_type=get_effective_material_type();
+    
+    std::size_t N_eff=effective_ctrl->get_size();
+    
+    material->eff_mats.resize(N_eff);
+    material->eff_weights.resize(N_eff);
+    
+    for(std::size_t i=0;i<N_eff;i++)
+    {
+        EffMaterialPanel *panel=effective_ctrl->get_panel(i);
+        
+        material->eff_mats[i]=panel->selector->get_material();
+        material->eff_weights[i]=panel->weight->get_value();
     }
 }
 

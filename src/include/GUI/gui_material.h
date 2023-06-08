@@ -34,8 +34,12 @@ class EffMaterialPanel: public PanelsListBase
     public:
         MiniMaterialSelector *selector;
         NamedTextCtrl<double> *weight;
+        wxCheckBox *host;
         
         EffMaterialPanel(wxWindow *parent,GUI::Material *material,double weight);
+        void display_host();
+        void evt_host(wxCommandEvent &event);
+        void hide_host();
 };
 
 class MaterialSelector: public wxPanel
@@ -68,7 +72,6 @@ class MaterialSelector: public wxPanel
         NamedTextCtrl<double> *eff_weight;
         
         std::vector<MaterialSelector*> eff_selector;
-//        std::vector<NamedTextCtrl<double>*> eff_weight;
         
         PanelsList<EffMaterialPanel> *effective_ctrl;
         
@@ -90,6 +93,7 @@ class MaterialSelector: public wxPanel
         void allocate_effective_materials();
         void allocate_effective_materials(GUI::Material *eff_mat_1,
                                           GUI::Material *eff_mat_2);
+        void evt_add_effective_component(wxCommandEvent &event);
         void evt_const_index(wxCommandEvent &event);
         void evt_custom_material(wxCommandEvent &event);
         void evt_effective_material(wxCommandEvent &event);
@@ -100,6 +104,7 @@ class MaterialSelector: public wxPanel
         MatEffType get_effective_material_type();
         GUI::Material* get_material();
         double get_weight();
+        void rebuild_effective_material();
         void throw_event();
         void update_header();
         void update_layout();

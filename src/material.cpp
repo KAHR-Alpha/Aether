@@ -733,3 +733,73 @@ Imdouble effmodel_sum_inv(Imdouble eps_1,Imdouble eps_2,
 {
     return 1.0/(weight_1/eps_1+weight_2/eps_2);
 }
+
+Imdouble effmodel_bruggeman(std::vector<Imdouble> const &eps,
+                            std::vector<double> const &weights)
+{
+    double weight_sum=weights[0]+weights[1];
+    
+    return effmodel_bruggeman(eps[0],eps[1],weights[0]/weight_sum,weights[1]/weight_sum);
+}
+
+Imdouble effmodel_looyenga(std::vector<Imdouble> const &eps,
+                           std::vector<double> const &weights)
+{
+    double weight_sum=weights[0]+weights[1];
+    
+    return effmodel_looyenga(eps[0],eps[1],weights[0]/weight_sum,weights[1]/weight_sum);
+}
+
+Imdouble effmodel_maxwell_garnett(std::vector<Imdouble> const &eps,
+                                  std::vector<double> const &weights,int host)
+{
+    Imdouble eps_host=eps[host];
+    
+    Imdouble factor=0;
+    double w_sum=0;
+    
+    for(std::size_t i=0;i<eps.size();i++)
+    {
+        factor+=weights[i]*(eps[i]-eps_host)/(eps[i]+2.0*eps_host);
+        w_sum+=weights[i];
+    }
+    
+    factor/=w_sum;
+    
+    Imdouble eps_mg=eps_host*(1.0+2.0*factor)/(1.0-factor);
+    return eps_mg;
+}
+
+Imdouble effmodel_sum(std::vector<Imdouble> const &eps,
+                      std::vector<double> const &weights)
+{    
+    Imdouble eps_r=0;
+    double w_sum=0;
+    
+    for(std::size_t i=0;i<eps.size();i++)
+    {
+        eps_r+=weights[i]*eps[i];
+        w_sum+=weights[i];
+    }
+    
+    eps_r/=w_sum;
+    
+    return eps_r;
+}
+
+Imdouble effmodel_inv_sum(std::vector<Imdouble> const &eps,
+                          std::vector<double> const &weights)
+{    
+    Imdouble inv_eps_r=0;
+    double w_sum=0;
+    
+    for(std::size_t i=0;i<eps.size();i++)
+    {
+        inv_eps_r+=weights[i]/eps[i];
+        w_sum+=weights[i];
+    }
+    
+    inv_eps_r/=w_sum;
+    
+    return 1.0/inv_eps_r;
+}

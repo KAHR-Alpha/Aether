@@ -111,5 +111,16 @@ Imdouble effmodel_sum(Imdouble eps_1,Imdouble eps_2,
                       double weight_1,double weight_2);
 Imdouble effmodel_sum_inv(Imdouble eps_1,Imdouble eps_2,
                           double weight_1,double weight_2);
+                          
+Imdouble effmodel_bruggeman(std::vector<Imdouble> const &eps,
+                            std::vector<double> const &weights);
+Imdouble effmodel_looyenga(std::vector<Imdouble> const &eps,
+                           std::vector<double> const &weights);
+Imdouble effmodel_maxwell_garnett(std::vector<Imdouble> const &eps,
+                                  std::vector<double> const &weights,int host);
+Imdouble effmodel_sum(std::vector<Imdouble> const &eps,
+                      std::vector<double> const &weights);
+Imdouble effmodel_inv_sum(std::vector<Imdouble> const &eps,
+                          std::vector<double> const &weights);
 
 #endif // MATERIAL_H
