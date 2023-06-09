@@ -39,6 +39,7 @@ class EffMaterialPanel: public PanelsListBase
         EffMaterialPanel(wxWindow *parent,GUI::Material *material,double weight);
         
         void evt_host(wxCommandEvent &event);
+        void evt_material(wxCommandEvent &event);
         void hide_host();
         void show_host();
 };
@@ -98,6 +99,7 @@ class MaterialSelector: public wxPanel
         void evt_add_effective_component(wxCommandEvent &event);
         void evt_const_index(wxCommandEvent &event);
         void evt_custom_material(wxCommandEvent &event);
+        void evt_effective_component(wxCommandEvent &event);
         void evt_effective_host(wxCommandEvent &event);
         void evt_effective_type(wxCommandEvent &event);
         void evt_inspect(wxCommandEvent &event);
