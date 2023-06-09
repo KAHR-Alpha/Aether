@@ -50,7 +50,6 @@ class MaterialSelector: public wxPanel
         GUI::Material *material;
         wxWindow *parent_selector;
         double const_index;
-        double weight;
         
         // Header
         
@@ -65,15 +64,8 @@ class MaterialSelector: public wxPanel
         
         // Effective Material
         
-        GUI::Material *eff_material;
         wxPanel *eff_panel;
         wxChoice *eff_type;
-        wxBoxSizer *eff_sizer;
-        MaterialSelector *eff_mat_1_selector,
-                         *eff_mat_2_selector;
-        NamedTextCtrl<double> *eff_weight;
-        
-        std::vector<MaterialSelector*> eff_selector;
         
         PanelsList<EffMaterialPanel> *effective_ctrl;
         
@@ -93,9 +85,6 @@ class MaterialSelector: public wxPanel
         ~MaterialSelector();
         
         void add_effective_component();
-        void allocate_effective_materials();
-        void allocate_effective_materials(GUI::Material *eff_mat_1,
-                                          GUI::Material *eff_mat_2);
         void evt_add_effective_component(wxCommandEvent &event);
         void evt_const_index(wxCommandEvent &event);
         void evt_custom_material(wxCommandEvent &event);
@@ -108,7 +97,7 @@ class MaterialSelector: public wxPanel
         Imdouble get_eps(double w);
         EffectiveModel get_effective_material_type();
         GUI::Material* get_material();
-        double get_weight();
+        [[deprecated]] double get_weight();
         void rebuild_effective_material();
         void throw_event();
         void update_header();

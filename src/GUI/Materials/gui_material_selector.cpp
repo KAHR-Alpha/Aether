@@ -88,9 +88,6 @@ MaterialSelector::MaterialSelector(wxWindow *parent,
      material(material_),
      parent_selector(nullptr),
      const_index(1.0),
-     weight(1.0),
-     eff_mat_1_selector(nullptr),
-     eff_mat_2_selector(nullptr),
      accept_material(validator)
 {
     if(material==nullptr)
@@ -311,49 +308,6 @@ void MaterialSelector::add_effective_component()
     throw_event();
 }
 
-void MaterialSelector::allocate_effective_materials()
-{
-//    if(eff_mat_1_selector==nullptr)
-//    {
-//        eff_mat_1_selector=new MaterialSelector(eff_panel,"",true,nullptr);
-//        eff_mat_2_selector=new MaterialSelector(eff_panel,"",true,nullptr);
-//        
-//        eff_sizer->Add(eff_mat_1_selector);
-//        eff_sizer->Add(eff_mat_2_selector);
-//        
-//        eff_mat_1_selector->Bind(EVT_MAT_SELECTOR,&MaterialSelector::evt_effective_material,this);
-//        eff_mat_2_selector->Bind(EVT_MAT_SELECTOR,&MaterialSelector::evt_effective_material,this);
-//        
-//        EffectiveModel eff_mat_type_value=get_effective_material_type();
-//                
-//        eff_material->set_effective_material(eff_mat_type_value,
-//                                             *(eff_mat_1_selector->get_material()),
-//                                             *(eff_mat_2_selector->get_material()));
-//    }
-}
-
-void MaterialSelector::allocate_effective_materials(GUI::Material *eff_mat_1_,
-                                                    GUI::Material *eff_mat_2_)
-{
-//    if(eff_mat_1_selector==nullptr)
-//    {
-//        eff_mat_1_selector=new MaterialSelector(eff_panel,"",true,eff_mat_1_);
-//        eff_mat_2_selector=new MaterialSelector(eff_panel,"",true,eff_mat_2_);
-//        
-//        eff_sizer->Add(eff_mat_1_selector);
-//        eff_sizer->Add(eff_mat_2_selector);
-//        
-//        eff_mat_1_selector->Bind(EVT_MAT_SELECTOR,&MaterialSelector::evt_effective_material,this);
-//        eff_mat_2_selector->Bind(EVT_MAT_SELECTOR,&MaterialSelector::evt_effective_material,this);
-//        
-//        EffectiveModel eff_mat_type_value=get_effective_material_type();
-//                
-//        eff_material->set_effective_material(eff_mat_type_value,
-//                                             *(eff_mat_1_selector->get_material()),
-//                                             *(eff_mat_2_selector->get_material()));
-//    }
-}
-
 void MaterialSelector::evt_const_index(wxCommandEvent &event)
 {
     double n=index_ctrl->get_value();
@@ -498,7 +452,7 @@ GUI::Material* MaterialSelector::get_material()
     return material;
 }
 
-double MaterialSelector::get_weight() { return weight; }
+double MaterialSelector::get_weight() { return 0; }
 
 void MaterialSelector::throw_event()
 {
