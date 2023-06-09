@@ -37,9 +37,10 @@ class EffMaterialPanel: public PanelsListBase
         wxCheckBox *host;
         
         EffMaterialPanel(wxWindow *parent,GUI::Material *material,double weight);
-        void display_host();
+        
         void evt_host(wxCommandEvent &event);
         void hide_host();
+        void show_host();
 };
 
 class MaterialSelector: public wxPanel
@@ -96,12 +97,13 @@ class MaterialSelector: public wxPanel
         void evt_add_effective_component(wxCommandEvent &event);
         void evt_const_index(wxCommandEvent &event);
         void evt_custom_material(wxCommandEvent &event);
-        void evt_effective_material(wxCommandEvent &event);
+        void evt_effective_host(wxCommandEvent &event);
+        void evt_effective_type(wxCommandEvent &event);
         void evt_inspect(wxCommandEvent &event);
         void evt_library(wxCommandEvent &event);
         void evt_name(wxCommandEvent &event);
         Imdouble get_eps(double w);
-        MatEffType get_effective_material_type();
+        EffectiveModel get_effective_material_type();
         GUI::Material* get_material();
         double get_weight();
         void rebuild_effective_material();

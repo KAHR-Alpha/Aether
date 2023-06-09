@@ -21,14 +21,13 @@ limitations under the License.*/
 
 #include <filesystem>
 
-enum class MatEffType
+enum class EffectiveModel
 {
-    MAT_EFF_BRUGGEMAN,
-    MAT_EFF_MG1,
-    MAT_EFF_MG2,
-    MAT_EFF_LOYENGA,
-    MAT_EFF_SUM,
-    MAT_EFF_SUM_INV
+    BRUGGEMAN,
+    LOOYENGA,
+    MAXWELL_GARNETT,
+    SUM,
+    SUM_INV
 };
 
 class Material
@@ -61,12 +60,14 @@ class Material
         // Effective Material
         
         bool is_effective_material;
-        MatEffType effective_type;
+        EffectiveModel effective_type;
         Material *eff_mat_1,*eff_mat_2;
         [[deprecated]] double eff_weight;
         
+        int maxwell_garnett_host;
         std::vector<Material*> eff_mats;
         std::vector<double> eff_weights;
+        std::vector<Imdouble> eff_eps;
         
         std::string name,description;
         std::filesystem::path script_path;
@@ -81,9 +82,9 @@ class Material
                              std::vector<double> const &data_i,
                              bool type_index);
         bool fdtd_compatible();
-        Imdouble get_eps(double w) const;
+        Imdouble get_eps(double w);
         std::string get_matlab(std::string const &fname) const;
-        Imdouble get_n(double w) const;
+        Imdouble get_n(double w);
         bool is_const() const;
         void load_lua_script(std::filesystem::path const &script_name);
         void operator = (Material const &mat);
@@ -92,7 +93,7 @@ class Material
         void reset();
         void set_const_eps(double eps);
         void set_const_n(double n);
-        void set_effective_material(MatEffType effective_type,Material const &eff_mat_1,Material const &eff_mat_2);
+        void set_effective_material(EffectiveModel effective_type,Material const &eff_mat_1,Material const &eff_mat_2);
 };
 
 int gen_absorbing_material(lua_State *L);

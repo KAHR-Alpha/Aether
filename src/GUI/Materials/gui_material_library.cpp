@@ -120,12 +120,11 @@ namespace GUI
                     
                     switch(effective_type)
                     {
-                        case MatEffType::MAT_EFF_BRUGGEMAN: out<<"Brugg"; break;
-                        case MatEffType::MAT_EFF_MG1: out<<"MG1"; break;
-                        case MatEffType::MAT_EFF_MG2: out<<"MG2"; break;
-                        case MatEffType::MAT_EFF_LOYENGA: out<<"Loy"; break;
-                        case MatEffType::MAT_EFF_SUM: out<<"Sum"; break;
-                        case MatEffType::MAT_EFF_SUM_INV: out<<"ISum"; break;
+                        case EffectiveModel::BRUGGEMAN: out<<"Brugg"; break;
+                        case EffectiveModel::MAXWELL_GARNETT: out<<"MG"; break;
+                        case EffectiveModel::LOOYENGA: out<<"Loy"; break;
+                        case EffectiveModel::SUM: out<<"Sum"; break;
+                        case EffectiveModel::SUM_INV: out<<"ISum"; break;
                     }
                     
                     //out<<" | "<<w_script_1<<" | "<<w_script_2;
@@ -284,27 +283,23 @@ namespace lua_gui_material
             
             switch(material->effective_type)
             {
-                case MatEffType::MAT_EFF_BRUGGEMAN:
+                case EffectiveModel::BRUGGEMAN:
                     strm<<"bruggeman";
                     break;
                     
-                case MatEffType::MAT_EFF_MG1:
-                    strm<<"maxwell_garnett_1";
-                    break;
-                    
-                case MatEffType::MAT_EFF_MG2:
-                    strm<<"maxwell_garnett_2";
-                    break;
-                    
-                case MatEffType::MAT_EFF_LOYENGA:
+                case EffectiveModel::LOOYENGA:
                     strm<<"loyenga";
                     break;
                     
-                case MatEffType::MAT_EFF_SUM:
+                case EffectiveModel::MAXWELL_GARNETT:
+                    strm<<"maxwell_garnett";
+                    break;
+                    
+                case EffectiveModel::SUM:
                     strm<<"sum";
                     break;
                     
-                case MatEffType::MAT_EFF_SUM_INV:
+                case EffectiveModel::SUM_INV:
                     strm<<"inverse_sum";
                     break;
             }

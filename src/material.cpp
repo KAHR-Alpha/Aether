@@ -25,7 +25,7 @@ Material::Material()
      lambda_valid_min(400e-9),
      lambda_valid_max(1000e-9),
      is_effective_material(false), // Effective material
-     effective_type(MatEffType::MAT_EFF_BRUGGEMAN),
+     effective_type(EffectiveModel::BRUGGEMAN),
      eff_mat_1(nullptr),
      eff_mat_2(nullptr),
      eff_weight(0),
@@ -147,7 +147,7 @@ bool Material::fdtd_compatible()
     return false;
 }
 
-Imdouble Material::get_eps(double w) const
+Imdouble Material::get_eps(double w)
 {
     if(!is_effective_material)
     {
@@ -198,23 +198,25 @@ Imdouble Material::get_eps(double w) const
     }
     else
     {
-        Imdouble eps_1=eff_mat_1->get_eps(w);
-        Imdouble eps_2=eff_mat_2->get_eps(w);
+        eff_eps.resize(eff_mats.size());
+        
+        for(std::size_t i=0;i<eff_mats.size();i++)
+        {
+            eff_eps[i]=eff_mats[i]->get_eps(w);
+        }
         
         switch(effective_type)
         {
-            case MatEffType::MAT_EFF_BRUGGEMAN:
-                return effmodel_bruggeman(eps_1,eps_2,1.0-eff_weight,eff_weight);
-            case MatEffType::MAT_EFF_LOYENGA:
-                return effmodel_looyenga(eps_1,eps_2,1.0-eff_weight,eff_weight);
-            case MatEffType::MAT_EFF_MG1:
-                return effmodel_maxwell_garnett_1(eps_1,eps_2,1.0-eff_weight,eff_weight);
-            case MatEffType::MAT_EFF_MG2:
-                return effmodel_maxwell_garnett_2(eps_1,eps_2,1.0-eff_weight,eff_weight);
-            case MatEffType::MAT_EFF_SUM:
-                return effmodel_sum(eps_1,eps_2,1.0-eff_weight,eff_weight);
-            case MatEffType::MAT_EFF_SUM_INV:
-                return effmodel_sum_inv(eps_1,eps_2,1.0-eff_weight,eff_weight);
+            case EffectiveModel::BRUGGEMAN:
+                return effmodel_bruggeman(eff_eps,eff_weights);
+            case EffectiveModel::LOOYENGA:
+                return effmodel_looyenga(eff_eps,eff_weights);
+            case EffectiveModel::MAXWELL_GARNETT:
+                return effmodel_maxwell_garnett(eff_eps,eff_weights,maxwell_garnett_host);
+            case EffectiveModel::SUM:
+                return effmodel_sum(eff_eps,eff_weights);
+            case EffectiveModel::SUM_INV:
+                return effmodel_inv_sum(eff_eps,eff_weights);
         }
     }
     
@@ -440,7 +442,7 @@ std::string Material::get_matlab(std::string const &fname_) const
     return strm.str();
 }
 
-Imdouble Material::get_n(double w) const
+Imdouble Material::get_n(double w)
 {
     return std::sqrt(get_eps(w));
 }
@@ -494,6 +496,8 @@ void Material::operator = (Material const &mat)
     
     er_spline=mat.er_spline;
     ei_spline=mat.ei_spline;
+    
+    // TODO
     
     is_effective_material=mat.is_effective_material;
     effective_type=mat.effective_type;
@@ -623,7 +627,7 @@ void Material::reset()
     {
         is_effective_material=false;
         
-        effective_type=MatEffType::MAT_EFF_BRUGGEMAN;
+        effective_type=EffectiveModel::BRUGGEMAN;
         
         delete eff_mat_1;
         delete eff_mat_2;
@@ -651,7 +655,7 @@ void Material::set_const_n(double n)
     eps_inf=n*n;
 }
 
-void Material::set_effective_material(MatEffType effective_type_,Material const &eff_mat_1_,Material const &eff_mat_2_)
+void Material::set_effective_material(EffectiveModel effective_type_,Material const &eff_mat_1_,Material const &eff_mat_2_)
 {
     is_effective_material=true;
     effective_type=effective_type_;
