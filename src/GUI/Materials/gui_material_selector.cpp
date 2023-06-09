@@ -342,7 +342,7 @@ EffectiveModel MaterialSelector::get_effective_material_type()
     }
 }
 
-void MaterialSelector::evt_add_effective_component(wxCommandEvent &event)
+void MaterialSelector::add_effective_component()
 {
     GUI::Material *effective_component=MaterialsLib::request_material(MatType::REAL_N);
     
@@ -366,6 +366,11 @@ void MaterialSelector::evt_add_effective_component(wxCommandEvent &event)
     rebuild_effective_material();
     
     throw_event();
+}
+
+void MaterialSelector::evt_add_effective_component(wxCommandEvent &event)
+{
+    add_effective_component();
 }
 
 void MaterialSelector::rebuild_effective_material()
@@ -465,6 +470,12 @@ void MaterialSelector::evt_library(wxCommandEvent &event)
     if(dialog.selection_ok)
     {
         material=dialog.material;
+        
+        if(dialog.new_material && material->type==MatType::EFFECTIVE)
+        {
+            add_effective_component();
+            add_effective_component();
+        }
     }
     
     update_header();

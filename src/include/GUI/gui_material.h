@@ -91,6 +91,7 @@ class MaterialSelector: public wxPanel
         void MaterialSelector_EffPanel(wxWindow *parent);
         ~MaterialSelector();
         
+        void add_effective_component();
         void allocate_effective_materials();
         void allocate_effective_materials(GUI::Material *eff_mat_1,
                                           GUI::Material *eff_mat_2);
