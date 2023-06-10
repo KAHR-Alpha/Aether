@@ -26,9 +26,6 @@ Material::Material()
      lambda_valid_max(1000e-9),
      is_effective_material(false), // Effective material
      effective_type(EffectiveModel::BRUGGEMAN),
-     eff_mat_1(nullptr),
-     eff_mat_2(nullptr),
-     eff_weight(0),
      description(""), // String descriptions
      script_path("")
 {
@@ -53,21 +50,19 @@ Material::Material(Material const &mat)
      ei_spline(mat.ei_spline),
      is_effective_material(mat.is_effective_material), // Effective material
      effective_type(mat.effective_type),
-     eff_mat_1(nullptr),
-     eff_mat_2(nullptr),
-     eff_weight(mat.eff_weight),
      name(mat.name), // String descriptions
      description(mat.description),
      script_path(mat.script_path)
 {
-    if(is_effective_material)
-    {
-        eff_mat_1=new Material;
-        eff_mat_2=new Material;
-        
-        *eff_mat_1=*mat.eff_mat_1;
-        *eff_mat_2=*mat.eff_mat_2;
-    }
+    // TODO
+//    if(is_effective_material)
+//    {
+//        eff_mat_1=new Material;
+//        eff_mat_2=new Material;
+//        
+//        *eff_mat_1=*mat.eff_mat_1;
+//        *eff_mat_2=*mat.eff_mat_2;
+//    }
 }
 
 Material::Material(std::filesystem::path const &script_path_)
@@ -78,8 +73,9 @@ Material::Material(std::filesystem::path const &script_path_)
 
 Material::~Material()
 {
-    if(eff_mat_1!=nullptr) delete eff_mat_1;
-    if(eff_mat_2!=nullptr) delete eff_mat_2;
+    // TODO
+//    if(eff_mat_1!=nullptr) delete eff_mat_1;
+//    if(eff_mat_2!=nullptr) delete eff_mat_2;
 }
 
 void Material::add_spline_data(std::vector<double> const &lambda,
@@ -451,8 +447,11 @@ bool Material::is_const() const
 {
     if(is_effective_material)
     {
-        if(eff_mat_1->is_const() && eff_mat_2->is_const()) return true;
-        else return false;
+        // TODO
+//        if(eff_mat_1->is_const() && eff_mat_2->is_const()) return true;
+//        else return false;
+        
+        return false;
     }
     else
     {
@@ -501,16 +500,16 @@ void Material::operator = (Material const &mat)
     
     is_effective_material=mat.is_effective_material;
     effective_type=mat.effective_type;
-    eff_weight=mat.eff_weight;
-    
-    if(is_effective_material)
-    {
-        eff_mat_1=new Material;
-        eff_mat_2=new Material;
-        
-        *eff_mat_1=*mat.eff_mat_1;
-        *eff_mat_2=*mat.eff_mat_2;
-    }
+//    eff_weight=mat.eff_weight;
+//    
+//    if(is_effective_material)
+//    {
+//        eff_mat_1=new Material;
+//        eff_mat_2=new Material;
+//        
+//        *eff_mat_1=*mat.eff_mat_1;
+//        *eff_mat_2=*mat.eff_mat_2;
+//    }
 }
 
 bool Material::operator == (Material const &mat) const
@@ -547,16 +546,6 @@ bool Material::operator == (Material const &mat) const
     if(is_effective_material)
     {
         if(effective_type!=mat.effective_type) return false;
-        
-        if(   eff_mat_1!=nullptr && mat.eff_mat_1!=nullptr
-           && eff_mat_2!=nullptr && mat.eff_mat_2!=nullptr)
-        {
-            if(   !(*eff_mat_1==*mat.eff_mat_1)
-               || !(*eff_mat_2==*mat.eff_mat_2)) return false;
-        }
-        else return false;
-        
-        if(eff_weight!=mat.eff_weight) return false;
         
         if(eff_weights!=mat.eff_weights) return false; // checks vecvtor size as well
         
@@ -629,15 +618,17 @@ void Material::reset()
         
         effective_type=EffectiveModel::BRUGGEMAN;
         
-        delete eff_mat_1;
-        delete eff_mat_2;
+        // TODO
         
-        eff_mat_1=nullptr;
-        eff_mat_2=nullptr;
+//        delete eff_mat_1;
+//        delete eff_mat_2;
+//        
+//        eff_mat_1=nullptr;
+//        eff_mat_2=nullptr;
         
         is_effective_material=false;
         
-        eff_weight=0;
+//        eff_weight=0;
     }
     
     name="";
@@ -653,21 +644,6 @@ void Material::set_const_eps(double eps_)
 void Material::set_const_n(double n)
 {
     eps_inf=n*n;
-}
-
-void Material::set_effective_material(EffectiveModel effective_type_,Material const &eff_mat_1_,Material const &eff_mat_2_)
-{
-    is_effective_material=true;
-    effective_type=effective_type_;
-    
-    if(eff_mat_1==nullptr)
-    {
-        eff_mat_1=new Material;
-        eff_mat_2=new Material;
-    }
-    
-    *eff_mat_1=eff_mat_1_;
-    *eff_mat_2=eff_mat_2_;
 }
 
 //######################

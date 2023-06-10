@@ -61,8 +61,6 @@ class Material
         
         bool is_effective_material;
         EffectiveModel effective_type;
-        Material *eff_mat_1,*eff_mat_2;
-        [[deprecated]] double eff_weight;
         
         int maxwell_garnett_host;
         std::vector<Material*> eff_mats;
@@ -93,7 +91,6 @@ class Material
         void reset();
         void set_const_eps(double eps);
         void set_const_n(double n);
-        void set_effective_material(EffectiveModel effective_type,Material const &eff_mat_1,Material const &eff_mat_2);
 };
 
 int gen_absorbing_material(lua_State *L);

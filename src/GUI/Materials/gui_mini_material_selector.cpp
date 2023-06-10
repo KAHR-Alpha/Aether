@@ -37,7 +37,7 @@ class MMS_Dialog:public wxDialog
             :wxDialog(0,wxID_ANY,"Select the material",
                       wxGetApp().default_dialog_origin(),wxDefaultSize),
              material(material_)
-        {
+        {            
             wxBoxSizer *top_sizer=new wxBoxSizer(wxVERTICAL);
             
             // Container Panel
@@ -167,8 +167,10 @@ void MiniMaterialSelector::evt_weight(wxCommandEvent &event)
 {
     double val=std::clamp(eff_weight->get_value(),0.0,1.0);
     
-    material->eff_weight=val;
-    eff_weight->set_value(val);
+    // TODO
+    
+//    material->eff_weight=val;
+//    eff_weight->set_value(val);
     
     wxCommandEvent event_out(EVT_MINIMAT_SELECTOR);
     wxPostEvent(this,event_out);
@@ -179,6 +181,11 @@ Imdouble MiniMaterialSelector::get_eps(double w) { return material->get_eps(w); 
 Imdouble MiniMaterialSelector::get_n(double w) { return material->get_n(w); }
 
 GUI::Material* MiniMaterialSelector::get_material() { return material; }
+
+void MiniMaterialSelector::set_material(Material *material_)
+{
+    set_material(dynamic_cast<GUI::Material*>(material_));
+}
 
 void MiniMaterialSelector::set_material(GUI::Material *material_)
 {
@@ -198,8 +205,10 @@ void MiniMaterialSelector::update_display()
     
     if(material->is_effective_material)
     {
-        eff_weight->Show();
-        eff_weight->set_value(material->eff_weight);
+        // TODO
+        
+//        eff_weight->Show();
+//        eff_weight->set_value(material->eff_weight);
     }
     else eff_weight->Hide();
     

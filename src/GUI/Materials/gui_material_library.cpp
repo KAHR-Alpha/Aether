@@ -73,8 +73,12 @@ namespace GUI
              if(type==MatType::REAL_N) return 1e-100;
         else if(type==MatType::EFFECTIVE)
         {
-            return std::max(eff_mat_1->lambda_valid_min,
-                            eff_mat_2->lambda_valid_min);
+            double lmin=eff_mats[0]->lambda_valid_min;
+            
+            for(::Material *mat: eff_mats)
+                lmin=std::max(lmin,mat->lambda_valid_min);
+                
+            return lmin;
         }
         else return lambda_valid_min;
     }
@@ -84,8 +88,12 @@ namespace GUI
              if(type==MatType::REAL_N) return 1e100;
         else if(type==MatType::EFFECTIVE)
         {
-            return std::min(eff_mat_1->lambda_valid_max,
-                            eff_mat_2->lambda_valid_max);
+            double lmax=eff_mats[0]->lambda_valid_max;
+            
+            for(::Material *mat: eff_mats)
+                lmax=std::min(lmax,mat->lambda_valid_max);
+                
+            return lmax;
         }
         else return lambda_valid_max;
     }

@@ -89,7 +89,7 @@ MaterialSelector::MaterialSelector(wxWindow *parent,
      parent_selector(nullptr),
      const_index(1.0),
      accept_material(validator)
-{
+{    
     if(material==nullptr)
     {
         material=MaterialsLib::request_material(MatType::REAL_N);
@@ -274,6 +274,48 @@ void MaterialSelector::MaterialSelector_EffPanel(wxWindow *parent)
     
     Bind(EVT_GARNETT_HOST,&MaterialSelector::evt_effective_host,this);
     Bind(EVT_EFFECTIVE_MATERIAL,&MaterialSelector::evt_effective_component,this);
+    
+    // Pre-existing material reload
+    
+    if(material->is_effective_material)
+    {
+        switch(material->effective_type)
+        {
+            case EffectiveModel::BRUGGEMAN:
+                eff_type->SetSelection(0);
+                break;
+            case EffectiveModel::LOOYENGA:
+                eff_type->SetSelection(1);
+                break;
+            case EffectiveModel::MAXWELL_GARNETT:
+                eff_type->SetSelection(2);
+                break;
+            case EffectiveModel::SUM:
+                eff_type->SetSelection(3);
+                break;
+            case EffectiveModel::SUM_INV:
+                eff_type->SetSelection(4);
+                break;
+        }
+        
+        std::size_t Nm=material->eff_mats.size();
+        
+        for(std::size_t i=0;i<Nm;i++)
+            add_effective_component();
+        
+        for(std::size_t i=0;i<Nm;i++)
+        {
+            EffMaterialPanel *panel=effective_ctrl->get_panel(i);
+            panel->selector->set_material(material->eff_mats[i]);
+            panel->weight->set_value(material->eff_weights[i]);
+            
+            if(i==material->maxwell_garnett_host)
+                panel->host->SetValue(true);
+            
+            if(material->effective_type==EffectiveModel::MAXWELL_GARNETT)
+                panel->show_host();
+        }
+    }
 }
 
 MaterialSelector::~MaterialSelector()
@@ -302,10 +344,6 @@ void MaterialSelector::add_effective_component()
         EffMaterialPanel *panel=effective_ctrl->get_panel(0);
         panel->host->SetValue(true);
     }
-    
-    rebuild_effective_material();
-    
-    throw_event();
 }
 
 void MaterialSelector::evt_const_index(wxCommandEvent &event)
@@ -340,6 +378,8 @@ void MaterialSelector::evt_add_effective_component(wxCommandEvent &event)
     add_effective_component();
     
     rebuild_effective_material();
+        
+    throw_event();
 }
 
 void MaterialSelector::evt_effective_type(wxCommandEvent &event)
@@ -561,16 +601,3 @@ void MaterialSelector::update_layout()
     
     Layout();
 }
-
-//void MaterialSelector::weight_change_event(wxCommandEvent &event)
-//{
-//    textctrl_to_T(weight_ctrl,weight);
-//    
-//    if(weight<0)
-//    {
-//        weight=1.0;
-//        weight_ctrl->SetValue("1.0");
-//    }
-//    
-//    throw_event();
-//}

@@ -126,6 +126,7 @@ class MiniMaterialSelector: public wxPanel
         Imdouble get_eps(double w);
         Imdouble get_n(double w);
         GUI::Material* get_material();
+        void set_material(Material *material);
         void set_material(GUI::Material *material);
         void update_display();
         void update_label();
