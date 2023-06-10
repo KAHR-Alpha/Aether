@@ -118,7 +118,7 @@ MiniMaterialSelector::MiniMaterialSelector(wxWindow *parent,
     mat_description=new wxTextCtrl(this,wxID_ANY,"1.0");
     mat_description->Disable();
     
-    eff_weight=new NamedTextCtrl<double>(this,"",0,false,4);
+    eff_weight=new NamedTextCtrl<std::string>(this,"","0",false,8);
     
     edit_btn=new wxButton(this,wxID_ANY,"...",wxDefaultPosition,wxDefaultSize,wxBU_EXACTFIT);
     edit_btn->Bind(wxEVT_BUTTON,&MiniMaterialSelector::evt_edit,this);
@@ -165,12 +165,38 @@ void MiniMaterialSelector::evt_edit(wxCommandEvent &event)
 
 void MiniMaterialSelector::evt_weight(wxCommandEvent &event)
 {
-    double val=std::clamp(eff_weight->get_value(),0.0,1.0);
+    std::size_t Nw=material->eff_weights.size();
     
-    // TODO
+    // Input
     
-//    material->eff_weight=val;
-//    eff_weight->set_value(val);
+    std::stringstream strm_in(eff_weight->get_value());
+    
+    double tmp_weight,weight_sum=0;
+    
+    for(std::size_t i=0;i<Nw;i++)
+    {
+        if(strm_in.eof()) tmp_weight=0;
+        else strm_in>>tmp_weight;
+        
+        if(tmp_weight<0) tmp_weight=0;
+        
+        weight_sum+=tmp_weight;
+        material->eff_weights[i]=tmp_weight;
+    }
+    
+    if(weight_sum==0) material->eff_weights[0]=1;
+    
+    // Reformatting
+    
+    std::stringstream strm_out;
+    
+    for(std::size_t i=0;i<Nw;i++)
+    {
+        strm_out<<material->eff_weights[i];
+        if(i+1!=Nw) strm_out<<" ";
+    }
+    
+    eff_weight->set_value(strm_out.str());
     
     wxCommandEvent event_out(EVT_MINIMAT_SELECTOR);
     wxPostEvent(this,event_out);
@@ -205,10 +231,19 @@ void MiniMaterialSelector::update_display()
     
     if(material->is_effective_material)
     {
-        // TODO
+        eff_weight->Show();
         
-//        eff_weight->Show();
-//        eff_weight->set_value(material->eff_weight);
+        std::stringstream strm;
+        
+        std::size_t Nw=material->eff_weights.size();
+        
+        for(std::size_t i=0;i<Nw;i++)
+        {
+            strm<<material->eff_weights[i];
+            if(i+1!=Nw) strm<<" ";
+        }
+        
+        eff_weight->set_value(strm.str());
     }
     else eff_weight->Hide();
     

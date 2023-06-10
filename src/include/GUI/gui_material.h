@@ -112,7 +112,7 @@ class MiniMaterialSelector: public wxPanel
         wxStaticText *mat_txt;
         wxTextCtrl *mat_description;
         wxButton *edit_btn;
-        NamedTextCtrl<double> *eff_weight;
+        NamedTextCtrl<std::string> *eff_weight;
         
         MiniMaterialSelector(wxWindow *parent,
                              GUI::Material *material=nullptr,
