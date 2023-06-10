@@ -309,7 +309,7 @@ void MaterialSelector::MaterialSelector_EffPanel(wxWindow *parent)
             panel->selector->set_material(material->eff_mats[i]);
             panel->weight->set_value(material->eff_weights[i]);
             
-            if(i==material->maxwell_garnett_host)
+            if(i==static_cast<int>(material->maxwell_garnett_host))
                 panel->host->SetValue(true);
             
             if(material->effective_type==EffectiveModel::MAXWELL_GARNETT)
@@ -375,22 +375,29 @@ EffectiveModel MaterialSelector::get_effective_material_type()
 
 void MaterialSelector::evt_add_effective_component(wxCommandEvent &event)
 {
-    add_effective_component();
+    EffectiveModel model=get_effective_material_type();
     
-    rebuild_effective_material();
+    if(model!=EffectiveModel::BRUGGEMAN && model!=EffectiveModel::LOOYENGA) // Restricted to two submaterials
+    {
+        add_effective_component();
         
-    throw_event();
+        rebuild_effective_material();
+            
+        throw_event();
+    }
 }
 
 void MaterialSelector::evt_effective_type(wxCommandEvent &event)
 {
-    EffectiveModel eff_type_value=get_effective_material_type();
+    EffectiveModel model=get_effective_material_type();
     
-    if(eff_type_value==EffectiveModel::MAXWELL_GARNETT)
+    std::size_t Nm=effective_ctrl->get_size();
+    
+    if(model==EffectiveModel::MAXWELL_GARNETT)
     {
         bool has_host=false;
         
-        for(std::size_t i=0;i<effective_ctrl->get_size();i++)
+        for(std::size_t i=0;i<Nm;i++)
         {
             EffMaterialPanel *panel=effective_ctrl->get_panel(i);
             
@@ -398,15 +405,23 @@ void MaterialSelector::evt_effective_type(wxCommandEvent &event)
             has_host|=panel->host->GetValue();
         }
         
-        if(!has_host && effective_ctrl->get_size()>0)
+        if(!has_host && Nm>0)
         {
             effective_ctrl->get_panel(0)->host->SetValue(true);
         }
     }
     else
     {
-        for(std::size_t i=0;i<effective_ctrl->get_size();i++)
+        for(std::size_t i=0;i<Nm;i++)
             effective_ctrl->get_panel(i)->hide_host();
+    }
+    
+    if(Nm>2 && (model==EffectiveModel::BRUGGEMAN || model==EffectiveModel::LOOYENGA))
+    {
+        for(unsigned int i=0;i<Nm-2;i++)
+        {
+            effective_ctrl->pop_back();
+        }
     }
     
     rebuild_effective_material();

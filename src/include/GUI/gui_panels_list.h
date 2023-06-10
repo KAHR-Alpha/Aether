@@ -173,6 +173,17 @@ class PanelsList: public wxPanel
             else return panels[n];
         }
         
+        void pop_back()
+        {
+            if(!panels.empty())
+            {
+                panels[panels.size()-1]->Destroy();
+                panels.pop_back();
+                
+                Layout();
+            }
+        }
+        
         void lock()
         {
             for(unsigned int i=0;i<panels.size();i++) panels[i]->lock();
