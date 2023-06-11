@@ -26,6 +26,7 @@ Material::Material()
      lambda_valid_max(1000e-9),
      is_effective_material(false), // Effective material
      effective_type(EffectiveModel::BRUGGEMAN),
+     maxwell_garnett_host(0),
      description(""), // String descriptions
      script_path("")
 {
@@ -50,19 +51,23 @@ Material::Material(Material const &mat)
      ei_spline(mat.ei_spline),
      is_effective_material(mat.is_effective_material), // Effective material
      effective_type(mat.effective_type),
+     maxwell_garnett_host(mat.maxwell_garnett_host),
      name(mat.name), // String descriptions
      description(mat.description),
      script_path(mat.script_path)
 {
-    // TODO
-//    if(is_effective_material)
-//    {
-//        eff_mat_1=new Material;
-//        eff_mat_2=new Material;
-//        
-//        *eff_mat_1=*mat.eff_mat_1;
-//        *eff_mat_2=*mat.eff_mat_2;
-//    }
+    if(is_effective_material)
+    {
+        std::size_t Nm=mat.eff_weights.size();
+        
+        allocate_effective_materials(Nm);
+        
+        for(std::size_t i=0;i<Nm;i++)
+        {
+            eff_weights[i]=mat.eff_weights[i];
+            *(eff_mats[i])=*(mat.eff_mats[i]);
+        }
+    }
 }
 
 Material::Material(std::filesystem::path const &script_path_)
@@ -73,9 +78,10 @@ Material::Material(std::filesystem::path const &script_path_)
 
 Material::~Material()
 {
-    // TODO
-//    if(eff_mat_1!=nullptr) delete eff_mat_1;
-//    if(eff_mat_2!=nullptr) delete eff_mat_2;
+    for(std::size_t i=0;i<eff_mats.size();i++)
+    {
+        if(eff_mats[i]!=nullptr) delete eff_mats[i];
+    }
 }
 
 void Material::add_spline_data(std::vector<double> const &lambda,
@@ -127,6 +133,21 @@ void Material::add_spline_data(std::vector<double> const &lambda,
     
     er_spline.push_back(sp_er);
     ei_spline.push_back(sp_ei);
+}
+
+void Material::allocate_effective_materials(std::size_t Nm)
+{
+    for(std::size_t i=0;i<eff_mats.size();i++)
+        delete eff_mats[i];
+     
+    eff_weights.resize(Nm);
+    eff_mats.resize(Nm);
+    eff_eps.resize(Nm);
+    
+    for(std::size_t i=0;i<Nm;i++)
+    {
+        eff_mats[i]=new Material;
+    }
 }
 
 bool Material::fdtd_compatible()
@@ -447,11 +468,11 @@ bool Material::is_const() const
 {
     if(is_effective_material)
     {
-        // TODO
-//        if(eff_mat_1->is_const() && eff_mat_2->is_const()) return true;
-//        else return false;
+        bool tmp_const=true;
         
-        return false;
+        for(std::size_t i=0;i<eff_mats.size();i++) tmp_const=tmp_const && eff_mats[i]->is_const();
+        
+        return tmp_const;
     }
     else
     {
@@ -496,20 +517,24 @@ void Material::operator = (Material const &mat)
     er_spline=mat.er_spline;
     ei_spline=mat.ei_spline;
     
-    // TODO
-    
     is_effective_material=mat.is_effective_material;
     effective_type=mat.effective_type;
-//    eff_weight=mat.eff_weight;
-//    
-//    if(is_effective_material)
-//    {
-//        eff_mat_1=new Material;
-//        eff_mat_2=new Material;
-//        
-//        *eff_mat_1=*mat.eff_mat_1;
-//        *eff_mat_2=*mat.eff_mat_2;
-//    }
+    maxwell_garnett_host=mat.maxwell_garnett_host;
+    
+    for(std::size_t i=0;i<eff_mats.size();i++)
+        if(eff_mats[i]!=nullptr)
+            delete eff_mats[i];
+    
+    allocate_effective_materials(mat.eff_weights.size());
+    eff_weights=mat.eff_weights;
+    
+    if(is_effective_material)
+    {
+        for(std::size_t i=0;i<eff_mats.size();i++)
+        {
+            *(eff_mats[i])=*(mat.eff_mats[i]);
+        }
+    }
 }
 
 bool Material::operator == (Material const &mat) const
@@ -617,18 +642,15 @@ void Material::reset()
         is_effective_material=false;
         
         effective_type=EffectiveModel::BRUGGEMAN;
+        maxwell_garnett_host=0;
         
-        // TODO
+        for(std::size_t i=0;i<eff_mats.size();i++) if(eff_mats[i]!=nullptr) delete eff_mats[i];
         
-//        delete eff_mat_1;
-//        delete eff_mat_2;
-//        
-//        eff_mat_1=nullptr;
-//        eff_mat_2=nullptr;
+        eff_weights.clear();
+        eff_eps.clear();
+        eff_mats.clear();
         
         is_effective_material=false;
-        
-//        eff_weight=0;
     }
     
     name="";

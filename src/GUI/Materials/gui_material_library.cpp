@@ -118,14 +118,6 @@ namespace GUI
                 break;
             case MatType::EFFECTIVE:
                 {
-                    // TODO
-                    /*wxString w_script_1,w_script_2;
-                    
-                    w_script_1=eff_mat_1_selector->get_name();
-                    w_script_2=eff_mat_2_selector->get_name();
-                    
-                    int eff_mat_type=get_effective_material_type();*/
-                    
                     switch(effective_type)
                     {
                         case EffectiveModel::BRUGGEMAN: out<<"Brugg"; break;
@@ -135,7 +127,27 @@ namespace GUI
                         case EffectiveModel::SUM_INV: out<<"ISum"; break;
                     }
                     
-                    //out<<" | "<<w_script_1<<" | "<<w_script_2;
+                    for(std::size_t i=0;i<eff_mats.size();i++)
+                    {
+                        out<<" | ";
+                        
+                        if(!(eff_mats[i]->name.empty()))
+                        {
+                            out<<eff_mats[i]->name;
+                        }
+                        else if(!(eff_mats[i]->script_path.empty()))
+                        {
+                            out<<eff_mats[i]->script_path.stem().generic_string();
+                        }
+                        else if(eff_mats[i]->is_const())
+                        {
+                            out<<std::real(eff_mats[i]->get_n(0));
+                        }
+                        else
+                        {
+                            out<<"?";
+                        }
+                    }
                 }
                 break;
         }

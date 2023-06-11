@@ -79,6 +79,7 @@ class Material
                              std::vector<double> const &data_r,
                              std::vector<double> const &data_i,
                              bool type_index);
+        virtual void allocate_effective_materials(std::size_t Nm);
         bool fdtd_compatible();
         Imdouble get_eps(double w);
         std::string get_matlab(std::string const &fname) const;
