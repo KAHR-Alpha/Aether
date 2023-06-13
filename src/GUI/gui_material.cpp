@@ -50,7 +50,7 @@ MaterialExplorer::MaterialExplorer(double lambda_min_,double lambda_max_,int Np_
     wxStaticBoxSizer *index_sizer=new wxStaticBoxSizer(wxVERTICAL,ctrl_panel,"Display");
     
     GUI::Material *external_mat=nullptr;
-    if(selector!=nullptr) external_mat=selector->material;
+    if(selector!=nullptr) external_mat=selector->get_material();
     
     mat_selector=new MaterialSelector(ctrl_panel,"Material",true,external_mat);
     sp_selector=new SpectrumSelector(ctrl_panel,lambda_min,lambda_max,Np);
@@ -85,7 +85,7 @@ MaterialExplorer::MaterialExplorer(double lambda_min_,double lambda_max_,int Np_
     mat_selector->Bind(EVT_MAT_SELECTOR,&MaterialExplorer::material_selector_event,this);
     sp_selector->Bind(EVT_SPECTRUM_SELECTOR,&MaterialExplorer::spectrum_selector_event,this);
 
-    SetTitle(mat_selector->material->get_description());
+    SetTitle(mat_selector->get_material()->get_description());
     
     SetSizer(top_sizer);
     
@@ -125,7 +125,7 @@ void MaterialExplorer::export_event(wxCommandEvent &event)
     {
         for(unsigned int l=0;l<Np;l++)
         {
-            Imdouble eps=mat_selector->get_eps(m_to_rad_Hz(lambda[l]));
+            Imdouble eps=mat_selector->get_material()->get_eps(m_to_rad_Hz(lambda[l]));
             
             if(dialog.choice==0) file<<lambda[l]<<" "<<eps.real()<<" "<<eps.imag()<<std::endl;
             else
@@ -146,12 +146,14 @@ void MaterialExplorer::export_event(wxCommandEvent &event)
 
 void MaterialExplorer::material_selector_event(wxCommandEvent &event)
 {
-    lambda_min=mat_selector->material->get_lambda_validity_min();
-    lambda_max=mat_selector->material->get_lambda_validity_max();
+    GUI::Material *material=mat_selector->get_material();
+    
+    lambda_min=material->get_lambda_validity_min();
+    lambda_max=material->get_lambda_validity_max();
     
     sp_selector->set_spectrum(lambda_min,lambda_max);
     
-    SetTitle(mat_selector->material->get_description());
+    SetTitle(mat_selector->get_material()->get_description());
     
     recompute_model();
 }
@@ -181,7 +183,7 @@ void MaterialExplorer::recompute_model()
         
         double w=m_to_rad_Hz(lambda[i]);
         
-        Imdouble eps=mat_selector->get_eps(w);
+        Imdouble eps=mat_selector->get_material()->get_eps(w);
         
         if(display_type==0)
         {

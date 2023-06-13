@@ -220,7 +220,7 @@ void MieTool::recomp_cross_sections()
         double k0=2.0*Pi/lambda[l];
         double w=k0*c_light;
         
-        mie.set_index_in(std::sqrt(mat_selector->get_eps(w)));
+        mie.set_index_in(std::sqrt(mat_selector->get_material()->get_eps(w)));
         mie.set_lambda(lambda[l]);
                 
         if(comp_efficiencies)
@@ -279,7 +279,7 @@ void MieTool::recomp_directional_radiation()
         double k0=2.0*Pi/lambda[l];
         double w=k0*c_light;
         
-        mie.set_index_in(std::sqrt(mat_selector->get_eps(w)));
+        mie.set_index_in(std::sqrt(mat_selector->get_material()->get_eps(w)));
         mie.set_lambda(lambda[l]);
         
         dir_rad[l]=mie.get_radiation(theta,phi);

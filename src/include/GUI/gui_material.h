@@ -47,8 +47,17 @@ class EffMaterialPanel: public PanelsListBase
 class MaterialSelector: public wxPanel
 {
     public:
-        GUI::Material *material;
         wxWindow *parent_selector;
+        
+        MaterialSelector(wxWindow *parent,std::string name,bool no_box,
+                         GUI::Material *material,
+                         bool (*validator)(Material*)=&default_material_validator);
+        ~MaterialSelector();
+        
+        GUI::Material* get_material();
+        
+    private:
+        GUI::Material *material;
         double const_index;
         
         // Header
@@ -77,12 +86,8 @@ class MaterialSelector: public wxPanel
         
         bool (*accept_material)(Material*);
         
-        MaterialSelector(wxWindow *parent,std::string name,bool no_box,
-                         GUI::Material *material,
-                         bool (*validator)(Material*)=&default_material_validator);
         void MaterialSelector_CustomPanel(wxWindow *parent);
         void MaterialSelector_EffPanel(wxWindow *parent);
-        ~MaterialSelector();
         
         void add_effective_component();
         void evt_add_effective_component(wxCommandEvent &event);
@@ -94,9 +99,7 @@ class MaterialSelector: public wxPanel
         void evt_inspect(wxCommandEvent &event);
         void evt_library(wxCommandEvent &event);
         void evt_name(wxCommandEvent &event);
-        Imdouble get_eps(double w);
         EffectiveModel get_effective_material_type();
-        GUI::Material* get_material();
         void rebuild_effective_material();
         void throw_event();
         void update_header();

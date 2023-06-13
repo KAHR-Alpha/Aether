@@ -305,19 +305,6 @@ void MaterialSelector::evt_custom_material(wxCommandEvent &event)
     throw_event();
 }
 
-EffectiveModel MaterialSelector::get_effective_material_type()
-{
-    switch(eff_type->GetSelection())
-    {
-        case 0: return EffectiveModel::BRUGGEMAN;
-        case 1: return EffectiveModel::LOOYENGA;
-        case 2: return EffectiveModel::MAXWELL_GARNETT;
-        case 3: return EffectiveModel::SUM;
-        case 4: return EffectiveModel::SUM_INV;
-        default: return EffectiveModel::BRUGGEMAN;
-    }
-}
-
 void MaterialSelector::evt_add_effective_component(wxCommandEvent &event)
 {
     EffectiveModel model=get_effective_material_type();
@@ -445,17 +432,22 @@ void MaterialSelector::evt_name(wxCommandEvent &event)
     }
 }
 
-Imdouble MaterialSelector::get_eps(double w) { return material->get_eps(w); }
+EffectiveModel MaterialSelector::get_effective_material_type()
+{
+    switch(eff_type->GetSelection())
+    {
+        case 0: return EffectiveModel::BRUGGEMAN;
+        case 1: return EffectiveModel::LOOYENGA;
+        case 2: return EffectiveModel::MAXWELL_GARNETT;
+        case 3: return EffectiveModel::SUM;
+        case 4: return EffectiveModel::SUM_INV;
+        default: return EffectiveModel::BRUGGEMAN;
+    }
+}
 
 GUI::Material* MaterialSelector::get_material()
 {
     return material;
-}
-
-void MaterialSelector::throw_event()
-{
-    wxCommandEvent event(EVT_MAT_SELECTOR);
-    wxPostEvent(this,event);
 }
 
 void MaterialSelector::rebuild_effective_material()
@@ -481,6 +473,12 @@ void MaterialSelector::rebuild_effective_material()
         if(panel->host->GetValue())
             material->maxwell_garnett_host=i;
     }
+}
+
+void MaterialSelector::throw_event()
+{
+    wxCommandEvent event(EVT_MAT_SELECTOR);
+    wxPostEvent(this,event);
 }
 
 void MaterialSelector::update_header()

@@ -132,7 +132,7 @@ void SppFrame::recomp_spp()
         double k0=2.0*Pi/lambda[l];
         double w=k0*c_light;
         
-        kspp[l]=spp_get_kspp(w,eps_dielec,mat_selector->get_eps(w));
+        kspp[l]=spp_get_kspp(w,eps_dielec,mat_selector->get_material()->get_eps(w));
         kspp_re[l]=m_to_nm(2.0*Pi/kspp[l].real());
         kspp_im[l]=m_to_nm(1.0/kspp[l].imag());
     }
@@ -171,7 +171,7 @@ void SppFrame::update_profile()
     double k0=2.0*Pi/lambda_tmp;
     double w=k0*c_light;
     
-    Imdouble eps_metal=mat_selector->get_eps(w);
+    Imdouble eps_metal=mat_selector->get_material()->get_eps(w);
     
     Imdouble kspp=spp_get_kspp(w,eps_dielec,eps_metal);
     

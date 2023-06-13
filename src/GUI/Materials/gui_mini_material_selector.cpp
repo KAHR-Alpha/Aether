@@ -85,7 +85,7 @@ class MMS_Dialog:public wxDialog
             
             selector_panel->FitInside();
             
-            material=selector->material;
+            material=selector->get_material();
         }
 };
 
