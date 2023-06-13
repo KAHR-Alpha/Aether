@@ -31,10 +31,8 @@ MaterialPanel::MaterialPanel(wxWindow *parent,
 {
     title->Hide();
     
-    name=new NamedTextCtrl<std::string>(this,"Name : ",material->name);
     selector=new MaterialSelector(this,"",true,material);
     
-    sizer->Add(name);
     sizer->Add(selector,wxSizerFlags().Expand());
 }
 
@@ -77,81 +75,45 @@ MaterialsDialog::MaterialsDialog(std::vector<GUI::Material*> &materials_)
     
     top_sizer->Add(sizer,wxSizerFlags(1).Expand());
     
-    // Buttons
-    
-    wxBoxSizer *btn_sizer=new wxBoxSizer(wxHORIZONTAL);
-    
-    wxButton *ok_btn=new wxButton(this,wxID_ANY,"Ok");
-    wxButton *cancel_btn=new wxButton(this,wxID_ANY,"Cancel");
-    
-    btn_sizer->Add(ok_btn);
-    btn_sizer->Add(cancel_btn);
-    
-    ok_btn->Bind(wxEVT_BUTTON,&MaterialsDialog::evt_ok,this);
-    cancel_btn->Bind(wxEVT_BUTTON,&MaterialsDialog::evt_cancel,this);
-    
-    top_sizer->Add(btn_sizer,wxSizerFlags().Align(wxALIGN_RIGHT));
-    
     SetSizer(top_sizer);
+    
+    Bind(wxEVT_CLOSE_WINDOW,&MaterialsDialog::evt_close,this);
+    Bind(EVT_MAT_SELECTOR,&MaterialsDialog::evt_list,this);
+    Bind(EVT_PLIST_REMOVE,&MaterialsDialog::evt_list,this);
+    Bind(EVT_PLIST_RESIZE,&MaterialsDialog::evt_list,this);
     
     ShowModal();
 }
 
 void MaterialsDialog::evt_add_material(wxCommandEvent &event)
-{
-    // TODO
-    /*Material new_mat;
-    new_mat.set_const_n(1.0);
-    
-    new_mat.name="Material "+std::to_string(mat_ID);
-    mat_ID++;
-    
-    materials_panels->add_panel<MaterialPanel>(new_mat);
+{    
+    MaterialPanel *mat_panel=materials_panels->add_panel<MaterialPanel>(nullptr);
     
     panel->Layout();
-    panel->FitInside();*/
+    panel->FitInside();
     
     event.Skip();
 }
 
-void MaterialsDialog::evt_cancel(wxCommandEvent &event)
+void MaterialsDialog::evt_close(wxCloseEvent &event)
 {
-    Close();
-}
-
-void MaterialsDialog::evt_ok(wxCommandEvent &event)
-{
-    // TODO
-    /*std::size_t N=materials_panels->get_size();
-    
-    // Need to make sure some of the previous materials haven't been deleted
-    
-    std::vector<MaterialPanel*> panels(N);
-    std::vector<Material*> original_materials(N);
-    
-    for(std::size_t i=0;i<N;i++)
-    {
-        panels[i]=materials_panels->get_panel(i);
-        original_materials[i]=panels[i]->original_material;
-    }
-    
-    for(std::size_t i=0;i<materials.size();i++)
-        if(!vector_contains(original_materials,materials[i]))
-           delete materials[i];
+    std::size_t N=materials_panels->get_size();
     
     materials.resize(N);
     
     for(std::size_t i=0;i<N;i++)
     {
-        if(original_materials[i]==nullptr) materials[i]=new Material;
-        else materials[i]=original_materials[i];
-        
-        // TODO
-        //*materials[i]=panels[i]->selector->get_material();
-        materials[i]->name=panels[i]->name->get_value();
-    }*/
+        MaterialPanel *panel=materials_panels->get_panel(i);
+        materials[i]=panel->selector->get_material();
+    }
     
-    Close();
+    Destroy();
+}
+
+void MaterialsDialog::evt_list(wxCommandEvent &event)
+{
+    panel->Layout();
+    panel->FitInside();
 }
 
 //###############

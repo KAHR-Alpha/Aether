@@ -97,7 +97,6 @@ class MaterialSelector: public wxPanel
         Imdouble get_eps(double w);
         EffectiveModel get_effective_material_type();
         GUI::Material* get_material();
-        [[deprecated]] double get_weight();
         void rebuild_effective_material();
         void throw_event();
         void update_header();

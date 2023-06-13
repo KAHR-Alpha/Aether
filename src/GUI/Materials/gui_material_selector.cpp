@@ -167,62 +167,7 @@ MaterialSelector::MaterialSelector(wxWindow *parent,
     sizer->Add(inspect_btn,wxSizerFlags().Expand().Border(wxLEFT,3));
     
     update_layout();
-    
-    // TODO
-    /*Material tmp_material(material);
-    bool input_ok=accept_material(&tmp_material);
-    
-    if(material.is_effective_material)
-    {
-        mat_type=MatType::EFFECTIVE;
         
-        allocate_effective_materials(*(material.eff_mat_1),*(material.eff_mat_2));
-        
-        switch(material.effective_type)
-        {
-            case MAT_EFF_BRUGGEMAN: eff_type->SetSelection(0); break;
-            case MAT_EFF_MG1: eff_type->SetSelection(1); break;
-            case MAT_EFF_MG2: eff_type->SetSelection(2); break;
-            case MAT_EFF_LOYENGA: eff_type->SetSelection(3); break;
-            case MAT_EFF_SUM: eff_type->SetSelection(4); break;
-            case MAT_EFF_SUM_INV: eff_type->SetSelection(5); break;
-        }
-        
-        eff_weight->set_value(material.eff_weight);
-        
-        layout_effective();
-    }
-    else
-    {
-        if(material.is_const() || input_ok==false)
-        {
-            set_const_model(material.get_n(0).real());
-        }
-        else
-        {
-            unsigned int l;
-            Material *pm=MaterialsLib::knows_material(l,material,validator);
-            
-            if(pm==nullptr)
-            {
-                mat_type=MatType::SCRIPT;
-                mat_type_ctrl->SetSelection(2);
-                
-                script_model=material;
-                script=material.script_path;
-                
-                mat_txt->ChangeValue(wxString(script.generic_string()));
-                //layout_script();
-            }
-            else
-            {
-                mat_type=MatType::LIBRARY;
-                mat_type_ctrl->SetSelection(0);
-                layout_library();
-            }
-        }
-    }*/
-    
     SetSizer(sizer);
 }
 
@@ -506,8 +451,6 @@ GUI::Material* MaterialSelector::get_material()
 {
     return material;
 }
-
-double MaterialSelector::get_weight() { return 0; }
 
 void MaterialSelector::throw_event()
 {

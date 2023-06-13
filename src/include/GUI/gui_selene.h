@@ -418,7 +418,6 @@ class MaterialPanel: public PanelsListBase
     public:
         GUI::Material *original_material;
         
-        NamedTextCtrl<std::string> *name;
         MaterialSelector *selector;
         
         MaterialPanel(wxWindow *parent,
@@ -436,8 +435,8 @@ class MaterialsDialog: public wxDialog
         MaterialsDialog(std::vector<GUI::Material*> &materials);
         
         void evt_add_material(wxCommandEvent &event);
-        void evt_cancel(wxCommandEvent &event);
-        void evt_ok(wxCommandEvent &event);
+        void evt_close(wxCloseEvent &event);
+        void evt_list(wxCommandEvent &event);
 };
 
 //#########
