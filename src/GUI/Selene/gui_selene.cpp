@@ -1206,22 +1206,23 @@ void SeleneFrame::save_project(wxFileName const &fname_)
     
     // Materials
     
+    lua_gui_material::Translator mtr("");
+    
     for(std::size_t i=0;i<materials.size();i++)
+        mtr.gather(materials[i]);
+    
+    for(std::size_t i=0;i<user_irfs.size();i++)
     {
-        std::string name="material_"+std::to_string(i);
+        Sel::IRF *irf=user_irfs[i];
         
-        file<<name<<"=Material()\n";
-        
-        file<<name<<":";
-        if(materials[i]->is_const())
+        for(std::size_t j=0;j<irf->ml_materials.size();j++)
         {
-            file<<"refractive_index("<<std::real(materials[i]->get_n(0))<<")\n";
+            mtr.gather(dynamic_cast<GUI::Material*>(irf->ml_materials[j]));
         }
-        else file<<"load_script(\""<<materials[i]->script_path.generic_string()<<"\")\n";
-        file<<name<<":name(\""<<materials[i]->name<<"\")\n";
-        file<<"\n";
     }
     
+    file<<mtr.get_header()<<"\n";
+        
     // IRFs
     
     for(std::size_t i=0;i<user_irfs.size();i++)
@@ -1240,15 +1241,11 @@ void SeleneFrame::save_project(wxFileName const &fname_)
             case Sel::IRF_MULTILAYER:
                 file<<"\"multilayer\")\n";
                 
-                // TODO
                 for(std::size_t j=0;j<user_irfs[i]->ml_heights.size();j++)
                 {
-                    if(user_irfs[i]->ml_materials[j]->is_const())
-                        file<<name<<":add_layer("<<user_irfs[i]->ml_heights[j]<<","<<user_irfs[i]->ml_materials[j]->get_n(0).real()<<")\n";
-                    else
-                        file<<name<<":add_layer("<<user_irfs[i]->ml_heights[j]<<","<<user_irfs[i]->ml_materials[j]->script_path.generic_string()<<")\n";
+                    GUI::Material *mat=dynamic_cast<GUI::Material*>(user_irfs[i]->ml_materials[j]);
+                    file<<name<<":add_layer("<<user_irfs[i]->ml_heights[j]<<","<<mtr(mat)<<")\n";
                 }
-                
                 break;
             case Sel::IRF_SNELL_SPLITTER:
                 file<<"\"snell_splitter\","<<user_irfs[i]->splitting_factor<<")\n";
@@ -1435,32 +1432,30 @@ void SeleneFrame::save_project(wxFileName const &fname_)
             
             // Up Material
             
-            Material *mat=object->face(0).up_mat;
+            GUI::Material *mat=dynamic_cast<GUI::Material*>(object->face(0).up_mat);
             bool out_material_valid=true;
             
             for(j=1;j<object->get_N_faces();j++) if(mat!=object->face(j).up_mat)
                 { out_material_valid=false; break; }
             
-            int k;
-            bool found;
-            
             if(out_material_valid)
             {
-                k=vector_locate(found,materials,dynamic_cast<GUI::Material*>(mat));
-                file<<ID[i]<<":default_out_mat(material_"<<k<<")\n";
+                file<<ID[i]<<":default_out_mat("<<mtr(mat)<<")\n";
             }
             else
             {
                 for(j=0;j<N;j++)
                 {
-                    k=vector_locate(found,materials,dynamic_cast<GUI::Material*>((object->*face_access)(j).up_mat));
-                    file<<ID[i]<<":"<<face_name<<"_up_mat("<<j<<",material_"<<k<<")\n";
+                    ::Material *base_mat=(object->*face_access)(j).up_mat;
+                    GUI::Material *mat=dynamic_cast<GUI::Material*>(base_mat);
+                    
+                    file<<ID[i]<<":"<<face_name<<"_up_mat("<<j<<","<<mtr(mat)<<")\n";
                 }
             }
             
             // Down Material
             
-            mat=object->face(0).down_mat;
+            mat=dynamic_cast<GUI::Material*>(object->face(0).down_mat);
             bool in_material_valid=true;
             
             for(int j=1;j<object->get_N_faces();j++) if(mat!=object->face(j).down_mat)
@@ -1468,15 +1463,16 @@ void SeleneFrame::save_project(wxFileName const &fname_)
             
             if(in_material_valid)
             {
-                k=vector_locate(found,materials,dynamic_cast<GUI::Material*>(mat));
-                file<<ID[i]<<":default_in_mat(material_"<<k<<")\n";
+                file<<ID[i]<<":default_in_mat("<<mtr(mat)<<")\n";
             }
             else
             {
                 for(j=0;j<N;j++)
                 {
-                    k=vector_locate(found,materials,dynamic_cast<GUI::Material*>((object->*face_access)(j).down_mat));
-                    file<<ID[i]<<":"<<face_name<<"_down_mat("<<j<<",material_"<<k<<")\n";
+                    ::Material *base_mat=(object->*face_access)(j).down_mat;
+                    GUI::Material *mat=dynamic_cast<GUI::Material*>(base_mat);
+                    
+                    file<<ID[i]<<":"<<face_name<<"_down_mat("<<j<<","<<mtr(mat)<<")\n";
                 }
             }
             
@@ -1638,13 +1634,8 @@ void SeleneFrame::save_project(wxFileName const &fname_)
             
             // Materials check
             
-            Material *mat=light->amb_mat;
-            
-            int k;
-            bool found;
-            
-            k=vector_locate(found,materials,dynamic_cast<GUI::Material*>(mat));
-            file<<ID[i]<<":material(material_"<<k<<")\n";
+            GUI::Material *mat=dynamic_cast<GUI::Material*>(light->amb_mat);
+            file<<ID[i]<<":material("<<mtr(mat)<<")\n";
             
             // Spectral Properties
             
