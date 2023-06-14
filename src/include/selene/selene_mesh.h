@@ -87,7 +87,7 @@ class IRF
         Multilayer_TMM_UD ml_model;
         
         std::vector<double> ml_heights;
-        std::vector<Material> ml_materials;
+        std::vector<Material*> ml_materials;
         
         // Splitter
         

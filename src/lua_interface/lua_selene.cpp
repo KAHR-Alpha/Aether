@@ -372,22 +372,7 @@ namespace LuaUI
         Sel::IRF *p_irf=lua_get_metapointer<Sel::IRF>(L,1);
         
         double h=lua_tonumber(L,2);
-        Material mat;
-        
-        if(lua_isnumber(L,3))
-        {
-            double n=lua_tonumber(L,3);
-            mat.set_const_n(n);
-        }
-        else
-        {
-            std::string str=lua_tostring(L,3);
-            lua_getglobal(L,"lua_caller_path");
-            std::filesystem::path *caller_path=reinterpret_cast<std::filesystem::path*>(lua_touserdata(L,-1));
-            
-            std::filesystem::path mat_path=PathManager::locate_file(str,*caller_path);
-            mat.load_lua_script(mat_path);
-        }
+        Material *mat=lua_get_metapointer<Material>(L,3);
         
         p_irf->ml_heights.push_back(h);
         p_irf->ml_materials.push_back(mat);

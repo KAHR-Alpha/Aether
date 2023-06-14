@@ -182,9 +182,8 @@ IRF_Panel::IRF_Panel(wxWindow *parent,Sel::IRF const &irf)
     
     layers=new PanelsList<LayerPanel>(multilayer_panel);
     
-    //TODO
-    /*for(std::size_t i=0;i<irf.ml_heights.size();i++)
-        layers->add_panel<LayerPanel>(irf.ml_heights[i],0,irf.ml_materials[i],false);*/
+    for(std::size_t i=0;i<irf.ml_heights.size();i++)
+        layers->add_panel<LayerPanel>(irf.ml_heights[i],0,dynamic_cast<GUI::Material*>(irf.ml_materials[i]),false);
     
     wxButton *add_layer_btn=new wxButton(multilayer_panel,wxID_ANY,"Add Layer");
     add_layer_btn->Bind(wxEVT_BUTTON,&IRF_Panel::evt_add_layer,this);
@@ -313,22 +312,8 @@ IRF_Dialog::IRF_Dialog(std::vector<Sel::IRF*> &irfs_)
     
     top_sizer->Add(sizer,wxSizerFlags(1).Expand());
     
-    // Buttons
-    
-    wxBoxSizer *btn_sizer=new wxBoxSizer(wxHORIZONTAL);
-    
-    wxButton *ok_btn=new wxButton(this,wxID_ANY,"Ok");
-    wxButton *cancel_btn=new wxButton(this,wxID_ANY,"Cancel");
-    
-    btn_sizer->Add(ok_btn);
-    btn_sizer->Add(cancel_btn);
-    
-    ok_btn->Bind(wxEVT_BUTTON,&IRF_Dialog::evt_ok,this);
-    cancel_btn->Bind(wxEVT_BUTTON,&IRF_Dialog::evt_cancel,this);
-    
-    top_sizer->Add(btn_sizer,wxSizerFlags().Align(wxALIGN_RIGHT));
-    
     Bind(EVT_PLIST_RESIZE,&IRF_Dialog::evt_list,this);
+    Bind(wxEVT_CLOSE_WINDOW,&IRF_Dialog::evt_ok,this);
     
     SetSizer(top_sizer);
     
@@ -351,18 +336,13 @@ void IRF_Dialog::evt_add_irf(wxCommandEvent &event)
     event.Skip();
 }
 
-void IRF_Dialog::evt_cancel(wxCommandEvent &event)
-{
-    Close();
-}
-
 void IRF_Dialog::evt_list(wxCommandEvent &event)
 {
     panel->FitInside();
     panel->Layout();
 }
 
-void IRF_Dialog::evt_ok(wxCommandEvent &event)
+void IRF_Dialog::evt_ok(wxCloseEvent &event)
 {
     std::size_t N=irfs_panels->get_size();
     
@@ -410,7 +390,7 @@ void IRF_Dialog::evt_ok(wxCommandEvent &event)
             for(std::size_t j=0;j<Nl;j++)
             {
                 irfs[i]->ml_heights[j]=panels[i]->layers->get_panel(j)->get_height();
-                irfs[i]->ml_materials[j]=*(panels[i]->layers->get_panel(j)->get_material());
+                irfs[i]->ml_materials[j]=panels[i]->layers->get_panel(j)->get_material();
             }
         }
         else if(selection==2)
@@ -424,7 +404,7 @@ void IRF_Dialog::evt_ok(wxCommandEvent &event)
         irfs[i]->name=panels[i]->name->get_value();
     }
     
-    Close();
+    Destroy();
 }
 
 }

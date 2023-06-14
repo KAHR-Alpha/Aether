@@ -1240,12 +1240,13 @@ void SeleneFrame::save_project(wxFileName const &fname_)
             case Sel::IRF_MULTILAYER:
                 file<<"\"multilayer\")\n";
                 
+                // TODO
                 for(std::size_t j=0;j<user_irfs[i]->ml_heights.size();j++)
                 {
-                    if(user_irfs[i]->ml_materials[j].is_const())
-                        file<<name<<":add_layer("<<user_irfs[i]->ml_heights[j]<<","<<user_irfs[i]->ml_materials[j].get_n(0).real()<<")\n";
+                    if(user_irfs[i]->ml_materials[j]->is_const())
+                        file<<name<<":add_layer("<<user_irfs[i]->ml_heights[j]<<","<<user_irfs[i]->ml_materials[j]->get_n(0).real()<<")\n";
                     else
-                        file<<name<<":add_layer("<<user_irfs[i]->ml_heights[j]<<","<<user_irfs[i]->ml_materials[j].script_path.generic_string()<<")\n";
+                        file<<name<<":add_layer("<<user_irfs[i]->ml_heights[j]<<","<<user_irfs[i]->ml_materials[j]->script_path.generic_string()<<")\n";
                 }
                 
                 break;

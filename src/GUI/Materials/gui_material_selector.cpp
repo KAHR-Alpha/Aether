@@ -85,8 +85,8 @@ MaterialSelector::MaterialSelector(wxWindow *parent,
                                    GUI::Material *material_,
                                    bool (*validator)(Material*))
     :wxPanel(parent),
-     material(material_),
      parent_selector(nullptr),
+     material(material_),
      const_index(1.0),
      accept_material(validator)
 {    

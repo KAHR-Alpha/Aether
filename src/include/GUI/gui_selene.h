@@ -490,9 +490,8 @@ class IRF_Dialog: public wxDialog
         IRF_Dialog(std::vector<Sel::IRF*> &irfs);
         
         void evt_add_irf(wxCommandEvent &event);
-        void evt_cancel(wxCommandEvent &event);
         void evt_list(wxCommandEvent &event);
-        void evt_ok(wxCommandEvent &event);
+        void evt_ok(wxCloseEvent &event);
 };
 
 //################
