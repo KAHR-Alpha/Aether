@@ -56,6 +56,7 @@ class MaterialEditorPanel: public wxPanel
         void evt_add_model(wxCommandEvent &event);
         void evt_description(wxCommandEvent &event);
         void evt_model_change(wxCommandEvent &event);
+        void evt_name(wxCommandEvent &event);
         void evt_validity(wxCommandEvent &event);
         void lock();
         void rebuild_elements_list();

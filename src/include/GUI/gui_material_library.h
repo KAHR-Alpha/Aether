@@ -131,6 +131,7 @@ class MaterialsLib
         static Material* knows_material(unsigned int &n,Material const &material,
                                         bool (*validator)(Material*)=&default_material_validator);
         static void register_control(MiniMaterialSelector *selector);
+        [[nodiscard]]
         static GUI::Material* request_material(MatType type);
     
     protected:

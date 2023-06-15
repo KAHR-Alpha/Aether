@@ -35,9 +35,15 @@ MaterialEditorPanel::MaterialEditorPanel(wxWindow *parent,GUI::Material *materia
      read_only_material(true)
 {
     if(material==nullptr)
-        MaterialsLib::request_material(MatType::CUSTOM);
+        material=MaterialsLib::request_material(MatType::CUSTOM);
     
     wxBoxSizer *sizer=new wxBoxSizer(wxVERTICAL);
+    
+    // Name
+    
+    name=new NamedTextCtrl<std::string>(this,"Name",material->name,true);
+    name->Bind(EVT_NAMEDTXTCTRL,&MaterialEditorPanel::evt_name,this);
+    sizer->Add(name,wxSizerFlags().Expand());
     
     // Description
     
@@ -129,6 +135,7 @@ MaterialEditorPanel::MaterialEditorPanel(wxWindow *parent,GUI::Material *materia
         stand_alone_sizer->Add(sizer,wxSizerFlags(1).Expand());
         stand_alone_sizer->Add(stand_alone_buttons,wxSizerFlags(0).Expand());
         
+        name->Hide();
         description_panel->Hide();
         validity_panel->Hide();
         
@@ -279,6 +286,11 @@ void MaterialEditorPanel::evt_delete_spline(wxCommandEvent &event)
 void MaterialEditorPanel::evt_description(wxCommandEvent &event)
 {
     material->description=replace_special_characters(description->GetValue().ToStdString());
+}
+
+void MaterialEditorPanel::evt_name(wxCommandEvent &event)
+{
+    material->name=name->get_value();
 }
 
 void MaterialEditorPanel::evt_load(wxCommandEvent &event) { load(); }
@@ -486,6 +498,7 @@ void MaterialEditorPanel::unlock()
 
 void MaterialEditorPanel::update_controls()
 {
+    name->set_value(material->name);
     description->ChangeValue(material->description);
     
     validity_min->set_lambda(material->lambda_valid_min);
