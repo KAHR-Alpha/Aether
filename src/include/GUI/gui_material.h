@@ -27,7 +27,7 @@ wxDECLARE_EVENT(EVT_MINIMAT_SELECTOR,wxCommandEvent);
 
 class MaterialSelector;
 class MiniMaterialSelector;
-class MaterialsManager;
+class MaterialsEditor;
 
 class EffMaterialPanel: public PanelsListBase
 {
@@ -80,7 +80,7 @@ class MaterialSelector: public wxPanel
         
         // Custom
         
-        MaterialEditor *custom_editor;
+        MaterialEditorPanel *custom_editor;
         
         // Validator
         
@@ -159,7 +159,7 @@ class MaterialExplorer: public BaseFrame
         void recompute_model();
 };
 
-class MaterialsManager: public BaseFrame
+class MaterialsEditor: public BaseFrame
 {
     public:
         unsigned int Np;
@@ -173,7 +173,7 @@ class MaterialsManager: public BaseFrame
         
         wxScrolledWindow *ctrl_panel;
         
-        MaterialEditor *editor;
+        MaterialEditorPanel *editor;
         
         // Display
         
@@ -181,11 +181,11 @@ class MaterialsManager: public BaseFrame
         SpectrumSelector *sp_selector;
         wxChoice *disp_choice;
         
-        MaterialsManager(wxString const &title);
-        ~MaterialsManager();
+        MaterialsEditor(wxString const &title);
+        ~MaterialsEditor();
         
-        void MaterialsManager_Controls();
-        void MaterialsManager_Display(wxPanel *display_panel);
+        void MaterialsEditor_Controls();
+        void MaterialsEditor_Display(wxPanel *display_panel);
         
         void evt_display_choice(wxCommandEvent &event);
         void evt_material_editor_model(wxCommandEvent &event);

@@ -29,7 +29,7 @@ extern const Imdouble Im;
 wxDEFINE_EVENT(EVT_MATERIAL_EDITOR_MODEL,wxCommandEvent);
 wxDEFINE_EVENT(EVT_MATERIAL_EDITOR_SPECTRUM,wxCommandEvent);
 
-MaterialEditor::MaterialEditor(wxWindow *parent,GUI::Material *material_,bool self_controls)
+MaterialEditorPanel::MaterialEditorPanel(wxWindow *parent,GUI::Material *material_,bool self_controls)
     :wxPanel(parent),
      material(material_),
      read_only_material(true)
@@ -49,7 +49,7 @@ MaterialEditor::MaterialEditor(wxWindow *parent,GUI::Material *material_,bool se
                                wxID_ANY,wxEmptyString,
                                wxDefaultPosition,wxDefaultSize,
                                wxTE_BESTWRAP|wxTE_MULTILINE|wxTE_RICH);
-    description->Bind(wxEVT_TEXT,&MaterialEditor::evt_description,this);
+    description->Bind(wxEVT_TEXT,&MaterialEditorPanel::evt_description,this);
     description->SetMinClientSize(wxSize(-1,150));
     
     description_sizer->Add(description,wxSizerFlags().Expand());
@@ -66,8 +66,8 @@ MaterialEditor::MaterialEditor(wxWindow *parent,GUI::Material *material_,bool se
     validity_min=new WavelengthSelector(validity_sizer->GetStaticBox(),"Min: ",400e-9);
     validity_max=new WavelengthSelector(validity_sizer->GetStaticBox(),"Max: ",800e-9);
     
-    validity_min->Bind(EVT_WAVELENGTH_SELECTOR,&MaterialEditor::evt_validity,this);
-    validity_max->Bind(EVT_WAVELENGTH_SELECTOR,&MaterialEditor::evt_validity,this);
+    validity_min->Bind(EVT_WAVELENGTH_SELECTOR,&MaterialEditorPanel::evt_validity,this);
+    validity_max->Bind(EVT_WAVELENGTH_SELECTOR,&MaterialEditorPanel::evt_validity,this);
     
     validity_sizer->Add(validity_min,wxSizerFlags().Expand());
     validity_sizer->Add(validity_max,wxSizerFlags().Expand());
@@ -95,7 +95,7 @@ MaterialEditor::MaterialEditor(wxWindow *parent,GUI::Material *material_,bool se
     choice_sizer->Add(model_choice,wxSizerFlags(1));
     
     add_btn=new wxButton(this,wxID_ANY,"Add",wxDefaultPosition,wxDefaultSize,wxBU_EXACTFIT);
-    add_btn->Bind(wxEVT_BUTTON,&MaterialEditor::evt_add_model,this);
+    add_btn->Bind(wxEVT_BUTTON,&MaterialEditorPanel::evt_add_model,this);
     
     choice_sizer->Add(add_btn,wxSizerFlags().Expand());
     sizer->Add(choice_sizer,wxSizerFlags().Expand());
@@ -116,10 +116,10 @@ MaterialEditor::MaterialEditor(wxWindow *parent,GUI::Material *material_,bool se
         wxButton *save_btn=new wxButton(this,wxID_ANY,"Save");
         wxButton *save_as_btn=new wxButton(this,wxID_ANY,"Save As");
         
-        clear_btn->Bind(wxEVT_BUTTON,&MaterialEditor::evt_reset,this);
-        load_btn->Bind(wxEVT_BUTTON,&MaterialEditor::evt_load,this);
-        save_btn->Bind(wxEVT_BUTTON,&MaterialEditor::evt_save,this);
-        save_as_btn->Bind(wxEVT_BUTTON,&MaterialEditor::evt_save_as,this);
+        clear_btn->Bind(wxEVT_BUTTON,&MaterialEditorPanel::evt_reset,this);
+        load_btn->Bind(wxEVT_BUTTON,&MaterialEditorPanel::evt_load,this);
+        save_btn->Bind(wxEVT_BUTTON,&MaterialEditorPanel::evt_save,this);
+        save_as_btn->Bind(wxEVT_BUTTON,&MaterialEditorPanel::evt_save_as,this);
         
         stand_alone_buttons->Add(clear_btn);
         stand_alone_buttons->Add(load_btn);
@@ -144,19 +144,19 @@ MaterialEditor::MaterialEditor(wxWindow *parent,GUI::Material *material_,bool se
     
     // General bindings
     
-    Bind(EVT_NAMEDTXTCTRL,&MaterialEditor::evt_model_change,this);
-    Bind(EVT_WAVELENGTH_SELECTOR,&MaterialEditor::evt_model_change,this);
+    Bind(EVT_NAMEDTXTCTRL,&MaterialEditorPanel::evt_model_change,this);
+    Bind(EVT_WAVELENGTH_SELECTOR,&MaterialEditorPanel::evt_model_change,this);
     
-    Bind(EVT_DELETE_CAUCHY,&MaterialEditor::evt_delete_cauchy,this);
-    Bind(EVT_DELETE_CRITPOINT,&MaterialEditor::evt_delete_critpoint,this);
-    Bind(EVT_DELETE_DEBYE,&MaterialEditor::evt_delete_debye,this);
-    Bind(EVT_DELETE_DRUDE,&MaterialEditor::evt_delete_drude,this);
-    Bind(EVT_DELETE_LORENTZ,&MaterialEditor::evt_delete_lorentz,this);
-    Bind(EVT_DELETE_SELLMEIER,&MaterialEditor::evt_delete_sellmeier,this);
-    Bind(EVT_DELETE_SPLINE,&MaterialEditor::evt_delete_spline,this);
+    Bind(EVT_DELETE_CAUCHY,&MaterialEditorPanel::evt_delete_cauchy,this);
+    Bind(EVT_DELETE_CRITPOINT,&MaterialEditorPanel::evt_delete_critpoint,this);
+    Bind(EVT_DELETE_DEBYE,&MaterialEditorPanel::evt_delete_debye,this);
+    Bind(EVT_DELETE_DRUDE,&MaterialEditorPanel::evt_delete_drude,this);
+    Bind(EVT_DELETE_LORENTZ,&MaterialEditorPanel::evt_delete_lorentz,this);
+    Bind(EVT_DELETE_SELLMEIER,&MaterialEditorPanel::evt_delete_sellmeier,this);
+    Bind(EVT_DELETE_SPLINE,&MaterialEditorPanel::evt_delete_spline,this);
 }
 
-void MaterialEditor::evt_add_model(wxCommandEvent &event)
+void MaterialEditorPanel::evt_add_model(wxCommandEvent &event)
 {
     int selection=model_choice->GetSelection();
     
@@ -206,7 +206,7 @@ void MaterialEditor::evt_add_model(wxCommandEvent &event)
     rebuild_elements_list();
 }
 
-void MaterialEditor::evt_delete_cauchy(wxCommandEvent &event)
+void MaterialEditorPanel::evt_delete_cauchy(wxCommandEvent &event)
 {
     int ID=event.GetId();
     
@@ -215,7 +215,7 @@ void MaterialEditor::evt_delete_cauchy(wxCommandEvent &event)
     rebuild_elements_list();
 }
 
-void MaterialEditor::evt_delete_critpoint(wxCommandEvent &event)
+void MaterialEditorPanel::evt_delete_critpoint(wxCommandEvent &event)
 {
     int ID=event.GetId();
     
@@ -224,7 +224,7 @@ void MaterialEditor::evt_delete_critpoint(wxCommandEvent &event)
     rebuild_elements_list();
 }
 
-void MaterialEditor::evt_delete_debye(wxCommandEvent &event)
+void MaterialEditorPanel::evt_delete_debye(wxCommandEvent &event)
 {
     int ID=event.GetId();
     
@@ -233,7 +233,7 @@ void MaterialEditor::evt_delete_debye(wxCommandEvent &event)
     rebuild_elements_list();
 }
 
-void MaterialEditor::evt_delete_drude(wxCommandEvent &event)
+void MaterialEditorPanel::evt_delete_drude(wxCommandEvent &event)
 {
     int ID=event.GetId();
     
@@ -242,7 +242,7 @@ void MaterialEditor::evt_delete_drude(wxCommandEvent &event)
     rebuild_elements_list();
 }
 
-void MaterialEditor::evt_delete_lorentz(wxCommandEvent &event)
+void MaterialEditorPanel::evt_delete_lorentz(wxCommandEvent &event)
 {
     int ID=event.GetId();
     
@@ -251,7 +251,7 @@ void MaterialEditor::evt_delete_lorentz(wxCommandEvent &event)
     rebuild_elements_list();
 }
 
-void MaterialEditor::evt_delete_sellmeier(wxCommandEvent &event)
+void MaterialEditorPanel::evt_delete_sellmeier(wxCommandEvent &event)
 {
     int ID=event.GetId();
     
@@ -261,7 +261,7 @@ void MaterialEditor::evt_delete_sellmeier(wxCommandEvent &event)
     rebuild_elements_list();
 }
 
-void MaterialEditor::evt_delete_spline(wxCommandEvent &event)
+void MaterialEditorPanel::evt_delete_spline(wxCommandEvent &event)
 {
     int ID=event.GetId();
     
@@ -276,20 +276,20 @@ void MaterialEditor::evt_delete_spline(wxCommandEvent &event)
     rebuild_elements_list();
 }
 
-void MaterialEditor::evt_description(wxCommandEvent &event)
+void MaterialEditorPanel::evt_description(wxCommandEvent &event)
 {
     material->description=replace_special_characters(description->GetValue().ToStdString());
 }
 
-void MaterialEditor::evt_load(wxCommandEvent &event) { load(); }
+void MaterialEditorPanel::evt_load(wxCommandEvent &event) { load(); }
 
-void MaterialEditor::evt_model_change(wxCommandEvent &event) { throw_event_model(); }
-void MaterialEditor::evt_reset(wxCommandEvent &event) { reset(); }
-void MaterialEditor::evt_save(wxCommandEvent &event) { save(); }
-void MaterialEditor::evt_save_as(wxCommandEvent &event) { save_as(); }
-void MaterialEditor::evt_validity(wxCommandEvent &event) { throw_event_spectrum(); }
+void MaterialEditorPanel::evt_model_change(wxCommandEvent &event) { throw_event_model(); }
+void MaterialEditorPanel::evt_reset(wxCommandEvent &event) { reset(); }
+void MaterialEditorPanel::evt_save(wxCommandEvent &event) { save(); }
+void MaterialEditorPanel::evt_save_as(wxCommandEvent &event) { save_as(); }
+void MaterialEditorPanel::evt_validity(wxCommandEvent &event) { throw_event_spectrum(); }
 
-void MaterialEditor::load()
+void MaterialEditorPanel::load()
 {
     std::vector<wxString> choices(2);
     
@@ -353,7 +353,7 @@ void MaterialEditor::load()
     }
 }
 
-void MaterialEditor::lock()
+void MaterialEditorPanel::lock()
 {
     description->SetEditable(false);
     validity_min->lock();
@@ -364,7 +364,7 @@ void MaterialEditor::lock()
         material_elements->get_panel(i)->lock();
 }
 
-void MaterialEditor::rebuild_elements_list()
+void MaterialEditorPanel::rebuild_elements_list()
 {
     material_elements->clear();
     
@@ -403,7 +403,7 @@ void MaterialEditor::rebuild_elements_list()
     throw_event_model();
 }
 
-void MaterialEditor::reset()
+void MaterialEditorPanel::reset()
 {
     material->reset();
     
@@ -414,7 +414,7 @@ void MaterialEditor::reset()
     unlock();
 }
 
-bool MaterialEditor::save()
+bool MaterialEditorPanel::save()
 {
     if(!read_only_material)
     {
@@ -427,7 +427,7 @@ bool MaterialEditor::save()
     else return save_as();
 }
 
-bool MaterialEditor::save_as()
+bool MaterialEditorPanel::save_as()
 {
     wxFileName data_tmp=wxFileSelector("Please create a new material file",
                                        wxString(PathManager::user_profile_materials.generic_string()),
@@ -459,21 +459,21 @@ bool MaterialEditor::save_as()
     return true;
 }
 
-void MaterialEditor::throw_event_model()
+void MaterialEditorPanel::throw_event_model()
 {
     wxCommandEvent event(EVT_MATERIAL_EDITOR_MODEL);
     
     wxPostEvent(this,event);
 }
 
-void MaterialEditor::throw_event_spectrum()
+void MaterialEditorPanel::throw_event_spectrum()
 {
     wxCommandEvent event(EVT_MATERIAL_EDITOR_SPECTRUM);
     
     wxPostEvent(this,event);
 }
 
-void MaterialEditor::unlock()
+void MaterialEditorPanel::unlock()
 {
     description->SetEditable(true);
     validity_min->unlock();
@@ -484,7 +484,7 @@ void MaterialEditor::unlock()
         material_elements->get_panel(i)->unlock();
 }
 
-void MaterialEditor::update_controls()
+void MaterialEditorPanel::update_controls()
 {
     description->ChangeValue(material->description);
     

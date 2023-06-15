@@ -22,7 +22,7 @@ limitations under the License.*/
 wxDECLARE_EVENT(EVT_MATERIAL_EDITOR_MODEL,wxCommandEvent);
 wxDECLARE_EVENT(EVT_MATERIAL_EDITOR_SPECTRUM,wxCommandEvent);
 
-class MaterialEditor: public wxPanel
+class MaterialEditorPanel: public wxPanel
 {
     public:
         GUI::Material *material;
@@ -37,7 +37,7 @@ class MaterialEditor: public wxPanel
         
         PanelsList<MatGUI::SubmodelPanel> *material_elements;
         
-        MaterialEditor(wxWindow *parent,GUI::Material *material,bool self_controls);
+        MaterialEditorPanel(wxWindow *parent,GUI::Material *material,bool self_controls);
         
         //
         

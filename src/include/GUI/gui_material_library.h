@@ -19,7 +19,7 @@ limitations under the License.*/
 #include <lua_base.h>
 
 class MaterialsLib;
-class MaterialsManager;
+class MaterialsEditor;
 
 enum class MatType
 {
@@ -125,8 +125,8 @@ class MaterialsLib
         static void consolidate(GUI::Material *material);
         static void consolidate(GUI::Material **material);
         static void forget_control(MiniMaterialSelector *selector);
-        static void forget_manager();
-        static MaterialsManager* get_manager();
+        static void forget_editor();
+        static MaterialsEditor* get_manager();
         static void initialize();
         static Material* knows_material(unsigned int &n,Material const &material,
                                         bool (*validator)(Material*)=&default_material_validator);
@@ -134,17 +134,14 @@ class MaterialsLib
         static GUI::Material* request_material(MatType type);
     
     protected:
-        // TODO
-        [[deprecated]] static void add_material(std::filesystem::path const &fname);
-        // TODO
-        [[deprecated]] static void add_to_library(GUI::Material *data);
+        static void add_to_library(GUI::Material *data);
         static void forget_material(GUI::Material *material);
         static void load_script(std::filesystem::path const &path);
         static GUI::Material* material(std::size_t n);
         static std::size_t size();
         
     private:
-        static MaterialsManager *manager;
+        static MaterialsEditor *editor;
         static std::vector<GUI::Material*> data;
         static std::vector<MiniMaterialSelector*> mini_mats;
         

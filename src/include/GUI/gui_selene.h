@@ -573,13 +573,10 @@ class SeleneFrame: public BaseFrame
 
 // Lua bindings
 
-//int lua_allocate_material(lua_State *L);
 int lua_allocate_SeleneFrame_pointer(lua_State *L);
 int lua_allocate_selene_object(lua_State *L);
 int lua_allocate_selene_IRF(lua_State *L);
 int lua_allocate_selene_light(lua_State *L);
-// TODO
-int lua_register_material(lua_State *L);
 
 int lua_selene_add_light(lua_State *L);
 int lua_selene_add_object(lua_State *L);

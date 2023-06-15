@@ -173,7 +173,7 @@ MaterialSelector::MaterialSelector(wxWindow *parent,
 
 void MaterialSelector::MaterialSelector_CustomPanel(wxWindow *parent)
 {
-    custom_editor=new MaterialEditor(parent,material,true);
+    custom_editor=new MaterialEditorPanel(parent,material,true);
     custom_editor->Bind(EVT_MATERIAL_EDITOR_MODEL,&MaterialSelector::evt_custom_material,this);
 }
 

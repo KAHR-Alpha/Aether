@@ -131,14 +131,14 @@ bool Aether::OnInit()
 //    HAPSolverFrame *mfr=new HAPSolverFrame("Aether");
 //    EMGeometry_Frame *mfr=new EMGeometry_Frame("Aether");
 //    SamplesFrame *mfr=new SamplesFrame("Aether");
-    SelGUI::SeleneFrame *mfr=new SelGUI::SeleneFrame("Aether");
+//    SelGUI::SeleneFrame *mfr=new SelGUI::SeleneFrame("Aether");
 //    SelGUI::RayCounterFrame *mfr=new SelGUI::RayCounterFrame("Aether");
 //    SEM_2D_Frame *mfr=new SEM_2D_Frame("Aether");
 //    FDTD_Frame *mfr=new FDTD_Frame("Aether");
 //    FitterFrame *mfr=new FitterFrame("Aether");
 //    LayerFitter *mfr=new LayerFitter("Aether");
 //    MaterialExplorer *mfr=new MaterialExplorer("Aether");
- //   MaterialsManager *mfr=new MaterialsManager("Aether");
+    MaterialsEditor *mfr=new MaterialsEditor("Aether");
     mfr->Maximize();
     mfr->Show(true);
     
@@ -632,7 +632,7 @@ void MainFrame::evt_about_help(wxCommandEvent &event)
 
 void MainFrame::evt_open_materials_manager(wxCommandEvent &event)
 {
-    MaterialsManager *frame=MaterialsLib::get_manager();
+    MaterialsEditor *frame=MaterialsLib::get_manager();
     frame->Show(true);
     frame->Maximize();
     
