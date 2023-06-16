@@ -29,7 +29,7 @@ extern const Imdouble Im;
 wxDEFINE_EVENT(EVT_MATERIAL_EDITOR_MODEL,wxCommandEvent);
 wxDEFINE_EVENT(EVT_MATERIAL_EDITOR_SPECTRUM,wxCommandEvent);
 
-MaterialEditorPanel::MaterialEditorPanel(wxWindow *parent,GUI::Material *material_,bool self_controls)
+MaterialEditorPanel::MaterialEditorPanel(wxWindow *parent,GUI::Material *material_,bool outside_editor)
     :wxPanel(parent),
      material(material_),
      read_only_material(true)
@@ -112,39 +112,14 @@ MaterialEditorPanel::MaterialEditorPanel(wxWindow *parent,GUI::Material *materia
     
     sizer->Add(material_elements,wxSizerFlags(1).Expand());
     
-    if(self_controls)
+    if(outside_editor)
     {
-        wxBoxSizer *stand_alone_sizer=new wxBoxSizer(wxHORIZONTAL);
-        wxBoxSizer *stand_alone_buttons=new wxBoxSizer(wxVERTICAL);
-        
-        wxButton *clear_btn=new wxButton(this,wxID_ANY,"Clear");
-        wxButton *load_btn=new wxButton(this,wxID_ANY,"Load");
-        wxButton *save_btn=new wxButton(this,wxID_ANY,"Save");
-        wxButton *save_as_btn=new wxButton(this,wxID_ANY,"Save As");
-        
-        clear_btn->Bind(wxEVT_BUTTON,&MaterialEditorPanel::evt_reset,this);
-        load_btn->Bind(wxEVT_BUTTON,&MaterialEditorPanel::evt_load,this);
-        save_btn->Bind(wxEVT_BUTTON,&MaterialEditorPanel::evt_save,this);
-        save_as_btn->Bind(wxEVT_BUTTON,&MaterialEditorPanel::evt_save_as,this);
-        
-        stand_alone_buttons->Add(clear_btn);
-        stand_alone_buttons->Add(load_btn);
-        stand_alone_buttons->Add(save_btn);
-        stand_alone_buttons->Add(save_as_btn);
-        
-        stand_alone_sizer->Add(sizer,wxSizerFlags(1).Expand());
-        stand_alone_sizer->Add(stand_alone_buttons,wxSizerFlags(0).Expand());
-        
         name->Hide();
         description_panel->Hide();
         validity_panel->Hide();
-        
-        SetSizer(stand_alone_sizer);
     }
-    else
-    {
-        SetSizer(sizer);
-    }
+    
+    SetSizer(sizer);
     
     update_controls();
     rebuild_elements_list();
@@ -303,56 +278,16 @@ void MaterialEditorPanel::evt_validity(wxCommandEvent &event) { throw_event_spec
 
 void MaterialEditorPanel::load()
 {
-    std::vector<wxString> choices(2);
+    MaterialsLibDialog dialog(this);
     
-    choices[0]="Library";
-    choices[1]="File";
-    
-    ChoiceDialog dialog("Load from:",choices);
-    
-    if(!dialog.choice_ok) return;
-    
-    if(dialog.choice==0)
+    if(dialog.selection_ok)
     {
-        MaterialsLibDialog dialog(this);
-        
-        if(dialog.selection_ok)
-        {
-            material=dialog.material;
-            
-            update_controls();
-            rebuild_elements_list();
-            
-            if(PathManager::belongs_to_resources(material->script_path))
-            {
-                read_only_material=true;
-                lock();
-            }
-            else
-            {
-                read_only_material=false;
-                unlock();
-            }
-        }
-    }
-    else
-    {
-        wxFileName data_tmp=wxFileSelector("Please select a material file",
-                                           wxString(PathManager::user_profile_materials.generic_string()),
-                                           wxEmptyString,wxEmptyString,
-                                           "Lua script (*.lua)|*.lua",
-                                           wxFD_OPEN);
-                                       
-        if(data_tmp.IsOk()==false) return;
-        
-        std::filesystem::path new_path=data_tmp.GetFullPath().ToStdString();
-        
-        material->load_lua_script(new_path);
+        material=dialog.material;
         
         update_controls();
         rebuild_elements_list();
         
-        if(PathManager::belongs_to_resources(new_path))
+        if(PathManager::belongs_to_resources(material->script_path))
         {
             read_only_material=true;
             lock();

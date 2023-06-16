@@ -37,7 +37,7 @@ class MaterialEditorPanel: public wxPanel
         
         PanelsList<MatGUI::SubmodelPanel> *material_elements;
         
-        MaterialEditorPanel(wxWindow *parent,GUI::Material *material,bool self_controls);
+        MaterialEditorPanel(wxWindow *parent,GUI::Material *material,bool outside_editor);
         
         //
         

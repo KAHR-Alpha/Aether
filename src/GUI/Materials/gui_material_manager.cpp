@@ -203,21 +203,9 @@ void MaterialsEditor::evt_menu_load()
 
 void MaterialsEditor::evt_menu_new()
 {
-//    wxFileName data_tmp=wxFileSelector("Please create a new material file",
-//                                       wxString(PathManager::user_profile_materials.generic_string()),
-//                                       "temporary_material",
-//                                       ".lua",
-//                                       "Lua script (*.lua)|*.lua",
-//                                       wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
-//                                       
-//    if(data_tmp.IsOk()==false) return;
-//    
-//    std::filesystem::path new_path=data_tmp.GetFullPath().ToStdString();
-    
+    editor->material=MaterialsLib::request_material(MatType::CUSTOM);
     editor->reset();
-    
     editor->material->script_path.clear();
-    //TODO editor->material.write_lua_script();
     
     material_path->set_value("");
 }
