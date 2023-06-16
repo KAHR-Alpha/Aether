@@ -109,12 +109,20 @@ MaterialSelector::MaterialSelector(wxWindow *parent,
         panel=box_sizer->GetStaticBox();
     }
     
-    // Library
+    // Buttons
+    
+    wxBoxSizer *buttons_sizer=new wxBoxSizer(wxVERTICAL);
     
     wxButton *lib_btn=new wxButton(panel,wxID_ANY,"Library");
     lib_btn->Bind(wxEVT_BUTTON,&MaterialSelector::evt_library,this);
     
-    sizer->Add(lib_btn,wxSizerFlags().Expand().Border(wxRIGHT,3));
+    inspect_btn=new wxButton(panel,wxID_ANY,"Inspect");
+    inspect_btn->Bind(wxEVT_BUTTON,&MaterialSelector::evt_inspect,this);
+    
+    buttons_sizer->Add(lib_btn,wxSizerFlags().Border(wxRIGHT,3));
+    buttons_sizer->Add(inspect_btn,wxSizerFlags().Border(wxRIGHT,3));
+    
+    sizer->Add(buttons_sizer);
     
     // Central Panel
     
@@ -160,11 +168,6 @@ MaterialSelector::MaterialSelector(wxWindow *parent,
     central_sizer->Add(material_sizer);
     
     // Closing
-    
-    inspect_btn=new wxButton(panel,wxID_ANY,"Inspect");
-    inspect_btn->Bind(wxEVT_BUTTON,&MaterialSelector::evt_inspect,this);
-    
-    sizer->Add(inspect_btn,wxSizerFlags().Expand().Border(wxLEFT,3));
     
     update_layout();
         
