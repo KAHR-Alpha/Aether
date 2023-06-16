@@ -16,6 +16,8 @@ limitations under the License.*/
 
 #include <gui_material.h>
 
+wxDEFINE_EVENT(EVT_MAT_SELECTOR,wxCommandEvent);
+
 //######################
 //   EffMaterialPanel
 //######################
@@ -391,8 +393,9 @@ void MaterialSelector::evt_inspect(wxCommandEvent &event)
     double lambda_min=material->get_lambda_validity_min();
     double lambda_max=material->get_lambda_validity_max();
     
-    MaterialExplorer *mat_expl=new MaterialExplorer(lambda_min,lambda_max,401,this);
-    null_function(mat_expl);
+    //TODO
+    //MaterialExplorer *mat_expl=new MaterialExplorer(lambda_min,lambda_max,401,this);
+    //null_function(mat_expl);
 }
 
 void MaterialSelector::evt_library(wxCommandEvent &event)

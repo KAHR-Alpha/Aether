@@ -134,31 +134,6 @@ class MiniMaterialSelector: public wxPanel
         void update_label();
 };
 
-class MaterialExplorer: public BaseFrame
-{
-    public:
-        unsigned int Np;
-        double lambda_min,lambda_max;
-        
-        std::vector<double> lambda,disp_lambda,disp_real,disp_imag;
-        
-        wxChoice *disp_choice;
-        
-        MaterialSelector *mat_selector;
-        SpectrumSelector *sp_selector;
-        
-        Graph *mat_graph;
-        
-        MaterialExplorer(wxString const &title);
-        MaterialExplorer(double lambda_min,double lambda_max,int Np,MaterialSelector *selector=nullptr);
-        
-        void disp_choice_event(wxCommandEvent &event);
-        void export_event(wxCommandEvent &event);
-        void material_selector_event(wxCommandEvent &event);
-        void spectrum_selector_event(wxCommandEvent &event);
-        void recompute_model();
-};
-
 class MaterialsEditor: public BaseFrame
 {
     public:

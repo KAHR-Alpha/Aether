@@ -540,10 +540,6 @@ MainFrame::MainFrame(std::string title,wxPoint const &pos, wxSize const &size)
     material_editor_btn->Bind(wxEVT_BUTTON,&MainFrame::evt_open_materials_manager,this);
     util_sizer->Add(material_editor_btn,wxSizerFlags().Expand());
     
-    wxButton *material_explr_btn=new wxButton(base_panel,wxID_ANY,"Materials Explorer");
-    material_explr_btn->Bind(wxEVT_BUTTON,&MainFrame::open_frame<MaterialExplorer,mat_explr_name>,this);
-    util_sizer->Add(material_explr_btn,wxSizerFlags().Expand());
-    
     wxButton *mats_fit_btn=new wxButton(base_panel,wxID_ANY,"Materials Fitter");
     mats_fit_btn->Bind(wxEVT_BUTTON,&MainFrame::open_frame<MatsFitter,mats_fit>,this);
     util_sizer->Add(mats_fit_btn,wxSizerFlags().Expand());
