@@ -22,6 +22,8 @@ limitations under the License.*/
 #include <gui_rsc.h>
 //#include <phys_tools.h>
 
+#include <wx/splitter.h>
+
 wxDECLARE_EVENT(EVT_MAT_SELECTOR,wxCommandEvent);
 wxDECLARE_EVENT(EVT_MINIMAT_SELECTOR,wxCommandEvent);
 
@@ -41,7 +43,9 @@ class EffMaterialPanel: public PanelsListBase
         void evt_host(wxCommandEvent &event);
         void evt_material(wxCommandEvent &event);
         void hide_host();
+        void lock();
         void show_host();
+        void unlock();
 };
 
 class MaterialSelector: public wxPanel
@@ -55,15 +59,32 @@ class MaterialSelector: public wxPanel
         ~MaterialSelector();
         
         GUI::Material* get_material();
+        void hide_buttons();
+        void hide_description();
+        void hide_validity();
+        void lock();
+        void set_material(GUI::Material *material, bool new_material);
+        void unlock();
+    
+    protected:
+        void load();
         
     private:
         GUI::Material *material;
         double const_index;
         
+        wxPanel *buttons_panel;
+        
         // Header
         
         NamedTextCtrl<std::string> *type_description;
         NamedTextCtrl<std::string> *name_ctrl;
+        
+        wxTextCtrl *description;
+        wxPanel *description_panel;
+        
+        WavelengthSelector *validity_min,*validity_max;
+        wxPanel *validity_panel;
         
         // Material Edition
         
@@ -75,7 +96,7 @@ class MaterialSelector: public wxPanel
         
         wxPanel *eff_panel;
         wxChoice *eff_type;
-        
+        wxButton *add_mat_btn;
         PanelsList<EffMaterialPanel> *effective_ctrl;
         
         // Custom
@@ -93,29 +114,26 @@ class MaterialSelector: public wxPanel
         void evt_add_effective_component(wxCommandEvent &event);
         void evt_const_index(wxCommandEvent &event);
         void evt_custom_material(wxCommandEvent &event);
+        void evt_description(wxCommandEvent &event);
         void evt_effective_component(wxCommandEvent &event);
         void evt_effective_host(wxCommandEvent &event);
         void evt_effective_type(wxCommandEvent &event);
         void evt_inspect(wxCommandEvent &event);
         void evt_library(wxCommandEvent &event);
         void evt_name(wxCommandEvent &event);
+        void evt_validity(wxCommandEvent &event);
         EffectiveModel get_effective_material_type();
         void rebuild_effective_material();
         void throw_event();
         void update_header();
         void update_layout();
+    
+    friend MaterialsEditor;
 };
 
 class MiniMaterialSelector: public wxPanel
 {
     public:
-        GUI::Material *material;
-        
-        wxStaticText *mat_txt;
-        wxTextCtrl *mat_description;
-        wxButton *edit_btn;
-        NamedTextCtrl<std::string> *eff_weight;
-        
         MiniMaterialSelector(wxWindow *parent,
                              GUI::Material *material=nullptr,
                              std::string const &name="");
@@ -123,15 +141,29 @@ class MiniMaterialSelector: public wxPanel
         ~MiniMaterialSelector();
         
         void copy_material(MiniMaterialSelector *mat);
-        void evt_edit(wxCommandEvent &event);
-        void evt_weight(wxCommandEvent &event);
         Imdouble get_eps(double w);
         Imdouble get_n(double w);
         GUI::Material* get_material();
+        void lock();
         void set_material(Material *material);
         void set_material(GUI::Material *material);
+        void unlock();
+    
+    protected:
+        GUI::Material *material;
+    
+    private:
+        wxStaticText *mat_txt;
+        wxTextCtrl *mat_description;
+        wxButton *edit_btn;
+        NamedTextCtrl<std::string> *eff_weight;
+        
+        void evt_edit(wxCommandEvent &event);
+        void evt_weight(wxCommandEvent &event);
         void update_display();
         void update_label();
+    
+    friend MaterialsLib;
 };
 
 class MaterialsEditor: public BaseFrame
@@ -146,9 +178,9 @@ class MaterialsEditor: public BaseFrame
         
         NamedTextCtrl<std::string> *material_path;
         
+        wxSplitterWindow *splitter;
         wxScrolledWindow *ctrl_panel;
-        
-        MaterialEditorPanel *editor;
+        MaterialSelector *selector;
         
         // Display
         
@@ -165,7 +197,7 @@ class MaterialsEditor: public BaseFrame
         void evt_display_choice(wxCommandEvent &event);
         void evt_material_editor_model(wxCommandEvent &event);
         void evt_material_editor_spectrum(wxCommandEvent &event);
-//        void evt_material_selector(wxCommandEvent &event);
+        void evt_material_selector(wxCommandEvent &event);
         void evt_menu(wxCommandEvent &event);
         void evt_menu_exit();
         void evt_menu_load();

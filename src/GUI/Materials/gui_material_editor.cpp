@@ -14,7 +14,6 @@ limitations under the License.*/
 
 #include <filehdl.h>
 #include <phys_tools.h>
-#include <string_tools.h>
 
 #include <gui_material.h>
 #include <gui_material_editor.h>
@@ -38,49 +37,6 @@ MaterialEditorPanel::MaterialEditorPanel(wxWindow *parent,GUI::Material *materia
         material=MaterialsLib::request_material(MatType::CUSTOM);
     
     wxBoxSizer *sizer=new wxBoxSizer(wxVERTICAL);
-    
-    // Name
-    
-    name=new NamedTextCtrl<std::string>(this,"Name",material->name,true);
-    name->Bind(EVT_NAMEDTXTCTRL,&MaterialEditorPanel::evt_name,this);
-    sizer->Add(name,wxSizerFlags().Expand());
-    
-    // Description
-    
-    wxPanel *description_panel=new wxPanel(this);
-    
-    wxStaticBoxSizer *description_sizer=new wxStaticBoxSizer(wxVERTICAL,description_panel,"Description");
-    
-    description=new wxTextCtrl(description_sizer->GetStaticBox(),
-                               wxID_ANY,wxEmptyString,
-                               wxDefaultPosition,wxDefaultSize,
-                               wxTE_BESTWRAP|wxTE_MULTILINE|wxTE_RICH);
-    description->Bind(wxEVT_TEXT,&MaterialEditorPanel::evt_description,this);
-    description->SetMinClientSize(wxSize(-1,150));
-    
-    description_sizer->Add(description,wxSizerFlags().Expand());
-    description_panel->SetSizer(description_sizer);
-    
-    sizer->Add(description_panel,wxSizerFlags().Expand());
-    
-    // Validity Range
-    
-    wxPanel *validity_panel=new wxPanel(this);
-    
-    wxStaticBoxSizer *validity_sizer=new wxStaticBoxSizer(wxVERTICAL,validity_panel,"Validity Range");
-    
-    validity_min=new WavelengthSelector(validity_sizer->GetStaticBox(),"Min: ",400e-9);
-    validity_max=new WavelengthSelector(validity_sizer->GetStaticBox(),"Max: ",800e-9);
-    
-    validity_min->Bind(EVT_WAVELENGTH_SELECTOR,&MaterialEditorPanel::evt_validity,this);
-    validity_max->Bind(EVT_WAVELENGTH_SELECTOR,&MaterialEditorPanel::evt_validity,this);
-    
-    validity_sizer->Add(validity_min,wxSizerFlags().Expand());
-    validity_sizer->Add(validity_max,wxSizerFlags().Expand());
-    
-    validity_panel->SetSizer(validity_sizer);
-    
-    sizer->Add(validity_panel,wxSizerFlags().Expand());
     
     // Model Addition
     
@@ -111,13 +67,6 @@ MaterialEditorPanel::MaterialEditorPanel(wxWindow *parent,GUI::Material *materia
     material_elements=new PanelsList<MatGUI::SubmodelPanel>(this);
     
     sizer->Add(material_elements,wxSizerFlags(1).Expand());
-    
-    if(outside_editor)
-    {
-        name->Hide();
-        description_panel->Hide();
-        validity_panel->Hide();
-    }
     
     SetSizer(sizer);
     
@@ -258,23 +207,12 @@ void MaterialEditorPanel::evt_delete_spline(wxCommandEvent &event)
     rebuild_elements_list();
 }
 
-void MaterialEditorPanel::evt_description(wxCommandEvent &event)
-{
-    material->description=replace_special_characters(description->GetValue().ToStdString());
-}
-
-void MaterialEditorPanel::evt_name(wxCommandEvent &event)
-{
-    material->name=name->get_value();
-}
-
 void MaterialEditorPanel::evt_load(wxCommandEvent &event) { load(); }
 
 void MaterialEditorPanel::evt_model_change(wxCommandEvent &event) { throw_event_model(); }
 void MaterialEditorPanel::evt_reset(wxCommandEvent &event) { reset(); }
 void MaterialEditorPanel::evt_save(wxCommandEvent &event) { save(); }
 void MaterialEditorPanel::evt_save_as(wxCommandEvent &event) { save_as(); }
-void MaterialEditorPanel::evt_validity(wxCommandEvent &event) { throw_event_spectrum(); }
 
 void MaterialEditorPanel::load()
 {
@@ -302,9 +240,6 @@ void MaterialEditorPanel::load()
 
 void MaterialEditorPanel::lock()
 {
-    description->SetEditable(false);
-    validity_min->lock();
-    validity_max->lock();
     add_btn->Disable();
     
     for(std::size_t i=0;i<material_elements->get_size();i++)
@@ -422,9 +357,6 @@ void MaterialEditorPanel::throw_event_spectrum()
 
 void MaterialEditorPanel::unlock()
 {
-    description->SetEditable(true);
-    validity_min->unlock();
-    validity_max->unlock();
     add_btn->Enable();
     
     for(std::size_t i=0;i<material_elements->get_size();i++)
@@ -433,11 +365,12 @@ void MaterialEditorPanel::unlock()
 
 void MaterialEditorPanel::update_controls()
 {
-    name->set_value(material->name);
-    description->ChangeValue(material->description);
-    
-    validity_min->set_lambda(material->lambda_valid_min);
-    validity_max->set_lambda(material->lambda_valid_max);
+    // TODO
+//    name->set_value(material->name);
+//    description->ChangeValue(material->description);
+//    
+//    validity_min->set_lambda(material->lambda_valid_min);
+//    validity_max->set_lambda(material->lambda_valid_max);
     
     throw_event_spectrum();
 }

@@ -54,6 +54,9 @@ class MMS_Dialog:public wxDialog
             selector=new MaterialSelector(selector_panel,"Material",false,material);
             selector->parent_selector=parent_selector;
             
+            selector->hide_description();
+            selector->hide_validity();
+            
             selector_sizer->Add(selector,wxSizerFlags());
             
             selector_panel->SetSizerAndFit(selector_sizer);
@@ -208,6 +211,12 @@ Imdouble MiniMaterialSelector::get_n(double w) { return material->get_n(w); }
 
 GUI::Material* MiniMaterialSelector::get_material() { return material; }
 
+void MiniMaterialSelector::lock()
+{
+    edit_btn->Disable();
+    eff_weight->lock();
+}
+
 void MiniMaterialSelector::set_material(Material *material_)
 {
     set_material(dynamic_cast<GUI::Material*>(material_));
@@ -248,6 +257,12 @@ void MiniMaterialSelector::update_display()
     else eff_weight->Hide();
     
     Layout();
+}
+
+void MiniMaterialSelector::unlock()
+{
+    edit_btn->Enable();
+    eff_weight->unlock();
 }
 
 void MiniMaterialSelector::update_label()

@@ -13,6 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include <filehdl.h>
+#include <string_tools.h>
 
 #include <gui_material.h>
 
@@ -31,7 +32,7 @@ EffMaterialPanel::EffMaterialPanel(wxWindow *parent,GUI::Material *material,doub
     wxBoxSizer *mat_sizer=new wxBoxSizer(wxHORIZONTAL);
     
     selector=new MiniMaterialSelector(this,material,"");
-    selector->SetMinClientSize(wxSize(500,-1));
+    selector->SetMinClientSize(wxSize(250,-1));
     selector->Bind(EVT_MINIMAT_SELECTOR,&EffMaterialPanel::evt_material,this);
     
     weight=new NamedTextCtrl<double>(this," weight: ",weight_,false);
@@ -73,9 +74,27 @@ void EffMaterialPanel::hide_host()
     host->Hide();
 }
 
+void EffMaterialPanel::lock()
+{
+    PanelsListBase::lock();
+    
+    selector->lock();
+    weight->lock();
+    host->Disable();
+}
+
 void EffMaterialPanel::show_host()
 {
     host->Show();
+}
+
+void EffMaterialPanel::unlock()
+{
+    PanelsListBase::unlock();
+    
+    selector->unlock();
+    weight->unlock();
+    host->Enable();
 }
 
 //####################
@@ -113,23 +132,27 @@ MaterialSelector::MaterialSelector(wxWindow *parent,
     
     // Buttons
     
+    buttons_panel=new wxPanel(panel);
+    
     wxBoxSizer *buttons_sizer=new wxBoxSizer(wxVERTICAL);
     
-    wxButton *lib_btn=new wxButton(panel,wxID_ANY,"Library");
+    wxButton *lib_btn=new wxButton(buttons_panel,wxID_ANY,"Library");
     lib_btn->Bind(wxEVT_BUTTON,&MaterialSelector::evt_library,this);
     
-    inspect_btn=new wxButton(panel,wxID_ANY,"Inspect");
+    inspect_btn=new wxButton(buttons_panel,wxID_ANY,"Inspect");
     inspect_btn->Bind(wxEVT_BUTTON,&MaterialSelector::evt_inspect,this);
     
     buttons_sizer->Add(lib_btn,wxSizerFlags().Border(wxRIGHT,3));
     buttons_sizer->Add(inspect_btn,wxSizerFlags().Border(wxRIGHT,3));
     
-    sizer->Add(buttons_sizer);
+    buttons_panel->SetSizer(buttons_sizer);
+    
+    sizer->Add(buttons_panel);
     
     // Central Panel
     
     wxBoxSizer *central_sizer=new wxBoxSizer(wxVERTICAL);
-    sizer->Add(central_sizer);
+    sizer->Add(central_sizer,wxSizerFlags(1));
     
     // - Header
     
@@ -141,12 +164,49 @@ MaterialSelector::MaterialSelector(wxWindow *parent,
     name_ctrl=new NamedTextCtrl<std::string>(panel,"Name: ",material->name);
     name_ctrl->Bind(EVT_NAMEDTXTCTRL,&MaterialSelector::evt_name,this);
     
-    header_sizer->Add(type_description);
-    header_sizer->Add(name_ctrl);
+    header_sizer->Add(type_description,wxSizerFlags().Expand());
+    header_sizer->Add(name_ctrl,wxSizerFlags().Expand());
     
     update_header();
     
-    central_sizer->Add(header_sizer);
+    central_sizer->Add(header_sizer,wxSizerFlags().Expand());
+    
+    // - Description
+    
+    description_panel=new wxPanel(panel);
+    
+    wxStaticBoxSizer *description_sizer=new wxStaticBoxSizer(wxVERTICAL,description_panel,"Description");
+    
+    description=new wxTextCtrl(description_sizer->GetStaticBox(),
+                               wxID_ANY,wxEmptyString,
+                               wxDefaultPosition,wxDefaultSize,
+                               wxTE_BESTWRAP|wxTE_MULTILINE|wxTE_RICH);
+    description->Bind(wxEVT_TEXT,&MaterialSelector::evt_description,this);
+    description->SetMinClientSize(wxSize(-1,150));
+    
+    description_sizer->Add(description,wxSizerFlags().Expand());
+    description_panel->SetSizer(description_sizer);
+    
+    central_sizer->Add(description_panel,wxSizerFlags().Expand());
+    
+    // Validity Range
+    
+    validity_panel=new wxPanel(panel);
+    
+    wxStaticBoxSizer *validity_sizer=new wxStaticBoxSizer(wxVERTICAL,validity_panel,"Validity Range");
+    
+    validity_min=new WavelengthSelector(validity_sizer->GetStaticBox(),"Min: ",400e-9);
+    validity_max=new WavelengthSelector(validity_sizer->GetStaticBox(),"Max: ",800e-9);
+    
+    validity_min->Bind(EVT_WAVELENGTH_SELECTOR,&MaterialSelector::evt_validity,this);
+    validity_max->Bind(EVT_WAVELENGTH_SELECTOR,&MaterialSelector::evt_validity,this);
+    
+    validity_sizer->Add(validity_min,wxSizerFlags().Expand());
+    validity_sizer->Add(validity_max,wxSizerFlags().Expand());
+    
+    validity_panel->SetSizer(validity_sizer);
+    
+    central_sizer->Add(validity_panel,wxSizerFlags().Expand());
     
     // - Material
     
@@ -154,20 +214,20 @@ MaterialSelector::MaterialSelector(wxWindow *parent,
     
     index_ctrl=new NamedTextCtrl(panel,"Refractive index: ",std::sqrt(material->eps_inf));
     index_ctrl->Bind(EVT_NAMEDTXTCTRL,&MaterialSelector::evt_const_index,this);
-    material_sizer->Add(index_ctrl);
+    material_sizer->Add(index_ctrl,wxSizerFlags().Expand());
     
     MaterialSelector_CustomPanel(panel);
     MaterialSelector_EffPanel(panel);
     
     mat_txt=new wxTextCtrl(panel,wxID_ANY,"");
     mat_txt->SetEditable(false);
-    mat_txt->SetMinClientSize(wxSize(500,-1));
+    mat_txt->SetMinClientSize(wxSize(250,-1));
     
     material_sizer->Add(custom_editor,wxSizerFlags(1));
     material_sizer->Add(eff_panel,wxSizerFlags(1));
-    material_sizer->Add(mat_txt,wxSizerFlags(1));
+    material_sizer->Add(mat_txt,wxSizerFlags(1).Expand());
     
-    central_sizer->Add(material_sizer);
+    central_sizer->Add(material_sizer,wxSizerFlags().Expand());
     
     // Closing
     
@@ -207,20 +267,20 @@ void MaterialSelector::MaterialSelector_EffPanel(wxWindow *parent)
     header_sizer->Add(new wxStaticText(eff_panel,wxID_ANY,"Effective Model: "),wxSizerFlags().Align(wxALIGN_CENTER_VERTICAL));
     header_sizer->Add(eff_type);
     
-    sizer->Add(header_sizer);
+    sizer->Add(header_sizer,wxSizerFlags().Expand());
     
     // Materials
     
     wxStaticBoxSizer *components_sizer=new wxStaticBoxSizer(wxHORIZONTAL,eff_panel,"Components");
     
     effective_ctrl=new PanelsList<EffMaterialPanel>(components_sizer->GetStaticBox());
-    wxButton *add_mat_btn=new wxButton(components_sizer->GetStaticBox(),wxID_ANY,"Add");
+    add_mat_btn=new wxButton(components_sizer->GetStaticBox(),wxID_ANY,"Add");
     add_mat_btn->Bind(wxEVT_BUTTON,&MaterialSelector::evt_add_effective_component,this);
     
     components_sizer->Add(effective_ctrl);
     components_sizer->Add(add_mat_btn);
     
-    sizer->Add(components_sizer);    
+    sizer->Add(components_sizer,wxSizerFlags().Expand());    
     
     Bind(EVT_GARNETT_HOST,&MaterialSelector::evt_effective_host,this);
     Bind(EVT_EFFECTIVE_MATERIAL,&MaterialSelector::evt_effective_component,this);
@@ -324,6 +384,11 @@ void MaterialSelector::evt_add_effective_component(wxCommandEvent &event)
     }
 }
 
+void MaterialSelector::evt_description(wxCommandEvent &event)
+{
+    material->description=replace_special_characters(description->GetValue().ToStdString());
+}
+
 void MaterialSelector::evt_effective_type(wxCommandEvent &event)
 {
     EffectiveModel model=get_effective_material_type();
@@ -388,6 +453,24 @@ void MaterialSelector::evt_effective_host(wxCommandEvent &event)
     rebuild_effective_material();
 }
 
+void MaterialSelector::hide_buttons()
+{
+    buttons_panel->Hide();
+    Layout();
+}
+
+void MaterialSelector::hide_description()
+{
+    description_panel->Hide();
+    Layout();
+}
+
+void MaterialSelector::hide_validity()
+{
+    validity_panel->Hide();
+    Layout();
+}
+
 void MaterialSelector::evt_inspect(wxCommandEvent &event)
 {
     double lambda_min=material->get_lambda_validity_min();
@@ -400,28 +483,7 @@ void MaterialSelector::evt_inspect(wxCommandEvent &event)
 
 void MaterialSelector::evt_library(wxCommandEvent &event)
 {
-    wxWindow *requester=parent_selector;
-    if(requester==nullptr) requester=this;
-    
-    MaterialsLibDialog dialog(requester);
-    
-    if(dialog.selection_ok)
-    {
-        material=dialog.material;
-        
-        if(dialog.new_material && material->type==MatType::EFFECTIVE)
-        {
-            add_effective_component();
-            add_effective_component();
-            
-            rebuild_effective_material();
-        }
-    }
-    
-    update_header();
-    update_layout();
-    
-    throw_event();
+    load();
 }
 
 void MaterialSelector::evt_name(wxCommandEvent &event)
@@ -437,6 +499,8 @@ void MaterialSelector::evt_name(wxCommandEvent &event)
         material->original_requester=nullptr;
     }
 }
+
+void MaterialSelector::evt_validity(wxCommandEvent &event) { throw_event(); }
 
 EffectiveModel MaterialSelector::get_effective_material_type()
 {
@@ -454,6 +518,35 @@ EffectiveModel MaterialSelector::get_effective_material_type()
 GUI::Material* MaterialSelector::get_material()
 {
     return material;
+}
+
+void MaterialSelector::load()
+{
+    wxWindow *requester=parent_selector;
+    if(requester==nullptr) requester=this;
+    
+    MaterialsLibDialog dialog(requester);
+    
+    if(dialog.selection_ok)
+    {
+        set_material(dialog.material,dialog.new_material);
+    }
+}
+
+void MaterialSelector::lock()
+{
+    description->SetEditable(false);
+    validity_min->lock();
+    validity_max->lock();
+    
+    index_ctrl->lock();
+    
+    add_mat_btn->Disable();
+    
+    for(std::size_t i=0;i<effective_ctrl->get_size();i++)
+    {
+        effective_ctrl->get_panel(i)->lock();
+    }
 }
 
 void MaterialSelector::rebuild_effective_material()
@@ -481,10 +574,44 @@ void MaterialSelector::rebuild_effective_material()
     }
 }
 
+void MaterialSelector::set_material(GUI::Material *material_, bool new_material)
+{
+    material=material_;
+    
+    if(new_material && material->type==MatType::EFFECTIVE)
+    {
+        add_effective_component();
+        add_effective_component();
+        
+        rebuild_effective_material();
+    }        
+
+    update_header();
+    update_layout();
+    
+    throw_event();
+}
+
 void MaterialSelector::throw_event()
 {
     wxCommandEvent event(EVT_MAT_SELECTOR);
     wxPostEvent(this,event);
+}
+
+void MaterialSelector::unlock()
+{
+    description->SetEditable(true);
+    validity_min->unlock();
+    validity_max->unlock();
+    
+    index_ctrl->unlock();
+    
+    add_mat_btn->Enable();
+    
+    for(std::size_t i=0;i<effective_ctrl->get_size();i++)
+    {
+        effective_ctrl->get_panel(i)->unlock();
+    }
 }
 
 void MaterialSelector::update_header()

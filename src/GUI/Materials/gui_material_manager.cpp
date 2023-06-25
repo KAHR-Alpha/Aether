@@ -18,8 +18,6 @@ limitations under the License.*/
 
 #include <gui_material.h>
 
-#include <wx/splitter.h>
-
 extern const Imdouble Im;
 
 //#####################
@@ -55,7 +53,7 @@ MaterialsEditor::MaterialsEditor(wxString const &title)
     
     // Splitting
     
-    wxSplitterWindow *splitter=new wxSplitterWindow(this);
+    splitter=new wxSplitterWindow(this);
     
     // - Controls
     
@@ -96,8 +94,7 @@ MaterialsEditor::MaterialsEditor(wxString const &title)
     // General Bindings
     
     Bind(wxEVT_MENU,&MaterialsEditor::evt_menu,this);
-    Bind(EVT_MATERIAL_EDITOR_MODEL,&MaterialsEditor::evt_material_editor_model,this);
-    Bind(EVT_MATERIAL_EDITOR_SPECTRUM,&MaterialsEditor::evt_material_editor_spectrum,this);
+    Bind(EVT_MAT_SELECTOR,&MaterialsEditor::evt_material_selector,this);
     
     Show();
     Maximize();
@@ -112,9 +109,12 @@ void MaterialsEditor::MaterialsEditor_Controls()
 {
     wxBoxSizer *ctrl_sizer=new wxBoxSizer(wxVERTICAL);
     
-    editor=new MaterialEditorPanel(ctrl_panel,nullptr,false);
+    GUI::Material *material=MaterialsLib::request_material(MatType::CUSTOM);
     
-    ctrl_sizer->Add(editor,wxSizerFlags(1).Expand());
+    selector=new MaterialSelector(ctrl_panel,"",true,material);
+    selector->hide_buttons();
+    
+    ctrl_sizer->Add(selector,wxSizerFlags().Expand());
     
     // Wrapping up
     
@@ -166,13 +166,25 @@ void MaterialsEditor::evt_material_editor_model(wxCommandEvent &event)
 
 void MaterialsEditor::evt_material_editor_spectrum(wxCommandEvent &event)
 {
-    sp_selector->set_spectrum(editor->validity_min->get_lambda(),
-                              editor->validity_max->get_lambda());
+    // TODO
+//    sp_selector->set_spectrum(editor->validity_min->get_lambda(),
+//                              editor->validity_max->get_lambda());
     
     lambda_min=sp_selector->get_lambda_min();
     lambda_max=sp_selector->get_lambda_max();
     
     recompute_model();
+}
+
+void MaterialsEditor::evt_material_selector(wxCommandEvent &event)
+{
+    ctrl_panel->Layout();
+    ctrl_panel->FitInside();
+    
+    int x,y;
+    selector->GetVirtualSize(&x,&y);
+    
+    splitter->SetSashPosition(x);
 }
 
 void MaterialsEditor::evt_menu(wxCommandEvent &event)
@@ -196,30 +208,31 @@ void MaterialsEditor::evt_menu_exit()
 
 void MaterialsEditor::evt_menu_load()
 {
-    editor->load();
+    selector->load();
     
-    material_path->set_value(editor->material->script_path.generic_string());
+    //material_path->set_value(editor->material->script_path.generic_string());
 }
 
 void MaterialsEditor::evt_menu_new()
 {
-    editor->material=MaterialsLib::request_material(MatType::CUSTOM);
+    /*editor->material=MaterialsLib::request_material(MatType::CUSTOM);
     editor->reset();
     editor->material->script_path.clear();
     
-    material_path->set_value("");
+    material_path->set_value("");*/
 }
 
 void MaterialsEditor::evt_menu_save()
 {
-    editor->save();
+    //TODO editor->save();
 }
 
 void MaterialsEditor::evt_menu_save_as()
 {
-    bool editor_ok=editor->save_as();
+    //TODO
+    /*bool editor_ok=editor->save_as();
     
-    if(editor_ok) material_path->set_value(editor->material->script_path.generic_string());
+    if(editor_ok) material_path->set_value(editor->material->script_path.generic_string());*/
 }
 
 void MaterialsEditor::evt_spectrum_selector(wxCommandEvent &event)
@@ -238,7 +251,7 @@ void MaterialsEditor::evt_spectrum_selector(wxCommandEvent &event)
 
 void MaterialsEditor::recompute_model()
 {
-    Material &material=*(editor->material);
+    Material &material=*(selector->get_material());
     
     int display_type=disp_choice->GetSelection();
         
