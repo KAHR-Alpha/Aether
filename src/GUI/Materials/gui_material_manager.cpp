@@ -26,7 +26,6 @@ extern const Imdouble Im;
 
 enum
 {
-    MENU_NEW,
     MENU_LOAD,
     MENU_SAVE,
     MENU_SAVE_AS,
@@ -46,7 +45,7 @@ MaterialsEditor::MaterialsEditor(wxString const &title)
     
     // Material Selector
     
-    material_path=new NamedTextCtrl<std::string>(this,"Material","",true);
+    material_path=new NamedTextCtrl<std::string>(this,"Path","",true);
     material_path->lock();
     
     main_sizer->Add(material_path,wxSizerFlags().Expand());
@@ -58,7 +57,6 @@ MaterialsEditor::MaterialsEditor(wxString const &title)
     // - Controls
     
     ctrl_panel=new wxScrolledWindow(splitter);
-//    ctrl_panel=new wxPanel(splitter);
     MaterialsEditor_Controls();
     
     // - Display
@@ -78,9 +76,8 @@ MaterialsEditor::MaterialsEditor(wxString const &title)
     wxMenuBar *menu_bar=new wxMenuBar;
     wxMenu *file_menu=new wxMenu();
     
-    file_menu->Append(MENU_NEW,"New");
+    file_menu->Append(MENU_LOAD,"Library");
     file_menu->AppendSeparator();
-    file_menu->Append(MENU_LOAD,"Load");
     file_menu->Append(MENU_SAVE,"Save");
     file_menu->Append(MENU_SAVE_AS,"Save As...");
     file_menu->AppendSeparator();
@@ -108,6 +105,12 @@ MaterialsEditor::~MaterialsEditor()
 void MaterialsEditor::MaterialsEditor_Controls()
 {
     wxBoxSizer *ctrl_sizer=new wxBoxSizer(wxVERTICAL);
+    
+    material_edit_btn=new wxButton(ctrl_panel,wxID_ANY,"Edit Material");
+    material_edit_btn->Bind(wxEVT_BUTTON,&MaterialsEditor::evt_edit_material,this);
+    material_edit_btn->Hide();
+    
+    ctrl_sizer->Add(material_edit_btn,wxSizerFlags().Expand());
     
     GUI::Material *material=MaterialsLib::request_material(MatType::CUSTOM);
     
@@ -156,6 +159,10 @@ void MaterialsEditor::evt_display_choice(wxCommandEvent &event)
     recompute_model();
 }
 
+void MaterialsEditor::evt_edit_material(wxCommandEvent &event)
+{
+}
+
 void MaterialsEditor::evt_material_editor_model(wxCommandEvent &event)
 {
     ctrl_panel->Layout();
@@ -166,10 +173,6 @@ void MaterialsEditor::evt_material_editor_model(wxCommandEvent &event)
 
 void MaterialsEditor::evt_material_editor_spectrum(wxCommandEvent &event)
 {
-    // TODO
-//    sp_selector->set_spectrum(editor->validity_min->get_lambda(),
-//                              editor->validity_max->get_lambda());
-    
     lambda_min=sp_selector->get_lambda_min();
     lambda_max=sp_selector->get_lambda_max();
     
@@ -193,8 +196,7 @@ void MaterialsEditor::evt_menu(wxCommandEvent &event)
     
     switch(ID)
     {
-        case MENU_NEW: evt_menu_new(); break;
-        case MENU_LOAD: evt_menu_load(); break;
+        case MENU_LOAD: evt_menu_library(); break;
         case MENU_SAVE: evt_menu_save(); break;
         case MENU_SAVE_AS: evt_menu_save_as(); break;
         case MENU_EXIT: evt_menu_exit(); break;
@@ -206,20 +208,22 @@ void MaterialsEditor::evt_menu_exit()
     Close();
 }
 
-void MaterialsEditor::evt_menu_load()
+void MaterialsEditor::evt_menu_library()
 {
-    selector->load();
+    bool new_material=selector->load();
     
-    //material_path->set_value(editor->material->script_path.generic_string());
-}
-
-void MaterialsEditor::evt_menu_new()
-{
-    /*editor->material=MaterialsLib::request_material(MatType::CUSTOM);
-    editor->reset();
-    editor->material->script_path.clear();
+    material_path->set_value(selector->get_material()->script_path.generic_string());
     
-    material_path->set_value("");*/
+    MatType type=selector->get_material()->type;
+    
+    if(   type==MatType::LIBRARY
+       || type==MatType::USER_LIBRARY
+       || type==MatType::SCRIPT)
+    {
+        material_edit_btn->Show();
+    }
+    
+    recompute_model();
 }
 
 void MaterialsEditor::evt_menu_save()

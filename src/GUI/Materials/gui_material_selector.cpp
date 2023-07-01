@@ -520,7 +520,7 @@ GUI::Material* MaterialSelector::get_material()
     return material;
 }
 
-void MaterialSelector::load()
+bool MaterialSelector::load()
 {
     wxWindow *requester=parent_selector;
     if(requester==nullptr) requester=this;
@@ -531,6 +531,8 @@ void MaterialSelector::load()
     {
         set_material(dialog.material,dialog.new_material);
     }
+    
+    return dialog.new_material;
 }
 
 void MaterialSelector::lock()

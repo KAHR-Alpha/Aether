@@ -67,7 +67,7 @@ class MaterialSelector: public wxPanel
         void unlock();
     
     protected:
-        void load();
+        bool load();
         
     private:
         GUI::Material *material;
@@ -178,6 +178,8 @@ class MaterialsEditor: public BaseFrame
         
         NamedTextCtrl<std::string> *material_path;
         
+        wxButton *material_edit_btn;
+        
         wxSplitterWindow *splitter;
         wxScrolledWindow *ctrl_panel;
         MaterialSelector *selector;
@@ -195,13 +197,13 @@ class MaterialsEditor: public BaseFrame
         void MaterialsEditor_Display(wxPanel *display_panel);
         
         void evt_display_choice(wxCommandEvent &event);
+        void evt_edit_material(wxCommandEvent &event);
         void evt_material_editor_model(wxCommandEvent &event);
         void evt_material_editor_spectrum(wxCommandEvent &event);
         void evt_material_selector(wxCommandEvent &event);
         void evt_menu(wxCommandEvent &event);
         void evt_menu_exit();
-        void evt_menu_load();
-        void evt_menu_new();
+        void evt_menu_library();
         void evt_menu_save();
         void evt_menu_save_as();
         void evt_spectrum_selector(wxCommandEvent &event);
