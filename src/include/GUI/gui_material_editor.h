@@ -20,7 +20,6 @@ limitations under the License.*/
 #include <gui_material_editor_panels.h>
 
 wxDECLARE_EVENT(EVT_MATERIAL_EDITOR_MODEL,wxCommandEvent);
-wxDECLARE_EVENT(EVT_MATERIAL_EDITOR_SPECTRUM,wxCommandEvent);
 
 class MaterialEditorPanel: public wxPanel
 {
@@ -54,9 +53,7 @@ class MaterialEditorPanel: public wxPanel
         void lock();
         void rebuild_elements_list();
         void throw_event_model();
-        void throw_event_spectrum();
         void unlock();
-        void update_controls();
         
         // Deletion events
         

@@ -161,6 +161,49 @@ void MaterialsEditor::evt_display_choice(wxCommandEvent &event)
 
 void MaterialsEditor::evt_edit_material(wxCommandEvent &event)
 {
+    std::filesystem::path next_path=selector->get_material()->script_path;
+    
+    if(selector->get_material()->type==MatType::LIBRARY)
+    {
+        bool library_path=true;
+        
+        while(library_path)
+        {
+            wxFileName fname=wxFileSelector("Please select a new file to save to",
+                                            wxFileSelectorPromptStr,
+                                            wxEmptyString,
+                                            "lua",
+                                            "Aether material file (*.lua)|*.lua",
+                                            wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
+            
+            next_path=fname.GetFullPath().ToStdString();
+            
+            if(next_path.empty()) return;
+            
+            if(PathManager::belongs_to_resources(next_path))
+            {
+                wxMessageBox("Error: don't overwrite default materials");
+            }
+            else library_path=false;
+        }
+        
+        GUI::Material *new_material=MaterialsLib::duplicate_material(selector->get_material());
+        new_material->name="";
+        new_material->script_path=next_path;
+        
+        selector->set_material(new_material,true);
+    }
+    
+    material_path->set_value(next_path.generic_string());
+    
+    selector->unlock();
+    
+    selector->force_editor_display();
+    
+    material_edit_btn->Hide();
+    
+    ctrl_panel->Layout();
+    ctrl_panel->FitInside();
 }
 
 void MaterialsEditor::evt_material_editor_model(wxCommandEvent &event)
@@ -187,7 +230,9 @@ void MaterialsEditor::evt_material_selector(wxCommandEvent &event)
     int x,y;
     selector->GetVirtualSize(&x,&y);
     
-    splitter->SetSashPosition(x);
+    splitter->SetSashPosition(x+15);
+    
+    recompute_model();
 }
 
 void MaterialsEditor::evt_menu(wxCommandEvent &event)
@@ -210,7 +255,7 @@ void MaterialsEditor::evt_menu_exit()
 
 void MaterialsEditor::evt_menu_library()
 {
-    bool new_material=selector->load();
+    selector->load();
     
     material_path->set_value(selector->get_material()->script_path.generic_string());
     
@@ -221,6 +266,7 @@ void MaterialsEditor::evt_menu_library()
        || type==MatType::SCRIPT)
     {
         material_edit_btn->Show();
+        selector->lock();
     }
     
     recompute_model();

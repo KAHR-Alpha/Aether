@@ -755,6 +755,31 @@ void MaterialsLib::consolidate(GUI::Material **pp_material)
     consolidate(*pp_material);
 }
 
+GUI::Material* MaterialsLib::duplicate_material(GUI::Material *material_)
+{
+    MatType next_type=material_->type;
+    
+    if(   next_type==MatType::LIBRARY
+       || next_type==MatType::USER_LIBRARY
+       || next_type==MatType::SCRIPT)
+    {
+        if(material_->is_effective_material) next_type=MatType::EFFECTIVE;
+        else next_type=MatType::CUSTOM;
+    }
+    
+    GUI::Material *material=request_material(next_type);
+    
+    ::Material *base_mat_=material_;
+    ::Material *base_mat=material;
+    
+    *base_mat=*base_mat_;
+    
+    material->type=next_type;
+    material->original_requester=nullptr;
+    
+    return material;
+}
+
 void MaterialsLib::forget_control(MiniMaterialSelector *selector)
 {
     std::size_t i;

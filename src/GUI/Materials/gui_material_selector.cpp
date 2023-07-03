@@ -210,7 +210,13 @@ MaterialSelector::MaterialSelector(wxWindow *parent,
     
     // - Material
     
-    wxBoxSizer *material_sizer=new wxBoxSizer(wxHORIZONTAL);
+    wxBoxSizer *material_sizer=new wxBoxSizer(wxVERTICAL);
+    
+    mat_txt=new wxTextCtrl(panel,wxID_ANY,"");
+    mat_txt->SetEditable(false);
+    mat_txt->SetMinClientSize(wxSize(250,-1));
+    
+    material_sizer->Add(mat_txt,wxSizerFlags().Expand());
     
     index_ctrl=new NamedTextCtrl(panel,"Refractive index: ",std::sqrt(material->eps_inf));
     index_ctrl->Bind(EVT_NAMEDTXTCTRL,&MaterialSelector::evt_const_index,this);
@@ -218,14 +224,8 @@ MaterialSelector::MaterialSelector(wxWindow *parent,
     
     MaterialSelector_CustomPanel(panel);
     MaterialSelector_EffPanel(panel);
-    
-    mat_txt=new wxTextCtrl(panel,wxID_ANY,"");
-    mat_txt->SetEditable(false);
-    mat_txt->SetMinClientSize(wxSize(250,-1));
-    
-    material_sizer->Add(custom_editor,wxSizerFlags(1));
-    material_sizer->Add(eff_panel,wxSizerFlags(1));
-    material_sizer->Add(mat_txt,wxSizerFlags(1).Expand());
+    material_sizer->Add(custom_editor,wxSizerFlags().Expand());
+    material_sizer->Add(eff_panel,wxSizerFlags().Expand());
     
     central_sizer->Add(material_sizer,wxSizerFlags().Expand());
     
@@ -502,6 +502,26 @@ void MaterialSelector::evt_name(wxCommandEvent &event)
 
 void MaterialSelector::evt_validity(wxCommandEvent &event) { throw_event(); }
 
+void MaterialSelector::force_editor_display()
+{
+    if(material->is_effective_material)
+    {
+        eff_panel->Show();
+    }
+    else
+    {
+        if(material->type==MatType::REAL_N)
+            material->type=MatType::CUSTOM;
+        
+        custom_editor->Show();
+        custom_editor->rebuild_elements_list();
+    }
+    
+    update_header();
+    
+    Layout();
+}
+
 EffectiveModel MaterialSelector::get_effective_material_type()
 {
     switch(eff_type->GetSelection())
@@ -538,6 +558,8 @@ bool MaterialSelector::load()
 void MaterialSelector::lock()
 {
     description->SetEditable(false);
+    description->SetBackgroundColour(wxColour(240,240,240));
+    
     validity_min->lock();
     validity_max->lock();
     
@@ -579,6 +601,7 @@ void MaterialSelector::rebuild_effective_material()
 void MaterialSelector::set_material(GUI::Material *material_, bool new_material)
 {
     material=material_;
+    custom_editor->material=material;
     
     if(new_material && material->type==MatType::EFFECTIVE)
     {
@@ -603,6 +626,8 @@ void MaterialSelector::throw_event()
 void MaterialSelector::unlock()
 {
     description->SetEditable(true);
+    description->SetBackgroundColour(wxColour(255,255,255));
+    
     validity_min->unlock();
     validity_max->unlock();
     

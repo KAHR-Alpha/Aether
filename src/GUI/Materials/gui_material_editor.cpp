@@ -70,7 +70,6 @@ MaterialEditorPanel::MaterialEditorPanel(wxWindow *parent,GUI::Material *materia
     
     SetSizer(sizer);
     
-    update_controls();
     rebuild_elements_list();
     
     // General bindings
@@ -222,7 +221,6 @@ void MaterialEditorPanel::load()
     {
         material=dialog.material;
         
-        update_controls();
         rebuild_elements_list();
         
         if(PathManager::belongs_to_resources(material->script_path))
@@ -289,7 +287,6 @@ void MaterialEditorPanel::reset()
 {
     material->reset();
     
-    update_controls();
     rebuild_elements_list();
     
     read_only_material=true;
@@ -336,7 +333,6 @@ bool MaterialEditorPanel::save_as()
     read_only_material=false;
     
     rebuild_elements_list();
-    update_controls();
     
     return true;
 }
@@ -348,29 +344,10 @@ void MaterialEditorPanel::throw_event_model()
     wxPostEvent(this,event);
 }
 
-void MaterialEditorPanel::throw_event_spectrum()
-{
-    wxCommandEvent event(EVT_MATERIAL_EDITOR_SPECTRUM);
-    
-    wxPostEvent(this,event);
-}
-
 void MaterialEditorPanel::unlock()
 {
     add_btn->Enable();
     
     for(std::size_t i=0;i<material_elements->get_size();i++)
         material_elements->get_panel(i)->unlock();
-}
-
-void MaterialEditorPanel::update_controls()
-{
-    // TODO
-//    name->set_value(material->name);
-//    description->ChangeValue(material->description);
-//    
-//    validity_min->set_lambda(material->lambda_valid_min);
-//    validity_max->set_lambda(material->lambda_valid_max);
-    
-    throw_event_spectrum();
 }

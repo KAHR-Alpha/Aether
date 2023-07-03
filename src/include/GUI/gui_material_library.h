@@ -124,6 +124,8 @@ class MaterialsLib
         static void consolidate();
         static void consolidate(GUI::Material *material);
         static void consolidate(GUI::Material **material);
+        [[nodiscard]]
+        static GUI::Material* duplicate_material(GUI::Material *material);
         static void forget_control(MiniMaterialSelector *selector);
         static void forget_editor();
         static MaterialsEditor* get_manager();
