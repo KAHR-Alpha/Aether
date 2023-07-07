@@ -502,7 +502,7 @@ void MaterialSelector::evt_name(wxCommandEvent &event)
 
 void MaterialSelector::evt_validity(wxCommandEvent &event) { throw_event(); }
 
-void MaterialSelector::force_editor_display()
+void MaterialSelector::force_edition_mode()
 {
     if(material->is_effective_material)
     {

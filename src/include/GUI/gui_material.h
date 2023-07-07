@@ -67,7 +67,7 @@ class MaterialSelector: public wxPanel
         void unlock();
     
     protected:
-        void force_editor_display();
+        void force_edition_mode();
         bool load();
         
     private:

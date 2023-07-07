@@ -198,7 +198,7 @@ void MaterialsEditor::evt_edit_material(wxCommandEvent &event)
     
     selector->unlock();
     
-    selector->force_editor_display();
+    selector->force_edition_mode();
     
     material_edit_btn->Hide();
     
@@ -279,10 +279,30 @@ void MaterialsEditor::evt_menu_save()
 
 void MaterialsEditor::evt_menu_save_as()
 {
-    //TODO
-    /*bool editor_ok=editor->save_as();
+    wxFileName data_tmp=wxFileSelector("Please create a new material file",
+                                       wxString(PathManager::user_profile_materials.generic_string()),
+                                       "temporary_material",
+                                       ".lua",
+                                       "Lua script (*.lua)|*.lua",
+                                       wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
+                                       
+    if(data_tmp.IsOk()==false) return;
     
-    if(editor_ok) material_path->set_value(editor->material->script_path.generic_string());*/
+    std::filesystem::path new_path=data_tmp.GetFullPath().ToStdString();
+    
+    if(PathManager::belongs_to_resources(new_path))
+    {
+        wxMessageBox("Error: overwriting default library materials is forbidden.\nTry another file.");
+        return;
+    }
+    
+    GUI::Material *material=selector->get_material();
+    
+    material->script_path=new_path;
+    material_path->set_value(new_path.generic_string());
+    
+    lua_gui_material::Translator mtr(new_path);
+    mtr.save_to_file(material);
 }
 
 void MaterialsEditor::evt_spectrum_selector(wxCommandEvent &event)

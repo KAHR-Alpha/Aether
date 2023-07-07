@@ -267,9 +267,32 @@ namespace lua_gui_material
         return header;
     }
     
+    std::string Translator::name(GUI::Material *material) const
+    {
+        if(vector_contains(materials,material))
+        {
+            return name_map.at(material);
+        }
+        else
+        {
+            if(material->is_const())
+            {
+                return std::to_string(material->get_n(0).real());
+            }
+            else
+            {
+                std::filesystem::path output=material->script_path.generic_string();
+                
+                output=PathManager::to_default_path(output, relative_path);
+                
+                return "\""+output.generic_string()+"\"";
+            }
+        }
+    }
+    
     std::string Translator::operator() (GUI::Material *material) const
     {
-        return name_map.at(material);
+        return name(material);
     }
     
     void Translator::save_to_file(GUI::Material *material)
@@ -328,19 +351,19 @@ namespace lua_gui_material
             
             for(i=0;i<material->eff_mats.size();i++)
             {
-                if(vector_contains(materials,dynamic_cast<GUI::Material*>(material->eff_mats[i])))
-                {
-                    strm<<name_map[dynamic_cast<GUI::Material*>(material->eff_mats[i])];
-                }
-                else
-                {
-                    strm<<"\""<<material->eff_mats[i]->script_path.generic_string()<<"\"";
-                }
+                strm<<name(dynamic_cast<GUI::Material*>(material->eff_mats[i]));
                 strm<<",";
                 strm<<material->eff_weights[i];
+                
+                if(i+1<material->eff_mats.size())  strm<<",";
             }
             
             strm<<")\n";
+            
+            if(material->effective_type==EffectiveModel::MAXWELL_GARNETT)
+            {
+                strm<<prefix<<"effective_host("<<material->maxwell_garnett_host<<")\n";
+            }
         }
         else if(type==MatType::CUSTOM)
         {
@@ -926,6 +949,7 @@ void MaterialsLib::load_script(std::filesystem::path const &path)
     
     GUI::Material *new_data=new GUI::Material;
     new_data->load_lua_script(path);
+    new_data->type=MatType::SCRIPT;
     
     data.push_back(new_data);
     

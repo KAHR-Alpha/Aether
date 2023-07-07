@@ -79,6 +79,7 @@ namespace lua_gui_material
             std::map<GUI::Material*,std::string> name_map;
             
             void finalize();
+            std::string name(GUI::Material *material) const;
             void to_lua(GUI::Material *material,
                         std::ostream &strm,
                         std::string const &prefix);
