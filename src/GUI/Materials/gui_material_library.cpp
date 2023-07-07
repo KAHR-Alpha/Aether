@@ -331,7 +331,7 @@ namespace lua_gui_material
                     break;
                     
                 case EffectiveModel::LOOYENGA:
-                    strm<<"loyenga";
+                    strm<<"looyenga";
                     break;
                     
                 case EffectiveModel::MAXWELL_GARNETT:

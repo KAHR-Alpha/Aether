@@ -170,6 +170,7 @@ class MiniMaterialSelector: public wxPanel
 class MaterialsEditor: public BaseFrame
 {
     public:
+        bool edition_mode;
         unsigned int Np;
         double lambda_min,lambda_max;
         

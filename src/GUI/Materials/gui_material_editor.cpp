@@ -210,8 +210,6 @@ void MaterialEditorPanel::evt_load(wxCommandEvent &event) { load(); }
 
 void MaterialEditorPanel::evt_model_change(wxCommandEvent &event) { throw_event_model(); }
 void MaterialEditorPanel::evt_reset(wxCommandEvent &event) { reset(); }
-void MaterialEditorPanel::evt_save(wxCommandEvent &event) { save(); }
-void MaterialEditorPanel::evt_save_as(wxCommandEvent &event) { save_as(); }
 
 void MaterialEditorPanel::load()
 {
@@ -291,50 +289,6 @@ void MaterialEditorPanel::reset()
     
     read_only_material=true;
     unlock();
-}
-
-bool MaterialEditorPanel::save()
-{
-    if(!read_only_material)
-    {
-        lua_gui_material::Translator mtr("");
-        
-        mtr.save_to_file(material);
-        
-        return true;
-    }
-    else return save_as();
-}
-
-bool MaterialEditorPanel::save_as()
-{
-    wxFileName data_tmp=wxFileSelector("Please create a new material file",
-                                       wxString(PathManager::user_profile_materials.generic_string()),
-                                       "temporary_material",
-                                       ".lua",
-                                       "Lua script (*.lua)|*.lua",
-                                       wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
-                                       
-    if(data_tmp.IsOk()==false) return false;
-    
-    std::filesystem::path new_path=data_tmp.GetFullPath().ToStdString();
-    
-    if(PathManager::belongs_to_resources(new_path))
-    {
-        wxMessageBox("Error: overwriting default library materials is forbidden.\nTry another file.");
-        return false;
-    }
-    
-    material->script_path=new_path;
-    
-    lua_gui_material::Translator mtr("");
-    mtr.save_to_file(material);
-    
-    read_only_material=false;
-    
-    rebuild_elements_list();
-    
-    return true;
 }
 
 void MaterialEditorPanel::throw_event_model()

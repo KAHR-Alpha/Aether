@@ -38,13 +38,9 @@ class MaterialEditorPanel: public wxPanel
         
         void evt_load(wxCommandEvent &event);
         void evt_reset(wxCommandEvent &event);
-        void evt_save(wxCommandEvent &event);
-        void evt_save_as(wxCommandEvent &event);
         
         void load();
         void reset();
-        bool save();
-        bool save_as();
         
         //
         

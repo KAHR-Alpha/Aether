@@ -34,6 +34,7 @@ enum
 
 MaterialsEditor::MaterialsEditor(wxString const &title)
     :BaseFrame(title),
+     edition_mode(true),
      Np(401),
      lambda_min(400e-9), lambda_max(800e-9),
      lambda(Np), disp_lambda(Np),
@@ -199,6 +200,7 @@ void MaterialsEditor::evt_edit_material(wxCommandEvent &event)
     selector->unlock();
     
     selector->force_edition_mode();
+    edition_mode=true;
     
     material_edit_btn->Hide();
     
@@ -255,6 +257,8 @@ void MaterialsEditor::evt_menu_exit()
 
 void MaterialsEditor::evt_menu_library()
 {
+    edition_mode=false;
+    
     selector->load();
     
     material_path->set_value(selector->get_material()->script_path.generic_string());
@@ -268,13 +272,31 @@ void MaterialsEditor::evt_menu_library()
         material_edit_btn->Show();
         selector->lock();
     }
+    else
+    {
+        edition_mode=true;
+    }
     
     recompute_model();
 }
 
 void MaterialsEditor::evt_menu_save()
 {
-    //TODO editor->save();
+    if(edition_mode)
+    {
+        GUI::Material *material=selector->get_material();
+        std::filesystem::path path=material->script_path;
+        
+        if(path.empty())
+        {
+            evt_menu_save_as();
+        }
+        else
+        {
+            lua_gui_material::Translator mtr(path);
+            mtr.save_to_file(material);
+        }
+    }
 }
 
 void MaterialsEditor::evt_menu_save_as()
@@ -295,6 +317,8 @@ void MaterialsEditor::evt_menu_save_as()
         wxMessageBox("Error: overwriting default library materials is forbidden.\nTry another file.");
         return;
     }
+    
+    edition_mode=true;
     
     GUI::Material *material=selector->get_material();
     
