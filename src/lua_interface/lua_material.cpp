@@ -21,15 +21,106 @@ extern std::ofstream plog;
 extern const double Pi;
 extern const Imdouble Im;
 
-//#####################
-//   Material script
-//#####################
-
 Material * get_mat_pointer(lua_State *L,std::string bind_name)
 {
     lua_getglobal(L,bind_name.c_str());
     return reinterpret_cast<Material*>(lua_touserdata(L,-1));
 }
+
+//#####################################
+//   Material manipulation functions
+//#####################################
+
+enum class Mode
+{
+    LIVE,
+    SCRIPT
+};
+
+namespace lua_material
+{
+    template<Mode type>
+    int add_effective_component(lua_State *L)
+    {
+        Material *mat;
+        
+        if constexpr(type==Mode::LIVE)
+             mat=lua_get_metapointer<Material>(L,1);
+        else mat=get_mat_pointer(L,"binded_material");
+        
+        Material *new_mat=nullptr;
+        
+        if(lua_isnumber(L,2))
+        {
+            new_mat=new Material;
+            new_mat->set_const_n(lua_tonumber(L,2));
+        }
+        else if(lua_isstring(L,2))
+        {
+            lua_getglobal(L,"lua_caller_path");
+            
+            std::filesystem::path script=lua_tostring(L,2);
+            std::filesystem::path caller_path=lua_tostring(L,-1);
+            
+            script=PathManager::locate_file(script,caller_path);
+            
+            new_mat=new Material;
+            new_mat->load_lua_script(script);
+        }
+        else if(lua_isuserdata(L,2))
+        {
+            new_mat=lua_get_metapointer<Material>(L,2);
+        }
+            
+        mat->eff_mats.push_back(new_mat);
+        mat->eff_weights.push_back(lua_tonumber(L,3));
+        
+        return 0;
+    }
+    
+    template<Mode type>
+    int set_effective_host(lua_State *L)
+    {
+        Material *mat;
+        
+        if constexpr(type==Mode::LIVE)
+             mat=lua_get_metapointer<Material>(L,1);
+        else mat=get_mat_pointer(L,"binded_material");
+        
+        mat->maxwell_garnett_host=lua_tointeger(L,2);
+        
+        return 0;
+    }
+    
+    template<Mode type>
+    int set_effective_type(lua_State *L)
+    {
+        Material *mat;
+        
+        if constexpr(type==Mode::LIVE)
+             mat=lua_get_metapointer<Material>(L,1);
+        else mat=get_mat_pointer(L,"binded_material");
+        
+        std::string model_str=lua_tostring(L,2);
+        
+        EffectiveModel model=EffectiveModel::BRUGGEMAN;
+        
+             if(model_str=="bruggeman")       model=EffectiveModel::BRUGGEMAN;
+        else if(model_str=="looyenga")        model=EffectiveModel::LOOYENGA;
+        else if(model_str=="maxwell_garnett") model=EffectiveModel::MAXWELL_GARNETT;
+        else if(model_str=="sum")             model=EffectiveModel::SUM;
+        else if(model_str=="inverse_sum")     model=EffectiveModel::SUM_INV;
+        
+        mat->is_effective_material=true;
+        mat->effective_type=model;
+        
+        return 0;
+    }
+}
+
+//#####################
+//   Material script
+//#####################
 
 int lmat_add_crit_point(lua_State *L)
 {
@@ -207,9 +298,12 @@ void Material::load_lua_script(std::filesystem::path const &script_path_)
     lua_register(L,"add_data_index",lmat_add_data_table<0>);
     lua_register(L,"add_debye",lmat_add_debye);
     lua_register(L,"add_drude",lmat_add_drude);
+    lua_register(L,"add_effective_component",lua_material::add_effective_component<Mode::SCRIPT>);
     lua_register(L,"add_lorentz",lmat_add_lorentz);
     lua_register(L,"add_sellmeier",lmat_set_sellmeier);
     lua_register(L,"description",lmat_description);
+    lua_register(L,"effective_host",lua_material::set_effective_host<Mode::SCRIPT>);
+    lua_register(L,"effective_type",lua_material::set_effective_type<Mode::SCRIPT>);
     lua_register(L,"epsilon_infinity",lmat_epsilon_infty);
     lua_register(L,"epsilon_infty",lmat_epsilon_infty);
     lua_register(L,"index_infinity",lmat_index_infty);
@@ -349,9 +443,12 @@ namespace lua_material
         metatable_add_func(L,"add_data_index",add_data_table<0>);
         metatable_add_func(L,"add_debye",add_debye);
         metatable_add_func(L,"add_drude",add_drude);
+        metatable_add_func(L,"add_effective_component",add_effective_component<Mode::LIVE>);
         metatable_add_func(L,"add_lorentz",add_lorentz);
         metatable_add_func(L,"add_sellmeier",add_sellmeier);
         metatable_add_func(L,"description",description);
+        metatable_add_func(L,"effective_host",set_effective_host<Mode::LIVE>);
+        metatable_add_func(L,"effective_type",set_effective_type<Mode::LIVE>);
         metatable_add_func(L,"epsilon_infinity",epsilon_infinity);
         metatable_add_func(L,"validity_range",validity_range);
     }
@@ -475,7 +572,7 @@ namespace lua_material
         
         return 0;
     }
-
+    
     int set_index(lua_State *L)
     {
         Material *mat=lua_get_metapointer<Material>(L,1);

@@ -320,124 +320,132 @@ namespace lua_gui_material
         {
             strm<<prefix<<"load_script(\""<<material->script_path.generic_string()<<"\")\n";
         }
-        else if(type==MatType::EFFECTIVE)
+        else if(type==MatType::EFFECTIVE) to_lua_effective(material,strm,prefix);
+        else if(type==MatType::CUSTOM) to_lua_custom(material,strm,prefix);
+    }
+    
+    void Translator::to_lua_custom(GUI::Material *material,std::ostream &strm,std::string const &prefix)
+    {
+        std::size_t i;
+        
+        if(!material->description.empty()) strm<<prefix<<"description(\""<<material->description<<"\")\n";
+        
+        strm<<prefix<<"validity_range("<<material->lambda_valid_min<<","<<material->lambda_valid_max<<")\n";
+        strm<<prefix<<"epsilon_infinity("<<material->eps_inf<<")\n";
+        
+        for(i=0;i<material->debye.size();i++)
+            strm<<prefix<<"add_debye("<<material->debye[i].ds<<","
+                                      <<material->debye[i].t0<<")\n";
+            
+        for(i=0;i<material->drude.size();i++)
+            strm<<prefix<<"add_drude("<<material->drude[i].wd<<","
+                                      <<material->drude[i].g<<")\n";
+            
+        for(i=0;i<material->lorentz.size();i++)
+            strm<<prefix<<"add_lorentz("<<material->lorentz[i].A<<","
+                                        <<material->lorentz[i].O<<","
+                                        <<material->lorentz[i].G<<")\n";
+
+        for(i=0;i<material->critpoint.size();i++)
+            strm<<prefix<<"add_critpoint("<<material->critpoint[i].A<<","
+                                          <<material->critpoint[i].O<<","
+                                          <<material->critpoint[i].P<<","
+                                          <<material->critpoint[i].G<<")\n";
+
+        for(i=0;i<material->cauchy_coeffs.size();i++)
         {
-            strm<<prefix<<"effective_type(\"";
+            strm<<prefix<<"add_cauchy(";
             
-            switch(material->effective_type)
+            for(std::size_t j=0;j<material->cauchy_coeffs[i].size();j++)
             {
-                case EffectiveModel::BRUGGEMAN:
-                    strm<<"bruggeman";
-                    break;
-                    
-                case EffectiveModel::LOOYENGA:
-                    strm<<"looyenga";
-                    break;
-                    
-                case EffectiveModel::MAXWELL_GARNETT:
-                    strm<<"maxwell_garnett";
-                    break;
-                    
-                case EffectiveModel::SUM:
-                    strm<<"sum";
-                    break;
-                    
-                case EffectiveModel::SUM_INV:
-                    strm<<"inverse_sum";
-                    break;
+                strm<<prefix<<material->cauchy_coeffs[i][j];
+                if(j+1!=material->cauchy_coeffs[i].size()) strm<<prefix<<",";
             }
             
-            strm<<"\")\n";
-            
-            for(i=0;i<material->eff_mats.size();i++)
-            {
-                strm<<prefix<<"add_effective_component("
-                    <<name(dynamic_cast<GUI::Material*>(material->eff_mats[i]))
-                    <<","
-                    <<material->eff_weights[i]
-                    <<")\n";
-            }
-            
-            if(material->effective_type==EffectiveModel::MAXWELL_GARNETT)
-            {
-                strm<<prefix<<"effective_host("<<material->maxwell_garnett_host<<")\n";
-            }
+            strm<<prefix<<")\n";
         }
-        else if(type==MatType::CUSTOM)
+
+        for(i=0;i<material->sellmeier_B.size();i++)
+            strm<<prefix<<"add_sellmeier("<<material->sellmeier_B[i]<<","<<material->sellmeier_C[i]<<")\n";
+            
+        for(i=0;i<material->spd_lambda.size();i++)
         {
-            if(!material->description.empty()) strm<<prefix<<"description(\""<<material->description<<"\")\n";
-            
-            strm<<prefix<<"validity_range("<<material->lambda_valid_min<<","<<material->lambda_valid_max<<")\n";
-            strm<<prefix<<"epsilon_infinity("<<material->eps_inf<<")\n";
-            
-            for(i=0;i<material->debye.size();i++)
-                strm<<prefix<<"add_debye("<<material->debye[i].ds<<","
-                                          <<material->debye[i].t0<<")\n";
-                
-            for(i=0;i<material->drude.size();i++)
-                strm<<prefix<<"add_drude("<<material->drude[i].wd<<","
-                                          <<material->drude[i].g<<")\n";
-                
-            for(i=0;i<material->lorentz.size();i++)
-                strm<<prefix<<"add_lorentz("<<material->lorentz[i].A<<","
-                                            <<material->lorentz[i].O<<","
-                                            <<material->lorentz[i].G<<")\n";
-
-            for(i=0;i<material->critpoint.size();i++)
-                strm<<prefix<<"add_critpoint("<<material->critpoint[i].A<<","
-                                              <<material->critpoint[i].O<<","
-                                              <<material->critpoint[i].P<<","
-                                              <<material->critpoint[i].G<<")\n";
-
-            for(i=0;i<material->cauchy_coeffs.size();i++)
+            strm<<prefix<<"lambda={";
+            for(std::size_t j=0;j<material->spd_lambda[i].size();j++)
             {
-                strm<<prefix<<"add_cauchy(";
+                strm<<prefix<<material->spd_lambda[i][j];
                 
-                for(std::size_t j=0;j<material->cauchy_coeffs[i].size();j++)
-                {
-                    strm<<prefix<<material->cauchy_coeffs[i][j];
-                    if(j+1!=material->cauchy_coeffs[i].size()) strm<<prefix<<",";
-                }
-                
-                strm<<prefix<<")\n";
+                if(j+1<material->spd_lambda[i].size()) strm<<prefix<<",";
+                else strm<<prefix<<"}\n";
             }
-
-            for(i=0;i<material->sellmeier_B.size();i++)
-                strm<<prefix<<"add_sellmeier("<<material->sellmeier_B[i]<<","<<material->sellmeier_C[i]<<")\n";
-                
-            for(i=0;i<material->spd_lambda.size();i++)
+            strm<<prefix<<"data_r={";
+            for(std::size_t j=0;j<material->spd_r[i].size();j++)
             {
-                strm<<prefix<<"lambda={";
-                for(std::size_t j=0;j<material->spd_lambda[i].size();j++)
-                {
-                    strm<<prefix<<material->spd_lambda[i][j];
-                    
-                    if(j+1<material->spd_lambda[i].size()) strm<<prefix<<",";
-                    else strm<<prefix<<"}\n";
-                }
-                strm<<prefix<<"data_r={";
-                for(std::size_t j=0;j<material->spd_r[i].size();j++)
-                {
-                    strm<<prefix<<material->spd_r[i][j];
-                    
-                    if(j+1<material->spd_r[i].size()) strm<<prefix<<",";
-                    else strm<<prefix<<"}\n";
-                }
-                strm<<prefix<<"data_i={";
-                for(std::size_t j=0;j<material->spd_i[i].size();j++)
-                {
-                    strm<<prefix<<material->spd_i[i][j];
-                    
-                    if(j+1<material->spd_i[i].size()) strm<<prefix<<",";
-                    else strm<<prefix<<"}\n";
-                }
+                strm<<prefix<<material->spd_r[i][j];
                 
-                strm<<prefix<<"\n";
-                if(material->spd_type_index[i]) strm<<prefix<<"add_data_index";
-                else strm<<prefix<<"add_data_epsilon";
-                
-                strm<<prefix<<"(lambda,data_r,data_i)\n";
+                if(j+1<material->spd_r[i].size()) strm<<prefix<<",";
+                else strm<<prefix<<"}\n";
             }
+            strm<<prefix<<"data_i={";
+            for(std::size_t j=0;j<material->spd_i[i].size();j++)
+            {
+                strm<<prefix<<material->spd_i[i][j];
+                
+                if(j+1<material->spd_i[i].size()) strm<<prefix<<",";
+                else strm<<prefix<<"}\n";
+            }
+            
+            strm<<prefix<<"\n";
+            if(material->spd_type_index[i]) strm<<prefix<<"add_data_index";
+            else strm<<prefix<<"add_data_epsilon";
+            
+            strm<<prefix<<"(lambda,data_r,data_i)\n";
+        }
+    }
+    
+    void Translator::to_lua_effective(GUI::Material *material,std::ostream &strm,std::string const &prefix)
+    {
+        std::size_t i;
+        
+        strm<<prefix<<"effective_type(\"";
+        
+        switch(material->effective_type)
+        {
+            case EffectiveModel::BRUGGEMAN:
+                strm<<"bruggeman";
+                break;
+                
+            case EffectiveModel::LOOYENGA:
+                strm<<"looyenga";
+                break;
+                
+            case EffectiveModel::MAXWELL_GARNETT:
+                strm<<"maxwell_garnett";
+                break;
+                
+            case EffectiveModel::SUM:
+                strm<<"sum";
+                break;
+                
+            case EffectiveModel::SUM_INV:
+                strm<<"inverse_sum";
+                break;
+        }
+        
+        strm<<"\")\n";
+        
+        for(i=0;i<material->eff_mats.size();i++)
+        {
+            strm<<prefix<<"add_effective_component("
+                <<name(dynamic_cast<GUI::Material*>(material->eff_mats[i]))
+                <<","
+                <<material->eff_weights[i]
+                <<")\n";
+        }
+        
+        if(material->effective_type==EffectiveModel::MAXWELL_GARNETT)
+        {
+            strm<<prefix<<"effective_host("<<material->maxwell_garnett_host<<")\n";
         }
     }
 }

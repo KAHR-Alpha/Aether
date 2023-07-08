@@ -83,6 +83,12 @@ namespace lua_gui_material
             void to_lua(GUI::Material *material,
                         std::ostream &strm,
                         std::string const &prefix);
+            void to_lua_custom(GUI::Material *material,
+                               std::ostream &strm,
+                               std::string const &prefix);
+            void to_lua_effective(GUI::Material *material,
+                                  std::ostream &strm,
+                                  std::string const &prefix);
     };
 }
 
