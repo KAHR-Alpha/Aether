@@ -21,6 +21,56 @@ extern std::ofstream plog;
 extern const double Pi;
 extern const Imdouble Im;
 
+int spec_mat_ID=0;
+
+int gen_const_material(lua_State *L)
+{
+    std::filesystem::path fname=PathManager::to_temporary_path("const_mat_"+std::to_string(spec_mat_ID)+".lua");
+    
+    std::ofstream file(fname,std::ios::out|std::ios::trunc);
+    
+    file<<"index_infty("<<lua_tonumber(L,1)<<")"<<std::endl;
+    
+    file.close();
+    lua_pushstring(L,fname.generic_string().c_str());
+    
+    spec_mat_ID++;
+    
+    return 1;
+}
+
+int gen_complex_material(lua_State *L)
+{
+    std::filesystem::path fname=PathManager::to_temporary_path("complex_mat_"+std::to_string(spec_mat_ID)+".lua");
+    
+    std::ofstream file(fname,std::ios::out|std::ios::trunc);
+    
+    double lambda=lua_tonumber(L,1);
+    double real_part=lua_tonumber(L,2);
+    double imag_part=lua_tonumber(L,3);
+    
+    double w=2.0*Pi*c_light/lambda;
+    
+    Imdouble n=real_part+imag_part*Im;
+    Imdouble n2=n*n;
+    
+    double eps_inf=n2.real();
+    double O=w;
+    double G=w;
+    double A=n2.imag();
+    
+    file<<"set_dielectric()"<<std::endl<<std::endl;
+    file<<"epsilon_infty("<<eps_inf<<")"<<std::endl<<std::endl;
+    file<<"add_lorentz("<<A<<","<<O<<","<<G<<")"<<std::endl;
+    
+    file.close();
+    lua_pushstring(L,fname.generic_string().c_str());
+    
+    spec_mat_ID++;
+    
+    return 1;
+}
+
 //#####################################
 //   Material manipulation functions
 //#####################################
@@ -298,9 +348,9 @@ namespace lua_material
     }
 }
 
-//#####################
-//   Material script
-//#####################
+//#######################
+//   Standalone script
+//#######################
 
 void Material::load_lua_script(std::filesystem::path const &script_path_)
 {
@@ -354,62 +404,25 @@ void Material::load_lua_script(std::filesystem::path const &script_path_)
     lua_close(L);
 }
 
-int spec_mat_ID=0;
-
-int gen_const_material(lua_State *L)
-{
-    std::filesystem::path fname=PathManager::to_temporary_path("const_mat_"+std::to_string(spec_mat_ID)+".lua");
-    
-    std::ofstream file(fname,std::ios::out|std::ios::trunc);
-    
-    file<<"index_infty("<<lua_tonumber(L,1)<<")"<<std::endl;
-    
-    file.close();
-    lua_pushstring(L,fname.generic_string().c_str());
-    
-    spec_mat_ID++;
-    
-    return 1;
-}
-
-int gen_complex_material(lua_State *L)
-{
-    std::filesystem::path fname=PathManager::to_temporary_path("complex_mat_"+std::to_string(spec_mat_ID)+".lua");
-    
-    std::ofstream file(fname,std::ios::out|std::ios::trunc);
-    
-    double lambda=lua_tonumber(L,1);
-    double real_part=lua_tonumber(L,2);
-    double imag_part=lua_tonumber(L,3);
-    
-    double w=2.0*Pi*c_light/lambda;
-    
-    Imdouble n=real_part+imag_part*Im;
-    Imdouble n2=n*n;
-    
-    double eps_inf=n2.real();
-    double O=w;
-    double G=w;
-    double A=n2.imag();
-    
-    file<<"set_dielectric()"<<std::endl<<std::endl;
-    file<<"epsilon_infty("<<eps_inf<<")"<<std::endl<<std::endl;
-    file<<"add_lorentz("<<A<<","<<O<<","<<G<<")"<<std::endl;
-    
-    file.close();
-    lua_pushstring(L,fname.generic_string().c_str());
-    
-    spec_mat_ID++;
-    
-    return 1;
-}
-
 //########################
 //   Material Metatable
 //########################
 
 namespace lua_material
 {
+    int allocate(lua_State *L)
+    {
+        Material *p_material=lua_allocate_metapointer<Material>(L,"metatable_material");
+        
+        if(lua_gettop(L)>0)
+        {
+                 if(lua_isnumber(L,1)) p_material->set_const_n(lua_tonumber(L,1));
+            else if(lua_isstring(L,1)) p_material->load_lua_script(lua_tostring(L,1));
+        }
+        
+        return 1;
+    }
+    
     void create_metatable(lua_State *L)
     {
         lua_register(L,"Material",allocate);
@@ -434,18 +447,5 @@ namespace lua_material
         metatable_add_func(L,"effective_type",set_effective_type<Mode::LIVE>);
         metatable_add_func(L,"epsilon_infinity",epsilon_infty<Mode::LIVE>);
         metatable_add_func(L,"validity_range",set_validity_range<Mode::LIVE>);
-    }
-    
-    int allocate(lua_State *L)
-    {
-        Material *p_material=lua_allocate_metapointer<Material>(L,"metatable_material");
-        
-        if(lua_gettop(L)>0)
-        {
-                 if(lua_isnumber(L,1)) p_material->set_const_n(lua_tonumber(L,1));
-            else if(lua_isstring(L,1)) p_material->load_lua_script(lua_tostring(L,1));
-        }
-        
-        return 1;
     }
 }

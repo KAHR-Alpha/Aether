@@ -20,24 +20,6 @@ limitations under the License.*/
 namespace lua_material
 {
     void create_metatable(lua_State *L);
-    
-    int allocate(lua_State *L);
-    int set_index(lua_State *L);
-    int set_script(lua_State *L);
-    int set_name(lua_State *L);
-    
-    int add_cauchy(lua_State *L);
-    int add_crit_point(lua_State *L);
-    int add_data_epsilon(lua_State *L);
-    int add_data_index(lua_State *L);
-    int add_debye(lua_State *L);
-    int add_drude(lua_State *L);
-    int add_lorentz(lua_State *L);
-    int add_sellmeier(lua_State *L);
-    int description(lua_State *L);
-    int epsilon_infinity(lua_State *L);
-    int set_name(lua_State *L);
-    int validity_range(lua_State *L);
 }
 
 #endif // LUA_MATERIAL_H_INCLUDED
