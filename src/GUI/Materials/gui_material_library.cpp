@@ -713,7 +713,6 @@ void MaterialsLibDialog::rebuild_tree()
 //   MaterialsLib
 //########################
 
-MaterialsEditor* MaterialsLib::editor=nullptr;
 std::vector<GUI::Material*> MaterialsLib::data;
 std::vector<MiniMaterialSelector*> MaterialsLib::mini_mats;
 
@@ -818,8 +817,6 @@ void MaterialsLib::forget_control(MiniMaterialSelector *selector)
     }
 }
 
-void MaterialsLib::forget_editor() { editor=nullptr; }
-
 void MaterialsLib::forget_material(GUI::Material *material)
 {
     for(std::size_t i=0;i<data.size();i++)
@@ -831,18 +828,6 @@ void MaterialsLib::forget_material(GUI::Material *material)
         }
     }
 }
-
-MaterialsEditor* MaterialsLib::get_manager()
-{
-    if(editor==nullptr)
-    {
-        editor=new MaterialsEditor("Materials Editor");
-    }
-    
-    return editor;
-}
-
-bool MaterialsLib::has_manager() { return editor!=nullptr; }
 
 void MaterialsLib::initialize()
 {

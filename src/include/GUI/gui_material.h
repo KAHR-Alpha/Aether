@@ -192,10 +192,10 @@ class MaterialsEditor: public BaseFrame
         SpectrumSelector *sp_selector;
         wxChoice *disp_choice;
         
-        MaterialsEditor(wxString const &title);
+        MaterialsEditor(wxString const &title, GUI::Material *material=nullptr);
         ~MaterialsEditor();
         
-        void MaterialsEditor_Controls();
+        void MaterialsEditor_Controls(GUI::Material *material);
         void MaterialsEditor_Display(wxPanel *display_panel);
         
         void evt_display_choice(wxCommandEvent &event);

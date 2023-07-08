@@ -167,8 +167,6 @@ MaterialSelector::MaterialSelector(wxWindow *parent,
     header_sizer->Add(type_description,wxSizerFlags().Expand());
     header_sizer->Add(name_ctrl,wxSizerFlags().Expand());
     
-    update_header();
-    
     central_sizer->Add(header_sizer,wxSizerFlags().Expand());
     
     // - Description
@@ -230,7 +228,8 @@ MaterialSelector::MaterialSelector(wxWindow *parent,
     central_sizer->Add(material_sizer,wxSizerFlags().Expand());
     
     // Closing
-    
+        
+    update_header();
     update_layout();
         
     SetSizer(sizer);
@@ -473,12 +472,8 @@ void MaterialSelector::hide_validity()
 
 void MaterialSelector::evt_inspect(wxCommandEvent &event)
 {
-    double lambda_min=material->get_lambda_validity_min();
-    double lambda_max=material->get_lambda_validity_max();
-    
-    //TODO
-    //MaterialExplorer *mat_expl=new MaterialExplorer(lambda_min,lambda_max,401,this);
-    //null_function(mat_expl);
+    MaterialsEditor *mat_edit=new MaterialsEditor("Materials Editor",material);
+    null_function(mat_edit);
 }
 
 void MaterialSelector::evt_library(wxCommandEvent &event)
@@ -644,6 +639,7 @@ void MaterialSelector::unlock()
 void MaterialSelector::update_header()
 {
     name_ctrl->set_value(material->name);
+    description->ChangeValue(material->description);
     
     switch(material->type)
     {

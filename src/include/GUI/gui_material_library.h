@@ -128,8 +128,6 @@ class MaterialsLib
         [[nodiscard]]
         static GUI::Material* duplicate_material(GUI::Material *material);
         static void forget_control(MiniMaterialSelector *selector);
-        static void forget_editor();
-        static MaterialsEditor* get_manager();
         static void initialize();
         static Material* knows_material(unsigned int &n,Material const &material,
                                         bool (*validator)(Material*)=&default_material_validator);
@@ -145,11 +143,9 @@ class MaterialsLib
         static std::size_t size();
         
     private:
-        static MaterialsEditor *editor;
         static std::vector<GUI::Material*> data;
         static std::vector<MiniMaterialSelector*> mini_mats;
         
-        static bool has_manager();
         static void load_material(std::filesystem::path const &fname,MatType type);
         static void write_user_lib();
         static void reorder_materials();

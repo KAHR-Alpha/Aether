@@ -628,7 +628,7 @@ void MainFrame::evt_about_help(wxCommandEvent &event)
 
 void MainFrame::evt_open_materials_manager(wxCommandEvent &event)
 {
-    MaterialsEditor *frame=MaterialsLib::get_manager();
+    MaterialsEditor *frame=new MaterialsEditor("Materials Editor");
     frame->Show(true);
     frame->Maximize();
     

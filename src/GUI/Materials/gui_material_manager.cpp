@@ -32,7 +32,7 @@ enum
     MENU_EXIT
 };
 
-MaterialsEditor::MaterialsEditor(wxString const &title)
+MaterialsEditor::MaterialsEditor(wxString const &title, GUI::Material *material)
     :BaseFrame(title),
      edition_mode(true),
      Np(401),
@@ -40,6 +40,7 @@ MaterialsEditor::MaterialsEditor(wxString const &title)
      lambda(Np), disp_lambda(Np),
      disp_real(Np), disp_imag(Np)
 {
+    
     wxBoxSizer *main_sizer=new wxBoxSizer(wxVERTICAL);
     
     SetSizer(main_sizer);
@@ -48,6 +49,9 @@ MaterialsEditor::MaterialsEditor(wxString const &title)
     
     material_path=new NamedTextCtrl<std::string>(this,"Path","",true);
     material_path->lock();
+    
+    if(material!=nullptr)
+        material_path->set_value(material->script_path.generic_string());
     
     main_sizer->Add(material_path,wxSizerFlags().Expand());
     
@@ -58,7 +62,7 @@ MaterialsEditor::MaterialsEditor(wxString const &title)
     // - Controls
     
     ctrl_panel=new wxScrolledWindow(splitter);
-    MaterialsEditor_Controls();
+    MaterialsEditor_Controls(material);
     
     // - Display
  
@@ -100,10 +104,9 @@ MaterialsEditor::MaterialsEditor(wxString const &title)
 
 MaterialsEditor::~MaterialsEditor()
 {
-    MaterialsLib::forget_editor();
 }
 
-void MaterialsEditor::MaterialsEditor_Controls()
+void MaterialsEditor::MaterialsEditor_Controls(GUI::Material *material)
 {
     wxBoxSizer *ctrl_sizer=new wxBoxSizer(wxVERTICAL);
     
@@ -113,7 +116,8 @@ void MaterialsEditor::MaterialsEditor_Controls()
     
     ctrl_sizer->Add(material_edit_btn,wxSizerFlags().Expand());
     
-    GUI::Material *material=MaterialsLib::request_material(MatType::CUSTOM);
+    if(material==nullptr)
+        material=MaterialsLib::request_material(MatType::CUSTOM);
     
     selector=new MaterialSelector(ctrl_panel,"",true,material);
     selector->hide_buttons();
