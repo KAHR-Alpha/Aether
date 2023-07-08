@@ -322,7 +322,7 @@ namespace lua_gui_material
         }
         else if(type==MatType::EFFECTIVE)
         {
-            strm<<prefix<<"effective_material(\"";
+            strm<<prefix<<"effective_type(\"";
             
             switch(material->effective_type)
             {
@@ -347,18 +347,16 @@ namespace lua_gui_material
                     break;
             }
             
-            strm<<"\",";
+            strm<<"\")\n";
             
             for(i=0;i<material->eff_mats.size();i++)
             {
-                strm<<name(dynamic_cast<GUI::Material*>(material->eff_mats[i]));
-                strm<<",";
-                strm<<material->eff_weights[i];
-                
-                if(i+1<material->eff_mats.size())  strm<<",";
+                strm<<prefix<<"add_effective_component("
+                    <<name(dynamic_cast<GUI::Material*>(material->eff_mats[i]))
+                    <<","
+                    <<material->eff_weights[i]
+                    <<")\n";
             }
-            
-            strm<<")\n";
             
             if(material->effective_type==EffectiveModel::MAXWELL_GARNETT)
             {
