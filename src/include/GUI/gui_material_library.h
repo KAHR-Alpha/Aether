@@ -16,7 +16,7 @@ limitations under the License.*/
 #define GUI_MATERIAL_LIBRARY_H_INCLUDED
 
 #include <material.h>
-#include <lua_base.h>
+#include <lua_material.h>
 
 class MaterialsLib;
 class MaterialsEditor;
@@ -54,10 +54,12 @@ namespace GUI
 
 namespace lua_gui_material
 {
-    void create_metatable(lua_State *L);
-    int allocate(lua_State *L);
-    int lua_material_set_index(lua_State *L);
-    int lua_material_set_script(lua_State *L);
+    class Loader : public lua_material::Loader
+    {
+        public:
+            Loader();
+            ~Loader() = default;
+    };
     
     class Translator
     {

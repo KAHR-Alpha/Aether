@@ -231,7 +231,8 @@ int mode_choice(lua_State *L)
         
     //###############
     
-    lua_material::create_metatable(L);
+    lua_material::Loader mat_loader;
+    mat_loader.create_metatable(L);
     
     create_obj_metatable(L,"metatable_fdfd");
     

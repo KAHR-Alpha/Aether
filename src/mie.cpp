@@ -12,6 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
+#include <lua_material.h>
 #include <mie.h>
 
 extern const double Pi;
@@ -563,7 +564,10 @@ void Mie_mode::process()
     int l;
     
     Material mat;
-    mat.load_lua_script(part_material);
+    
+    lua_material::Loader ld;
+    
+    ld.load(&mat,part_material);
     
     Mie mie;
     

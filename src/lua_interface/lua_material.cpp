@@ -75,28 +75,25 @@ int gen_complex_material(lua_State *L)
 //   Material manipulation functions
 //#####################################
 
-enum class Mode
-{
-    LIVE,
-    SCRIPT
-};
-
-template<Mode mode>
-Material * get_mat_pointer(lua_State *L)
-{
-    if constexpr(mode==Mode::LIVE)
-    {
-        return lua_get_metapointer<Material>(L,1);
-    }
-    else
-    {
-        lua_getglobal(L,"bound_material");
-        return reinterpret_cast<Material*>(lua_touserdata(L,-1));
-    }
-}
-
 namespace lua_material
 {
+    int allocate(lua_State *L)
+    {
+        Material *p_material=lua_allocate_metapointer<Material>(L,"metatable_material");
+        
+        if(lua_gettop(L)>0)
+        {
+                 if(lua_isnumber(L,1)) p_material->set_const_n(lua_tonumber(L,1));
+            else if(lua_isstring(L,1))
+            {
+                Loader ld;
+                ld.load(p_material,lua_tostring(L,1));
+            }
+        }
+        
+        return 1;
+    }
+    
     template<Mode mode>
     int add_cauchy(lua_State *L)
     {
@@ -186,7 +183,9 @@ namespace lua_material
             script=PathManager::locate_file(script,caller_path);
             
             new_mat=new Material;
-            new_mat->load_lua_script(script);
+            
+            Loader ld;
+            ld.load(new_mat,script);
         }
         else if(lua_isuserdata(L,2))
         {
@@ -342,110 +341,148 @@ namespace lua_material
     int set_script(lua_State *L)
     {
         Material *mat=get_mat_pointer<mode>(L);
-        mat->load_lua_script(lua_tostring(L,2));
+        
+        Loader loader;
+        loader.load(mat,lua_tostring(L,2));
         
         return 0;
     }
-}
-
-//#######################
-//   Standalone script
-//#######################
-
-void Material::load_lua_script(std::filesystem::path const &script_path_)
-{
-    reset();
     
-    if(!std::filesystem::is_regular_file(script_path_))
+    //############
+    //   Loader
+    //############
+    
+    Loader::Loader()
     {
-        std::cerr<<"Error: Couldn't find the material "<<script_path_<<" ...\nAborting...\n";
-        std::exit(EXIT_FAILURE);
-        return;
+        set_allocation_function(allocate);
+        
+        add_functions("add_cauchy",add_cauchy<Mode::LIVE>,
+                                   add_cauchy<Mode::SCRIPT>);
+        
+        add_functions("add_crit_point",add_crit_point<Mode::LIVE>,
+                                       add_crit_point<Mode::SCRIPT>);
+        
+        add_functions("add_data_epsilon",add_data_table<Mode::LIVE,1>,
+                                         add_data_table<Mode::SCRIPT,1>);
+        
+        add_functions("add_data_index",add_data_table<Mode::LIVE,0>,
+                                       add_data_table<Mode::SCRIPT,0>);
+        
+        add_functions("add_debye",add_debye<Mode::LIVE>,
+                                  add_debye<Mode::SCRIPT>);
+        
+        add_functions("add_drude",add_drude<Mode::LIVE>,
+                                  add_drude<Mode::SCRIPT>);
+        
+        add_functions("add_effective_component",add_effective_component<Mode::LIVE>,
+                                                add_effective_component<Mode::SCRIPT>);
+        
+        add_functions("add_lorentz",add_lorentz<Mode::LIVE>,
+                                    add_lorentz<Mode::SCRIPT>);
+        
+        add_functions("add_sellmeier",add_sellmeier<Mode::LIVE>,
+                                      add_sellmeier<Mode::SCRIPT>);
+        
+        add_functions("description",set_description<Mode::LIVE>,
+                                    set_description<Mode::SCRIPT>);
+        
+        add_functions("effective_host",set_effective_host<Mode::LIVE>,
+                                       set_effective_host<Mode::SCRIPT>);
+        
+        add_functions("effective_type",set_effective_type<Mode::LIVE>,
+                                       set_effective_type<Mode::SCRIPT>);
+        
+        add_functions("epsilon_infinity",epsilon_infty<Mode::LIVE>,
+                                         epsilon_infty<Mode::SCRIPT>);
+        
+        add_functions("epsilon_infty",epsilon_infty<Mode::LIVE>,
+                                      epsilon_infty<Mode::SCRIPT>);
+        
+        add_functions("index_infinity",index_infty<Mode::LIVE>,
+                                       index_infty<Mode::SCRIPT>);
+        
+        add_functions("index_infty",index_infty<Mode::LIVE>,
+                                    index_infty<Mode::SCRIPT>);
+        
+        add_functions("name",set_name<Mode::LIVE>,
+                             set_name<Mode::SCRIPT>);
+                             
+        add_functions("load_script",set_script<Mode::LIVE>,
+                                    set_script<Mode::SCRIPT>);
+                                         
+        add_functions("refractive_index",set_index<Mode::LIVE>,
+                                         set_index<Mode::SCRIPT>);
+        
+        add_functions("validity_range",set_validity_range<Mode::LIVE>,
+                                       set_validity_range<Mode::SCRIPT>);
     }
     
-    script_path=script_path_;
-    
-    lua_State *L=luaL_newstate();
-    luaL_openlibs(L);
-    
-    lua_pushlightuserdata(L,reinterpret_cast<void*>(this));
-    lua_setglobal(L,"bound_material");
-    
-    std::filesystem::path caller_path=script_path.parent_path();
-    lua_pushlightuserdata(L,reinterpret_cast<void*>(&caller_path));
-    lua_setglobal(L,"lua_caller_path");
-    
-    using namespace lua_material;
-    
-    int (*f_data_1)(lua_State*)=&add_data_table<Mode::SCRIPT,1>;
-    int (*f_data_0)(lua_State*)=&add_data_table<Mode::SCRIPT,0>;
-    
-    lua_register(L,"add_cauchy",add_cauchy<Mode::SCRIPT>);
-    lua_register(L,"add_crit_point",add_crit_point<Mode::SCRIPT>);
-    lua_register(L,"add_data_epsilon",f_data_1);
-    lua_register(L,"add_data_index",f_data_0);
-    lua_register(L,"add_debye",add_debye<Mode::SCRIPT>);
-    lua_register(L,"add_drude",add_drude<Mode::SCRIPT>);
-    lua_register(L,"add_effective_component",add_effective_component<Mode::SCRIPT>);
-    lua_register(L,"add_lorentz",add_lorentz<Mode::SCRIPT>);
-    lua_register(L,"add_sellmeier",add_sellmeier<Mode::SCRIPT>);
-    lua_register(L,"description",set_description<Mode::SCRIPT>);
-    lua_register(L,"effective_host",set_effective_host<Mode::SCRIPT>);
-    lua_register(L,"effective_type",set_effective_type<Mode::SCRIPT>);
-    lua_register(L,"epsilon_infinity",epsilon_infty<Mode::SCRIPT>);
-    lua_register(L,"epsilon_infty",epsilon_infty<Mode::SCRIPT>);
-    lua_register(L,"index_infinity",index_infty<Mode::SCRIPT>);
-    lua_register(L,"index_infty",index_infty<Mode::SCRIPT>);
-    lua_register(L,"validity_range",set_validity_range<Mode::SCRIPT>);
-    
-    luaL_loadfile(L,script_path.generic_string().c_str());
-    lua_pcall(L,0,0,0);
-    
-    lua_close(L);
-}
-
-//########################
-//   Material Metatable
-//########################
-
-namespace lua_material
-{
-    int allocate(lua_State *L)
+    void Loader::add_functions(std::string const &name,int (*live_function)(lua_State*),int (*script_function)(lua_State*))
     {
-        Material *p_material=lua_allocate_metapointer<Material>(L,"metatable_material");
-        
-        if(lua_gettop(L)>0)
-        {
-                 if(lua_isnumber(L,1)) p_material->set_const_n(lua_tonumber(L,1));
-            else if(lua_isstring(L,1)) p_material->load_lua_script(lua_tostring(L,1));
-        }
-        
-        return 1;
+        function_names.push_back(name);
+        functions_live.push_back(live_function);
+        functions_script.push_back(script_function);
     }
     
-    void create_metatable(lua_State *L)
+    void Loader::create_metatable(lua_State *L)
     {
-        lua_register(L,"Material",allocate);
+        lua_register(L,"Material",allocation_function);
         
         create_obj_metatable(L,"metatable_material");
         
-        metatable_add_func(L,"name",set_name<Mode::LIVE>);
-        metatable_add_func(L,"refractive_index",set_index<Mode::LIVE>);
-        metatable_add_func(L,"load_script",set_script<Mode::LIVE>);
+        for(std::size_t i=0;i<function_names.size();i++)
+            metatable_add_func(L,function_names[i],functions_live[i]);
+    }
+    
+    void Loader::load(Material *material,std::filesystem::path const &script_path_)
+    {
+        if(material==nullptr) return;
         
-        metatable_add_func(L,"add_cauchy",add_cauchy<Mode::LIVE>);
-        metatable_add_func(L,"add_crit_point",add_crit_point<Mode::LIVE>);
-        metatable_add_func(L,"add_data_epsilon",add_data_table<Mode::LIVE,1>);
-        metatable_add_func(L,"add_data_index",add_data_table<Mode::LIVE,0>);
-        metatable_add_func(L,"add_debye",add_debye<Mode::LIVE>);
-        metatable_add_func(L,"add_drude",add_drude<Mode::LIVE>);
-        metatable_add_func(L,"add_effective_component",add_effective_component<Mode::LIVE>);
-        metatable_add_func(L,"add_lorentz",add_lorentz<Mode::LIVE>);
-        metatable_add_func(L,"add_sellmeier",add_sellmeier<Mode::LIVE>);
-        metatable_add_func(L,"description",set_description<Mode::LIVE>);
-        metatable_add_func(L,"effective_host",set_effective_host<Mode::LIVE>);
-        metatable_add_func(L,"effective_type",set_effective_type<Mode::LIVE>);
-        metatable_add_func(L,"epsilon_infinity",epsilon_infty<Mode::LIVE>);
-        metatable_add_func(L,"validity_range",set_validity_range<Mode::LIVE>);
+        material->reset();
+    
+        if(!std::filesystem::is_regular_file(script_path_))
+        {
+            std::cerr<<"Error: Couldn't find the material "<<script_path_<<" ...\nAborting...\n";
+            std::exit(EXIT_FAILURE);
+            return;
+        }
+        
+        material->script_path=script_path_;
+        
+        lua_State *L=luaL_newstate();
+        luaL_openlibs(L);
+        
+        lua_pushlightuserdata(L,static_cast<void*>(material));
+        lua_setglobal(L,"bound_material");
+        
+        std::filesystem::path caller_path=script_path_.parent_path();
+        lua_pushlightuserdata(L,static_cast<void*>(&caller_path));
+        lua_setglobal(L,"lua_caller_path");
+        
+        for(std::size_t i=0;i<function_names.size();i++)
+            lua_register(L,function_names[i].c_str(),functions_script[i]);
+        
+        luaL_loadfile(L,script_path_.generic_string().c_str());
+        lua_pcall(L,0,0,0);
+        
+        lua_close(L);
+    }
+    
+    void Loader::replace_functions(std::string const &name,int (*live_function)(lua_State*),int (*script_function)(lua_State*))
+    {
+        for(std::size_t i=0;i<function_names.size();i++)
+        {
+            if(name==function_names[i])
+            {
+                functions_live[i]=live_function;
+                functions_script[i]=script_function;
+                return;
+            }
+        }
+    }
+    
+    void Loader::set_allocation_function(int (*allocation_function_)(lua_State*))
+    {
+        allocation_function=allocation_function_;
     }
 }

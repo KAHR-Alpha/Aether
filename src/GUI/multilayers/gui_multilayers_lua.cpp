@@ -128,7 +128,8 @@ void MultilayerFrame::load_project(wxFileName const &fname_)
     
     // Materials
     
-    lua_gui_material::create_metatable(L);
+    lua_gui_material::Loader loader;
+    loader.create_metatable(L);
     
     // MultilayerFrame
     

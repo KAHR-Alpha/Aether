@@ -158,15 +158,6 @@ namespace GUI
 
 namespace lua_gui_material
 {
-    void create_metatable(lua_State *L)
-    {
-        lua_material::create_metatable(L);
-        
-        lua_register(L,"Material",&allocate); // overload
-        metatable_add_func(L,"refractive_index",lua_material_set_index); // overload
-        metatable_add_func(L,"load_script",lua_material_set_script); // overload
-    }
-    
     int allocate(lua_State *L)
     {
         GUI::Material *p_material=MaterialsLib::request_material(MatType::CUSTOM);
@@ -176,7 +167,11 @@ namespace lua_gui_material
         if(lua_gettop(L)>0)
         {
                  if(lua_isnumber(L,1)) p_material->set_const_n(lua_tonumber(L,1));
-            else if(lua_isstring(L,1)) p_material->load_lua_script(lua_tostring(L,1));
+            else if(lua_isstring(L,1))
+            {
+                Loader ld;
+                ld.load(p_material,lua_tostring(L,1));
+            }
         }
         
         MaterialsLib::consolidate(p_material);
@@ -184,9 +179,10 @@ namespace lua_gui_material
         return 1;
     }
     
-    int lua_material_set_index(lua_State *L)
+    template<lua_material::Mode mode>
+    int set_index(lua_State *L)
     {
-        Material *base_mat=lua_get_metapointer<Material>(L,1);
+        Material *base_mat=lua_material::get_mat_pointer<mode>(L);
         GUI::Material *mat=dynamic_cast<GUI::Material*>(base_mat);
         
         mat->set_const_n(lua_tonumber(L,2));
@@ -195,15 +191,33 @@ namespace lua_gui_material
         return 0;
     }
     
-    int lua_material_set_script(lua_State *L)
+    template<lua_material::Mode mode>
+    int set_script(lua_State *L)
     {
-        Material *base_mat=lua_get_metapointer<Material>(L,1);
+        Material *base_mat=lua_material::get_mat_pointer<mode>(L);
         GUI::Material *mat=dynamic_cast<GUI::Material*>(base_mat);
         
-        mat->load_lua_script(lua_tostring(L,2));
+        Loader ld;
+        ld.load(mat,lua_tostring(L,2));
+        
         mat->type=MatType::SCRIPT;
         
         return 0;
+    }
+    
+    //############
+    //   Loader
+    //############
+    
+    Loader::Loader()
+    {
+        set_allocation_function(allocate);
+                             
+        replace_functions("load_script",set_script<lua_material::Mode::LIVE>,
+                                        set_script<lua_material::Mode::SCRIPT>);
+                                         
+        replace_functions("refractive_index",set_index<lua_material::Mode::LIVE>,
+                                             set_index<lua_material::Mode::SCRIPT>);
     }
     
     //################
@@ -573,7 +587,11 @@ void MaterialsLibDialog::evt_load_script(wxCommandEvent &event)
     if(fname.IsOk()==false) return;
     
     std::filesystem::path tmp_script=fname.GetFullPath().ToStdString();
-    Material tmp_material(tmp_script);
+    
+    Material tmp_material;
+    
+    lua_gui_material::Loader ld;
+    ld.load(&tmp_material,tmp_script);
     
     if(accept_material(&tmp_material))
     {
@@ -752,7 +770,10 @@ void MaterialsLib::consolidate(GUI::Material *material)
     else if(material->is_const()) material->type=MatType::REAL_N;
     else if(!material->script_path.empty())
     {
-        Material tmp_material{material->script_path};
+        Material tmp_material;
+        
+        lua_gui_material::Loader ld;
+        ld.load(&tmp_material,material->script_path);
         
         if(tmp_material==(*material))
         {
@@ -915,7 +936,10 @@ void MaterialsLib::load_material(std::filesystem::path const &fname,MatType type
     }
     
     GUI::Material *new_data=new GUI::Material;
-    new_data->load_lua_script(material_path);
+    
+    lua_gui_material::Loader loader;
+    loader.load(new_data,material_path);
+    
     new_data->type=type;
     
     data.push_back(new_data);
@@ -939,7 +963,10 @@ void MaterialsLib::load_script(std::filesystem::path const &path)
         }
     
     GUI::Material *new_data=new GUI::Material;
-    new_data->load_lua_script(path);
+    
+    lua_gui_material::Loader loader;
+    loader.load(new_data,path);
+    
     new_data->type=MatType::SCRIPT;
     
     data.push_back(new_data);

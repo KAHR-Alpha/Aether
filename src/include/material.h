@@ -67,12 +67,11 @@ class Material
         std::vector<double> eff_weights;
         std::vector<Imdouble> eff_eps;
         
-        std::string name,description;
+        std::string name,description; 
         std::filesystem::path script_path;
         
         Material();
         Material(Material const &mat);
-        Material(std::filesystem::path const &script_path);
         virtual ~Material();
         
         void add_spline_data(std::vector<double> const &lambda,
@@ -85,7 +84,6 @@ class Material
         std::string get_matlab(std::string const &fname) const;
         Imdouble get_n(double w);
         bool is_const() const;
-        [[deprecated]] void load_lua_script(std::filesystem::path const &script_name);
         void operator = (Material const &mat);
         bool operator == (Material const &mat) const;
         bool operator != (Material const &mat) const;

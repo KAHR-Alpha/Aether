@@ -70,12 +70,6 @@ Material::Material(Material const &mat)
     }
 }
 
-Material::Material(std::filesystem::path const &script_path_)
-    :Material()
-{
-    load_lua_script(script_path_);
-}
-
 Material::~Material()
 {
     for(std::size_t i=0;i<eff_mats.size();i++)
