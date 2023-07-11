@@ -94,17 +94,24 @@ namespace lua_material
         return 1;
     }
     
+    int get_shift(Mode mode)
+    {
+        if(mode==Mode::LIVE) return 1;
+        else return 0;
+    }
+    
     template<Mode mode>
     int add_cauchy(lua_State *L)
     {
-        int N=lua_gettop(L)-1;
+        int s=get_shift(mode);
+        int N=lua_gettop(L)-s;
         
         Material *mat=get_mat_pointer<mode>(L);
         
         std::vector<double> coeffs(N);
         
         for(int i=0;i<N;i++)
-            coeffs[i]=lua_tonumber(L,i+2);
+            coeffs[i]=lua_tonumber(L,i+1+s);
         
         mat->cauchy_coeffs.push_back(coeffs);
         
@@ -114,12 +121,13 @@ namespace lua_material
     template<Mode mode>
     int add_crit_point(lua_State *L)
     {
+        int s=get_shift(mode);
         Material *mat=get_mat_pointer<mode>(L);
         
-        double A=lua_tonumber(L,2);
-        double O=lua_tonumber(L,3);
-        double P=lua_tonumber(L,4);
-        double G=lua_tonumber(L,5);
+        double A=lua_tonumber(L,1+s);
+        double O=lua_tonumber(L,2+s);
+        double P=lua_tonumber(L,3+s);
+        double G=lua_tonumber(L,4+s);
         
         CritpointModel critpoint;
         critpoint.set(A,O,P,G);
@@ -132,10 +140,11 @@ namespace lua_material
     template<Mode mode>
     int add_debye(lua_State *L)
     {
+        int s=get_shift(mode);
         Material *mat=get_mat_pointer<mode>(L);
         
-        double ds=lua_tonumber(L,1);
-        double t0=lua_tonumber(L,2);
+        double ds=lua_tonumber(L,1+s);
+        double t0=lua_tonumber(L,2+s);
         
         DebyeModel debye;
         debye.set(ds,t0);
@@ -148,10 +157,11 @@ namespace lua_material
     template<Mode mode>
     int add_drude(lua_State *L)
     {
+        int s=get_shift(mode);
         Material *mat=get_mat_pointer<mode>(L);
         
-        double wd=lua_tonumber(L,1);
-        double g=lua_tonumber(L,2);
+        double wd=lua_tonumber(L,1+s);
+        double g=lua_tonumber(L,2+s);
         
         DrudeModel drude;
         drude.set(wd,g);
@@ -164,20 +174,21 @@ namespace lua_material
     template<Mode mode>
     int add_effective_component(lua_State *L)
     {
+        int s=get_shift(mode);
         Material *mat=get_mat_pointer<mode>(L);
         
         Material *new_mat=nullptr;
         
-        if(lua_isnumber(L,2))
+        if(lua_isnumber(L,1+s))
         {
             new_mat=new Material;
-            new_mat->set_const_n(lua_tonumber(L,2));
+            new_mat->set_const_n(lua_tonumber(L,1+s));
         }
-        else if(lua_isstring(L,2))
+        else if(lua_isstring(L,1+s))
         {
             lua_getglobal(L,"lua_caller_path");
             
-            std::filesystem::path script=lua_tostring(L,2);
+            std::filesystem::path script=lua_tostring(L,1+s);
             std::filesystem::path caller_path=lua_tostring(L,-1);
             
             script=PathManager::locate_file(script,caller_path);
@@ -187,13 +198,13 @@ namespace lua_material
             Loader ld;
             ld.load(new_mat,script);
         }
-        else if(lua_isuserdata(L,2))
+        else if(lua_isuserdata(L,1+s))
         {
-            new_mat=lua_get_metapointer<Material>(L,2);
+            new_mat=lua_get_metapointer<Material>(L,1+s);
         }
             
         mat->eff_mats.push_back(new_mat);
-        mat->eff_weights.push_back(lua_tonumber(L,3));
+        mat->eff_weights.push_back(lua_tonumber(L,2+s));
         
         return 0;
     }
@@ -201,11 +212,12 @@ namespace lua_material
     template<Mode mode>
     int add_lorentz(lua_State *L)
     {
+        int s=get_shift(mode);
         Material *mat=get_mat_pointer<mode>(L);
         
-        double A=lua_tonumber(L,1);
-        double O=lua_tonumber(L,2);
-        double G=lua_tonumber(L,3);
+        double A=lua_tonumber(L,1+s);
+        double O=lua_tonumber(L,2+s);
+        double G=lua_tonumber(L,3+s);
         
         LorentzModel lorentz;
         lorentz.set(A,O,G);
@@ -218,10 +230,11 @@ namespace lua_material
     template<Mode mode>
     int add_sellmeier(lua_State *L)
     {
+        int s=get_shift(mode);
         Material *mat=get_mat_pointer<mode>(L);
         
-        mat->sellmeier_B.push_back(lua_tonumber(L,1));
-        mat->sellmeier_C.push_back(lua_tonumber(L,2));
+        mat->sellmeier_B.push_back(lua_tonumber(L,1+s));
+        mat->sellmeier_C.push_back(lua_tonumber(L,2+s));
         
         return 0;
     }
@@ -229,9 +242,10 @@ namespace lua_material
     template<Mode mode>
     int set_description(lua_State *L)
     {
+        int s=get_shift(mode);
         Material *mat=get_mat_pointer<mode>(L);
         
-        mat->description=lua_tostring(L,1);
+        mat->description=lua_tostring(L,1+s);
         
         return 0;
     }
@@ -239,9 +253,10 @@ namespace lua_material
     template<Mode mode>
     int epsilon_infty(lua_State *L)
     {
+        int s=get_shift(mode);
         Material *mat=get_mat_pointer<mode>(L);
         
-        mat->eps_inf=lua_tonumber(L,1);
+        mat->eps_inf=lua_tonumber(L,1+s);
         
         return 0;
     }
@@ -249,9 +264,10 @@ namespace lua_material
     template<Mode mode>
     int index_infty(lua_State *L)
     {
+        int s=get_shift(mode);
         Material *mat=get_mat_pointer<mode>(L);
         
-        double n=lua_tonumber(L,1);
+        double n=lua_tonumber(L,1+s);
         mat->eps_inf=n*n;
         
         return 0;
@@ -260,13 +276,14 @@ namespace lua_material
     template<Mode mode,int type>
     int add_data_table(lua_State *L)
     {
+        int s=get_shift(mode);
         Material *mat=get_mat_pointer<mode>(L);
         
         std::vector<double> lambda,data_r,data_i;
         
-        lua_tools::extract_vector(lambda,L,1); // Wavelength at this point
-        lua_tools::extract_vector(data_r,L,2); // Input real part
-        lua_tools::extract_vector(data_i,L,3); // Input imag part
+        lua_tools::extract_vector(lambda,L,1+s); // Wavelength at this point
+        lua_tools::extract_vector(data_r,L,2+s); // Input real part
+        lua_tools::extract_vector(data_i,L,3+s); // Input imag part
         
         bool type_index=false;
         
@@ -280,10 +297,11 @@ namespace lua_material
     template<Mode mode>
     int set_validity_range(lua_State *L)
     {
+        int s=get_shift(mode);
         Material *mat=get_mat_pointer<mode>(L);
         
-        mat->lambda_valid_min=lua_tonumber(L,1);
-        mat->lambda_valid_max=lua_tonumber(L,2);
+        mat->lambda_valid_min=lua_tonumber(L,1+s);
+        mat->lambda_valid_max=lua_tonumber(L,2+s);
         
         return 0;
     }
@@ -291,9 +309,10 @@ namespace lua_material
     template<Mode mode>
     int set_effective_host(lua_State *L)
     {
+        int s=get_shift(mode);
         Material *mat=get_mat_pointer<mode>(L);
         
-        mat->maxwell_garnett_host=lua_tointeger(L,2);
+        mat->maxwell_garnett_host=lua_tointeger(L,1+s);
         
         return 0;
     }
@@ -301,9 +320,10 @@ namespace lua_material
     template<Mode mode>
     int set_effective_type(lua_State *L)
     {
+        int s=get_shift(mode);
         Material *mat=get_mat_pointer<mode>(L);
         
-        std::string model_str=lua_tostring(L,2);
+        std::string model_str=lua_tostring(L,1+s);
         
         EffectiveModel model=EffectiveModel::BRUGGEMAN;
         
@@ -322,8 +342,10 @@ namespace lua_material
     template<Mode mode>
     int set_index(lua_State *L)
     {
+        int s=get_shift(mode);
         Material *mat=get_mat_pointer<mode>(L);
-        mat->set_const_n(lua_tonumber(L,2));
+        
+        mat->set_const_n(lua_tonumber(L,1+s));
         
         return 0;
     }
@@ -331,8 +353,10 @@ namespace lua_material
     template<Mode mode>
     int set_name(lua_State *L)
     {
+        int s=get_shift(mode);
         Material *mat=get_mat_pointer<mode>(L);
-        mat->name=lua_tostring(L,2);
+        
+        mat->name=lua_tostring(L,1+s);
         
         return 0;
     }
@@ -340,10 +364,11 @@ namespace lua_material
     template<Mode mode>
     int set_script(lua_State *L)
     {
+        int s=get_shift(mode);
         Material *mat=get_mat_pointer<mode>(L);
         
         Loader loader;
-        loader.load(mat,lua_tostring(L,2));
+        loader.load(mat,lua_tostring(L,1+s));
         
         return 0;
     }
