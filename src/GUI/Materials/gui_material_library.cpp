@@ -20,6 +20,44 @@ bool default_material_validator(Material *material) { return true; }
 
 // Lua bindings
 
+#include <tuple>
+
+template<typename... T>
+class AnyOf
+{
+    public:
+        std::tuple<T...> data;
+        
+        AnyOf(T... args)
+            :data(args...)
+        {
+        }
+        
+        template<typename E,std::size_t... I>
+        bool double_equal_subcall(E const &val,std::index_sequence<I...>) const
+        {
+            return ((std::get<I>(data) == val) || ...);
+        }
+        
+        template<typename E>
+        bool operator == (E const &val)
+        {
+            std::size_t const N=std::tuple_size<decltype(data)>::value;
+            auto sequence=std::make_index_sequence<N>();
+            
+            return double_equal_subcall(val,sequence);
+        }
+};
+
+template<typename E,typename... T>
+bool operator == (E const &val,AnyOf<T...> const &collection)
+{
+    std::size_t const N=std::tuple_size<decltype(collection.data)>::value;
+    auto sequence=std::make_index_sequence<N>();
+    
+    return collection.double_equal_subcall(val,sequence);
+}
+
 namespace GUI
 {
     
@@ -42,9 +80,9 @@ namespace GUI
             strm<<"Const refractive index: ";
             strm<<std::sqrt(eps_inf);
         }
-        else if(   type==MatType::LIBRARY
-                || type==MatType::USER_LIBRARY
-                || type==MatType::SCRIPT)
+        else if(type==AnyOf(MatType::LIBRARY,
+                            MatType::USER_LIBRARY,
+                            MatType::SCRIPT))
         {
             strm<<"Library material: ";
             strm<<script_path.generic_string();
@@ -328,9 +366,9 @@ namespace lua_gui_material
         {
             strm<<prefix<<"refractive_index("<<std::real(material->get_n(0))<<")\n";
         }
-        else if(   type==MatType::LIBRARY
-                || type==MatType::USER_LIBRARY
-                || type==MatType::SCRIPT)
+        else if(type==AnyOf(MatType::LIBRARY,
+                            MatType::USER_LIBRARY,
+                            MatType::SCRIPT))
         {
             strm<<prefix<<"load_script(\""<<material->script_path.generic_string()<<"\")\n";
         }
@@ -808,9 +846,9 @@ GUI::Material* MaterialsLib::duplicate_material(GUI::Material *material_)
 {
     MatType next_type=material_->type;
     
-    if(   next_type==MatType::LIBRARY
-       || next_type==MatType::USER_LIBRARY
-       || next_type==MatType::SCRIPT)
+    if(next_type==AnyOf(MatType::LIBRARY,
+                        MatType::USER_LIBRARY,
+                        MatType::SCRIPT))
     {
         if(material_->is_effective_material) next_type=MatType::EFFECTIVE;
         else next_type=MatType::CUSTOM;
