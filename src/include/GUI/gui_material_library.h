@@ -141,12 +141,14 @@ class MaterialsLib
                                         bool (*validator)(Material*)=&default_material_validator);
         static void register_control(MiniMaterialSelector *selector);
         [[nodiscard]]
+        static GUI::Material* request_material(std::filesystem::path const &path);
+        [[nodiscard]]
         static GUI::Material* request_material(MatType type);
     
     protected:
         static void add_to_library(GUI::Material *data);
         static void forget_material(GUI::Material *material);
-        static void load_script(std::filesystem::path const &path);
+        static GUI::Material* load_script(std::filesystem::path const &path);
         static GUI::Material* material(std::size_t n);
         static std::size_t size();
         

@@ -189,9 +189,9 @@ namespace lua_material
             lua_getglobal(L,"lua_caller_path");
             
             std::filesystem::path script=lua_tostring(L,1+s);
-            std::filesystem::path caller_path=lua_tostring(L,-1);
+            std::filesystem::path *caller_path=static_cast<std::filesystem::path*>(lua_touserdata(L,-1));
             
-            script=PathManager::locate_file(script,caller_path);
+            script=PathManager::locate_file(script,*caller_path);
             
             new_mat=new Material;
             

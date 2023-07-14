@@ -111,7 +111,8 @@ class MaterialSelector: public wxPanel
         void MaterialSelector_CustomPanel(wxWindow *parent);
         void MaterialSelector_EffPanel(wxWindow *parent);
         
-        void add_effective_component();
+        void add_effective_component(GUI::Material *effective_component=nullptr,
+                                     double weight=1.0);
         void evt_add_effective_component(wxCommandEvent &event);
         void evt_const_index(wxCommandEvent &event);
         void evt_custom_material(wxCommandEvent &event);
@@ -124,6 +125,7 @@ class MaterialSelector: public wxPanel
         void evt_name(wxCommandEvent &event);
         void evt_validity(wxCommandEvent &event);
         EffectiveModel get_effective_material_type();
+        void rebuild_effective_panel();
         void rebuild_effective_material();
         void throw_event();
         void update_header();

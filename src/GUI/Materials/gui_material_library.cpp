@@ -218,6 +218,66 @@ namespace lua_gui_material
     }
     
     template<lua_material::Mode mode>
+    int add_effective_component(lua_State *L)
+    {
+        int s=lua_material::get_shift(mode);
+        Material *mat=lua_material::get_mat_pointer<mode>(L);
+        
+        GUI::Material *new_mat=nullptr;
+        
+        if(lua_isnumber(L,1+s))
+        {
+            new_mat=MaterialsLib::request_material(MatType::REAL_N);
+            new_mat->set_const_n(lua_tonumber(L,1+s));
+        }
+        else if(lua_isstring(L,1+s))
+        {
+            lua_getglobal(L,"lua_caller_path");
+            
+            std::filesystem::path script=lua_tostring(L,1+s);
+            std::filesystem::path *caller_path=static_cast<std::filesystem::path*>(lua_touserdata(L,-1));
+            
+            script=PathManager::locate_file(script,*caller_path);
+            
+            new_mat=MaterialsLib::request_material(script);
+        }
+        else if(lua_isuserdata(L,1+s))
+        {
+            new_mat=dynamic_cast<GUI::Material*>(lua_get_metapointer<Material>(L,1+s));
+        }
+        
+        mat->eff_mats.push_back(new_mat);
+        mat->eff_weights.push_back(lua_tonumber(L,2+s));
+        
+        return 0;
+    }
+    
+    template<lua_material::Mode mode>
+    int set_effective_type(lua_State *L)
+    {
+        int s=lua_material::get_shift(mode);
+        GUI::Material *mat=dynamic_cast<GUI::Material*>(lua_material::get_mat_pointer<mode>(L));
+        
+        std::string model_str=lua_tostring(L,1+s);
+        
+        EffectiveModel model=EffectiveModel::BRUGGEMAN;
+        
+             if(model_str=="bruggeman")       model=EffectiveModel::BRUGGEMAN;
+        else if(model_str=="looyenga")        model=EffectiveModel::LOOYENGA;
+        else if(model_str=="maxwell_garnett") model=EffectiveModel::MAXWELL_GARNETT;
+        else if(model_str=="sum")             model=EffectiveModel::SUM;
+        else if(model_str=="inverse_sum")     model=EffectiveModel::SUM_INV;
+        
+        mat->is_effective_material=true;
+        mat->effective_type=model;
+        
+        if(mat->type!=MatType::SCRIPT)
+            mat->type=MatType::EFFECTIVE;
+        
+        return 0;
+    }
+    
+    template<lua_material::Mode mode>
     int set_index(lua_State *L)
     {
         Material *base_mat=lua_material::get_mat_pointer<mode>(L);
@@ -251,11 +311,18 @@ namespace lua_gui_material
     {
         set_allocation_function(allocate);
                              
+        replace_functions("add_effective_component",
+                          add_effective_component<lua_material::Mode::LIVE>,
+                          add_effective_component<lua_material::Mode::SCRIPT>);
+                             
         replace_functions("load_script",set_script<lua_material::Mode::LIVE>,
                                         set_script<lua_material::Mode::SCRIPT>);
                                          
         replace_functions("refractive_index",set_index<lua_material::Mode::LIVE>,
                                              set_index<lua_material::Mode::SCRIPT>);
+                                         
+        replace_functions("effective_type",set_effective_type<lua_material::Mode::LIVE>,
+                                           set_effective_type<lua_material::Mode::SCRIPT>);
     }
     
     //################
@@ -559,14 +626,13 @@ MaterialsLibDialog::MaterialsLibDialog(wxWindow *requester_,bool (*validator)(Ma
     wxStaticBoxSizer *new_mats_sizer=new wxStaticBoxSizer(wxVERTICAL,this,"New Material");
     
     wxButton *ok_btn=new wxButton(this,wxID_ANY,"Ok");
+    wxButton *script_btn=new wxButton(this,wxID_ANY,"Add Script");
     
     wxButton *const_btn=new wxButton(new_mats_sizer->GetStaticBox(),wxID_ANY,"Constant");
-    wxButton *script_btn=new wxButton(new_mats_sizer->GetStaticBox(),wxID_ANY,"Script");
     wxButton *custom_btn=new wxButton(new_mats_sizer->GetStaticBox(),wxID_ANY,"Custom");
     wxButton *effective_btn=new wxButton(new_mats_sizer->GetStaticBox(),wxID_ANY,"Effective");
     
     new_mats_sizer->Add(const_btn,wxSizerFlags().Expand());
-    new_mats_sizer->Add(script_btn,wxSizerFlags().Expand());
     new_mats_sizer->Add(custom_btn,wxSizerFlags().Expand());
     new_mats_sizer->Add(effective_btn,wxSizerFlags().Expand());
     
@@ -582,6 +648,8 @@ MaterialsLibDialog::MaterialsLibDialog(wxWindow *requester_,bool (*validator)(Ma
     cancel_btn->Bind(wxEVT_BUTTON,&MaterialsLibDialog::evt_cancel,this);
     
     btn_sizer->Add(ok_btn,wxSizerFlags().Expand());
+    btn_sizer->Add(new wxPanel(this),wxSizerFlags(1));
+    btn_sizer->Add(script_btn,wxSizerFlags().Expand());
     btn_sizer->Add(new wxPanel(this),wxSizerFlags(1));
     btn_sizer->Add(new_mats_sizer,wxSizerFlags().Expand());
     btn_sizer->Add(new wxPanel(this),wxSizerFlags(1));
@@ -626,19 +694,16 @@ void MaterialsLibDialog::evt_load_script(wxCommandEvent &event)
     
     std::filesystem::path tmp_script=fname.GetFullPath().ToStdString();
     
-    Material tmp_material;
+    GUI::Material *mat=MaterialsLib::load_script(tmp_script);
     
-    lua_gui_material::Loader ld;
-    ld.load(&tmp_material,tmp_script);
-    
-    if(accept_material(&tmp_material))
+    if(mat!=nullptr)
     {
-        MaterialsLib::load_script(tmp_script);
         rebuild_tree();
-    }
-    else
-    {
-        wxMessageBox("Incompatible material in this configuration!","Error");
+    
+        if(!accept_material(mat))
+        {
+            wxMessageBox("Incompatible material in this configuration!","Error");
+        }
     }
 }
 
@@ -985,31 +1050,31 @@ void MaterialsLib::load_material(std::filesystem::path const &fname,MatType type
     std::cout<<" ... done"<<std::endl;
 }
 
-void MaterialsLib::load_script(std::filesystem::path const &path)
+GUI::Material* MaterialsLib::load_script(std::filesystem::path const &path)
 {
     if(!std::filesystem::exists(path))
     {
         wxMessageBox("Invalid path","Error");
-        return;
+        return nullptr;
     }
     
     for(std::size_t i=0;i<data.size();i++)
         if(std::filesystem::equivalent(path,data[i]->script_path))
         {
             wxMessageBox("Duplicate material","Error");
-            return;
+            return nullptr;
         }
     
     GUI::Material *new_data=new GUI::Material;
+    new_data->type=MatType::SCRIPT;
     
     lua_gui_material::Loader loader;
     loader.load(new_data,path);
     
-    new_data->type=MatType::SCRIPT;
-    
     data.push_back(new_data);
-    
     reorder_materials();
+    
+    return new_data;
 }
 
 GUI::Material* MaterialsLib::material(std::size_t n)
@@ -1021,6 +1086,24 @@ GUI::Material* MaterialsLib::material(std::size_t n)
 void MaterialsLib::register_control(MiniMaterialSelector *selector)
 {
     mini_mats.push_back(selector);
+}
+
+GUI::Material* MaterialsLib::request_material(std::filesystem::path const &path)
+{
+    for(std::size_t i=0;i<data.size();i++)
+    {
+        if(std::filesystem::equivalent(path,data[i]->script_path))
+        {
+            return data[i];
+        }
+    }
+    
+    GUI::Material *out_mat=request_material(MatType::SCRIPT);
+    
+    lua_gui_material::Loader ld;
+    ld.load(out_mat,path);
+    
+    return out_mat;
 }
 
 GUI::Material* MaterialsLib::request_material(MatType type)

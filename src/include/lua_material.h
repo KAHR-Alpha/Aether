@@ -40,6 +40,8 @@ namespace lua_material
         }
     }
     
+    int get_shift(Mode mode);
+    
     class Loader
     {
         public:
