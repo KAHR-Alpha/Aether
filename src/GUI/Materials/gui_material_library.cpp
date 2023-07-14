@@ -138,6 +138,8 @@ namespace GUI
     
     std::string Material::get_short_description()
     {
+        if(!name.empty()) return name;
+        
         std::stringstream out;
         
         switch(type)
@@ -616,8 +618,6 @@ MaterialsLibDialog::MaterialsLibDialog(wxWindow *requester_,bool (*validator)(Ma
     materials=new wxTreeCtrl(this,wxID_ANY,wxDefaultPosition,wxDefaultSize,wxTR_DEFAULT_STYLE|wxTR_HIDE_ROOT);
     materials->AddRoot("Materials");
     
-    rebuild_tree();
-    
     sizer->Add(materials,wxSizerFlags(1).Expand());
     
     // - Buttons
@@ -639,6 +639,11 @@ MaterialsLibDialog::MaterialsLibDialog(wxWindow *requester_,bool (*validator)(Ma
     wxButton *add_to_lib_btn=new wxButton(this,wxID_ANY,"Add to Lib");
     wxButton *cancel_btn=new wxButton(this,wxID_ANY,"Cancel");
     
+    wxString choices[]={"Names","Paths"};
+    
+    display_choice=new wxRadioBox(this,wxID_ANY,"Display",wxDefaultPosition,wxDefaultSize,2,choices,1);
+    display_choice->Bind(wxEVT_RADIOBOX,&MaterialsLibDialog::evt_display_choice,this);
+    
     ok_btn->Bind(wxEVT_BUTTON,&MaterialsLibDialog::evt_ok,this);
     const_btn->Bind(wxEVT_BUTTON,&MaterialsLibDialog::evt_new_const_material,this);
     script_btn->Bind(wxEVT_BUTTON,&MaterialsLibDialog::evt_load_script,this);
@@ -654,10 +659,14 @@ MaterialsLibDialog::MaterialsLibDialog(wxWindow *requester_,bool (*validator)(Ma
     btn_sizer->Add(new_mats_sizer,wxSizerFlags().Expand());
     btn_sizer->Add(new wxPanel(this),wxSizerFlags(1));
     btn_sizer->Add(add_to_lib_btn,wxSizerFlags().Expand());
+    btn_sizer->Add(new wxPanel(this),wxSizerFlags(1));
+    btn_sizer->Add(display_choice,wxSizerFlags().Expand());
     btn_sizer->Add(new wxPanel(this),wxSizerFlags(9));
     btn_sizer->Add(cancel_btn,wxSizerFlags().Expand());
     
     sizer->Add(btn_sizer,wxSizerFlags().Expand().Border(wxALL,2));
+    
+    rebuild_tree();
     
     SetSizer(sizer);
     ShowModal();
@@ -678,6 +687,11 @@ void MaterialsLibDialog::evt_add_to_lib(wxCommandEvent &event)
 void MaterialsLibDialog::evt_cancel(wxCommandEvent &event)
 {
     Close();
+}
+
+void MaterialsLibDialog::evt_display_choice(wxCommandEvent &event)
+{
+    rebuild_tree();
 }
 
 void MaterialsLibDialog::evt_load_script(wxCommandEvent &event)
@@ -775,6 +789,9 @@ void MaterialsLibDialog::rebuild_tree()
     wxTreeItemId custom_mats;
     wxTreeItemId effective_mats;
     
+    bool force_path=false;
+    if(display_choice->GetSelection()==1) force_path=true;
+    
     for(int i=0;i<Nmat;i++)
     {
         GUI::Material *insert_mat=MaterialsLib::material(i);
@@ -810,7 +827,13 @@ void MaterialsLibDialog::rebuild_tree()
         
         
         std::string mat_name=insert_mat->name;
-        if(mat_name.empty()) mat_name=insert_mat->script_path.generic_string();
+        
+        if(    mat_name.empty()
+           || (force_path && !insert_mat->script_path.empty()))
+        {
+            mat_name=insert_mat->script_path.generic_string();
+        }
+        
         if(mat_name.empty()) continue;
         
         MaterialTreeData *data=new MaterialTreeData(insert_mat);

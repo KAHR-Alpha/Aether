@@ -109,6 +109,7 @@ class MaterialsLibDialog: public wxDialog
         GUI::Material *requester_own_material;
         
         wxTreeCtrl *materials;
+        wxRadioBox *display_choice;
         
         bool (*accept_material)(Material*); // Validator
         
@@ -117,6 +118,7 @@ class MaterialsLibDialog: public wxDialog
         
         void evt_add_to_lib(wxCommandEvent &event);
         void evt_cancel(wxCommandEvent &event);
+        void evt_display_choice(wxCommandEvent &event);
         void evt_load_script(wxCommandEvent &event);
         void evt_new_const_material(wxCommandEvent &event);
         void evt_new_custom_material(wxCommandEvent &event);
