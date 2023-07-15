@@ -29,42 +29,7 @@ namespace GUI
          original_requester(nullptr)
     {
     }
-    
-    std::string Material::get_description()
-    {
-        std::stringstream strm;
         
-             if(type==MatType::REAL_N)
-        {
-            strm<<"Const refractive index: ";
-            strm<<std::sqrt(eps_inf);
-        }
-        else if(type==AnyOf(MatType::LIBRARY,
-                            MatType::USER_LIBRARY,
-                            MatType::SCRIPT))
-        {
-            strm<<"Library material: ";
-            strm<<script_path.generic_string();
-        }
-        else if(type==MatType::CUSTOM)
-        {
-            strm<<"Custom material: ";
-            if(!drude.empty()) strm<<"drude ";
-            if(!debye.empty()) strm<<"debye ";
-            if(!lorentz.empty()) strm<<"lorentz ";
-            if(!critpoint.empty()) strm<<"critpoint ";
-            if(!cauchy_coeffs.empty()) strm<<"cauchy ";
-            if(!sellmeier_B.empty()) strm<<"sellmeier ";
-            if(!spd_lambda.empty()) strm<<"tabulated ";
-        }
-        else if(type==MatType::EFFECTIVE)
-        {
-            strm<<"Effective material";
-        }
-        
-        return strm.str();
-    }
-    
     double Material::get_lambda_validity_min()
     {
              if(type==MatType::REAL_N) return 1e-100;
@@ -114,6 +79,15 @@ namespace GUI
                 break;
             case MatType::USER_LIBRARY:
                 out<<script_path.generic_string();
+                break;
+            case MatType::CUSTOM:
+                if(!drude.empty()) out<<"Drd ";
+                if(!debye.empty()) out<<"Deb ";
+                if(!lorentz.empty()) out<<"Lor ";
+                if(!critpoint.empty()) out<<"Crtp ";
+                if(!cauchy_coeffs.empty()) out<<"Chy ";
+                if(!sellmeier_B.empty()) out<<"Slm ";
+                if(!spd_lambda.empty()) out<<"Tab ";
                 break;
             case MatType::EFFECTIVE:
                 {

@@ -43,7 +43,6 @@ namespace GUI
             
             Material();
             
-            std::string get_description();
             double get_lambda_validity_min();
             double get_lambda_validity_max();
             std::string get_short_description();
