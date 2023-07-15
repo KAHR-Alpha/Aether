@@ -1,4 +1,4 @@
-
+name("ZnO - 250nm to 1250nm - approx - LLC")
 
 epsilon_infty(1.63947)
 

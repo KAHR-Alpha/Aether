@@ -1,6 +1,6 @@
 description('Titanium fit from Rakic et al using a Drude-Lorentz model between 470nm and 20 microns\nRakic, A. D.; Djurisic, A. B.; Elazar, J. M. & Majewski, M. L.\nOptical Properties of Metallic Films for Vertical-Cavity Optoelectronic Devices\nAppl. Opt., OSA, 1998, 37, 5271-5283')
 
-
+name("Titanium - 470nm to 20 microns - Rakic")
 
 ih=1.0/6.58211951440e-16
 

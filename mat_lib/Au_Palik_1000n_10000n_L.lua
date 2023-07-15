@@ -1,6 +1,6 @@
 -- Fit Or luxpop-palik entre 1000nm et 10000nm
 
-
+name("Gold - 1 micron to 10 microns - LLC")
 
 epsilon_infty(1.04156)
 add_drude(1.16733e+016,8.3213e+013)
