@@ -35,10 +35,8 @@ enum
 MaterialsEditor::MaterialsEditor(wxString const &title, GUI::Material *material)
     :BaseFrame(title),
      edition_mode(true),
-     Np(401),
-     lambda_min(400e-9), lambda_max(800e-9),
-     lambda(Np), disp_lambda(Np),
-     disp_real(Np), disp_imag(Np)
+     lambda(401), disp_lambda(401),
+     disp_real(401), disp_imag(401)
 {
     
     wxBoxSizer *main_sizer=new wxBoxSizer(wxVERTICAL);
@@ -96,7 +94,8 @@ MaterialsEditor::MaterialsEditor(wxString const &title, GUI::Material *material)
     // General Bindings
     
     Bind(wxEVT_MENU,&MaterialsEditor::evt_menu,this);
-    Bind(EVT_MAT_SELECTOR,&MaterialsEditor::evt_material_selector,this);
+    Bind(EVT_MAT_SELECTOR,&MaterialsEditor::evt_material_model,this);
+    Bind(EVT_MAT_SELECTOR_VALIDITY,&MaterialsEditor::evt_material_validity,this);
     
     Show();
     Maximize();
@@ -139,7 +138,7 @@ void MaterialsEditor::MaterialsEditor_Display(wxPanel *display_panel)
     display_panel->SetSizer(display_sizer);
     
     mat_graph=new Graph(display_panel);
-    sp_selector=new SpectrumSelector(display_panel,lambda_min,lambda_max,Np);
+    sp_selector=new SpectrumSelector(display_panel,400e-9,800e-9,401);
     sp_selector->Bind(EVT_SPECTRUM_SELECTOR,&MaterialsEditor::evt_spectrum_selector,this);
     
     wxStaticBoxSizer *index_sizer=new wxStaticBoxSizer(wxVERTICAL,display_panel,"Display");
@@ -152,8 +151,12 @@ void MaterialsEditor::MaterialsEditor_Display(wxPanel *display_panel)
     
     index_sizer->Add(disp_choice);
     
+    wxButton *export_btn=new wxButton(display_panel,wxID_ANY,"Export");
+    export_btn->Bind(wxEVT_BUTTON,&MaterialsEditor::evt_export,this);
+    
     display_subsizer->Add(sp_selector);
     display_subsizer->Add(index_sizer);
+    display_subsizer->Add(export_btn,wxSizerFlags().Expand().Border(wxALL,2));
     
     display_sizer->Add(mat_graph,wxSizerFlags(1).Expand());
     display_sizer->Add(display_subsizer);
@@ -212,23 +215,55 @@ void MaterialsEditor::evt_edit_material(wxCommandEvent &event)
     ctrl_panel->FitInside();
 }
 
-void MaterialsEditor::evt_material_editor_model(wxCommandEvent &event)
+void MaterialsEditor::evt_export(wxCommandEvent &event)
 {
-    ctrl_panel->Layout();
-    ctrl_panel->FitInside();
+    std::vector<wxString> choices(3);
+
+    choices[0]="Permittivity";
+    choices[1]="Refractive index";
+    choices[2]="MatLab Script";
+
+    ChoiceDialog dialog("Export type",choices);
+
+    if(!dialog.choice_ok) return;
+
+    wxFileName data_tmp=wxFileSelector("Save the structure script as",
+                                       wxEmptyString,
+                                       wxEmptyString,
+                                       wxEmptyString,
+                                       wxFileSelectorDefaultWildcardStr,
+                                       wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
+    if(data_tmp.IsOk()==false) return;
+
+    std::ofstream file(data_tmp.GetFullPath().ToStdString(),
+                       std::ios::out|std::ios::trunc|std::ios::binary);
+
+    int Np=sp_selector->get_Np();
     
-    recompute_model();
+    if(dialog.choice==0 || dialog.choice==1)
+    {
+        for(int l=0;l<Np;l++)
+        {
+            Imdouble eps=selector->get_material()->get_eps(m_to_rad_Hz(lambda[l]));
+
+            if(dialog.choice==0) file<<lambda[l]<<" "<<eps.real()<<" "<<eps.imag()<<std::endl;
+            else
+            {
+                Imdouble n=std::sqrt(eps);
+
+                file<<lambda[l]<<" "<<n.real()<<" "<<n.imag()<<std::endl;
+            }
+        }
+    }
+    else
+    {
+        Material *mat=selector->get_material();
+
+        file<<mat->get_matlab(data_tmp.GetFullPath().ToStdString());
+    }
 }
 
-void MaterialsEditor::evt_material_editor_spectrum(wxCommandEvent &event)
-{
-    lambda_min=sp_selector->get_lambda_min();
-    lambda_max=sp_selector->get_lambda_max();
-    
-    recompute_model();
-}
-
-void MaterialsEditor::evt_material_selector(wxCommandEvent &event)
+void MaterialsEditor::evt_material_model(wxCommandEvent &event)
 {
     ctrl_panel->Layout();
     ctrl_panel->FitInside();
@@ -237,6 +272,16 @@ void MaterialsEditor::evt_material_selector(wxCommandEvent &event)
     selector->GetVirtualSize(&x,&y);
     
     splitter->SetSashPosition(x+15);
+    
+    recompute_model();
+}
+
+void MaterialsEditor::evt_material_validity(wxCommandEvent &event)
+{
+    double lambda_min=selector->get_validity_min();
+    double lambda_max=selector->get_validity_max();
+    
+    sp_selector->set_spectrum(lambda_min,lambda_max);
     
     recompute_model();
 }
@@ -335,9 +380,7 @@ void MaterialsEditor::evt_menu_save_as()
 
 void MaterialsEditor::evt_spectrum_selector(wxCommandEvent &event)
 {
-    lambda_min=sp_selector->get_lambda_min();
-    lambda_max=sp_selector->get_lambda_max();
-    Np=sp_selector->get_Np();
+    int Np=sp_selector->get_Np();
     
     lambda.resize(Np);
     disp_lambda.resize(Np);
@@ -349,6 +392,10 @@ void MaterialsEditor::evt_spectrum_selector(wxCommandEvent &event)
 
 void MaterialsEditor::recompute_model()
 {
+    double lambda_min=sp_selector->get_lambda_min();
+    double lambda_max=sp_selector->get_lambda_max();
+    int Np=sp_selector->get_Np();
+    
     Material &material=*(selector->get_material());
     
     int display_type=disp_choice->GetSelection();

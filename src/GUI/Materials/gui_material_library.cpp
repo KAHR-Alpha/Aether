@@ -559,7 +559,7 @@ void MaterialsLib::initialize()
         while(std::getline(file_default,fname))
         {
             std::filesystem::path material_path{fname};
-            load_material(material_path,MatType::LIBRARY);
+            load_library_material(material_path,MatType::LIBRARY);
         }
     }
     
@@ -577,7 +577,7 @@ void MaterialsLib::initialize()
         while(std::getline(file,fname))
         {
             std::filesystem::path material_path{fname};
-            load_material(material_path,MatType::USER_LIBRARY);
+            load_library_material(material_path,MatType::USER_LIBRARY);
         }
     }
     
@@ -598,7 +598,7 @@ Material* MaterialsLib::knows_material(unsigned int &n,Material const &material,
     return nullptr;
 }
 
-void MaterialsLib::load_material(std::filesystem::path const &fname,MatType type)
+void MaterialsLib::load_library_material(std::filesystem::path const &fname,MatType type)
 {
     std::cout<<"    Loading "<<fname;
     

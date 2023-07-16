@@ -18,6 +18,7 @@ limitations under the License.*/
 #include <gui_material.h>
 
 wxDEFINE_EVENT(EVT_MAT_SELECTOR,wxCommandEvent);
+wxDEFINE_EVENT(EVT_MAT_SELECTOR_VALIDITY,wxCommandEvent);
 
 //######################
 //   EffMaterialPanel
@@ -459,7 +460,7 @@ void MaterialSelector::evt_name(wxCommandEvent &event)
     }
 }
 
-void MaterialSelector::evt_validity(wxCommandEvent &event) { throw_event(); }
+void MaterialSelector::evt_validity(wxCommandEvent &event) { throw_event_validity(); }
 
 void MaterialSelector::force_edition_mode()
 {
@@ -500,6 +501,16 @@ EffectiveModel MaterialSelector::get_effective_material_type()
 GUI::Material* MaterialSelector::get_material()
 {
     return material;
+}
+
+double MaterialSelector::get_validity_max()
+{
+    return validity_max->get_lambda();
+}
+
+double MaterialSelector::get_validity_min()
+{
+    return validity_min->get_lambda();
 }
 
 bool MaterialSelector::load()
@@ -626,6 +637,12 @@ void MaterialSelector::set_material(GUI::Material *material_, bool new_material)
 void MaterialSelector::throw_event()
 {
     wxCommandEvent event(EVT_MAT_SELECTOR);
+    wxPostEvent(this,event);
+}
+
+void MaterialSelector::throw_event_validity()
+{
+    wxCommandEvent event(EVT_MAT_SELECTOR_VALIDITY);
     wxPostEvent(this,event);
 }
 

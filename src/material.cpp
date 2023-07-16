@@ -23,7 +23,7 @@ extern const Imdouble Im;
 Material::Material()
     :eps_inf(1.0),
      lambda_valid_min(400e-9),
-     lambda_valid_max(1000e-9),
+     lambda_valid_max(800e-9),
      is_effective_material(false), // Effective material
      effective_type(EffectiveModel::BRUGGEMAN),
      maxwell_garnett_host(0),

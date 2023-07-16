@@ -25,6 +25,7 @@ limitations under the License.*/
 #include <wx/splitter.h>
 
 wxDECLARE_EVENT(EVT_MAT_SELECTOR,wxCommandEvent);
+wxDECLARE_EVENT(EVT_MAT_SELECTOR_VALIDITY,wxCommandEvent);
 wxDECLARE_EVENT(EVT_MINIMAT_SELECTOR,wxCommandEvent);
 
 class MaterialSelector;
@@ -59,6 +60,8 @@ class MaterialSelector: public wxPanel
         ~MaterialSelector();
         
         GUI::Material* get_material();
+        double get_validity_max();
+        double get_validity_min();
         void hide_buttons();
         void hide_description();
         void hide_validity();
@@ -128,6 +131,7 @@ class MaterialSelector: public wxPanel
         void rebuild_effective_panel();
         void rebuild_effective_material();
         void throw_event();
+        void throw_event_validity();
         void update_header();
         void update_layout();
     
@@ -173,8 +177,6 @@ class MaterialsEditor: public BaseFrame
 {
     public:
         bool edition_mode;
-        unsigned int Np;
-        double lambda_min,lambda_max;
         
         std::vector<double> lambda,disp_lambda,disp_real,disp_imag;
         
@@ -202,16 +204,15 @@ class MaterialsEditor: public BaseFrame
         
         void evt_display_choice(wxCommandEvent &event);
         void evt_edit_material(wxCommandEvent &event);
-        void evt_material_editor_model(wxCommandEvent &event);
-        void evt_material_editor_spectrum(wxCommandEvent &event);
-        void evt_material_selector(wxCommandEvent &event);
+        void evt_export(wxCommandEvent &event);
+        void evt_material_model(wxCommandEvent &event);
+        void evt_material_validity(wxCommandEvent &event);
         void evt_menu(wxCommandEvent &event);
         void evt_menu_exit();
         void evt_menu_library();
         void evt_menu_save();
         void evt_menu_save_as();
         void evt_spectrum_selector(wxCommandEvent &event);
-//        void export_event(wxCommandEvent &event);
         void recompute_model();
 };
 

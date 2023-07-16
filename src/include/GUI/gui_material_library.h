@@ -157,7 +157,7 @@ class MaterialsLib
         static std::vector<GUI::Material*> data;
         static std::vector<MiniMaterialSelector*> mini_mats;
         
-        static void load_material(std::filesystem::path const &fname,MatType type);
+        static void load_library_material(std::filesystem::path const &fname,MatType type);
         static void write_user_lib();
         static void reorder_materials();
     
