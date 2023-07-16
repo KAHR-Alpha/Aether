@@ -128,7 +128,7 @@ bool Aether::OnInit()
 //    MultilayerFrame *mfr=new MultilayerFrame("Aether");
 //    SppFrame *mfr=new SppFrame("Aether");
 //    MieTool *mfr=new MieTool("Aether");
-//    HAPSolverFrame *mfr=new HAPSolverFrame("Aether");
+    HAPSolverFrame *mfr=new HAPSolverFrame("Aether");
 //    EMGeometry_Frame *mfr=new EMGeometry_Frame("Aether");
 //    SamplesFrame *mfr=new SamplesFrame("Aether");
 //    SelGUI::SeleneFrame *mfr=new SelGUI::SeleneFrame("Aether");
@@ -137,8 +137,7 @@ bool Aether::OnInit()
 //    FDTD_Frame *mfr=new FDTD_Frame("Aether");
 //    FitterFrame *mfr=new FitterFrame("Aether");
 //    LayerFitter *mfr=new LayerFitter("Aether");
-//    MaterialExplorer *mfr=new MaterialExplorer("Aether");
-    MaterialsEditor *mfr=new MaterialsEditor("Aether");
+//    MaterialsEditor *mfr=new MaterialsEditor("Aether");
     mfr->Maximize();
     mfr->Show(true);
     

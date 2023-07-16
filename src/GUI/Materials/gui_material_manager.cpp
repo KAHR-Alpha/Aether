@@ -400,7 +400,7 @@ void MaterialsEditor::recompute_model()
     
     int display_type=disp_choice->GetSelection();
         
-    for(unsigned int i=0;i<Np;i++)
+    for(int i=0;i<Np;i++)
     {
         lambda[i]=lambda_min+(lambda_max-lambda_min)*i/(Np-1.0);
         disp_lambda[i]=m_to_nm(lambda[i]);
