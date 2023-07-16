@@ -131,7 +131,6 @@ class MiniMaterialSelector;
 class MaterialsLib
 {
     public:
-        static void consolidate();
         static void consolidate(GUI::Material *material);
         static void consolidate(GUI::Material **material);
         [[nodiscard]]

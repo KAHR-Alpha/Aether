@@ -162,7 +162,7 @@ void MultilayerFrame::load_project(wxFileName const &fname_)
     
     lua_close(L);
     
-    MaterialsLib::consolidate();
+    //MaterialsLib::consolidate();
     
     structure_panel->FitInside();
     structure_panel->Layout();

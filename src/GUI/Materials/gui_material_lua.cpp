@@ -123,6 +123,8 @@ namespace lua_gui_material
         
         mat->type=MatType::SCRIPT;
         
+        MaterialsLib::consolidate(&mat);
+        
         return 0;
     }
     

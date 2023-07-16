@@ -35,6 +35,8 @@ class FDTD_Material_Panel: public PanelsListBase
             set_title("Material");
             
             material=new MaterialSelector(this,"",true,material_,&fdtd_material_validator);
+            material->hide_description();
+            material->hide_validity();
             
             sizer->Add(material,wxSizerFlags().Expand().Border(wxALL,2));
         }

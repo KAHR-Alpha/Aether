@@ -1147,7 +1147,7 @@ void SeleneFrame::load_project(wxFileName const &fname_)
     
     item_count=frames.size();
     
-    MaterialsLib::consolidate();
+    //MaterialsLib::consolidate();
     gather_materials();
     
 //    for(GUI::Material *m : materials)

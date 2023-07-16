@@ -485,7 +485,7 @@ void MaterialsLib::consolidate(GUI::Material **pp_material)
         }
     }
     
-    consolidate(*pp_material);
+    //consolidate(*pp_material);
 }
 
 GUI::Material* MaterialsLib::duplicate_material(GUI::Material *material_)
@@ -710,13 +710,13 @@ void MaterialsLib::reorder_materials()
 
 std::size_t MaterialsLib::size() { return data.size(); }
 
-void MaterialsLib::consolidate()
+/*void MaterialsLib::consolidate()
 {
     for(std::size_t i=0;i<mini_mats.size();i++)
     {
         consolidate(&(mini_mats[i]->material));
     }
-}
+}*/
 
 void MaterialsLib::write_user_lib()
 {
