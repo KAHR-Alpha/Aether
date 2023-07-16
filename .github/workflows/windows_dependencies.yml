@@ -99,11 +99,11 @@ jobs:
       - run: Invoke-WebRequest -UserAgent "Wget" -URI https://sourceforge.net/projects/freetype/files/latest/download -OutFile sources.zip
       - run: Expand-Archive ./sources.zip
       - run: cmake -B "${{github.workspace}}/cmake_build" -DCMAKE_INSTALL_PREFIX="${{github.workspace}}/freetype_build" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
-        working-directory: sources/freetype-2.13.0
+        working-directory: sources/freetype-2.13.1
       - run: cmake --build "${{github.workspace}}/cmake_build" --config ${{env.BUILD_TYPE}}
-        working-directory: sources/freetype-2.13.0
+        working-directory: sources/freetype-2.13.1
       - run: cmake --install "${{github.workspace}}/cmake_build"
-        working-directory: sources/freetype-2.13.0
+        working-directory: sources/freetype-2.13.1
       - name: 'Upload libpng Artifact'
         uses: actions/upload-artifact@v3
         with:
