@@ -16,6 +16,7 @@ limitations under the License.*/
 #define GUI_FDTD_H_INCLUDED
 
 #include <gui.h>
+#include <gui_material_library.h>
 #include <gui_panels_list.h>
 #include <gl_utils.h>
 #include <gui_gl_fd.h>
@@ -51,10 +52,32 @@ class FD_Boundary_Panel: public wxPanel
         void layout_periodic();
 };
 
+namespace GUI
+{
+    class FDTD_Mode: public ::FDTD_Mode
+    {
+        public:
+            std::vector<GUI::Material*> g_materials;
+            
+            void consolidate_materials()
+            {
+                materials.resize(g_materials.size());
+                
+                for(std::size_t i=0;i<materials.size();i++)
+                {
+                    ::Material *c_mat=dynamic_cast<::Material*>(g_materials[i]);
+                    materials[i]=*c_mat;
+                }
+            }
+    };
+    
+    int fdtd_set_material(lua_State *L);
+}
+
 class FDTD_Mode_Dialog: public wxDialog
 {
     public:
-        FDTD_Mode *data;
+        GUI::FDTD_Mode *data;
         bool new_structure,force_xy_periodic;
         int N_panels;
         
@@ -90,7 +113,7 @@ class FDTD_Mode_Dialog: public wxDialog
         FD_Boundary_Panel *boundary_x,*boundary_y,*boundary_z;
                  
         
-        FDTD_Mode_Dialog(FDTD_Mode *data,int target_panel);
+        FDTD_Mode_Dialog(GUI::FDTD_Mode *data,int target_panel);
         
         // Subconstructors
         void FDTD_Mode_Dialog_Boundaries(wxNotebook *book,int target_panel);
@@ -133,13 +156,13 @@ class FDTD_Run_Dialog: public wxDialog
         wxTimer *timer;
         wxButton *ok_btn,*cancel_btn;
         
-        FDTD_Run_Dialog(wxWindow *parent,FDTD_Mode const &data);
+        FDTD_Run_Dialog(wxWindow *parent,GUI::FDTD_Mode const &data);
         ~FDTD_Run_Dialog();
         
         void evt_cancel(wxCommandEvent &event);
         void evt_ok(wxCommandEvent &event);
         void evt_timed_refresh(wxTimerEvent &event);
-        void run_computation(FDTD_Mode const &data);
+        void run_computation(GUI::FDTD_Mode const &data);
 };
 
 class Sensor_Gen_Dialog: public Sensor_generator, public wxDialog
@@ -252,7 +275,7 @@ class FDTD_Frame: public BaseFrame
         double Dx,Dy,Dz;
         Grid3<unsigned int> matsgrid;
         
-        FDTD_Mode fdtd_parameters;
+        GUI::FDTD_Mode fdtd_parameters;
         
         wxScrolledWindow *ctrl_panel;
         wxChoice *fdtd_type;

@@ -96,7 +96,7 @@ class MultilayerFrame: public BaseFrame
         
         int N_layers;
         std::vector<double> layers_height;
-        std::vector<Material> layers_material;
+        std::vector<GUI::Material*> layers_material;
         
         MultilayerFrame(wxString const &title);
         ~MultilayerFrame();
@@ -131,18 +131,18 @@ class MultilayerFrame: public BaseFrame
         void switch_slider_angular();
         void switch_slider_spectral();
         void update_aggregate_polar_ctrl();
-                
-        // Loaders
-        
-        void lua_add_layer(double height,double std_dev,std::string material);
-        void lua_add_bragg(double height_1,double std_dev_1,std::string material_1,
-                           double height_2,double std_dev_2,std::string material_2,
-                           double height_core,double std_dev_core,std::string material_core,
-                           double global_std_dev,double g_factor,int N_top,int N_bottom);
-        void lua_set_angles(int Na);
-        void lua_set_spectrum(double lambda_min,double lambda_max,int Nl);
-        void lua_set_substrate(std::string material);
-        void lua_set_superstrate(std::string material);
 };
+
+namespace lua_gui_multilayer
+{
+    int allocate(lua_State *L);
+    
+    int add_bragg(lua_State *L);
+    int add_layer(lua_State *L);
+    int set_angles(lua_State *L);
+    int set_spectrum(lua_State *L);
+    int set_substrate(lua_State *L);
+    int set_superstrate(lua_State *L);
+}
 
 #endif // GUI_MULTILAYERS_H_INCLUDED

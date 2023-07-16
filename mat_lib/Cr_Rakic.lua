@@ -1,6 +1,6 @@
 -- Fit Rakic Chromium
 
-
+name("Chromium - Rakic")
 
 ih=1.0/6.58211951440e-16
 

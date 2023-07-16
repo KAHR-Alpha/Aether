@@ -6,8 +6,8 @@ message(${CMAKE_GENERATOR})
 message(${CMAKE_CXX_COMPILER_ID})
 
 set(CPACK_PACKAGE_VERSION_MAJOR 0)
-set(CPACK_PACKAGE_VERSION_MINOR 9)
-set(CPACK_PACKAGE_VERSION_PATCH 1)
+set(CPACK_PACKAGE_VERSION_MINOR 10)
+set(CPACK_PACKAGE_VERSION_PATCH 0)
 
 set(TASK "Build CLI" CACHE STRING "What to do")
 set_property(CACHE TASK PROPERTY STRINGS "Build CLI" "Build CLI+GUI")
@@ -49,7 +49,6 @@ set(extra_sources src/berreman_strat.cpp
 				src/index_utils.cpp
 				src/lua_base.cpp
 				src/lua_interface.cpp
-				src/lua_material.cpp
 				src/material.cpp
 				src/mie.cpp
 				src/mini_svg.cpp

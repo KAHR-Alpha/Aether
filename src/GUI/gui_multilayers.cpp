@@ -582,120 +582,6 @@ void MultilayerFrame::evt_structure_change(wxCommandEvent &event)
     recompute();
 }
 
-int lua_gui_multilayer_mode(lua_State *L)
-{
-    lua_getglobal(L,"bound_class");
-    
-    luaL_getmetatable(L,"metatable_multilayer_frame");
-    lua_setmetatable(L,-2);
-    
-    return 1;
-}
-
-void MultilayerFrame::load_project(wxFileName const &fname_)
-{
-    end_computation();
-    
-    layers_list->clear();
-    
-    std::string fname=fname_.GetFullPath().ToStdString();
-    
-    lua_State *L=luaL_newstate();
-    luaL_openlibs(L);
-    
-    MultilayerFrame *p_frame=this;
-    
-    lua_pushlightuserdata(L,reinterpret_cast<void*>(&p_frame));
-    lua_setglobal(L,"bound_class");
-    
-    lua_register(L,"const_material",gen_const_material);
-    lua_register(L,"gui_multilayer_mode",lua_gui_multilayer_mode);
-    
-    create_obj_metatable(L,"metatable_multilayer_frame");
-    
-    lua_wrapper<0,MultilayerFrame,double,double,std::string>::bind(L,"add_layer",&MultilayerFrame::lua_add_layer);
-    lua_wrapper<1,MultilayerFrame,double,double,std::string,
-                                  double,double,std::string,
-                                  double,double,std::string,
-                                  double,double,int,int>::bind(L,"add_bragg",&MultilayerFrame::lua_add_bragg);
-    lua_wrapper<2,MultilayerFrame,int>::bind(L,"angles",&MultilayerFrame::lua_set_angles);
-    lua_wrapper<3,MultilayerFrame,double,double,int>::bind(L,"spectrum",&MultilayerFrame::lua_set_spectrum);
-    lua_wrapper<4,MultilayerFrame,std::string>::bind(L,"substrate",&MultilayerFrame::lua_set_substrate);
-    lua_wrapper<5,MultilayerFrame,std::string>::bind(L,"superstrate",&MultilayerFrame::lua_set_superstrate);
-    
-    int load_err = luaL_loadfile(L,fname.c_str());
-    
-    if(load_err!=LUA_OK)
-    {
-             if(load_err==LUA_ERRFILE) std::cout<<"Lua file error with "<<fname.c_str()<<std::endl;
-        else if(load_err==LUA_ERRSYNTAX) std::cout<<"Lua syntax error with "<<fname.c_str()<<std::endl;
-        else std::cout<<"Lua error with "<<fname.c_str()<<std::endl;
-        std::cin.get();
-        return;
-    }
-    
-    lua_pcall(L,0,0,0);
-    
-    lua_close(L);
-    
-    structure_panel->FitInside();
-    structure_panel->Layout();
-    rename_panels();
-    
-    int Nl=spectrum->get_Np();
-    double lambda_min=spectrum->get_lambda_min();
-    double lambda_max=spectrum->get_lambda_max();
-    
-    lambda.resize(Nl);
-    linspace(lambda,lambda_min,lambda_max);
-    
-    int Na=angle_ctrl->get_value();
-    
-    angle.resize(Na);
-    linspace(angle,0.0,90.0);
-    
-    SetTitle(wxString("Multilayer : ").Append(project_fname.GetName()));
-        
-    recompute();
-}
-
-void MultilayerFrame::lua_add_layer(double height,double std_dev,std::string material)
-{
-    layers_list->add_panel<LayerPanel>(height,std_dev,material,true);
-}
-
-void MultilayerFrame::lua_add_bragg(double height_1,double std_dev_1,std::string material_1,
-                                    double height_2,double std_dev_2,std::string material_2,
-                                    double height_core,double std_dev_core,std::string material_core,
-                                    double global_std_dev,double g_factor,int N_top,int N_bottom)
-{
-    layers_list->add_panel<BraggPanel>(height_1,std_dev_1,material_1,
-                                       height_2,std_dev_2,material_2,
-                                       height_core,std_dev_core,material_core,
-                                       global_std_dev,g_factor,N_top,N_bottom);
-}
-
-void MultilayerFrame::lua_set_angles(int Na)
-{
-    angle_ctrl->set_value(Na);
-}
-
-void MultilayerFrame::lua_set_spectrum(double lambda_min,double lambda_max,int Nl)
-{
-    spectrum->set_spectrum(lambda_min,lambda_max);
-    spectrum->set_Np(Nl);
-}
-
-void MultilayerFrame::lua_set_substrate(std::string material)
-{
-    substrate_selector->set_material(material);
-}
-
-void MultilayerFrame::lua_set_superstrate(std::string material)
-{
-    superstrate_selector->set_material(material);
-}
-
 void MultilayerFrame::recompute()
 {
     end_computation();
@@ -871,7 +757,7 @@ void MultilayerFrame::recompute_statistical_thread()
                                    substrate_selector->get_n(w));
                 
                 for(l=0;l<N_layers;l++)
-                    ml.set_layer(l,layers_height_samples[Nc_samples][l],layers_material[l].get_n(w));
+                    ml.set_layer(l,layers_height_samples[Nc_samples][l],layers_material[l]->get_n(w));
                 
                 ml.compute_power(tmp_R_TE,tmp_T_TE,tmp_A_TE,
                                  tmp_R_TM,tmp_T_TM,tmp_A_TM);
@@ -892,7 +778,7 @@ void MultilayerFrame::recompute_statistical_thread()
                                substrate_selector->get_n(w));
             
             for(l=0;l<N_layers;l++)
-                ml.set_layer(l,layers_height_samples[Nc_samples][l],layers_material[l].get_n(w));
+                ml.set_layer(l,layers_height_samples[Nc_samples][l],layers_material[l]->get_n(w));
             
             for(i=0;i<angle.size();i++)
             {
@@ -985,7 +871,7 @@ void MultilayerFrame::recompute_straight()
                                substrate_selector->get_n(w));
             
             for(l=0;l<Nl;l++)
-                ml.set_layer(l,layers_height[l],layers_material[l].get_n(w));
+                ml.set_layer(l,layers_height[l],layers_material[l]->get_n(w));
             
             ml.compute_power(R_TE[i],T_TE[i],A_TE[i],
                              R_TM[i],T_TM[i],A_TM[i]);
@@ -1010,7 +896,7 @@ void MultilayerFrame::recompute_straight()
                            substrate_selector->get_n(w));
         
         for(l=0;l<Nl;l++)
-            ml.set_layer(l,layers_height[l],layers_material[l].get_n(w));
+            ml.set_layer(l,layers_height[l],layers_material[l]->get_n(w));
         
         for(i=0;i<angle.size();i++)
         {
@@ -1093,31 +979,6 @@ void MultilayerFrame::update_aggregate_polar_ctrl()
     polar_P_ctrl->SetValue(P_val);
     polar_S_ctrl->SetValue(S_val);
     polar_avg_ctrl->SetValue(avg_val);
-}
-
-void MultilayerFrame::save_project(wxFileName const &fname_)
-{
-    std::string fname=fname_.GetFullPath().ToStdString();
-    
-    std::ofstream file(fname,std::ios::out|std::ios::trunc);
-    
-    file<<"mode=gui_multilayer_mode()"<<std::endl;
-    file<<"mode:angles("<<angle_ctrl->get_value()<<")"<<std::endl;
-    file<<"mode:spectrum("<<spectrum->get_lambda_min()<<","<<spectrum->get_lambda_max()<<","<<spectrum->get_Np()<<")"<<std::endl;
-    
-    file<<"mode:superstrate("<<superstrate_selector->get_lua()<<")"<<std::endl<<std::endl;
-    
-    for(unsigned int i=0;i<layers_list->get_size();i++)
-    {
-        file<<"mode:"<<layers_list->get_panel(i)->get_lua_string()<<std::endl;
-    }
-    file<<std::endl;
-    
-    file<<"mode:substrate("<<substrate_selector->get_lua()<<")";
-    
-    file.close();
-    
-    SetTitle(wxString("Multilayer : ").Append(project_fname.GetName()));
 }
 
 void MultilayerFrame::switch_slider_angular()

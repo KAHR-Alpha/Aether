@@ -13,6 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include <fd_base.h>
+#include <lua_material.h>
 
 extern const double Pi;
 extern const Imdouble Im;
@@ -273,7 +274,11 @@ void FD_Base::set_material(unsigned int m_ID,Material const &material_)
 
 void FD_Base::set_material(unsigned int m_ID,std::string fname)
 {
-    if(m_ID<Nmats) mats[m_ID].load_lua_script(fname);
+    if(m_ID<Nmats)
+    {
+        lua_material::Loader loader;
+        loader.load(&mats[m_ID],fname);
+    }
 }
 
 void FD_Base::set_matsgrid(Grid3<unsigned int> const &G)

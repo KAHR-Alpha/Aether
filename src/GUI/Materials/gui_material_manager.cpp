@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2023 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -18,71 +18,7 @@ limitations under the License.*/
 
 #include <gui_material.h>
 
-#include <wx/splitter.h>
-
 extern const Imdouble Im;
-
-class MaterialsLibDialog: public wxDialog
-{
-    public:
-        bool selection_ok;
-        Material material;
-        wxChoice *choice;
-        
-        MaterialsLibDialog()
-            :wxDialog(nullptr,wxID_ANY,"Select a material",
-                      wxGetApp().default_dialog_origin()),
-             selection_ok(false)
-        {
-            wxBoxSizer *sizer=new wxBoxSizer(wxVERTICAL);
-            
-            // Choice
-            
-            choice=new wxChoice(this,wxID_ANY);
-            
-            int Nmat=MaterialsLib::get_N_materials();
-            
-            for(int i=0;i<Nmat;i++)
-                choice->Append(MaterialsLib::get_material_name(i).generic_string());
-            
-            if(Nmat>0) choice->SetSelection(0);
-            
-            sizer->Add(choice,wxSizerFlags().Expand().Border(wxALL,2));
-            
-            // Buttons
-            
-            wxBoxSizer *btn_sizer=new wxBoxSizer(wxHORIZONTAL);
-            
-            wxButton *ok_btn=new wxButton(this,wxID_ANY,"Ok");
-            wxButton *cancel_btn=new wxButton(this,wxID_ANY,"Cancel");
-            
-            ok_btn->Bind(wxEVT_BUTTON,&MaterialsLibDialog::evt_ok,this);
-            cancel_btn->Bind(wxEVT_BUTTON,&MaterialsLibDialog::evt_cancel,this);
-            
-            btn_sizer->Add(new wxPanel(this),wxSizerFlags(1).Expand());
-            btn_sizer->Add(ok_btn);
-            btn_sizer->Add(cancel_btn);
-            
-            sizer->Add(btn_sizer,wxSizerFlags().Expand().Border(wxALL,2));
-            
-            SetSizerAndFit(sizer);
-        }
-        
-        void evt_cancel(wxCommandEvent &event)
-        {
-            Close();
-        }
-        
-        void evt_ok(wxCommandEvent &event)
-        {
-            selection_ok=true;
-            
-            int selection=choice->GetSelection();
-            
-            material=*(MaterialsLib::get_material(selection));
-            Close();
-        }
-};
 
 //#####################
 //   MaterialsManager
@@ -90,46 +26,46 @@ class MaterialsLibDialog: public wxDialog
 
 enum
 {
-    MENU_NEW,
     MENU_LOAD,
     MENU_SAVE,
     MENU_SAVE_AS,
     MENU_EXIT
 };
 
-MaterialsManager::MaterialsManager(wxString const &title)
+MaterialsEditor::MaterialsEditor(wxString const &title, GUI::Material *material)
     :BaseFrame(title),
-     Np(401),
-     lambda_min(400e-9), lambda_max(800e-9),
-     library_material(false),
-     lambda(Np), disp_lambda(Np),
-     disp_real(Np), disp_imag(Np)
+     edition_mode(true),
+     lambda(401), disp_lambda(401),
+     disp_real(401), disp_imag(401)
 {
+    
     wxBoxSizer *main_sizer=new wxBoxSizer(wxVERTICAL);
     
     SetSizer(main_sizer);
     
     // Material Selector
     
-    material_path=new NamedTextCtrl<std::string>(this,"Material","",true);
+    material_path=new NamedTextCtrl<std::string>(this,"Path","",true);
     material_path->lock();
+    
+    if(material!=nullptr)
+        material_path->set_value(material->script_path.generic_string());
     
     main_sizer->Add(material_path,wxSizerFlags().Expand());
     
     // Splitting
     
-    wxSplitterWindow *splitter=new wxSplitterWindow(this);
+    splitter=new wxSplitterWindow(this);
     
     // - Controls
     
     ctrl_panel=new wxScrolledWindow(splitter);
-//    ctrl_panel=new wxPanel(splitter);
-    MaterialsManager_Controls();
+    MaterialsEditor_Controls(material);
     
     // - Display
  
     wxPanel *display_panel=new wxPanel(splitter);   
-    MaterialsManager_Display(display_panel);
+    MaterialsEditor_Display(display_panel);
     
     // - Splitting wrapping up
     
@@ -143,9 +79,8 @@ MaterialsManager::MaterialsManager(wxString const &title)
     wxMenuBar *menu_bar=new wxMenuBar;
     wxMenu *file_menu=new wxMenu();
     
-    file_menu->Append(MENU_NEW,"New");
+    file_menu->Append(MENU_LOAD,"Library");
     file_menu->AppendSeparator();
-    file_menu->Append(MENU_LOAD,"Load");
     file_menu->Append(MENU_SAVE,"Save");
     file_menu->Append(MENU_SAVE_AS,"Save As...");
     file_menu->AppendSeparator();
@@ -158,26 +93,35 @@ MaterialsManager::MaterialsManager(wxString const &title)
     
     // General Bindings
     
-    Bind(wxEVT_MENU,&MaterialsManager::evt_menu,this);
-    Bind(EVT_MATERIAL_EDITOR_MODEL,&MaterialsManager::evt_material_editor_model,this);
-    Bind(EVT_MATERIAL_EDITOR_SPECTRUM,&MaterialsManager::evt_material_editor_spectrum,this);
+    Bind(wxEVT_MENU,&MaterialsEditor::evt_menu,this);
+    Bind(EVT_MAT_SELECTOR,&MaterialsEditor::evt_material_model,this);
+    Bind(EVT_MAT_SELECTOR_VALIDITY,&MaterialsEditor::evt_material_validity,this);
     
     Show();
     Maximize();
 }
 
-MaterialsManager::~MaterialsManager()
+MaterialsEditor::~MaterialsEditor()
 {
-    MaterialsLib::forget_manager();
 }
 
-void MaterialsManager::MaterialsManager_Controls()
+void MaterialsEditor::MaterialsEditor_Controls(GUI::Material *material)
 {
     wxBoxSizer *ctrl_sizer=new wxBoxSizer(wxVERTICAL);
     
-    editor=new MaterialEditor(ctrl_panel);
+    material_edit_btn=new wxButton(ctrl_panel,wxID_ANY,"Edit Material");
+    material_edit_btn->Bind(wxEVT_BUTTON,&MaterialsEditor::evt_edit_material,this);
+    material_edit_btn->Hide();
     
-    ctrl_sizer->Add(editor,wxSizerFlags(1).Expand());
+    ctrl_sizer->Add(material_edit_btn,wxSizerFlags().Expand());
+    
+    if(material==nullptr)
+        material=MaterialsLib::request_material(MatType::CUSTOM);
+    
+    selector=new MaterialSelector(ctrl_panel,"",true,material);
+    selector->hide_buttons();
+    
+    ctrl_sizer->Add(selector,wxSizerFlags().Expand());
     
     // Wrapping up
     
@@ -186,7 +130,7 @@ void MaterialsManager::MaterialsManager_Controls()
     ctrl_panel->FitInside();
 }
 
-void MaterialsManager::MaterialsManager_Display(wxPanel *display_panel)
+void MaterialsEditor::MaterialsEditor_Display(wxPanel *display_panel)
 {
     wxBoxSizer *display_sizer=new wxBoxSizer(wxVERTICAL);
     wxBoxSizer *display_subsizer=new wxBoxSizer(wxHORIZONTAL);
@@ -194,8 +138,8 @@ void MaterialsManager::MaterialsManager_Display(wxPanel *display_panel)
     display_panel->SetSizer(display_sizer);
     
     mat_graph=new Graph(display_panel);
-    sp_selector=new SpectrumSelector(display_panel,lambda_min,lambda_max,Np);
-    sp_selector->Bind(EVT_SPECTRUM_SELECTOR,&MaterialsManager::evt_spectrum_selector,this);
+    sp_selector=new SpectrumSelector(display_panel,400e-9,800e-9,401);
+    sp_selector->Bind(EVT_SPECTRUM_SELECTOR,&MaterialsEditor::evt_spectrum_selector,this);
     
     wxStaticBoxSizer *index_sizer=new wxStaticBoxSizer(wxVERTICAL,display_panel,"Display");
     
@@ -203,165 +147,208 @@ void MaterialsManager::MaterialsManager_Display(wxPanel *display_panel)
     
     disp_choice=new wxChoice(index_sizer->GetStaticBox(),wxID_ANY,wxDefaultPosition,wxDefaultSize,2,disp_str);
     disp_choice->SetSelection(0);
-    disp_choice->Bind(wxEVT_CHOICE,&MaterialsManager::evt_display_choice,this);
+    disp_choice->Bind(wxEVT_CHOICE,&MaterialsEditor::evt_display_choice,this);
     
     index_sizer->Add(disp_choice);
     
+    wxButton *export_btn=new wxButton(display_panel,wxID_ANY,"Export");
+    export_btn->Bind(wxEVT_BUTTON,&MaterialsEditor::evt_export,this);
+    
     display_subsizer->Add(sp_selector);
     display_subsizer->Add(index_sizer);
+    display_subsizer->Add(export_btn,wxSizerFlags().Expand().Border(wxALL,2));
     
     display_sizer->Add(mat_graph,wxSizerFlags(1).Expand());
     display_sizer->Add(display_subsizer);
 }
 
-void MaterialsManager::evt_display_choice(wxCommandEvent &event)
+void MaterialsEditor::evt_display_choice(wxCommandEvent &event)
 {
     recompute_model();
 }
 
-void MaterialsManager::evt_material_editor_model(wxCommandEvent &event)
+void MaterialsEditor::evt_edit_material(wxCommandEvent &event)
+{
+    std::filesystem::path next_path=selector->get_material()->script_path;
+    
+    if(selector->get_material()->type==MatType::LIBRARY)
+    {
+        bool library_path=true;
+        
+        while(library_path)
+        {
+            wxFileName fname=wxFileSelector("Please select a new file to save to",
+                                            wxFileSelectorPromptStr,
+                                            wxEmptyString,
+                                            "lua",
+                                            "Aether material file (*.lua)|*.lua",
+                                            wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
+            
+            next_path=fname.GetFullPath().ToStdString();
+            
+            if(next_path.empty()) return;
+            
+            if(PathManager::belongs_to_resources(next_path))
+            {
+                wxMessageBox("Error: don't overwrite default materials");
+            }
+            else library_path=false;
+        }
+        
+        GUI::Material *new_material=MaterialsLib::duplicate_material(selector->get_material());
+        new_material->name="";
+        new_material->script_path=next_path;
+        
+        selector->set_material(new_material,true);
+    }
+    
+    material_path->set_value(next_path.generic_string());
+    
+    selector->unlock();
+    
+    selector->force_edition_mode();
+    edition_mode=true;
+    
+    material_edit_btn->Hide();
+    
+    ctrl_panel->Layout();
+    ctrl_panel->FitInside();
+}
+
+void MaterialsEditor::evt_export(wxCommandEvent &event)
+{
+    std::vector<wxString> choices(3);
+
+    choices[0]="Permittivity";
+    choices[1]="Refractive index";
+    choices[2]="MatLab Script";
+
+    ChoiceDialog dialog("Export type",choices);
+
+    if(!dialog.choice_ok) return;
+
+    wxFileName data_tmp=wxFileSelector("Save the structure script as",
+                                       wxEmptyString,
+                                       wxEmptyString,
+                                       wxEmptyString,
+                                       wxFileSelectorDefaultWildcardStr,
+                                       wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
+    if(data_tmp.IsOk()==false) return;
+
+    std::ofstream file(data_tmp.GetFullPath().ToStdString(),
+                       std::ios::out|std::ios::trunc|std::ios::binary);
+
+    int Np=sp_selector->get_Np();
+    
+    if(dialog.choice==0 || dialog.choice==1)
+    {
+        for(int l=0;l<Np;l++)
+        {
+            Imdouble eps=selector->get_material()->get_eps(m_to_rad_Hz(lambda[l]));
+
+            if(dialog.choice==0) file<<lambda[l]<<" "<<eps.real()<<" "<<eps.imag()<<std::endl;
+            else
+            {
+                Imdouble n=std::sqrt(eps);
+
+                file<<lambda[l]<<" "<<n.real()<<" "<<n.imag()<<std::endl;
+            }
+        }
+    }
+    else
+    {
+        Material *mat=selector->get_material();
+
+        file<<mat->get_matlab(data_tmp.GetFullPath().ToStdString());
+    }
+}
+
+void MaterialsEditor::evt_material_model(wxCommandEvent &event)
 {
     ctrl_panel->Layout();
     ctrl_panel->FitInside();
     
+    int x,y;
+    selector->GetVirtualSize(&x,&y);
+    
+    splitter->SetSashPosition(x+15);
+    
     recompute_model();
 }
 
-void MaterialsManager::evt_material_editor_spectrum(wxCommandEvent &event)
+void MaterialsEditor::evt_material_validity(wxCommandEvent &event)
 {
-    sp_selector->set_spectrum(editor->validity_min->get_lambda(),
-                              editor->validity_max->get_lambda());
+    double lambda_min=selector->get_validity_min();
+    double lambda_max=selector->get_validity_max();
     
-    lambda_min=sp_selector->get_lambda_min();
-    lambda_max=sp_selector->get_lambda_max();
+    sp_selector->set_spectrum(lambda_min,lambda_max);
     
     recompute_model();
 }
 
-void MaterialsManager::evt_menu(wxCommandEvent &event)
+void MaterialsEditor::evt_menu(wxCommandEvent &event)
 {
     int ID=event.GetId();
     
     switch(ID)
     {
-        case MENU_NEW: evt_menu_new(); break;
-        case MENU_LOAD: evt_menu_load(); break;
+        case MENU_LOAD: evt_menu_library(); break;
         case MENU_SAVE: evt_menu_save(); break;
         case MENU_SAVE_AS: evt_menu_save_as(); break;
         case MENU_EXIT: evt_menu_exit(); break;
     }
 }
 
-void MaterialsManager::evt_menu_exit()
+void MaterialsEditor::evt_menu_exit()
 {
     Close();
 }
 
-void MaterialsManager::evt_menu_load()
+void MaterialsEditor::evt_menu_library()
 {
-    std::vector<wxString> choices(2);
+    edition_mode=false;
     
-    choices[0]="Library";
-    choices[1]="File";
+    selector->load();
     
-    ChoiceDialog dialog("Load from:",choices);
+    material_path->set_value(selector->get_material()->script_path.generic_string());
     
-    if(!dialog.choice_ok) return;
+    MatType type=selector->get_material()->type;
     
-    if(dialog.choice==0)
+    if(   type==MatType::LIBRARY
+       || type==MatType::USER_LIBRARY
+       || type==MatType::SCRIPT)
     {
-        MaterialsLibDialog dialog;
-        dialog.ShowModal();
-        
-        if(dialog.selection_ok)
-        {
-            editor->material=dialog.material;
-            
-            editor->update_controls();
-            editor->rebuild_elements_list();
-            
-            material_path->set_value(editor->material.script_path.generic_string());
-            
-            if(PathManager::belongs_to_resources(editor->material.script_path))
-            {
-                library_material=true;
-                editor->lock();
-            }
-            else
-            {
-                library_material=false;
-                editor->unlock();
-            }
-        }
+        material_edit_btn->Show();
+        selector->lock();
     }
     else
     {
-        wxFileName data_tmp=wxFileSelector("Please select a material file",
-                                           wxString(PathManager::user_profile_materials.generic_string()),
-                                           wxEmptyString,wxEmptyString,
-                                           "Lua script (*.lua)|*.lua",
-                                           wxFD_OPEN);
-                                       
-        if(data_tmp.IsOk()==false) return;
+        edition_mode=true;
+    }
+    
+    recompute_model();
+}
+
+void MaterialsEditor::evt_menu_save()
+{
+    if(edition_mode)
+    {
+        GUI::Material *material=selector->get_material();
+        std::filesystem::path path=material->script_path;
         
-        std::filesystem::path new_path=data_tmp.GetFullPath().ToStdString();
-        
-        editor->material.load_lua_script(new_path);
-        
-        editor->update_controls();
-        editor->rebuild_elements_list();
-        
-        material_path->set_value(new_path.generic_string());
-        
-        if(PathManager::belongs_to_resources(new_path))
+        if(path.empty())
         {
-            library_material=true;
-            editor->lock();
+            evt_menu_save_as();
         }
         else
         {
-            library_material=false;
-            editor->unlock();
+            lua_gui_material::Translator mtr(path);
+            mtr.save_to_file(material);
         }
     }
 }
 
-void MaterialsManager::evt_menu_new()
-{
-    wxFileName data_tmp=wxFileSelector("Please create a new material file",
-                                       wxString(PathManager::user_profile_materials.generic_string()),
-                                       "temporary_material",
-                                       ".lua",
-                                       "Lua script (*.lua)|*.lua",
-                                       wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
-                                       
-    if(data_tmp.IsOk()==false) return;
-    
-    std::filesystem::path new_path=data_tmp.GetFullPath().ToStdString();
-        
-    editor->material.reset();
-    editor->material.script_path=new_path;
-    editor->material.write_lua_script();
-    
-    editor->update_controls();
-    editor->rebuild_elements_list();
-    
-    material_path->set_value(new_path.generic_string());
-    
-    library_material=false;
-    editor->unlock();
-}
-
-void MaterialsManager::evt_menu_save()
-{
-    if(!library_material)
-    {
-        editor->material.write_lua_script();
-    }
-    else evt_menu_save_as();
-}
-
-void MaterialsManager::evt_menu_save_as()
+void MaterialsEditor::evt_menu_save_as()
 {
     wxFileName data_tmp=wxFileSelector("Please create a new material file",
                                        wxString(PathManager::user_profile_materials.generic_string()),
@@ -380,20 +367,20 @@ void MaterialsManager::evt_menu_save_as()
         return;
     }
     
-    editor->material.script_path=new_path;
-    editor->material.write_lua_script();
+    edition_mode=true;
     
-    editor->rebuild_elements_list();
-    editor->update_controls();
+    GUI::Material *material=selector->get_material();
     
+    material->script_path=new_path;
     material_path->set_value(new_path.generic_string());
+    
+    lua_gui_material::Translator mtr(new_path);
+    mtr.save_to_file(material);
 }
 
-void MaterialsManager::evt_spectrum_selector(wxCommandEvent &event)
+void MaterialsEditor::evt_spectrum_selector(wxCommandEvent &event)
 {
-    lambda_min=sp_selector->get_lambda_min();
-    lambda_max=sp_selector->get_lambda_max();
-    Np=sp_selector->get_Np();
+    int Np=sp_selector->get_Np();
     
     lambda.resize(Np);
     disp_lambda.resize(Np);
@@ -403,13 +390,17 @@ void MaterialsManager::evt_spectrum_selector(wxCommandEvent &event)
     recompute_model();
 }
 
-void MaterialsManager::recompute_model()
+void MaterialsEditor::recompute_model()
 {
-    Material &material=editor->material;
+    double lambda_min=sp_selector->get_lambda_min();
+    double lambda_max=sp_selector->get_lambda_max();
+    int Np=sp_selector->get_Np();
+    
+    Material &material=*(selector->get_material());
     
     int display_type=disp_choice->GetSelection();
         
-    for(unsigned int i=0;i<Np;i++)
+    for(int i=0;i<Np;i++)
     {
         lambda[i]=lambda_min+(lambda_max-lambda_min)*i/(Np-1.0);
         disp_lambda[i]=m_to_nm(lambda[i]);

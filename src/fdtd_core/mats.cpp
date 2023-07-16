@@ -134,7 +134,7 @@ void FDTD_Material::coeffsZ(double &C1o,double &C2xo,double &C2yo)
     C2yo=C2y;
 }
 
-Imdouble FDTD_Material::get_n(double w) const
+Imdouble FDTD_Material::get_n(double w)
 {
     return base_mat.get_n(w);
 }

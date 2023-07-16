@@ -25,24 +25,15 @@ namespace SelGUI
 //###################
     
 MaterialPanel::MaterialPanel(wxWindow *parent,
-                             Material const &material)
+                             GUI::Material *material)
     :PanelsListBase(parent),
      original_material(nullptr)
 {
     title->Hide();
     
-    name=new NamedTextCtrl<std::string>(this,"Name : ",material.name);
     selector=new MaterialSelector(this,"",true,material);
     
-    sizer->Add(name);
     sizer->Add(selector,wxSizerFlags().Expand());
-}
-
-MaterialPanel::MaterialPanel(wxWindow *parent,
-                             Material *material)
-    :MaterialPanel(parent,*material)
-{
-    original_material=material;
 }
 
 //#####################
@@ -51,7 +42,7 @@ MaterialPanel::MaterialPanel(wxWindow *parent,
 
 int mat_ID=0;
 
-MaterialsDialog::MaterialsDialog(std::vector<Material*> &materials_)
+MaterialsDialog::MaterialsDialog(std::vector<GUI::Material*> &materials_)
     :wxDialog(NULL,-1,"Materials",
               wxGetApp().default_dialog_origin(),
               wxGetApp().default_dialog_size()),
@@ -84,35 +75,19 @@ MaterialsDialog::MaterialsDialog(std::vector<Material*> &materials_)
     
     top_sizer->Add(sizer,wxSizerFlags(1).Expand());
     
-    // Buttons
-    
-    wxBoxSizer *btn_sizer=new wxBoxSizer(wxHORIZONTAL);
-    
-    wxButton *ok_btn=new wxButton(this,wxID_ANY,"Ok");
-    wxButton *cancel_btn=new wxButton(this,wxID_ANY,"Cancel");
-    
-    btn_sizer->Add(ok_btn);
-    btn_sizer->Add(cancel_btn);
-    
-    ok_btn->Bind(wxEVT_BUTTON,&MaterialsDialog::evt_ok,this);
-    cancel_btn->Bind(wxEVT_BUTTON,&MaterialsDialog::evt_cancel,this);
-    
-    top_sizer->Add(btn_sizer,wxSizerFlags().Align(wxALIGN_RIGHT));
-    
     SetSizer(top_sizer);
+    
+    Bind(wxEVT_CLOSE_WINDOW,&MaterialsDialog::evt_close,this);
+    Bind(EVT_MAT_SELECTOR,&MaterialsDialog::evt_list,this);
+    Bind(EVT_PLIST_REMOVE,&MaterialsDialog::evt_list,this);
+    Bind(EVT_PLIST_RESIZE,&MaterialsDialog::evt_list,this);
     
     ShowModal();
 }
 
 void MaterialsDialog::evt_add_material(wxCommandEvent &event)
-{
-    Material new_mat;
-    new_mat.set_const_n(1.0);
-    
-    new_mat.name="Material "+std::to_string(mat_ID);
-    mat_ID++;
-    
-    materials_panels->add_panel<MaterialPanel>(new_mat);
+{    
+    MaterialPanel *mat_panel=materials_panels->add_panel<MaterialPanel>(nullptr);
     
     panel->Layout();
     panel->FitInside();
@@ -120,42 +95,25 @@ void MaterialsDialog::evt_add_material(wxCommandEvent &event)
     event.Skip();
 }
 
-void MaterialsDialog::evt_cancel(wxCommandEvent &event)
-{
-    Close();
-}
-
-void MaterialsDialog::evt_ok(wxCommandEvent &event)
+void MaterialsDialog::evt_close(wxCloseEvent &event)
 {
     std::size_t N=materials_panels->get_size();
-    
-    // Need to make sure some of the previous materials haven't been deleted
-    
-    std::vector<MaterialPanel*> panels(N);
-    std::vector<Material*> original_materials(N);
-    
-    for(std::size_t i=0;i<N;i++)
-    {
-        panels[i]=materials_panels->get_panel(i);
-        original_materials[i]=panels[i]->original_material;
-    }
-    
-    for(std::size_t i=0;i<materials.size();i++)
-        if(!vector_contains(original_materials,materials[i]))
-           delete materials[i];
     
     materials.resize(N);
     
     for(std::size_t i=0;i<N;i++)
     {
-        if(original_materials[i]==nullptr) materials[i]=new Material;
-        else materials[i]=original_materials[i];
-        
-        *materials[i]=panels[i]->selector->get_material();
-        materials[i]->name=panels[i]->name->get_value();
+        MaterialPanel *panel=materials_panels->get_panel(i);
+        materials[i]=panel->selector->get_material();
     }
     
-    Close();
+    Destroy();
+}
+
+void MaterialsDialog::evt_list(wxCommandEvent &event)
+{
+    panel->Layout();
+    panel->FitInside();
 }
 
 //###############
@@ -225,7 +183,7 @@ IRF_Panel::IRF_Panel(wxWindow *parent,Sel::IRF const &irf)
     layers=new PanelsList<LayerPanel>(multilayer_panel);
     
     for(std::size_t i=0;i<irf.ml_heights.size();i++)
-        layers->add_panel<LayerPanel>(irf.ml_heights[i],0,irf.ml_materials[i],false);
+        layers->add_panel<LayerPanel>(irf.ml_heights[i],0,dynamic_cast<GUI::Material*>(irf.ml_materials[i]),false);
     
     wxButton *add_layer_btn=new wxButton(multilayer_panel,wxID_ANY,"Add Layer");
     add_layer_btn->Bind(wxEVT_BUTTON,&IRF_Panel::evt_add_layer,this);
@@ -354,22 +312,8 @@ IRF_Dialog::IRF_Dialog(std::vector<Sel::IRF*> &irfs_)
     
     top_sizer->Add(sizer,wxSizerFlags(1).Expand());
     
-    // Buttons
-    
-    wxBoxSizer *btn_sizer=new wxBoxSizer(wxHORIZONTAL);
-    
-    wxButton *ok_btn=new wxButton(this,wxID_ANY,"Ok");
-    wxButton *cancel_btn=new wxButton(this,wxID_ANY,"Cancel");
-    
-    btn_sizer->Add(ok_btn);
-    btn_sizer->Add(cancel_btn);
-    
-    ok_btn->Bind(wxEVT_BUTTON,&IRF_Dialog::evt_ok,this);
-    cancel_btn->Bind(wxEVT_BUTTON,&IRF_Dialog::evt_cancel,this);
-    
-    top_sizer->Add(btn_sizer,wxSizerFlags().Align(wxALIGN_RIGHT));
-    
     Bind(EVT_PLIST_RESIZE,&IRF_Dialog::evt_list,this);
+    Bind(wxEVT_CLOSE_WINDOW,&IRF_Dialog::evt_ok,this);
     
     SetSizer(top_sizer);
     
@@ -392,18 +336,13 @@ void IRF_Dialog::evt_add_irf(wxCommandEvent &event)
     event.Skip();
 }
 
-void IRF_Dialog::evt_cancel(wxCommandEvent &event)
-{
-    Close();
-}
-
 void IRF_Dialog::evt_list(wxCommandEvent &event)
 {
     panel->FitInside();
     panel->Layout();
 }
 
-void IRF_Dialog::evt_ok(wxCommandEvent &event)
+void IRF_Dialog::evt_ok(wxCloseEvent &event)
 {
     std::size_t N=irfs_panels->get_size();
     
@@ -465,7 +404,7 @@ void IRF_Dialog::evt_ok(wxCommandEvent &event)
         irfs[i]->name=panels[i]->name->get_value();
     }
     
-    Close();
+    Destroy();
 }
 
 }

@@ -1,6 +1,6 @@
 description('Gold fit from Rakic et al using a Drude-Lorentz model between 250nm and 6.2 microns\nRakic, A. D.; Djurisic, A. B.; Elazar, J. M. & Majewski, M. L.\nOptical Properties of Metallic Films for Vertical-Cavity Optoelectronic Devices\nAppl. Opt., OSA, 1998, 37, 5271-5283')
 
-
+name("Gold - 250nm to 6200nm - Rakic")
 
 ih=1.0/6.58211951440e-16
 

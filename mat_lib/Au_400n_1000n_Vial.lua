@@ -1,6 +1,6 @@
 description('Gold fit by Alexandre Vial between 400nm and 1 micron, from Johnson & Christy data data\nVial: Bubendorff, J. & Lei, F. (Eds.), Use of the critical points model as law of dispersion for the modeling of plasmonic structures using the FDTD method, 2, Transworld Research Network, 2008, 23 - 46')
 
-
+name("Gold - 400nm to 1000nm - Vial")
 
 epsilon_infty(1.03)
 add_drude(1.3064e16,1.1274e14)

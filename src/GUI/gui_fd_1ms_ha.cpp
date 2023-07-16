@@ -812,7 +812,7 @@ void HAPSolverFrame::compute_map()
     for(l=0;l<Nl;l++)
     {
         LayerPanel *panel=reinterpret_cast<LayerPanel*>(layers_list->get_panel(l));
-        ml.set_layer(l,panel->get_height(),panel->get_material().get_n(w));
+        ml.set_layer(l,panel->get_height(),panel->get_material()->get_n(w));
     }
     
     double nr=1.0,ni=0;
@@ -876,7 +876,7 @@ void HAPSolverFrame::construct_multilayer(Multilayer_TMM &ml)
     for(l=0;l<Nl;l++)
     {
         LayerPanel *panel=dynamic_cast<LayerPanel*>(layers_list->get_panel(l));
-        ml.set_layer(l,panel->get_height(),panel->get_material().get_n(w));
+        ml.set_layer(l,panel->get_height(),panel->get_material()->get_n(w));
     }
 }
 
@@ -1065,6 +1065,39 @@ int lua_gui_hapms_mode(lua_State *L)
     return 1;
 }
 
+int add_layer(lua_State *L)
+{
+    HAPSolverFrame *p_frame=lua_get_metapointer<HAPSolverFrame>(L,1);
+    
+    double height=lua_tonumber(L,2);
+    double std_dev=lua_tonumber(L,3);
+    GUI::Material *material=dynamic_cast<GUI::Material*>(lua_get_metapointer<Material>(L,4));
+    
+    p_frame->layers_list->add_panel<LayerPanel>(height,std_dev,material,true);
+    
+    return 0;
+}
+
+int set_substrate(lua_State *L)
+{
+    HAPSolverFrame *p_frame=lua_get_metapointer<HAPSolverFrame>(L,1);
+    Material *p_material=lua_get_metapointer<Material>(L,2);
+    
+    p_frame->substrate_selector->set_material(dynamic_cast<GUI::Material*>(p_material));
+    
+    return 0;
+}
+
+int set_superstrate(lua_State *L)
+{
+    HAPSolverFrame *p_frame=lua_get_metapointer<HAPSolverFrame>(L,1);
+    Material *p_material=lua_get_metapointer<Material>(L,2);
+    
+    p_frame->superstrate_selector->set_material(dynamic_cast<GUI::Material*>(p_material));
+    
+    return 0;
+}
+
 void HAPSolverFrame::load_project(wxFileName const &fname_)
 {
     layers_list->clear();
@@ -1074,19 +1107,24 @@ void HAPSolverFrame::load_project(wxFileName const &fname_)
     lua_State *L=luaL_newstate();
     luaL_openlibs(L);
     
-    HAPSolverFrame *p_frame=this;
+    // Materials
     
+    lua_gui_material::Loader loader;
+    loader.create_metatable(L);
+    
+    // Model
+    
+    lua_register(L,"gui_hapms_mode",lua_gui_hapms_mode);
+    
+    HAPSolverFrame *p_frame=this;
     lua_pushlightuserdata(L,reinterpret_cast<void*>(&p_frame));
     lua_setglobal(L,"bound_class");
     
-    lua_register(L,"const_material",gen_const_material);
-    lua_register(L,"gui_hapms_mode",lua_gui_hapms_mode);
-    
     create_obj_metatable(L,"metatable_hapms_frame");
     
-    lua_wrapper<0,HAPSolverFrame,double,double,std::string>::bind(L,"add_layer",&HAPSolverFrame::lua_add_layer);
-    lua_wrapper<1,HAPSolverFrame,std::string>::bind(L,"substrate",&HAPSolverFrame::lua_set_substrate);
-    lua_wrapper<2,HAPSolverFrame,std::string>::bind(L,"superstrate",&HAPSolverFrame::lua_set_superstrate);
+    metatable_add_func(L,"add_layer",&add_layer);
+    metatable_add_func(L,"substrate",&set_substrate);
+    metatable_add_func(L,"superstrate",&set_superstrate);
     
     int load_err = luaL_loadfile(L,fname.c_str());
     
@@ -1112,17 +1150,17 @@ void HAPSolverFrame::load_project(wxFileName const &fname_)
     if(autorefresh) request_map_computation();
 }
 
-void HAPSolverFrame::lua_add_layer(double height,double std_dev,std::string material)
+void HAPSolverFrame::lua_add_layer(double height,double std_dev,GUI::Material *material)
 {
     layers_list->add_panel<LayerPanel>(height,std_dev,material,true);
 }
 
-void HAPSolverFrame::lua_set_substrate(std::string material)
+void HAPSolverFrame::lua_set_substrate(GUI::Material *material)
 {
     substrate_selector->set_material(material);
 }
 
-void HAPSolverFrame::lua_set_superstrate(std::string material)
+void HAPSolverFrame::lua_set_superstrate(GUI::Material *material)
 {
     superstrate_selector->set_material(material);
 }
@@ -1144,7 +1182,7 @@ void HAPSolverFrame::refine_target(MSTarget &target)
     for(l=0;l<Nl;l++)
     {
         LayerPanel *panel=reinterpret_cast<LayerPanel*>(layers_list->get_panel(l));
-        ml.set_layer(l,panel->get_height(),panel->get_material().get_n(w));
+        ml.set_layer(l,panel->get_height(),panel->get_material()->get_n(w));
     }
     
     double span=0.1;
@@ -1194,21 +1232,41 @@ void HAPSolverFrame::request_map_computation()
 
 void HAPSolverFrame::save_project(wxFileName const &fname_)
 {
+    // Materials
+    
+    lua_gui_material::Translator mtr("");
+    
+    mtr.gather(superstrate_selector->get_material());
+    mtr.gather(substrate_selector->get_material());
+    
+    for(std::size_t i=0;i<layers_list->get_size();i++)
+    {
+        std::vector<GUI::Material*> layer_mats;
+        layers_list->get_panel(i)->get_materials(layer_mats);
+        
+        for(GUI::Material *mat:layer_mats)
+            mtr.gather(mat);
+    }
+    
+    // Model
+        
     std::string fname=fname_.GetFullPath().ToStdString();
     
     std::ofstream file(fname,std::ios::out|std::ios::trunc);
     
+    file<<mtr.get_header()<<"\n";
+    
     file<<"mode=gui_hapms_mode()"<<std::endl;
     
-    file<<"mode:superstrate("<<superstrate_selector->get_lua()<<")"<<std::endl<<std::endl;
+    file<<"mode:superstrate("<<mtr(superstrate_selector->get_material())<<")"<<std::endl<<std::endl;
     
     for(unsigned int i=0;i<layers_list->get_size();i++)
     {
-        file<<"mode:"<<layers_list->get_panel(i)->get_lua_string()<<std::endl;
+        file<<"mode:"<<layers_list->get_panel(i)->get_lua_string(mtr)<<std::endl;
     }
     file<<std::endl;
     
-    file<<"mode:substrate("<<substrate_selector->get_lua()<<")";
+    file<<"mode:substrate("<<mtr(substrate_selector->get_material())<<")";
     
     file.close();
     

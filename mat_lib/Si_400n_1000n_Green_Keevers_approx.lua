@@ -1,4 +1,4 @@
-
+name("Silicon - 400nm to 1000nm - Green-Keevers approx")
 
 epsilon_infty(2.34518)
 add_crit_point(4.70197,5.84804e15,-0.076845,2.06523e14)

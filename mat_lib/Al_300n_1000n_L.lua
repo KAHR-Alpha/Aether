@@ -1,6 +1,6 @@
 description('Aluminium fit by Loïc Le Cunff between 300nm et 1 micron, from Luxpop data (Palik)\nhttp://www.luxpop.com/')
 
-
+name("Aluminium - 300nm to 1000nm - LLC")
 
 epsilon_infty(1)
 add_drude(2.03216e16,1.08818e14)

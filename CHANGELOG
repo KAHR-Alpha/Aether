@@ -6,6 +6,11 @@ Todo:
 - Tangent vectors managements for Selene
 - Implement the Lambertian, Guassian and ABg scattering models ( see "What scattering models are available in OpticStudio?" )
 
+0.10
+- Complete rework of the materials sytem
+- Materials now operate as shared entities instead of copies
+- "On the fly" custom and effective materials
+
 0.9.1
 - Selene camera fix when adding two elements at (0,0,0)
 

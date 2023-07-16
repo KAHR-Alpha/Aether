@@ -59,7 +59,9 @@ SppFrame::SppFrame(wxString const &title)
     
     // Metal
     
-    mat_selector=new MaterialSelector(ctrl_panel,"Metal");
+    GUI::Material *tmp_mat=nullptr;
+    
+    mat_selector=new MaterialSelector(ctrl_panel,"Metal",false,tmp_mat);
     mat_selector->Bind(EVT_MAT_SELECTOR,&SppFrame::load_material,this);
     
     // Dielectric sizer
@@ -130,7 +132,7 @@ void SppFrame::recomp_spp()
         double k0=2.0*Pi/lambda[l];
         double w=k0*c_light;
         
-        kspp[l]=spp_get_kspp(w,eps_dielec,mat_selector->get_eps(w));
+        kspp[l]=spp_get_kspp(w,eps_dielec,mat_selector->get_material()->get_eps(w));
         kspp_re[l]=m_to_nm(2.0*Pi/kspp[l].real());
         kspp_im[l]=m_to_nm(1.0/kspp[l].imag());
     }
@@ -145,7 +147,7 @@ void SppFrame::recomp_spp()
 
 void SppFrame::update_dielec(wxCommandEvent &event)
 {
-    textctrl_to_T(n_ctrl,n_dielec);
+    textctrl_to_value(n_ctrl,n_dielec);
     
     if(n_dielec<1.0)
     {
@@ -169,7 +171,7 @@ void SppFrame::update_profile()
     double k0=2.0*Pi/lambda_tmp;
     double w=k0*c_light;
     
-    Imdouble eps_metal=mat_selector->get_eps(w);
+    Imdouble eps_metal=mat_selector->get_material()->get_eps(w);
     
     Imdouble kspp=spp_get_kspp(w,eps_dielec,eps_metal);
     

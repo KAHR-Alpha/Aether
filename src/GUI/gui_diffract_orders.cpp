@@ -351,8 +351,8 @@ DiffOrdersSDFrame::DiffOrdersSDFrame(wxString const &title,
     
     ctrl_sizer->Add(spectrum,std_flags);
     
-    superstrate_selector=new MiniMaterialSelector(ctrl_panel,"Superstrate");
-    substrate_selector=new MiniMaterialSelector(ctrl_panel,"Substrate");
+    superstrate_selector=new MiniMaterialSelector(ctrl_panel,nullptr,"Superstrate");
+    substrate_selector=new MiniMaterialSelector(ctrl_panel,nullptr,"Substrate");
     
     ctrl_sizer->Add(superstrate_selector,std_flags);
     ctrl_sizer->Add(substrate_selector,std_flags);

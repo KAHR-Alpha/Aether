@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2023 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -15,38 +15,41 @@ limitations under the License.*/
 #ifndef GUI_MATERIAL_EDITOR_H_INCLUDED
 #define GUI_MATERIAL_EDITOR_H_INCLUDED
 
-#include <material.h>
+#include <gui_material_library.h>
 
 #include <gui_material_editor_panels.h>
 
 wxDECLARE_EVENT(EVT_MATERIAL_EDITOR_MODEL,wxCommandEvent);
-wxDECLARE_EVENT(EVT_MATERIAL_EDITOR_SPECTRUM,wxCommandEvent);
 
-class MaterialEditor: public wxPanel
+class MaterialEditorPanel: public wxPanel
 {
     public:
-        Material material;
-        
-        wxTextCtrl *description;
-        WavelengthSelector *validity_min,*validity_max;
+        GUI::Material *material;
+        bool read_only_material;
         
         wxChoice *model_choice;
         wxButton *add_btn;
         
         PanelsList<MatGUI::SubmodelPanel> *material_elements;
         
-        MaterialEditor(wxWindow *parent);
+        MaterialEditorPanel(wxWindow *parent,GUI::Material *material,bool outside_editor);
+        
+        //
+        
+        void evt_load(wxCommandEvent &event);
+        void evt_reset(wxCommandEvent &event);
+        
+        void load();
+        void reset();
+        
+        //
         
         void evt_add_model(wxCommandEvent &event);
-        void evt_description(wxCommandEvent &event);
         void evt_model_change(wxCommandEvent &event);
-        void evt_validity(wxCommandEvent &event);
         void lock();
         void rebuild_elements_list();
         void throw_event_model();
-        void throw_event_spectrum();
         void unlock();
-        void update_controls();
         
         // Deletion events
         

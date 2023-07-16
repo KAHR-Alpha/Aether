@@ -354,8 +354,8 @@ std::filesystem::path PathManager::to_default_path(std::filesystem::path const &
         return path_str;
     }
     
-    // Default case: relative to the saving path
-    return to_relative_file(path,base_path);
+    if(base_path.empty()) return path;
+    else return to_relative_file(path,base_path);
 }
 
 std::filesystem::path PathManager::to_temporary_path(std::filesystem::path const &path_)

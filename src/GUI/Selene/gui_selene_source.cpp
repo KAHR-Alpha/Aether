@@ -50,7 +50,7 @@ class Polymono_item: public PanelsListBase
 //   SourceDialog
 //########################
 
-SourceDialog::SourceDialog(Sel::Light *light_,std::vector<Sel::Frame*> const &frames_,std::vector<Material*> &materials_)
+SourceDialog::SourceDialog(Sel::Light *light_,std::vector<Sel::Frame*> const &frames_,std::vector<GUI::Material*> &materials_)
     :FrameDialog(dynamic_cast<Sel::Frame*>(light_),frames_),
      materials(materials_),
      light(light_),
@@ -72,7 +72,7 @@ SourceDialog::SourceDialog(Sel::Light *light_,std::vector<Sel::Frame*> const &fr
     ambient_material->Set(materials_str);
     
     bool found=false;
-    int k=vector_locate(found,materials,light->amb_mat);
+    int k=vector_locate(found,materials,dynamic_cast<GUI::Material*>(light->amb_mat));
     
     ambient_material->SetSelection(0);
     if(found) ambient_material->SetSelection(k);

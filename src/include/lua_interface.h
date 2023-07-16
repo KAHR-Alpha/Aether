@@ -67,15 +67,6 @@ int index_fit_mode_set_Nlorentz(lua_State *L);
 int index_fit_mode_set_Ncp(lua_State *L);
 
 //###############
-//   Materials
-//###############
-
-int lua_create_material(lua_State *L);
-int lua_material_set_index(lua_State *L);
-int lua_material_set_script(lua_State *L);
-int lua_material_set_name(lua_State *L);
-
-//###############
 //     Mie
 //###############
 

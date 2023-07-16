@@ -1,6 +1,6 @@
 -- Fit Si approximatif visible
 
-
+name("Silicon - 400nm to 1000nm - LLC")
 
 epsilon_infty(1.2596)
 add_drude(8.5712e15,1.861e16)

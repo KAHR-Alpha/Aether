@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2023 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -120,7 +120,7 @@ bool Aether::OnInit()
     #else
 //    Curve_Extract_Frame *mfr=new Curve_Extract_Frame("Aether");
 //    DiffOrdersFrame *mfr=new DiffOrdersFrame("Aether");
-    DiffPatternFrame *mfr=new DiffPatternFrame("Aether");
+//    DiffPatternFrame *mfr=new DiffPatternFrame("Aether");
 //    FieldBlockExplorer *mfr=new FieldBlockExplorer("Aether");
 //    FresnelFrame *mfr=new FresnelFrame("Aether");
 //    EffModelFrame *mfr=new EffModelFrame("Aether");
@@ -128,7 +128,7 @@ bool Aether::OnInit()
 //    MultilayerFrame *mfr=new MultilayerFrame("Aether");
 //    SppFrame *mfr=new SppFrame("Aether");
 //    MieTool *mfr=new MieTool("Aether");
-//    HAPSolverFrame *mfr=new HAPSolverFrame("Aether");
+    HAPSolverFrame *mfr=new HAPSolverFrame("Aether");
 //    EMGeometry_Frame *mfr=new EMGeometry_Frame("Aether");
 //    SamplesFrame *mfr=new SamplesFrame("Aether");
 //    SelGUI::SeleneFrame *mfr=new SelGUI::SeleneFrame("Aether");
@@ -137,8 +137,7 @@ bool Aether::OnInit()
 //    FDTD_Frame *mfr=new FDTD_Frame("Aether");
 //    FitterFrame *mfr=new FitterFrame("Aether");
 //    LayerFitter *mfr=new LayerFitter("Aether");
-//    MaterialExplorer *mfr=new MaterialExplorer("Aether");
-//    MaterialsManager *mfr=new MaterialsManager("Aether");
+//    MaterialsEditor *mfr=new MaterialsEditor("Aether");
     mfr->Maximize();
     mfr->Show(true);
     
@@ -540,10 +539,6 @@ MainFrame::MainFrame(std::string title,wxPoint const &pos, wxSize const &size)
     material_editor_btn->Bind(wxEVT_BUTTON,&MainFrame::evt_open_materials_manager,this);
     util_sizer->Add(material_editor_btn,wxSizerFlags().Expand());
     
-    wxButton *material_explr_btn=new wxButton(base_panel,wxID_ANY,"Materials Explorer");
-    material_explr_btn->Bind(wxEVT_BUTTON,&MainFrame::open_frame<MaterialExplorer,mat_explr_name>,this);
-    util_sizer->Add(material_explr_btn,wxSizerFlags().Expand());
-    
     wxButton *mats_fit_btn=new wxButton(base_panel,wxID_ANY,"Materials Fitter");
     mats_fit_btn->Bind(wxEVT_BUTTON,&MainFrame::open_frame<MatsFitter,mats_fit>,this);
     util_sizer->Add(mats_fit_btn,wxSizerFlags().Expand());
@@ -632,7 +627,7 @@ void MainFrame::evt_about_help(wxCommandEvent &event)
 
 void MainFrame::evt_open_materials_manager(wxCommandEvent &event)
 {
-    MaterialsManager *frame=MaterialsLib::get_manager();
+    MaterialsEditor *frame=new MaterialsEditor("Materials Editor");
     frame->Show(true);
     frame->Maximize();
     

@@ -181,7 +181,7 @@ class Cspline
         
         double operator () (double const &x) const;
         void operator = (Cspline const &spline);
-        bool operator == (Cspline const &spline);
+        bool operator == (Cspline const &spline) const;
         
 };
 

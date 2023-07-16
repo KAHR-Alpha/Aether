@@ -12,6 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
+#include <lua_material.h>
 #include <lua_multilayers.h>
 
 extern const double Pi;
@@ -146,8 +147,13 @@ void Multilayer_Berreman_mode::process()
     
     B_strat strat(N_layers,index_sup,index_sub);
     
+    lua_material::Loader loader;
+    
     std::vector<Material> mats(N_layers);
-    for(i=0;i<N_layers;i++) mats[i].load_lua_script(layer_mat[i]);
+    for(i=0;i<N_layers;i++)
+    {
+        loader.load(&mats[i],layer_mat[i]);
+    }
     
     for(i=0;i<Nl;i++)
     {
@@ -269,8 +275,13 @@ void Multilayer_mode::process()
     
     int N_layers=layer_h.size();
     
+    lua_material::Loader loader;
+    
     std::vector<Material> mats(N_layers);
-    for(i=0;i<N_layers;i++) mats[i].load_lua_script(layer_mat[i]);
+    for(i=0;i<N_layers;i++)
+    {
+        loader.load(&mats[i],layer_mat[i]);
+    }
     
     Multilayer mlt(N_layers);
     
@@ -445,11 +456,17 @@ void Multilayer_TMM_mode::process()
     int N_layers=layer_h.size();
     
     Material mat_sup,mat_sub;
-    mat_sub.load_lua_script(mat_sub_str);
-    mat_sup.load_lua_script(mat_sup_str);
+    
+    lua_material::Loader ld;
+    
+    ld.load(&mat_sub,mat_sub_str);
+    ld.load(&mat_sup,mat_sup_str);
     
     std::vector<Material> mats(N_layers);
-    for(i=0;i<N_layers;i++) mats[i].load_lua_script(layer_mat[i]);
+    for(i=0;i<N_layers;i++)
+    {
+        ld.load(&mats[i],layer_mat[i]);
+    }
     
     Multilayer_TMM mlt(N_layers);
         

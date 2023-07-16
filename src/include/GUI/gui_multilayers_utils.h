@@ -34,9 +34,9 @@ class LayerPanelBase: public PanelsListBase
         
         virtual wxString get_base_name() { return ""; }
         virtual void get_heights(std::vector<double> &h) { }
-        virtual void get_materials(std::vector<Material> &mats) { }
+        virtual void get_materials(std::vector<GUI::Material*> &mats) { }
         virtual int get_n_layers() { return 0; }
-        virtual wxString get_lua_string() { return ""; }
+        virtual wxString get_lua_string(lua_gui_material::Translator const &mtr) { return ""; }
         bool is_statistical() { return statistical; }
 };
 
@@ -48,18 +48,17 @@ class LayerPanel: public LayerPanelBase
         MiniMaterialSelector *selector;
         
         LayerPanel(wxWindow *parent,bool wavy=false);
-        LayerPanel(wxWindow *parent,double height,double std_dev,Material const &material,bool wavy);
-        LayerPanel(wxWindow *parent,double height,double std_dev,std::filesystem::path const &material_path,bool wavy);
+        LayerPanel(wxWindow *parent,double height,double std_dev,GUI::Material *material,bool wavy);
         
         void evt_waviness(wxCommandEvent &event);
         wxString get_base_name();
         double get_height();
         void get_heights(std::vector<double> &h);
-        Material get_material();
-        void get_materials(std::vector<Material> &mats);
+        GUI::Material* get_material();
+        void get_materials(std::vector<GUI::Material*> &mats);
         int get_n_layers();
         void set_std_dev(double std_dev_);
-        wxString get_lua_string();
+        wxString get_lua_string(lua_gui_material::Translator const &mtr);
 };
 
 class BraggPanel: public LayerPanelBase
@@ -75,9 +74,9 @@ class BraggPanel: public LayerPanelBase
         NamedTextCtrl<double> *g_factor;
         
         BraggPanel(wxWindow *parent,
-                   double height_1=0,double std_dev_1=0,std::string material_1="",
-                   double height_2=0,double std_dev_2=0,std::string material_2="",
-                   double height_core=0,double std_dev_core=0,std::string material_core="",
+                   double height_1=0,double std_dev_1=0,GUI::Material *material_1=nullptr,
+                   double height_2=0,double std_dev_2=0,GUI::Material *material_2=nullptr,
+                   double height_core=0,double std_dev_core=0,GUI::Material *material_core=nullptr,
                    double global_std_dev=0,double g_factor=0,int N_top=1,int N_bottom=1);
         
         void check_statistical();
@@ -86,10 +85,10 @@ class BraggPanel: public LayerPanelBase
         void evt_global_std_dev(wxCommandEvent &event);
         void evt_waviness(wxCommandEvent &event);
         wxString get_base_name();
-        wxString get_lua_string();
+        wxString get_lua_string(lua_gui_material::Translator const &mtr);
         int get_n_layers();
         void get_heights(std::vector<double> &h);
-        void get_materials(std::vector<Material> &mats);
+        void get_materials(std::vector<GUI::Material*> &mats);
 };
 
 

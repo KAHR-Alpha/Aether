@@ -355,12 +355,12 @@ bool IRF::get_response_multilayer(Vector3 &out_dir,Vector3 const &in_dir,
     if(n_scal<=0)
     {
         for(std::size_t i=0;i<Nl;i++)
-            ml_model.set_layer(i,ml_heights[i],ml_materials[i].get_n(m_to_rad_Hz(lambda)));
+            ml_model.set_layer(i,ml_heights[i],ml_materials[i]->get_n(m_to_rad_Hz(lambda)));
     }
     else
     {
         for(std::size_t i=0;i<Nl;i++)
-            ml_model.set_layer(Nl-1-i,ml_heights[i],ml_materials[i].get_n(m_to_rad_Hz(lambda)));
+            ml_model.set_layer(Nl-1-i,ml_heights[i],ml_materials[i]->get_n(m_to_rad_Hz(lambda)));
     }
     
     double cos_thi=std::abs(n_scal);

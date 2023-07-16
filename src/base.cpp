@@ -21,6 +21,7 @@ limitations under the License.*/
 #include <index_utils.h>
 #include <lua_fd.h>
 #include <lua_interface.h>
+#include <lua_material.h>
 #include <lua_multilayers.h>
 #include <lua_selene.h>
 #include <lua_structure.h>
@@ -230,13 +231,8 @@ int mode_choice(lua_State *L)
         
     //###############
     
-    lua_register(L,"Material",lua_create_material);
-    
-    create_obj_metatable(L,"metatable_material");
-    
-    metatable_add_func(L,"name",lua_material_set_name);
-    metatable_add_func(L,"refractive_index",lua_material_set_index);
-    metatable_add_func(L,"load_script",lua_material_set_script);
+    lua_material::Loader mat_loader;
+    mat_loader.create_metatable(L);
     
     create_obj_metatable(L,"metatable_fdfd");
     

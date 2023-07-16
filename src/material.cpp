@@ -23,12 +23,10 @@ extern const Imdouble Im;
 Material::Material()
     :eps_inf(1.0),
      lambda_valid_min(400e-9),
-     lambda_valid_max(1000e-9),
+     lambda_valid_max(800e-9),
      is_effective_material(false), // Effective material
-     effective_type(MAT_EFF_BRUGGEMAN),
-     eff_mat_1(nullptr),
-     eff_mat_2(nullptr),
-     eff_weight(0),
+     effective_type(EffectiveModel::BRUGGEMAN),
+     maxwell_garnett_host(0),
      description(""), // String descriptions
      script_path("")
 {
@@ -53,33 +51,31 @@ Material::Material(Material const &mat)
      ei_spline(mat.ei_spline),
      is_effective_material(mat.is_effective_material), // Effective material
      effective_type(mat.effective_type),
-     eff_mat_1(nullptr),
-     eff_mat_2(nullptr),
-     eff_weight(mat.eff_weight),
+     maxwell_garnett_host(mat.maxwell_garnett_host),
      name(mat.name), // String descriptions
      description(mat.description),
      script_path(mat.script_path)
 {
     if(is_effective_material)
     {
-        eff_mat_1=new Material;
-        eff_mat_2=new Material;
+        std::size_t Nm=mat.eff_weights.size();
         
-        *eff_mat_1=*mat.eff_mat_1;
-        *eff_mat_2=*mat.eff_mat_2;
+        allocate_effective_materials(Nm);
+        
+        for(std::size_t i=0;i<Nm;i++)
+        {
+            eff_weights[i]=mat.eff_weights[i];
+            *(eff_mats[i])=*(mat.eff_mats[i]);
+        }
     }
-}
-
-Material::Material(std::filesystem::path const &script_path_)
-    :Material()
-{
-    load_lua_script(script_path_);
 }
 
 Material::~Material()
 {
-    if(eff_mat_1!=nullptr) delete eff_mat_1;
-    if(eff_mat_2!=nullptr) delete eff_mat_2;
+    for(std::size_t i=0;i<eff_mats.size();i++)
+    {
+        if(eff_mats[i]!=nullptr) delete eff_mats[i];
+    }
 }
 
 void Material::add_spline_data(std::vector<double> const &lambda,
@@ -133,6 +129,21 @@ void Material::add_spline_data(std::vector<double> const &lambda,
     ei_spline.push_back(sp_ei);
 }
 
+void Material::allocate_effective_materials(std::size_t Nm)
+{
+    for(std::size_t i=0;i<eff_mats.size();i++)
+        delete eff_mats[i];
+     
+    eff_weights.resize(Nm);
+    eff_mats.resize(Nm);
+    eff_eps.resize(Nm);
+    
+    for(std::size_t i=0;i<Nm;i++)
+    {
+        eff_mats[i]=new Material;
+    }
+}
+
 bool Material::fdtd_compatible()
 {
     if(is_effective_material) return false;
@@ -147,7 +158,7 @@ bool Material::fdtd_compatible()
     return false;
 }
 
-Imdouble Material::get_eps(double w) const
+Imdouble Material::get_eps(double w)
 {
     if(!is_effective_material)
     {
@@ -198,30 +209,32 @@ Imdouble Material::get_eps(double w) const
     }
     else
     {
-        Imdouble eps_1=eff_mat_1->get_eps(w);
-        Imdouble eps_2=eff_mat_2->get_eps(w);
+        eff_eps.resize(eff_mats.size());
+        
+        for(std::size_t i=0;i<eff_mats.size();i++)
+        {
+            eff_eps[i]=eff_mats[i]->get_eps(w);
+        }
         
         switch(effective_type)
         {
-            case MAT_EFF_BRUGGEMAN:
-                return effmodel_bruggeman(eps_1,eps_2,1.0-eff_weight,eff_weight);
-            case MAT_EFF_LOYENGA:
-                return effmodel_looyenga(eps_1,eps_2,1.0-eff_weight,eff_weight);
-            case MAT_EFF_MG1:
-                return effmodel_maxwell_garnett_1(eps_1,eps_2,1.0-eff_weight,eff_weight);
-            case MAT_EFF_MG2:
-                return effmodel_maxwell_garnett_2(eps_1,eps_2,1.0-eff_weight,eff_weight);
-            case MAT_EFF_SUM:
-                return effmodel_sum(eps_1,eps_2,1.0-eff_weight,eff_weight);
-            case MAT_EFF_SUM_INV:
-                return effmodel_sum_inv(eps_1,eps_2,1.0-eff_weight,eff_weight);
+            case EffectiveModel::BRUGGEMAN:
+                return effmodel_bruggeman(eff_eps,eff_weights);
+            case EffectiveModel::LOOYENGA:
+                return effmodel_looyenga(eff_eps,eff_weights);
+            case EffectiveModel::MAXWELL_GARNETT:
+                return effmodel_maxwell_garnett(eff_eps,eff_weights,maxwell_garnett_host);
+            case EffectiveModel::SUM:
+                return effmodel_sum(eff_eps,eff_weights);
+            case EffectiveModel::SUM_INV:
+                return effmodel_inv_sum(eff_eps,eff_weights);
         }
     }
     
     return 1.0;
 }
 
-std::string Material::get_description() const
+/*std::string Material::get_description() const
 {
     std::string out;
     
@@ -233,7 +246,7 @@ std::string Material::get_description() const
 //    else if(type==MAT_SELLMEIER) { out="sellmeier: "; out.append(script_name); }
     
     return out;
-}
+}*/
 
 std::string Material::get_matlab(std::string const &fname_) const
 {
@@ -440,7 +453,7 @@ std::string Material::get_matlab(std::string const &fname_) const
     return strm.str();
 }
 
-Imdouble Material::get_n(double w) const
+Imdouble Material::get_n(double w)
 {
     return std::sqrt(get_eps(w));
 }
@@ -449,8 +462,11 @@ bool Material::is_const() const
 {
     if(is_effective_material)
     {
-        if(eff_mat_1->is_const() && eff_mat_2->is_const()) return true;
-        else return false;
+        bool tmp_const=true;
+        
+        for(std::size_t i=0;i<eff_mats.size();i++) tmp_const=tmp_const && eff_mats[i]->is_const();
+        
+        return tmp_const;
     }
     else
     {
@@ -497,52 +513,96 @@ void Material::operator = (Material const &mat)
     
     is_effective_material=mat.is_effective_material;
     effective_type=mat.effective_type;
-    eff_weight=mat.eff_weight;
+    maxwell_garnett_host=mat.maxwell_garnett_host;
+    
+    for(std::size_t i=0;i<eff_mats.size();i++)
+        if(eff_mats[i]!=nullptr)
+            delete eff_mats[i];
+    
+    allocate_effective_materials(mat.eff_weights.size());
+    eff_weights=mat.eff_weights;
     
     if(is_effective_material)
     {
-        eff_mat_1=new Material;
-        eff_mat_2=new Material;
-        
-        *eff_mat_1=*mat.eff_mat_1;
-        *eff_mat_2=*mat.eff_mat_2;
+        for(std::size_t i=0;i<eff_mats.size();i++)
+        {
+            *(eff_mats[i])=*(mat.eff_mats[i]);
+        }
     }
 }
 
 bool Material::operator == (Material const &mat) const
 {
+    if(eps_inf!=mat.eps_inf) return false;
+    
+    // Common dielectric models
+    
+    if(debye!=mat.debye) return false;
+    if(drude!=mat.drude) return false;
+    if(lorentz!=mat.lorentz) return false;
+    if(critpoint!=mat.critpoint) return false;
+        
+    // Cauchy
+    if(cauchy_coeffs!=mat.cauchy_coeffs) return false;
+    
+    // Sellmeier
+    if(sellmeier_B!=mat.sellmeier_B) return false;
+    if(sellmeier_C!=mat.sellmeier_C) return false;
+    
+    // For file-based materials
+    if(spd_lambda!=mat.spd_lambda) return false;
+    if(spd_r!=mat.spd_r) return false;
+    if(spd_i!=mat.spd_i) return false;
+    if(spd_type_index!=mat.spd_type_index) return false;
+    
+    if(er_spline!=mat.er_spline) return false;
+    if(ei_spline!=mat.ei_spline) return false;
+    
+    // Effective Material
+    
+    if(is_effective_material!=mat.is_effective_material) return false;
+    
     if(is_effective_material)
     {
-        if(!mat.is_effective_material) return false;
+        if(effective_type!=mat.effective_type) return false;
         
-        if(   effective_type!=mat.effective_type
-           || eff_weight!=mat.eff_weight) return false;
+        if(eff_weights!=mat.eff_weights) return false; // checks vecvtor size as well
         
-        if(   eff_mat_1!=nullptr && mat.eff_mat_1!=nullptr
-           && eff_mat_2!=nullptr && mat.eff_mat_2!=nullptr)
+        bool null_check=true;
+        
+        for(std::size_t i=0;i<eff_mats.size();i++)
         {
-            if(   !(*eff_mat_1==*mat.eff_mat_1)
-               || !(*eff_mat_2==*mat.eff_mat_2)) return false;
+            null_check=null_check && (eff_mats[i]!=nullptr && mat.eff_mats[i]!=nullptr);
         }
-        else return false;
         
-        return true;
-    }
-    else
-    {
-        if(is_const())
-        {
-            if(eps_inf!=mat.eps_inf) return false;
-        }
+        if(!null_check) return false;
         else
         {
-            if(script_path!=mat.script_path) return false;
+            for(std::size_t i=0;i<eff_mats.size();i++)
+            {
+                if(*(eff_mats[i])!=*(mat.eff_mats[i])) return false;
+            }
         }
-        
-        return true;
     }
     
+    bool path1_check=std::filesystem::exists(script_path);
+    bool path2_check=std::filesystem::exists(mat.script_path);
+    
+    if(path1_check==path2_check)
+    {
+        if(path1_check)
+        {
+            if(!std::filesystem::equivalent(script_path,mat.script_path)) return false;
+        }
+    }
+    else return false;
+    
     return true;
+}
+
+bool Material::operator!=(Material const &mat) const
+{
+    return !(*this==mat);
 }
 
 void Material::reset()
@@ -575,17 +635,16 @@ void Material::reset()
     {
         is_effective_material=false;
         
-        effective_type=MAT_EFF_BRUGGEMAN;
+        effective_type=EffectiveModel::BRUGGEMAN;
+        maxwell_garnett_host=0;
         
-        delete eff_mat_1;
-        delete eff_mat_2;
+        for(std::size_t i=0;i<eff_mats.size();i++) if(eff_mats[i]!=nullptr) delete eff_mats[i];
         
-        eff_mat_1=nullptr;
-        eff_mat_2=nullptr;
+        eff_weights.clear();
+        eff_eps.clear();
+        eff_mats.clear();
         
         is_effective_material=false;
-        
-        eff_weight=0;
     }
     
     name="";
@@ -601,21 +660,6 @@ void Material::set_const_eps(double eps_)
 void Material::set_const_n(double n)
 {
     eps_inf=n*n;
-}
-
-void Material::set_effective_material(int effective_type_,Material const &eff_mat_1_,Material const &eff_mat_2_)
-{
-    is_effective_material=true;
-    effective_type=effective_type_;
-    
-    if(eff_mat_1==nullptr)
-    {
-        eff_mat_1=new Material;
-        eff_mat_2=new Material;
-    }
-    
-    *eff_mat_1=eff_mat_1_;
-    *eff_mat_2=eff_mat_2_;
 }
 
 //######################
@@ -684,4 +728,74 @@ Imdouble effmodel_sum_inv(Imdouble eps_1,Imdouble eps_2,
                       double weight_1,double weight_2)
 {
     return 1.0/(weight_1/eps_1+weight_2/eps_2);
+}
+
+Imdouble effmodel_bruggeman(std::vector<Imdouble> const &eps,
+                            std::vector<double> const &weights)
+{
+    double weight_sum=weights[0]+weights[1];
+    
+    return effmodel_bruggeman(eps[0],eps[1],weights[0]/weight_sum,weights[1]/weight_sum);
+}
+
+Imdouble effmodel_looyenga(std::vector<Imdouble> const &eps,
+                           std::vector<double> const &weights)
+{
+    double weight_sum=weights[0]+weights[1];
+    
+    return effmodel_looyenga(eps[0],eps[1],weights[0]/weight_sum,weights[1]/weight_sum);
+}
+
+Imdouble effmodel_maxwell_garnett(std::vector<Imdouble> const &eps,
+                                  std::vector<double> const &weights,int host)
+{
+    Imdouble eps_host=eps[host];
+    
+    Imdouble factor=0;
+    double w_sum=0;
+    
+    for(std::size_t i=0;i<eps.size();i++)
+    {
+        factor+=weights[i]*(eps[i]-eps_host)/(eps[i]+2.0*eps_host);
+        w_sum+=weights[i];
+    }
+    
+    factor/=w_sum;
+    
+    Imdouble eps_mg=eps_host*(1.0+2.0*factor)/(1.0-factor);
+    return eps_mg;
+}
+
+Imdouble effmodel_sum(std::vector<Imdouble> const &eps,
+                      std::vector<double> const &weights)
+{    
+    Imdouble eps_r=0;
+    double w_sum=0;
+    
+    for(std::size_t i=0;i<eps.size();i++)
+    {
+        eps_r+=weights[i]*eps[i];
+        w_sum+=weights[i];
+    }
+    
+    eps_r/=w_sum;
+    
+    return eps_r;
+}
+
+Imdouble effmodel_inv_sum(std::vector<Imdouble> const &eps,
+                          std::vector<double> const &weights)
+{    
+    Imdouble inv_eps_r=0;
+    double w_sum=0;
+    
+    for(std::size_t i=0;i<eps.size();i++)
+    {
+        inv_eps_r+=weights[i]/eps[i];
+        w_sum+=weights[i];
+    }
+    
+    inv_eps_r/=w_sum;
+    
+    return 1.0/inv_eps_r;
 }

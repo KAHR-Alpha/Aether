@@ -6,3 +6,4 @@ REVISION
 docu/manual/manual.*
 !docu/manual/manual.tex
 Aether.layout
+Aether.cscope_file_list

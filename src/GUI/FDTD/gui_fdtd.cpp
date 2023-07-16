@@ -499,6 +499,8 @@ void FDTD_Frame::evt_popup_menu(wxCommandEvent &event)
 
 void FDTD_Frame::evt_run(wxCommandEvent &event)
 {
+    fdtd_parameters.consolidate_materials();
+    
     FDTD_Run_Dialog dialog(this,fdtd_parameters);
     
     event.Skip();
@@ -584,6 +586,22 @@ int FDTD_Frame_lua_mode(lua_State *L)
     return 1;
 }
 
+namespace GUI
+{
+    int fdtd_set_material(lua_State *L)
+    {
+        GUI::FDTD_Mode *p_mode=dynamic_cast<GUI::FDTD_Mode*>(lua_get_metapointer<::FDTD_Mode>(L,1));
+        
+        std::size_t N=lua_tointeger(L,2);
+        GUI::Material *mat=dynamic_cast<GUI::Material*>(lua_get_metapointer<::Material>(L,3));
+        
+        p_mode->g_materials.resize(std::max(p_mode->g_materials.size(),N+1));
+        p_mode->g_materials[N]=mat;
+        
+        return 0;
+    }
+}
+
 void FDTD_Frame::load(wxFileName const &fname_)
 {
     std::filesystem::path fname=fname_.GetFullPath().ToStdString();
@@ -604,6 +622,13 @@ void FDTD_Frame::load(wxFileName const &fname_)
     lua_State *L=luaL_newstate();
     luaL_openlibs(L);
     
+    // - Materials
+    
+    lua_gui_material::Loader loader;
+    loader.create_metatable(L);
+    
+    // - Model
+    
     FDTD_Mode *p_parameters=&fdtd_parameters;
     lua_pushlightuserdata(L,reinterpret_cast<void*>(&p_parameters));
     lua_setglobal(L,"bound_class");
@@ -620,6 +645,8 @@ void FDTD_Frame::load(wxFileName const &fname_)
     lua_register(L,"nearest_integer",nearest_integer);
     
     FDTD_Mode_create_metatable(L);
+    metatable_add_func(L,"material",&GUI::fdtd_set_material); // Override of the FDTD Mode Loading
+    
     Source_generator_create_metatable(L);
     Sensor_generator_create_metatable(L);
     
@@ -640,21 +667,6 @@ void FDTD_Frame::load(wxFileName const &fname_)
     lua_close(L);
     
     // Converting materials
-    
-    #ifdef OLDMAT
-    unsigned int N_mats=fdtd_parameters.materials_str.size();
-    
-    fdtd_parameters.materials.resize(N_mats);
-    
-    for(unsigned int i=0;i<N_mats;i++)
-    {
-        Material mat(fdtd_parameters.materials_str[i]);
-        
-        if(!mat.fdtd_compatible()) mat.set_const_n(1.0);
-        
-        fdtd_parameters.materials[i]=mat;
-    }
-    #endif
     
     for(unsigned int i=0;i<fdtd_parameters.materials.size();i++)
     {
@@ -775,12 +787,12 @@ void FDTD_Frame::reconstruct_tree()
     
     materials_ID=tree->AppendItem(root_ID,"Materials");
     
-    for(unsigned int i=0;i<fdtd_parameters.materials.size();i++)
+    for(unsigned int i=0;i<fdtd_parameters.g_materials.size();i++)
     {
-        Material &material=fdtd_parameters.materials[i];
+        GUI::Material *material=fdtd_parameters.g_materials[i];
         
         wxString str;
-        str<<i<<": "<<material.get_description();
+        str<<i<<": "<<material->get_short_description();
         
         tree->AppendItem(materials_ID,str);
     }
@@ -886,10 +898,22 @@ void FDTD_Frame::refresh_type_ctrl()
 void FDTD_Frame::save(wxFileName const &fname)
 {
     std::filesystem::path save_path=fname.GetFullPath().ToStdString();
-    
     std::ofstream file(save_path,std::ios::out|std::ios::trunc|std::ios::binary);
     
-    FDTD_Mode &p=fdtd_parameters;
+    GUI::FDTD_Mode &p=fdtd_parameters;
+    
+    // Materials
+    
+    lua_gui_material::Translator mtr("");
+    
+    for(std::size_t i=0;i<p.g_materials.size();i++)
+    {
+        mtr.gather(p.g_materials[i]);
+    }
+    
+    file<<mtr.get_header()<<"\n";
+    
+    // Model
     
     int type=p.type;
     
@@ -955,20 +979,8 @@ void FDTD_Frame::save(wxFileName const &fname)
         file<<"fdtd:pml_zp("<<p.pml_zp<<","<<p.kappa_zp<<","<<p.sigma_zp<<","<<p.alpha_zp<<")\n";
     }
     
-    for(unsigned int i=0;i<p.materials.size();i++)
-    {
-        Material &material=p.materials[i];
-        
-        if(material.is_const())
-            file<<"fdtd:material("<<i<<",const_material("<<material.get_n(0).real()<<"))\n";
-        else
-        {
-            std::filesystem::path material_path=material.script_path;
-            material_path=PathManager::to_default_path(material_path,save_path);
-            
-            file<<"fdtd:material("<<i<<",\""<<material_path.generic_string()<<"\")\n";
-        }
-    }
+    for(std::size_t i=0;i<p.g_materials.size();i++)
+        file<<"fdtd:material("<<i<<","<<mtr(p.g_materials[i])<<")\n";
     
     file<<"\n";
     for(unsigned int i=0;i<p.sensors.size();i++)
@@ -1085,6 +1097,7 @@ void FDTD_Frame::subevt_menu_save_as()
                                     wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
     
     project_fname=fname;
+    project_fname.MakeRelativeTo();
     save(project_fname);
 }
 

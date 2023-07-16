@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2023 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -21,14 +21,13 @@ limitations under the License.*/
 
 #include <filesystem>
 
-enum
+enum class EffectiveModel
 {
-    MAT_EFF_BRUGGEMAN,
-    MAT_EFF_MG1,
-    MAT_EFF_MG2,
-    MAT_EFF_LOYENGA,
-    MAT_EFF_SUM,
-    MAT_EFF_SUM_INV
+    BRUGGEMAN,
+    LOOYENGA,
+    MAXWELL_GARNETT,
+    SUM,
+    SUM_INV
 };
 
 class Material
@@ -61,36 +60,36 @@ class Material
         // Effective Material
         
         bool is_effective_material;
-        int effective_type;
-        Material *eff_mat_1,*eff_mat_2;
-        double eff_weight;
+        EffectiveModel effective_type;
         
-        std::string name,description;
+        int maxwell_garnett_host;
+        std::vector<Material*> eff_mats;
+        std::vector<double> eff_weights;
+        std::vector<Imdouble> eff_eps;
+        
+        std::string name,description; 
         std::filesystem::path script_path;
         
         Material();
         Material(Material const &mat);
-        Material(std::filesystem::path const &script_path);
-        ~Material();
+        virtual ~Material();
         
         void add_spline_data(std::vector<double> const &lambda,
                              std::vector<double> const &data_r,
                              std::vector<double> const &data_i,
                              bool type_index);
+        virtual void allocate_effective_materials(std::size_t Nm);
         bool fdtd_compatible();
-        Imdouble get_eps(double w) const;
-        std::string get_description() const;
+        Imdouble get_eps(double w);
         std::string get_matlab(std::string const &fname) const;
-        Imdouble get_n(double w) const;
+        Imdouble get_n(double w);
         bool is_const() const;
-        void load_lua_script(std::filesystem::path const &script_name);
         void operator = (Material const &mat);
         bool operator == (Material const &mat) const;
+        bool operator != (Material const &mat) const;
         void reset();
         void set_const_eps(double eps);
         void set_const_n(double n);
-        void set_effective_material(int effective_type,Material const &eff_mat_1,Material const &eff_mat_2);
-        void write_lua_script();
 };
 
 int gen_absorbing_material(lua_State *L);
@@ -109,5 +108,16 @@ Imdouble effmodel_sum(Imdouble eps_1,Imdouble eps_2,
                       double weight_1,double weight_2);
 Imdouble effmodel_sum_inv(Imdouble eps_1,Imdouble eps_2,
                           double weight_1,double weight_2);
+                          
+Imdouble effmodel_bruggeman(std::vector<Imdouble> const &eps,
+                            std::vector<double> const &weights);
+Imdouble effmodel_looyenga(std::vector<Imdouble> const &eps,
+                           std::vector<double> const &weights);
+Imdouble effmodel_maxwell_garnett(std::vector<Imdouble> const &eps,
+                                  std::vector<double> const &weights,int host);
+Imdouble effmodel_sum(std::vector<Imdouble> const &eps,
+                      std::vector<double> const &weights);
+Imdouble effmodel_inv_sum(std::vector<Imdouble> const &eps,
+                          std::vector<double> const &weights);
 
 #endif // MATERIAL_H

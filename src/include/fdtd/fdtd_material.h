@@ -81,7 +81,7 @@ class FDTD_Material
         void coeffsX(double &C1o,double &C2yo,double &C2zo);
         void coeffsY(double &C1o,double &C2xo,double &C2zo);
         void coeffsZ(double &C1o,double &C2xo,double &C2yo);
-        Imdouble get_n(double w) const;
+        Imdouble get_n(double w);
         //void init(int m_type,double Dx,double Dy,double Dz,double Dt);
         double pml_coeff();
         void compute_close(int i,int j,int k,int dir,

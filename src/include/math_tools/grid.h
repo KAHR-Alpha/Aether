@@ -628,7 +628,7 @@ class Grid2
             for(int i=0;i<N12;i++) data[i]=G.data[i];
         }
         
-        bool operator == (Grid2<T> const &G)
+        bool operator == (Grid2<T> const &G) const
         {
             if(N1!=G.N1 || N2!=G.N2) return false;
             

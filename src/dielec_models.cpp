@@ -247,6 +247,11 @@ void DebyeModel::operator = (DebyeModel const &D)
     t0=D.t0;
 }
 
+bool DebyeModel::operator == (DebyeModel const &D) const
+{
+    return ds==D.ds && t0==D.t0;
+}
+
 //Drude
 
 DrudeModel::DrudeModel()
@@ -290,10 +295,10 @@ std::string DrudeModel::matlab_ID(int ID) const
     return "eps_drude_"+std::to_string(ID);
 }
 
-void DrudeModel::set(double wdi,double gi)
+void DrudeModel::set(double wd_,double g_)
 {
-    wd=wdi;
-    g=gi;
+    wd=wd_;
+    g=g_;
     
     wd2=wd*wd;
 }
@@ -308,6 +313,11 @@ void DrudeModel::operator = (DrudeModel const &D)
     wd=D.wd;
     wd2=D.wd2;
     g=D.g;
+}
+
+bool DrudeModel::operator == (DrudeModel const &D) const
+{
+    return wd==D.wd && g==D.g;
 }
 
 //Lorentz
@@ -372,6 +382,11 @@ void LorentzModel::operator =(LorentzModel const &D)
     G=D.G;
 }
 
+bool LorentzModel::operator == (LorentzModel const &D) const
+{
+    return A==D.A && O==D.O && G==D.G;
+}
+
 //Critical points
 
 CritpointModel::CritpointModel()
@@ -429,4 +444,12 @@ void CritpointModel::operator = (CritpointModel const &D)
     O=D.O;
     P=D.P;
     G=D.G;
+}
+
+bool CritpointModel::operator == (CritpointModel const &D) const
+{
+    return    A==D.A
+           && O==D.O
+           && P==D.P
+           && G==D.G;
 }

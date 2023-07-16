@@ -15,6 +15,7 @@ limitations under the License.*/
 #include <fieldblock_holder.h>
 #include <filehdl.h>
 #include <lua_fd.h>
+#include <lua_material.h>
 #include <mesh_base.h>
 #include <mesh_tools.h>
 #include <string_tools.h>
@@ -413,7 +414,8 @@ void FD_Mode::set_material(int mat_index,std::filesystem::path const &mat_file)
     else if(mat_index>=static_cast<int>(materials.size()))
         materials.resize(mat_index+1);
     
-    materials[mat_index].load_lua_script(mat_file);
+    lua_material::Loader loader;
+    loader.load(&materials[mat_index],mat_file);
 }
 
 void FD_Mode::set_padding(int pad_xm_,int pad_xp_,int pad_ym_,int pad_yp_,int pad_zm_,int pad_zp_)
