@@ -548,9 +548,7 @@ void MSMultipleTargetsDialog::subevent_text()
     
     strm>>current_target;
     
-    if(std::isnan(current_target) || std::isinf(current_target) || current_target<0)
-        current_target=0;
-    else if(current_target>=targets.size()) current_target=targets.size()-1;
+    if(current_target>=targets.size()) current_target=targets.size()-1;
     
     update_target();
 }

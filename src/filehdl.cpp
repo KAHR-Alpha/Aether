@@ -27,6 +27,7 @@ limitations under the License.*/
 #include <unistd.h> 
 #endif
 
+#include <algorithm>
 #include <cstdlib>
 
 std::ofstream plog;

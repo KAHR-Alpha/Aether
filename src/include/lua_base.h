@@ -15,13 +15,7 @@ limitations under the License.*/
 #ifndef LUA_BASE_H_INCLUDED
 #define LUA_BASE_H_INCLUDED
 
-extern "C"
-{
-    #include <lua.h>
-    #include <lualib.h>
-    #include <lauxlib.h>
-    //#include <lapi.h>
-}
+#include <lua.hpp>
 
 #include <iostream>
 #include <tuple>

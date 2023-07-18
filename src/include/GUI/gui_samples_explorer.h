@@ -19,6 +19,8 @@ limitations under the License.*/
 
 #include <wx/listbox.h>
 
+#include <array>
+
 class BooleanTree
 {
     public:
