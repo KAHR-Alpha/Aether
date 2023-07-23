@@ -73,7 +73,11 @@ if(!(Test-Path freetype.zip))
 	Expand-Archive -Force ./freetype.zip
 }
 cd freetype/freetype-2.13.1
-cmake -B "cmake_build" -G "Visual Studio 17 2022" -DCMAKE_INSTALL_PREFIX="${build_path}/freetype" -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="${build_path}/zlib"
+cmake -B "cmake_build" -G "Visual Studio 17 2022" -DCMAKE_INSTALL_PREFIX="${build_path}/freetype" -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="${build_path}/zlib" `
+	-DFT_DISABLE_HARFBUZZ=ON `
+	-DFT_DISABLE_BZIP2=ON `
+	-DFT_DISABLE_PNG=ON `
+	-DFT_DISABLE_ZLIB=ON 
 cmake --build "cmake_build" --config Release --parallel 8
 cmake --install "cmake_build"
 cd ${base_path}

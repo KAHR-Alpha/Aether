@@ -8,8 +8,8 @@ cd ${sources_path}
 if(!(Test-Path Aether_sources.zip))
 {
 	Invoke-WebRequest -URI https://github.com/KAHR-Alpha/Aether/archive/refs/heads/main.zip -OutFile Aether_sources.zip
+	Expand-Archive -Force ./Aether_sources.zip
 }
-Expand-Archive -Force ./Aether_sources.zip
 cd Aether_sources/Aether-main
 Remove-Item -Recurse ./cmake_build
 cmake -B "cmake_build" -G "MinGW Makefiles" `
