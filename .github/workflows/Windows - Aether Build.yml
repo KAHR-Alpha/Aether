@@ -1,0 +1,82 @@
+name: Windows Aether Build
+
+on:
+  #push:
+    #branches: [ "main" ]
+  #pull_request:
+    #branches: [ "main" ]
+  workflow_dispatch:
+
+env:
+  BUILD_TYPE: Release
+
+jobs:  
+  Build_Aether:
+    runs-on: windows-latest
+    steps:
+      - name: WX Cache
+        uses: actions/cache@v3
+        with:
+          path: builds/wxWidgets
+          key: ${{ runner.os }}-cache-key-wx
+          
+          
+      - name: Lua Cache
+        uses: actions/cache@v3
+        with:
+          path: builds/lua
+          key: ${{ runner.os }}-cache-key-lua
+          
+          
+      - name: Zlib Cache
+        uses: actions/cache@v3
+        with:
+          path: builds/zlib
+          key: ${{ runner.os }}-cache-key-zlib
+          
+      - name: Libpng Cache
+        uses: actions/cache@v3
+        with:
+          path: builds/libpng
+          key: ${{ runner.os }}-cache-key-libpng
+          
+      - name: Freetype Cache
+        uses: actions/cache@v3
+        with:
+          path: builds/freetype
+          key: ${{ runner.os }}-cache-key-freetype
+          
+      - name: FFTW Cache
+        uses: actions/cache@v3
+        with:
+          path: builds/fftw
+          key: ${{ runner.os }}-cache-key-fftw
+          
+      - name: Eigen Cache
+        uses: actions/cache@v3
+        with:
+          path: builds/eigen
+          key: ${{ runner.os }}-cache-key-eigen
+      - run: dir builds
+      - run: dir builds/eigen
+      - run: dir builds/eigen/share
+      - run: dir builds/eigen/share/eigen3
+      - run: dir builds/eigen/share/eigen3/cmake
+      
+      - uses: actions/checkout@v3
+      
+      - name: Configure CMake
+        run: cmake -B "${{github.workspace}}/cmake_build" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DINSTALL_PATH="Aether" -DTASK="Build CLI+GUI" -DLUA_INCLUDE_DIR="${{github.workspace}}/builds/lua/include" -DLUA_LIBRARIES="${{github.workspace}}/builds/lua/lib/lua.lib" -DEIGEN3_INCLUDE_DIR="${{github.workspace}}/builds/eigen/include/eigen3" -DFREETYPE_INCLUDE_DIRS="${{github.workspace}}/builds/freetype/include/freetype2" -DFREETYPE_LIBRARIES="${{github.workspace}}/builds/freetype/lib/freetype.lib" -DFREETYPE_LIBRARY="${{github.workspace}}/builds/freetype/lib/freetype.lib" -DWXWIDGETS_INCLUDES="${{github.workspace}}/builds/wxWidgets/include" -DWXWIDGETS_ADV="${{github.workspace}}/builds/wxWidgets/lib/vc_x64_lib/wxmsw32u_adv.lib" -DWXWIDGETS_BASE="${{github.workspace}}/builds/wxWidgets/lib/vc_x64_lib/wxbase32u.lib" -DWXWIDGETS_CORE="${{github.workspace}}/builds/wxWidgets/lib/vc_x64_lib/wxmsw32u_core.lib" -DWXWIDGETS_GL="${{github.workspace}}/builds/wxWidgets/lib/vc_x64_lib/wxmsw32u_gl.lib" -DWXWIDGETS_PNG="${{github.workspace}}/builds/wxWidgets/lib/vc_x64_lib/wxpng.lib" -DWXWIDGETS_JPEG="${{github.workspace}}/builds/wxWidgets/lib/vc_x64_lib/wxjpeg.lib" -DWXWIDGETS_TIFF="${{github.workspace}}/builds/wxWidgets/lib/vc_x64_lib/wxtiff.lib" -DWXWIDGETS_ZLIB="${{github.workspace}}/builds/wxWidgets/lib/vc_x64_lib/wxzlib.lib" -DFFTW_LIB="${{github.workspace}}/builds/fftw/libfftw3-3.lib" -DCMAKE_PREFIX_PATH="builds/fftw;builds/zlib;builds/libpng;builds/freetype/lib/cmake/freetype"
+
+      - name: Build
+        run: cmake --build "${{github.workspace}}/cmake_build" --config ${{env.BUILD_TYPE}}
+
+      - name: Install
+        run: cmake --install "${{github.workspace}}/cmake_build"
+        
+      - name: 'Upload Aether Artifact'
+        uses: actions/upload-artifact@v3
+        with:
+          name: Aether
+          path: Aether/*
+          retention-days: 1

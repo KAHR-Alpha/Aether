@@ -126,7 +126,7 @@ if(!(Test-Path wxWidgets-3.2.2.1.zip))
 	Expand-Archive -Force ./wxWidgets-3.2.2.1.zip
 }
 cd wxWidgets-3.2.2.1
-cmake -B "cmake_build" -G "Visual Studio 17 2022"  -DCMAKE_INSTALL_PREFIX="${build_path}/wxWidgets" -DCMAKE_BUILD_TYPE=Release -DwxBUILD_SHARED=OFF -DwxBUILD_MONOLITHIC=ON
+cmake -B "cmake_build" -G "Visual Studio 17 2022"  -DCMAKE_INSTALL_PREFIX="${build_path}/wxWidgets" -DCMAKE_BUILD_TYPE=Release -DwxBUILD_SHARED=OFF
 cmake --build "cmake_build" --config Release --parallel 8
 cmake --install "cmake_build"
 Copy-Item -Force -Path "${build_path}/wxWidgets/lib/vc_x64_lib/mswu/wx/setup.h" -Destination "${build_path}/wxWidgets/include/wx"

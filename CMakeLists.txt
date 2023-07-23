@@ -1,9 +1,16 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.25)
 
 project(Aether CXX C)
 
 message(${CMAKE_GENERATOR})
 message(${CMAKE_CXX_COMPILER_ID})
+
+function(Dll_Install library_name)
+	cmake_path(GET library_name EXTENSION ext)
+	if(${ext} STREQUAL "dll")
+		install(FILES ${library_name} DESTINATION .)
+	endif()
+endfunction()
 
 set(CPACK_PACKAGE_VERSION_MAJOR 0)
 set(CPACK_PACKAGE_VERSION_MINOR 10)
@@ -87,7 +94,10 @@ if(${TASK} STREQUAL "Build CLI+GUI")
 	set(GUI 1)
 endif()
 
-find_package(Eigen3 REQUIRED)
+if(${EIGEN3_INCLUDE_DIR} STREQUAL "")
+	find_package(Eigen3 REQUIRED)
+endif()
+
 if(WIN32)
 	find_path(FFTW_INCLUDES fftw3.h /usr/lib /usr/local/include libs libs/fftw64)
 	find_library(FFTW_LIB NAMES fftw3-3 fftw3 PATHS /usr/lib /usr/lib/x86_64-linux-gnu /usr/local/lib libs libs/fftw64)
@@ -251,11 +261,6 @@ install(TARGETS Aether_CLI RUNTIME DESTINATION ${BIN_DIR} PERMISSIONS OWNER_READ
 install(DIRECTORY contribs DESTINATION ${RSC_DIR})
 install(DIRECTORY mat_lib DESTINATION ${RSC_DIR})
 
-# install(DIRECTORY DESTINATION ${RSC_DIR}/buf)
-# install(DIRECTORY DESTINATION ${RSC_DIR}/grid)
-# install(DIRECTORY DESTINATION ${RSC_DIR}/grid2)
-# install(DIRECTORY DESTINATION ${RSC_DIR}/render)
-
 install(DIRECTORY samples DESTINATION ${RSC_DIR})
 
 install(FILES contributors DESTINATION ${RSC_DIR})
@@ -264,10 +269,10 @@ install(FILES LICENSE DESTINATION ${RSC_DIR})
 install(FILES REVISION DESTINATION ${RSC_DIR})
 
 if(WIN32)
-	install(FILES ${LUA_LIBRARIES} DESTINATION .)
-	install(FILES ${FFTW_LIB} DESTINATION .)
-	install(FILES ${PNG_LIBRARY_RELEASE} DESTINATION .)
-	install(FILES ${ZLIB_LIBRARY_RELEASE} DESTINATION .)
+	Dll_Install(${LUA_LIBRARIES})
+	Dll_Install(${FFTW_LIB})
+	Dll_Install(${PNG_LIBRARY_RELEASE})
+	Dll_Install(${ZLIB_LIBRARY_RELEASE})
 	
 	if(${CMAKE_GENERATOR} STREQUAL "MinGW Makefiles")
 		find_file(LIBSTDCPP_DLL libstdc++-6.dll)
@@ -285,10 +290,10 @@ if(GUI)
 	install(DIRECTORY resources DESTINATION ${RSC_DIR})
 	
 	if(WIN32)
-		install(FILES ${WXWIDGETS_BASE} DESTINATION .)
-		install(FILES ${WXWIDGETS_CORE} DESTINATION .)
-		install(FILES ${WXWIDGETS_GL} DESTINATION .)
-		install(FILES ${WXWIDGETS_ADV} DESTINATION .)
+		Dll_Install(${WXWIDGETS_BASE})
+		Dll_Install(${WXWIDGETS_CORE})
+		Dll_Install(${WXWIDGETS_GL})
+		Dll_Install(${WXWIDGETS_ADV})
 	endif()
 endif()
 
