@@ -20,7 +20,7 @@ jobs:
       - run: Expand-Archive ./sources.zip
       - run: mkdir wx_build
       - run: mkdir cmake_build
-      - run: cmake -B ../cmake_build -DCMAKE_INSTALL_PREFIX="../wx_build" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+      - run: cmake -B ../cmake_build -DCMAKE_INSTALL_PREFIX="../wx_build" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DwxBUILD_SHARED=OFF
         working-directory: sources
       - run: cmake --build ../cmake_build --config ${{env.BUILD_TYPE}}
         working-directory: sources
@@ -39,12 +39,18 @@ jobs:
       - run: Invoke-WebRequest -URI https://www.lua.org/ftp/lua-5.4.4.tar.gz -OutFile lua-5.4.4.tar.gz
       - run: tar -xzf lua-5.4.4.tar.gz
       - working-directory: lua-5.4.4
-        run: make generic
+        run: Invoke-WebRequest -URI https://raw.githubusercontent.com/KAHR-Alpha/Aether/main/contribs/lua_cmakelist/CMakeLists.txt -OutFile CMakeLists.txt
+      - run: cmake -B "${{github.workspace}}/cmake_build" -DCMAKE_INSTALL_PREFIX="${{github.workspace}}/lua_build" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+        working-directory: lua-5.4.4
+      - run: cmake --build "${{github.workspace}}/cmake_build" --config ${{env.BUILD_TYPE}}
+        working-directory: lua-5.4.4
+      - run: cmake --install "${{github.workspace}}/cmake_build"
+        working-directory: lua-5.4.4
       - name: 'Upload Lua Artifact'
         uses: actions/upload-artifact@v3
         with:
           name: lua_build
-          path: lua-5.4.4/*
+          path: lua_build/*
           retention-days: 1
             
   build_zlib:
@@ -52,8 +58,6 @@ jobs:
     steps:
       - run: Invoke-WebRequest -URI https://zlib.net/zlib1213.zip -OutFile sources.zip
       - run: Expand-Archive ./sources.zip
-      #- run: mkdir cmake_build
-      #- run: mkdir libpng_build
       - run: cmake -B "${{github.workspace}}/cmake_build" -DCMAKE_INSTALL_PREFIX="${{github.workspace}}/zlib_build" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
         working-directory: sources/zlib-1.2.13
       - run: cmake --build "${{github.workspace}}/cmake_build" --config ${{env.BUILD_TYPE}}
@@ -114,8 +118,12 @@ jobs:
   get_fftw:
     runs-on: windows-latest
     steps:
+      - uses: ilammy/msvc-dev-cmd@v1
       - run: Invoke-WebRequest -URI https://fftw.org/pub/fftw/fftw-3.3.5-dll64.zip -OutFile fftw.zip
       - run: Expand-Archive ./fftw.zip
+      - name: Generate FFTW Lib
+        working-directory: fftw
+        run: lib /def:libfftw3-3.def
       - name: 'Upload fftw Artifact'
         uses: actions/upload-artifact@v3
         with:

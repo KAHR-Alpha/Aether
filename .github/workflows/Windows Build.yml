@@ -22,15 +22,19 @@ jobs:
 
       - name: Download dependencies
         uses: actions/download-artifact@v3
-      - run: Copy-Item -Force wx_build/lib/vc_x64_dll/mswu/wx/setup.h wx_build/include/wx
+      - run: Copy-Item -Force wx_build/lib/vc_x64_lib/mswu/wx/setup.h wx_build/include/wx
       - name: Configure CMake
-        run: cmake -B "build" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DINSTALL_PATH="Aether" -DTASK="Build CLI+GUI" -DLUA_INCLUDE_DIR="lua_build/src" -DLUA_LIBRARIES="lua_build/src/liblua.a" -DEIGEN3_INCLUDE_DIR="eigen_build/include/eigen3" -DFREETYPE_INCLUDE_DIRS="freetype_build/include/freetype2" -DFREETYPE_LIBRARIES="freetype_build/lib/freetype.lib"  -DFREETYPE_LIBRARY="freetype_build/lib/freetype.lib" -DWXWIDGETS_INCLUDES="wx_build/include" -DWXWIDGETS_ADV="wx_build/lib/vc_x64_dll/wxmsw32u_adv.lib" -DWXWIDGETS_BASE="wx_build/lib/vc_x64_dll/wxbase32u.lib" -DWXWIDGETS_CORE="wx_build/lib/vc_x64_dll/wxmsw32u_core.lib" -DWXWIDGETS_GL="wx_build/lib/vc_x64_dll/wxmsw32u_gl.lib"  -DFFTW_LIB="fftw/libfftw3-3.dll" -DCMAKE_PREFIX_PATH="fftw;zlib_build;libpng_build;freetype_build/lib/cmake/freetype;eigen_build/share/eigen3/cmake"
+        run: cmake -B "${{github.workspace}}/cmake_build" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DINSTALL_PATH="Aether" -DTASK="Build CLI+GUI" -DLUA_INCLUDE_DIR="${{github.workspace}}/lua_build/include" -DLUA_LIBRARIES="${{github.workspace}}/lua_build/lib/lua.lib" -DEIGEN3_INCLUDE_DIR="${{github.workspace}}/eigen_build/include/eigen3" -DFREETYPE_INCLUDE_DIRS="${{github.workspace}}/freetype_build/include/freetype2" -DFREETYPE_LIBRARIES="${{github.workspace}}/freetype_build/lib/freetype.lib" -DFREETYPE_LIBRARY="${{github.workspace}}/freetype_build/lib/freetype.lib" -DWXWIDGETS_INCLUDES="${{github.workspace}}/wx_build/include" -DWXWIDGETS_ADV="${{github.workspace}}/wx_build/lib/vc_x64_lib/wxmsw32u_adv.lib" -DWXWIDGETS_BASE="${{github.workspace}}/wx_build/lib/vc_x64_lib/wxbase32u.lib" -DWXWIDGETS_CORE="${{github.workspace}}/wx_build/lib/vc_x64_lib/wxmsw32u_core.lib" -DWXWIDGETS_GL="${{github.workspace}}/wx_build/lib/vc_x64_lib/wxmsw32u_gl.lib" -DWXWIDGETS_PNG="${{github.workspace}}/wx_build/lib/vc_x64_lib/wxpng.lib" -DWXWIDGETS_JPEG="${{github.workspace}}/wx_build/lib/vc_x64_lib/wxjpeg.lib" -DWXWIDGETS_TIFF="${{github.workspace}}/wx_build/lib/vc_x64_lib/wxtiff.lib" -DWXWIDGETS_ZLIB="${{github.workspace}}/wx_build/lib/vc_x64_lib/wxzlib.lib" -DFFTW_LIB="${{github.workspace}}/fftw/libfftw3-3.lib" -DCMAKE_PREFIX_PATH="fftw;zlib_build;libpng_build;freetype_build/lib/cmake/freetype;eigen_build/share/eigen3/cmake"
 
       - name: Build
-        run: cmake --build "${{github.workspace}}/build" --config ${{env.BUILD_TYPE}}
+        run: cmake --build "${{github.workspace}}/cmake_build" --config ${{env.BUILD_TYPE}}
 
-      #- name: Test
-        #working-directory: ${{github.workspace}}/build
-        # Execute tests defined by the CMake configuration.
-        # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
-        #run: ctest -C ${{env.BUILD_TYPE}}
+      - name: Install
+        run: cmake --install "${{github.workspace}}/cmake_build"
+        
+      - name: 'Upload Aether Artifact'
+        uses: actions/upload-artifact@v3
+        with:
+          name: Aether
+          path: Aether/*
+          retention-days: 1

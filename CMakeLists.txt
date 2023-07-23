@@ -1,9 +1,16 @@
-cmake_minimum_required(VERSION 3.1)
+cmake_minimum_required(VERSION 3.25)
 
 project(Aether CXX C)
 
 message(${CMAKE_GENERATOR})
 message(${CMAKE_CXX_COMPILER_ID})
+
+function(Dll_Install library_name)
+	cmake_path(GET library_name EXTENSION ext)
+	if(${ext} STREQUAL "dll")
+		install(FILES ${library_name} DESTINATION .)
+	endif()
+endfunction()
 
 set(CPACK_PACKAGE_VERSION_MAJOR 0)
 set(CPACK_PACKAGE_VERSION_MINOR 10)
@@ -264,10 +271,10 @@ install(FILES LICENSE DESTINATION ${RSC_DIR})
 install(FILES REVISION DESTINATION ${RSC_DIR})
 
 if(WIN32)
-	install(FILES ${LUA_LIBRARIES} DESTINATION .)
-	install(FILES ${FFTW_LIB} DESTINATION .)
-	install(FILES ${PNG_LIBRARY_RELEASE} DESTINATION .)
-	install(FILES ${ZLIB_LIBRARY_RELEASE} DESTINATION .)
+	Dll_Install(${LUA_LIBRARIES})
+	Dll_Install(${FFTW_LIB})
+	Dll_Install(${PNG_LIBRARY_RELEASE})
+	Dll_Install(${ZLIB_LIBRARY_RELEASE})
 	
 	if(${CMAKE_GENERATOR} STREQUAL "MinGW Makefiles")
 		find_file(LIBSTDCPP_DLL libstdc++-6.dll)
@@ -285,10 +292,10 @@ if(GUI)
 	install(DIRECTORY resources DESTINATION ${RSC_DIR})
 	
 	if(WIN32)
-		install(FILES ${WXWIDGETS_BASE} DESTINATION .)
-		install(FILES ${WXWIDGETS_CORE} DESTINATION .)
-		install(FILES ${WXWIDGETS_GL} DESTINATION .)
-		install(FILES ${WXWIDGETS_ADV} DESTINATION .)
+		Dll_Install(${WXWIDGETS_BASE})
+		Dll_Install(${WXWIDGETS_CORE})
+		Dll_Install(${WXWIDGETS_GL})
+		Dll_Install(${WXWIDGETS_ADV})
 	endif()
 endif()
 
