@@ -94,7 +94,9 @@ if(${TASK} STREQUAL "Build CLI+GUI")
 	set(GUI 1)
 endif()
 
-if(${EIGEN3_INCLUDE_DIR} STREQUAL "")
+message("toto: " ${EIGEN3_INCLUDE_DIR})
+
+if(NOT DEFINED EIGEN3_INCLUDE_DIR)
 	find_package(Eigen3 REQUIRED)
 endif()
 
