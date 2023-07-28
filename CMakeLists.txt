@@ -19,6 +19,12 @@ set(CPACK_PACKAGE_VERSION_PATCH 0)
 set(TASK "Build CLI" CACHE STRING "What to do")
 set_property(CACHE TASK PROPERTY STRINGS "Build CLI" "Build CLI+GUI")
 
+set(GUI 0)
+
+if(${TASK} STREQUAL "Build CLI+GUI")
+	set(GUI 1)
+endif()
+
 set(INSTALL_PATH "" CACHE PATH "Installation path")
 set(NThreads 0 CACHE STRING "Max number of threads" )
 
@@ -29,10 +35,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel." FORCE)
 
+include(find_dependencies.cmake)
+
 if(WIN32 AND NOT MINGW)
 	set(CMAKE_CXX_FLAGS "/DTHR_NOTIFY_SEPARATE /DNOMINMAX /EHsc" CACHE STRING " " FORCE)
-else()
+elseif(WIN32)
 	set(CMAKE_CXX_FLAGS "-DTHR_NOTIFY_SEPARATE -ftemplate-backtrace-limit=0 -Wno-int-in-bool-context -Wno-attributes" CACHE STRING " " FORCE)
+else()
+		set(CMAKE_CXX_FLAGS "-DTHR_NOTIFY_SEPARATE -ftemplate-backtrace-limit=0 -Wno-int-in-bool-context -Wno-attributes" CACHE STRING " " FORCE)
 endif()
 
 set(CMAKE_INSTALL_PREFIX ${INSTALL_PATH} CACHE STRING "Install path prefix, prepended onto install directories." FORCE)
@@ -87,51 +97,6 @@ set(fdtd_modes src/fdtd_modes/default_fdtd.cpp
 			   src/fdtd_modes/single_particle.cpp)
 
 file(WRITE REVISION ${CPACK_PACKAGE_VERSION_MAJOR} "." ${CPACK_PACKAGE_VERSION_MINOR} "." ${CPACK_PACKAGE_VERSION_PATCH} )
-
-set(GUI 0)
-
-if(${TASK} STREQUAL "Build CLI+GUI")
-	set(GUI 1)
-endif()
-
-message("toto: " ${EIGEN3_INCLUDE_DIR})
-
-if(NOT DEFINED EIGEN3_INCLUDE_DIR)
-	find_package(Eigen3 REQUIRED)
-endif()
-
-if(WIN32)
-	find_path(FFTW_INCLUDES fftw3.h /usr/lib /usr/local/include libs libs/fftw64)
-	find_library(FFTW_LIB NAMES fftw3-3 fftw3 PATHS /usr/lib /usr/lib/x86_64-linux-gnu /usr/local/lib libs libs/fftw64)
-else()
-	find_package(FFTW3)
-endif()
-find_package(Lua)
-find_package(PNG)
-find_package(ZLIB)
-	
-if(NOT WIN32)
-	find_package(Threads)
-endif()
-
-if(GUI)
-	find_package(Freetype)
-	if(WIN32)
-		find_path(WXWIDGETS_INCLUDES build.cfg ${wxWidgets_ROOT_DIR}/include)
-		find_library(WXWIDGETS_BASE NAMES wxbase PATHS ${wxWidgets_ROOT_DIR}/lib/*)
-		find_library(WXWIDGETS_CORE NAMES wxmsw30u_core_gcc_custom PATHS ${wxWidgets_ROOT_DIR}/lib/)
-		find_library(WXWIDGETS_GL NAMES wxmsw30u_gl_gcc_custom PATHS ${wxWidgets_ROOT_DIR}/lib/)
-		find_library(WXWIDGETS_ADV NAMES wxmsw30u_gl_gcc_custom PATHS ${wxWidgets_ROOT_DIR}/lib/)
-		if(MSVC)
-			find_library(WXWIDGETS_PNG NAMES wxmsw30u_png_gcc_custom PATHS ${wxWidgets_ROOT_DIR}/lib/)
-			find_library(WXWIDGETS_JPEG NAMES wxmsw30u_jpeg_gcc_custom PATHS ${wxWidgets_ROOT_DIR}/lib/)
-			find_library(WXWIDGETS_TIFF NAMES wxmsw30u_tiff_gcc_custom PATHS ${wxWidgets_ROOT_DIR}/lib/)
-			find_library(WXWIDGETS_ZLIB NAMES wxmsw30u_zlib_gcc_custom PATHS ${wxWidgets_ROOT_DIR}/lib/)
-		endif()
-	else()
-		find_package(wxWidgets REQUIRED gl core base)
-	endif()
-endif()
 				
 add_executable(Aether_CLI ${base_term} ${extra_sources} ${fd_solver}
 					  ${fdfd_core} ${fdtd_core} ${fdtd_modes} ${lua_src}
@@ -149,6 +114,11 @@ if(GUI)
 	target_compile_definitions(Aether_GUI PUBLIC -D_UNICODE)
 	
 	target_compile_definitions(Aether_GUI PUBLIC -DGUI_ON)
+	
+	if(wxWidgets_FOUND)
+		message("wxWidgets definitions: " ${wxWidgets_DEFINITIONS})
+		target_compile_definitions(Aether_GUI PUBLIC ${wxWidgets_DEFINITIONS})
+	endif()
 	
 	if(NOT WIN32)
 		target_compile_definitions(Aether_GUI PUBLIC -DGTK_RMV_RESIZE -DWX30_RESTRICT)
@@ -168,6 +138,10 @@ endif()
 #   Includes
 ###############
 
+message("Lua: " ${LUA_INCLUDE_DIR})
+message("Eigen: " ${EIGEN3_INCLUDE_DIR})
+message("FFTW: " ${FFTW_INCLUDES})
+message("Libpng: " ${PNG_PNG_INCLUDE_DIR})
 
 include_directories(src/include)
 include_directories(src/include/fdtd)
@@ -186,6 +160,7 @@ if(GUI)
 	if(WIN32)
 		target_include_directories(Aether_GUI PUBLIC ${WXWIDGETS_INCLUDES})
 	else()
+		message("wx use file: " ${wxWidgets_USE_FILE})
 		include(${wxWidgets_USE_FILE})
 	endif()
 endif()
@@ -194,7 +169,6 @@ endif()
 ##############
 #   Linking
 ##############
-
 
 target_link_libraries(Aether_CLI ${LUA_LIBRARIES})
 target_link_libraries(Aether_CLI ${FFTW_LIB})
@@ -214,9 +188,6 @@ if(GUI)
 	target_link_libraries(Aether_GUI ${FFTW_LIB})
 	target_link_libraries(Aether_GUI ${PNG_LIBRARY_RELEASE})
 	target_link_libraries(Aether_GUI ${ZLIB_LIBRARY_RELEASE})
-	if(UNIX) 
-		target_link_libraries(Aether_CLI dl pthread)
-	endif()
 	target_link_libraries(Aether_GUI ${FREETYPE_LIBRARIES})
 		
 	if(WIN32)
@@ -224,7 +195,11 @@ if(GUI)
 		target_link_libraries(Aether_GUI ${WXWIDGETS_CORE})
 		target_link_libraries(Aether_GUI ${WXWIDGETS_GL})
 		target_link_libraries(Aether_GUI ${WXWIDGETS_ADV})
-		
+	else()
+		target_link_libraries(Aether_GUI ${wxWidgets_LIBRARIES})
+	endif()
+	
+	if(WIN32)
 		target_link_libraries(Aether_GUI opengl32)
 		target_link_libraries(Aether_GUI glu32)
 		target_link_libraries(Aether_GUI gdi32)
@@ -242,7 +217,7 @@ if(GUI)
 			target_link_libraries(Aether_GUI rpcrt4)
 		endif()
 	else()
-		target_link_libraries(Aether_GUI ${wxWidgets_LIBRARIES} ${CMAKE_DL_LIBS})
+		target_link_libraries(Aether_GUI ${CMAKE_DL_LIBS})
 	endif()
 endif()
 

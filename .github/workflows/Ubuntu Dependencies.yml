@@ -1,0 +1,142 @@
+name: Ubuntu Dependencies Caching
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  BUILD_TYPE: Release
+
+jobs:
+  build_eigen:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Eigen Cache
+        uses: actions/cache@v3
+        with:
+          path: builds/eigen
+          key: ${{ runner.os }}-cache-key-eigen
+          
+      - run:  wget https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.tar.gz
+      
+      - run: tar -xzf eigen-3.4.0.tar.gz
+      
+      - name: build
+        run: cmake -B "${{github.workspace}}/build" -DCMAKE_INSTALL_PREFIX="${{github.workspace}}/builds/eigen" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+        working-directory: eigen-3.4.0
+        
+      - run: cmake --build "${{github.workspace}}/build"
+        working-directory: eigen-3.4.0
+        
+      - run: cmake --install "${{github.workspace}}/build"
+        working-directory: eigen-3.4.0
+    
+  build_lua:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Lua Cache
+        uses: actions/cache@v3
+        with:
+          path: builds/lua
+          key: ${{ runner.os }}-cache-key-lua
+      
+      - run: wget --no-check-certificate https://www.lua.org/ftp/lua-5.4.4.tar.gz
+      
+      - run: tar -xzf lua-5.4.4.tar.gz
+      
+      - working-directory: lua-5.4.4
+        run: make linux
+      
+      - run: mkdir builds
+      - run: mv lua-5.4.4 builds/lua
+      - run: ls
+      - run: ls builds
+      - run: ls builds/lua
+  
+  build_FFTW:
+    runs-on: ubuntu-latest
+    steps:
+      - name: FFTW Cache
+        uses: actions/cache@v3
+        with:
+          path: builds/fftw
+          key: ${{ runner.os }}-cache-key-fftw
+          
+      - run: wget --no-check-certificate https://www.fftw.org/fftw-3.3.10.tar.gz
+      
+      - run: tar -xzf fftw-3.3.10.tar.gz
+              
+      - run: cmake -B "${{github.workspace}}/cmake_build" -DCMAKE_INSTALL_PREFIX="${{github.workspace}}/builds/fftw" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+        working-directory: fftw-3.3.10
+        
+      - run: cmake --build "${{github.workspace}}/cmake_build" --config ${{env.BUILD_TYPE}}
+        working-directory: fftw-3.3.10
+        
+      - run: cmake --install "${{github.workspace}}/cmake_build"
+        working-directory: fftw-3.3.10
+    
+  build_zlib:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Zlib Cache
+        uses: actions/cache@v3
+        with:
+          path: builds/zlib
+          key: ${{ runner.os }}-cache-key-zlib
+          
+      - run: wget https://zlib.net/zlib-1.2.13.tar.gz
+      - run: tar -xzf zlib-1.2.13.tar.gz
+      - run: |
+          cd zlib-1.2.13
+          cmake -B ${{github.workspace}}/build -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/builds/zlib -DCMAKE_BUILD_TYPE=Release
+          cd ${{github.workspace}}/build
+          make
+          make install
+  
+  build_libpng:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Libpng Cache
+        uses: actions/cache@v3
+        with:
+          path: builds/libpng
+          key: ${{ runner.os }}-cache-key-libpng
+          
+      - run: wget http://prdownloads.sourceforge.net/libpng/libpng-1.6.39.tar.gz
+      - run: tar -xzf libpng-1.6.39.tar.gz
+      - run: |
+          cd libpng-1.6.39
+          cmake -B ${{github.workspace}}/build/ -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/builds/libpng -DCMAKE_BUILD_TYPE=Release
+          cd ${{github.workspace}}/build
+          make
+          make install
+          
+  build_wx:
+    runs-on: ubuntu-latest
+    steps:
+      - name: WX Cache
+        uses: actions/cache@v3
+        with:
+          path: builds/wxWidgets
+          key: ${{ runner.os }}-cache-key-wx
+          
+      - run: wget https://github.com/wxWidgets/wxWidgets/releases/download/v3.2.2.1/wxWidgets-3.2.2.1.tar.bz2
+      
+      - run: tar -xjf wxWidgets-3.2.2.1.tar.bz2
+      
+      - run: sudo apt install libgtk-3-dev
+      
+      - run: cmake -B "${{github.workspace}}/cmake_build" -DCMAKE_INSTALL_PREFIX="${{github.workspace}}/builds/wxWidgets" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DwxBUILD_SHARED=OFF
+        working-directory: wxWidgets-3.2.2.1
+        
+      - run: cmake --build "${{github.workspace}}/cmake_build" --config ${{env.BUILD_TYPE}}
+        working-directory: wxWidgets-3.2.2.1
+        
+      - run: cmake --install "${{github.workspace}}/cmake_build"
+        working-directory: wxWidgets-3.2.2.1
+
+      - run: cp "${{github.workspace}}/builds/wxWidgets/lib/wx/include/gtk3-unicode-static-3.2/wx/setup.h"  "${{github.workspace}}/builds/wxWidgets/include/wx-3.2/wx"
