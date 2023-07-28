@@ -58,11 +58,10 @@ jobs:
           path: builds/eigen
           key: ${{ runner.os }}-cache-key-eigen
       - run: dir builds
-      - run: dir builds/wxWidgets
-      - run: dir builds/wxWidgets/lib/
-      - run: dir builds/wxWidgets/lib/vc_x64_lib
-      - run: dir builds/wxWidgets/lib/vc_x64_lib/mswu
-      - run: dir builds/wxWidgets/lib/vc_x64_lib/mswu/wx
+      - run: dir builds/eigen
+      - run: dir builds/eigen/share
+      - run: dir builds/eigen/share/eigen3
+      - run: dir builds/eigen/share/eigen3/cmake
       
       - uses: actions/checkout@v3
       
