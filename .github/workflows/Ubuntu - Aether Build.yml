@@ -1,0 +1,75 @@
+name: Ubuntu Aether build
+
+on:
+  #push:
+    #branches: [ "main" ]
+  #pull_request:
+    #branches: [ "main" ]
+  workflow_dispatch:
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
+  
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  
+  build_aether:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: FFTW Cache
+      uses: actions/cache@v3
+      with:
+        path: builds/fftw
+        key: ${{ runner.os }}-cache-key-fftw
+        
+    - name: WX Cache
+      uses: actions/cache@v3
+      with:
+        path: builds/wxWidgets
+        key: ${{ runner.os }}-cache-key-wx
+    
+    - run: sudo apt install libeigen3-dev
+    # - run: sudo apt install libfftw3-3
+    # - run: sudo apt install libfftw3-dev
+    - run: sudo apt install liblua5.4-dev
+    - run: sudo apt install zlib1g-dev
+    - run: sudo apt install libpng-dev
+    - run: sudo apt install libfreetype-dev
+    - run: sudo apt install libwxgtk3.0-gtk3-dev
+      
+    # - name: 'Upload built dependencies'
+      # uses: actions/upload-artifact@v3
+      # with:
+        # name: linux_dependencies
+        # path: builds
+        # retention-days: 1
+        
+    - name: Configure CMake
+      run: cmake -B "${{github.workspace}}/cmake_build" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DINSTALL_PATH="Aether_build" -DTASK="Build CLI+GUI" -DFFTW_INCLUDES="${{github.workspace}}/builds/fftw/include"  -DFFTW_LIB="${{github.workspace}}/builds/fftw/lib/libfftw3.so" -DCPACK_BINARY_7Z=ON  
+
+    - name: Build
+      run: cmake --build "${{github.workspace}}/cmake_build" --config ${{env.BUILD_TYPE}} --parallel 8
+
+    - name: Install
+      run: cmake --install "${{github.workspace}}/cmake_build"
+    
+    - name: Packaging
+      run: cpack
+      working-directory: "${{github.workspace}}/cmake_build"
+    
+    - run: ls cmake_build
+        
+    - name: 'Upload Aether Artifact'
+      uses: actions/upload-artifact@v3
+      with:
+        name: Aether_ubuntu
+        path: cmake_build/Aether*
+        retention-days: 1
+
