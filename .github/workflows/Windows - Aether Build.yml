@@ -64,36 +64,36 @@ jobs:
       
       - run: dir
       
-      # - name: Install NSIS
-        # uses: repolevedavaj/install-nsis@v1.0.0
-        # with:
-          # nsis-version: 3.08
+      - name: Install NSIS
+        uses: repolevedavaj/install-nsis@v1.0.0
+        with:
+          nsis-version: 3.08
             
-      # - name: Configure CMake
-        # run: cmake -B "${{github.workspace}}/cmake_build" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DINSTALL_PATH="Aether" -DTASK="Build CLI+GUI" -DEIGEN3_INCLUDE_DIR="${{github.workspace}}/builds/eigen/include/eigen3/"  -DFFTW_INCLUDES="${{github.workspace}}/builds/fftw/"  -DFFTW_LIB="${{github.workspace}}/builds/fftw/libfftw3-3.lib"  -DLUA_INCLUDE_DIR="${{github.workspace}}/builds/lua/include/" -DLUA_LIBRARIES="${{github.workspace}}/builds/lua/lib/lua.lib" -DFREETYPE_INCLUDE_DIRS="${{github.workspace}}/builds/freetype/include/freetype2/" -DFREETYPE_LIBRARIES="${{github.workspace}}/builds/freetype/lib/freetype.lib" -DPNG_PNG_INCLUDE_DIR="${{github.workspace}}/builds/libpng/include/" -DPNG_LIBRARY_RELEASE="${{github.workspace}}/builds/libpng/lib/libpng16.lib" -DZLIB_LIBRARY_RELEASE="${{github.workspace}}/builds/zlib/lib/zlib.lib" -DWXWIDGETS_INCLUDES="${{github.workspace}}/builds/wxWidgets/include/" -DWXWIDGETS_ADV="${{github.workspace}}/builds/wxWidgets/lib/vc_x64_lib/wxmsw32u_adv.lib" -DWXWIDGETS_BASE="${{github.workspace}}/builds/wxWidgets/lib/vc_x64_lib/wxbase32u.lib" -DWXWIDGETS_CORE="${{github.workspace}}/builds/wxWidgets/lib/vc_x64_lib/wxmsw32u_core.lib" -DWXWIDGETS_GL="${{github.workspace}}/builds/wxWidgets/lib/vc_x64_lib/wxmsw32u_gl.lib" -DWXWIDGETS_PNG="${{github.workspace}}/builds/wxWidgets/lib/vc_x64_lib/wxpng.lib" -DWXWIDGETS_JPEG="${{github.workspace}}/builds/wxWidgets/lib/vc_x64_lib/wxjpeg.lib" -DWXWIDGETS_TIFF="${{github.workspace}}/builds/wxWidgets/lib/vc_x64_lib/wxtiff.lib" -DWXWIDGETS_ZLIB="${{github.workspace}}/builds/wxWidgets/lib/vc_x64_lib/wxzlib.lib" -DCPACK_BINARY_NSIS=ON -DCPACK_BINARY_ZIP=ON
+      - name: Configure CMake
+        run: cmake -B "${{github.workspace}}/cmake_build" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DINSTALL_PATH="Aether" -DTASK="Build CLI+GUI" -DEIGEN3_INCLUDE_DIR="${{github.workspace}}/builds/eigen/include/eigen3/"  -DFFTW_INCLUDES="${{github.workspace}}/builds/fftw/"  -DFFTW_LIB="${{github.workspace}}/builds/fftw/libfftw3-3.lib"  -DLUA_INCLUDE_DIR="${{github.workspace}}/builds/lua/include/" -DLUA_LIBRARIES="${{github.workspace}}/builds/lua/lib/lua.lib" -DFREETYPE_INCLUDE_DIRS="${{github.workspace}}/builds/freetype/include/freetype2/" -DFREETYPE_LIBRARIES="${{github.workspace}}/builds/freetype/lib/freetype.lib" -DPNG_PNG_INCLUDE_DIR="${{github.workspace}}/builds/libpng/include/" -DPNG_LIBRARY_RELEASE="${{github.workspace}}/builds/libpng/lib/libpng16_static.lib" -DZLIB_LIBRARY_RELEASE="${{github.workspace}}/builds/zlib/lib/zlibstatic.lib" -DWXWIDGETS_INCLUDES="${{github.workspace}}/builds/wxWidgets/include/" -DWXWIDGETS_ADV="${{github.workspace}}/builds/wxWidgets/lib/vc_x64_lib/wxmsw32u_adv.lib" -DWXWIDGETS_BASE="${{github.workspace}}/builds/wxWidgets/lib/vc_x64_lib/wxbase32u.lib" -DWXWIDGETS_CORE="${{github.workspace}}/builds/wxWidgets/lib/vc_x64_lib/wxmsw32u_core.lib" -DWXWIDGETS_GL="${{github.workspace}}/builds/wxWidgets/lib/vc_x64_lib/wxmsw32u_gl.lib" -DWXWIDGETS_PNG="${{github.workspace}}/builds/wxWidgets/lib/vc_x64_lib/wxpng.lib" -DWXWIDGETS_JPEG="${{github.workspace}}/builds/wxWidgets/lib/vc_x64_lib/wxjpeg.lib" -DWXWIDGETS_TIFF="${{github.workspace}}/builds/wxWidgets/lib/vc_x64_lib/wxtiff.lib" -DWXWIDGETS_ZLIB="${{github.workspace}}/builds/wxWidgets/lib/vc_x64_lib/wxzlib.lib" -DCPACK_BINARY_NSIS=ON -DCPACK_BINARY_ZIP=ON
 
-      # - name: Build
-        # run: cmake --build "${{github.workspace}}/cmake_build" --config ${{env.BUILD_TYPE}} --parallel 8
+      - name: Build
+        run: cmake --build "${{github.workspace}}/cmake_build" --config ${{env.BUILD_TYPE}} --parallel 8
 
-      # - name: Install
-        # run: cmake --install "${{github.workspace}}/cmake_build"
+      - name: Install
+        run: cmake --install "${{github.workspace}}/cmake_build"
       
-      # - name: Packaging
-        # run: cpack
-        # working-directory: "${{github.workspace}}/cmake_build"
+      - name: Packaging
+        run: cpack
+        working-directory: "${{github.workspace}}/cmake_build"
       
-      # - run: dir "${{github.workspace}}/cmake_build"
+      - run: dir "${{github.workspace}}/cmake_build"
         
-      # - name: 'Upload Aether Artifact'
-        # uses: actions/upload-artifact@v3
-        # with:
-          # name: Aether_windows
-          # path: cmake_build/Aether*
-          # retention-days: 1
-      
-      - name: 'Upload built dependencies'
+      - name: 'Upload Aether Artifact'
         uses: actions/upload-artifact@v3
         with:
-          name: windows_dependencies
-          path: builds
+          name: Aether_windows
+          path: cmake_build/Aether*
           retention-days: 1
+      
+      # - name: 'Upload built dependencies'
+        # uses: actions/upload-artifact@v3
+        # with:
+          # name: windows_dependencies
+          # path: builds
+          # retention-days: 1
