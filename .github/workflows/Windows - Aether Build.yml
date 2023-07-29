@@ -64,13 +64,6 @@ jobs:
       
       - run: dir
       
-      # - name: 'Upload built dependencies'
-        # uses: actions/upload-artifact@v3
-        # with:
-          # name: windows_dependencies
-          # path: builds
-          # retention-days: 1
-      
       - name: Install NSIS
         uses: repolevedavaj/install-nsis@v1.0.0
         with:
@@ -96,4 +89,11 @@ jobs:
         with:
           name: Aether_windows
           path: cmake_build/Aether*
+          retention-days: 1
+      
+      - name: 'Upload built dependencies'
+        uses: actions/upload-artifact@v3
+        with:
+          name: windows_dependencies
+          path: builds
           retention-days: 1

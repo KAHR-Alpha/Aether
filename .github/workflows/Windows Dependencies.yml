@@ -99,7 +99,7 @@ jobs:
       - run: Invoke-WebRequest -UserAgent "Wget" -URI https://sourceforge.net/projects/libpng/files/latest/download -OutFile sources.zip
       - run: Expand-Archive ./sources.zip
       
-      - run: cmake -B "${{github.workspace}}/cmake_build" -DCMAKE_INSTALL_PREFIX="${{github.workspace}}/builds/libpng" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_PREFIX_PATH="${{github.workspace}}/builds/zlib"
+      - run: cmake -B "${{github.workspace}}/cmake_build" -DCMAKE_INSTALL_PREFIX="${{github.workspace}}/builds/libpng" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_PREFIX_PATH="${{github.workspace}}/builds/zlib" -DPNG_SHARED=OFF -DPNG_STATIC=ON
         working-directory: sources/lpng1639
         
       - run: cmake --build "${{github.workspace}}/cmake_build" --config ${{env.BUILD_TYPE}}
