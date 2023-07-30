@@ -80,8 +80,10 @@ void filename_filter(std::string fname,std::string &path,std::string &core,std::
     chk_var(extension.size());
 }
 
-void fmap_names(Filename const &fname,int type,
-                Filename &fname_x,Filename &fname_y,Filename &fname_z)
+void fmap_names(std::filesystem::path const &fname,int type,
+                std::filesystem::path &fname_x,
+                std::filesystem::path &fname_y,
+                std::filesystem::path &fname_z)
 {
     fname_x=fname;
     fname_y=fname;
@@ -89,47 +91,42 @@ void fmap_names(Filename const &fname,int type,
     
     if(type==E_FIELD)
     {
-        fname_x.set_core(fname_x.get_core().append("_Ex_raw"));
-        fname_y.set_core(fname_y.get_core().append("_Ey_raw"));
-        fname_z.set_core(fname_z.get_core().append("_Ez_raw"));
+        fname_x.replace_filename(fname_x.stem().generic_string()+"_Ex_raw");
+        fname_y.replace_filename(fname_y.stem().generic_string()+"_Ey_raw");
+        fname_z.replace_filename(fname_z.stem().generic_string()+"_Ez_raw");
     }
     else if(type==H_FIELD)
     {
-        fname_x.set_core(fname_x.get_core().append("_Hx_raw"));
-        fname_y.set_core(fname_y.get_core().append("_Hy_raw"));
-        fname_z.set_core(fname_z.get_core().append("_Hz_raw"));
+        fname_x.replace_filename(fname_x.stem().generic_string()+"_Hx_raw");
+        fname_y.replace_filename(fname_y.stem().generic_string()+"_Hy_raw");
+        fname_z.replace_filename(fname_z.stem().generic_string()+"_Hz_raw");
     }
     else if(type==S_FIELD)
     {
-        fname_x.set_core(fname_x.get_core().append("_Sx_raw"));
-        fname_y.set_core(fname_y.get_core().append("_Sy_raw"));
-        fname_z.set_core(fname_z.get_core().append("_Sz_raw"));
+        fname_x.replace_filename(fname_x.stem().generic_string()+"_Sx_raw");
+        fname_y.replace_filename(fname_y.stem().generic_string()+"_Sy_raw");
+        fname_z.replace_filename(fname_z.stem().generic_string()+"_Sz_raw");
     }
-    
-    fname_x.clear_extension();
-    fname_y.clear_extension();
-    fname_z.clear_extension();
 }
 
-void fmap_mats_name(Filename const &fname,Filename &fname_mats)
+void fmap_mats_name(std::filesystem::path const &fname,std::filesystem::path &fname_mats)
 {
     fname_mats=fname;
-    fname_mats.set_core(fname_mats.get_core().append("_mats_raw"));
-    fname_mats.clear_extension();
+    fname_mats.replace_filename(fname_mats.stem().generic_string() + "_mats_raw");
 }
 
-void fmap_script(Filename const &fname,int type,bool real,double D1,double D2)
+void fmap_script(std::filesystem::path const &fname,int type,bool real,double D1,double D2)
 {
-    Filename fname_x,fname_y,fname_z,fname_mats;
+    std::filesystem::path fname_x,fname_y,fname_z,fname_mats;
     fmap_names(fname,type,fname_x,fname_y,fname_z);
     fmap_mats_name(fname,fname_mats);
     
-    Filename fname_out(fname);
-    if(fname_out.get_extension()!=".m") fname_out.set_extension(".m");
+    std::filesystem::path fname_out=fname;
+    if(fname_out.extension()!=".m") fname_out.replace_extension(".m");
     
-    std::ofstream file(fname_out.get_fullpath(),std::ios::out|std::ios::trunc|std::ios::binary);
+    std::ofstream file(fname_out,std::ios::out|std::ios::trunc|std::ios::binary);
     
-    file<<"function out="<<fname.get_core()<<"(varargin)"<<'\n';
+    file<<"function out="<<fname.stem()<<"(varargin)"<<'\n';
     
     file<<""<<'\n';
     file<<"baseline=1;"<<'\n';
@@ -142,10 +139,10 @@ void fmap_script(Filename const &fname,int type,bool real,double D1,double D2)
     file<<""<<'\n';
     file<<"cmap=[transpose(r) transpose(g) transpose(b)];"<<'\n'; 
     file<<""<<'\n';
-    file<<"Fx=dlmread('"<<fname_x.get_core_ext()<<"')/baseline;"<<'\n';
-    file<<"Fy=dlmread('"<<fname_y.get_core_ext()<<"')/baseline;"<<'\n';
-    file<<"Fz=dlmread('"<<fname_z.get_core_ext()<<"')/baseline;"<<'\n';
-    file<<"mats=dlmread('"<<fname_mats.get_core_ext()<<"');"<<'\n';
+    file<<"Fx=dlmread('"<<fname_x.filename()<<"')/baseline;"<<'\n';
+    file<<"Fy=dlmread('"<<fname_y.filename()<<"')/baseline;"<<'\n';
+    file<<"Fz=dlmread('"<<fname_z.filename()<<"')/baseline;"<<'\n';
+    file<<"mats=dlmread('"<<fname_mats.filename()<<"');"<<'\n';
     file<<""<<'\n';
     file<<"Nx=size(Fx,2);"<<'\n';
     file<<"Ny=size(Fy,2);"<<'\n';
@@ -257,17 +254,17 @@ void fmap_script(Filename const &fname,int type,bool real,double D1,double D2)
     file.close();
 }
 
-void fmap_raw(Filename const &fname,int type,
+void fmap_raw(std::filesystem::path const &fname,int type,
               Grid2<Imdouble> const &Gx,Grid2<Imdouble> const &Gy,Grid2<Imdouble> const &Gz,bool real)
 {
     int i,j;
     
-    Filename fname_x,fname_y,fname_z;
+    std::filesystem::path fname_x,fname_y,fname_z;
     fmap_names(fname,type,fname_x,fname_y,fname_z);
     
-    std::ofstream fx(fname_x.get_fullpath(),std::ios::out|std::ios::trunc);
-    std::ofstream fy(fname_y.get_fullpath(),std::ios::out|std::ios::trunc);
-    std::ofstream fz(fname_z.get_fullpath(),std::ios::out|std::ios::trunc);
+    std::ofstream fx(fname_x,std::ios::out|std::ios::trunc);
+    std::ofstream fy(fname_y,std::ios::out|std::ios::trunc);
+    std::ofstream fz(fname_z,std::ios::out|std::ios::trunc);
     
     int span1=Gx.L1();
     int span2=Gx.L2();
@@ -338,14 +335,14 @@ void fmap_raw(Filename const &fname,int type,
     fz.close();
 }
 
-void fmap_mats_raw(Filename const &fname,Grid2<unsigned int> const &mats)
+void fmap_mats_raw(std::filesystem::path const &fname,Grid2<unsigned int> const &mats)
 {
     int i,j;
     
-    Filename fname_mats;
+    std::filesystem::path fname_mats;
     fmap_mats_name(fname,fname_mats);
     
-    std::ofstream file(fname_mats.get_fullpath(),std::ios::out|std::ios::trunc);
+    std::ofstream file(fname_mats,std::ios::out|std::ios::trunc);
     
     int span1=mats.L1();
     int span2=mats.L2();

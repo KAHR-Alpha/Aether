@@ -222,9 +222,9 @@ void Box_Spect_Poynting::treat()
     
     if(!silent)
     {
-        Filename core(name);
-        file_m<<"function [L,tot]="<<core.get_core()<<"\n";
-        file_m<<"   data=dlmread('"<<core.get_core()<<"_bspdft');\n";
+        std::filesystem::path core(name);
+        file_m<<"function [L,tot]="<<core.stem()<<"\n";
+        file_m<<"   data=dlmread('"<<core.stem()<<"_bspdft');\n";
         file_m<<"   L=data(:,1);\n";
         file_m<<"   tot=data(:,2);\n";
         file_m<<"end";

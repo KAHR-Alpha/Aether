@@ -749,16 +749,13 @@ int FD_mode_set_material(lua_State *L)
 
 int FD_mode_set_output_directory(lua_State *L)
 {
-//    FD_Mode **pp_fd=reinterpret_cast<FD_Mode**>(lua_touserdata(L,1));
     FD_Mode *p_fd=lua_get_metapointer<FD_Mode>(L,1);
     
     std::string directory=lua_tostring(L,2);
     
-    proper_dirname_convertion(directory);
-    
-    std::cout<<"Setting the results output directory to "<<directory<<std::endl;
-    
     p_fd->directory=directory;
+    
+    std::cout<<"Setting the results output directory to "<<p_fd->directory.generic_string()<<std::endl;
     
     return 1;
 }
