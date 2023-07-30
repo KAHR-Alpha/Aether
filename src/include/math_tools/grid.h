@@ -768,7 +768,8 @@ class Grid3
                          <<ind1<<" "<<N1<<std::endl
                          <<ind2<<" "<<N2<<std::endl
                          <<ind3<<" "<<N3<<std::endl;
-                std::system("pause");
+                std::cout<<"Press enter to continue"<<std::endl;
+                std::cin.get();
             }
         }
         
@@ -1030,7 +1031,8 @@ class Grid4
                          <<ind2<<" "<<N2<<std::endl
                          <<ind3<<" "<<N3<<std::endl
                          <<ind4<<" "<<N4<<std::endl;
-                std::system("pause");
+                std::cout<<"Press enter to continue"<<std::endl;
+                std::cin.get();
             }
         }
         

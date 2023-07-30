@@ -592,12 +592,14 @@ void chk_msg(std::string k);
 template<typename T> void chk_msg(T const &k)
 {
     std::cout<<"Check: "<<k<<std::endl;
-    std::system("pause");
+    std::cout<<"Press enter to continue"<<std::endl;
+    std::cin.get();
 }
 template<typename T> void chk_msg(std::string ks,T const &k)
 {
     std::cout<<"Check "<<ks<<": "<<k<<std::endl;
-    std::system("pause");
+    std::cout<<"Press enter to continue"<<std::endl;
+    std::cin.get();
 }
 template<typename T> void chk_msg_c(std::string ks,T const &k)
 {

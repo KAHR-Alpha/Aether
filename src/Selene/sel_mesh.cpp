@@ -131,13 +131,15 @@ bool SelFace::degeneracy_chk(int ID_msg)
     if(V1==V2 || V1==V3 || V2==V3)
     {
         std::cout<<"Degeneracy detected "<<0<<" "<<ID_msg<<std::endl;
-        std::system("pause");
+        std::cout<<"Press enter to continue"<<std::endl;
+        std::cin.get();
         return 1;
     }
     if(ngb[0]==ngb[1] || ngb[0]==ngb[2] || ngb[1]==ngb[2])
     {
         std::cout<<"Degeneracy detected "<<1<<" "<<ID_msg<<std::endl;
-        std::system("pause");
+        std::cout<<"Press enter to continue"<<std::endl;
+        std::cin.get();
         return 1;
     }
     return 0;

@@ -803,7 +803,8 @@ void multi_cspline::show()
 void chk_msg(std::string k)
 {
     std::cout<<k<<std::endl;
-    std::system("pause");
+    std::cout<<"Press enter to continue"<<std::endl;
+    std::cin.get();
 }
 
 void debug_msg(std::string k)

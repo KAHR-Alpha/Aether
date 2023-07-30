@@ -77,7 +77,8 @@ class XGrid
                          <<ind1<<" "<<N1<<std::endl
                          <<ind2<<" "<<N2<<std::endl
                          <<ind3<<" "<<N3<<std::endl;
-                std::system("pause");
+                std::cout<<"Press enter to continue"<<std::endl;
+                std::cin.get();
             }
         }
         
@@ -247,7 +248,8 @@ class YGrid
                          <<ind1<<" "<<N1<<std::endl
                          <<ind2<<" "<<N2<<std::endl
                          <<ind3<<" "<<N3<<std::endl;
-                std::system("pause");
+                std::cout<<"Press enter to continue"<<std::endl;
+                std::cin.get();
             }
         }
         
@@ -417,7 +419,8 @@ class ZGrid
                          <<ind1<<" "<<N1<<std::endl
                          <<ind2<<" "<<N2<<std::endl
                          <<ind3<<" "<<N3<<std::endl;
-                std::system("pause");
+                std::cout<<"Press enter to continue"<<std::endl;
+                std::cin.get();
             }
         }
         
