@@ -421,13 +421,6 @@ void split_string(std::vector<std::string> &split,std::string const &str,char de
     split[split_bit]=str.substr(s_start,s_end+1-s_start);
 }
 
-std::string to_generic_path(std::string path)
-{
-    for(unsigned int i=0;i<path.size();i++) if(path[i]=='\\') path[i]='/';
-    
-    return path;
-}
-
 std::string to_lower(std::string str)
 {
     for(unsigned int i=0;i<str.size();i++) str[i]=std::tolower(str[i]);

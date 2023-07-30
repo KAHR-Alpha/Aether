@@ -239,7 +239,8 @@ bool IRF::get_response_grating(Vector3 const &in_dir,Vector3 &out_dir,
     double cos_th=std::abs(n_scal);
     double th=std::acos(cos_th);
     
-    double x,y,z;
+    double x,y;
+    //double z;
     x=scalar_prod(in_dir,t);
     y=scalar_prod(in_dir,r);
     
@@ -748,7 +749,8 @@ void IRF::set_type_grating(std::string ref_fname,std::string tra_fname)
     
     int Nl=grat_Nth*grat_Nphi;
     
-    double val,x,y,z;
+    double val,x,y;
+    double z;
     std::string buf,th_str,phi_str;
     int a_th,a_phi;
     

@@ -826,7 +826,8 @@ void Graph::draw_border(wxGraphicsContext *gc)
     
     gc->DrawRectangle(padxm,padyp,sx-padxm-padxp,sy-padym-padyp);
     
-    double sw,sh,sd,sext;
+//    double sw,sh;
+    double sd,sext;
     
     gc->GetTextExtent("Autoscale ",&autoscale_length,&autoscale_height,&sd,&sext);
     gc->GetTextExtent(" Grid ",&grid_length,&grid_height,&sd,&sext);

@@ -96,11 +96,9 @@ DiffPatternFrame::~DiffPatternFrame()
 
 Imdouble DiffPatternFrame::compute_data_spectrum(double kx,double ky)
 {
-    int i,j;
-    
     Imdouble R=0;
     
-    for(j=0;j<Ny_d;j++)
+    for(int j=0;j<Ny_d;j++)
     {
         Imdouble kx_buffer=0;
         
@@ -257,7 +255,8 @@ void DiffPatternFrame::evt_compute(wxCommandEvent &event)
 
 void DiffPatternFrame::evt_compute_fraunhofer()
 {
-    int i,j,ik,jk;
+    int i,j;
+    //int ik,jk;
     
     Nx_s=screen_x_res->get_value();
     Ny_s=screen_x_res->get_value();
@@ -316,7 +315,7 @@ void DiffPatternFrame::evt_compute_fraunhofer()
         }
     }
     
-    double k0=2.0*Pi/500e-9;
+    //double k0=2.0*Pi/500e-9;
     
     G2_FFT(fft_out_data,fft_in_data,-1);
     
@@ -381,7 +380,8 @@ void DiffPatternFrame::evt_compute_fraunhofer()
 
 void DiffPatternFrame::evt_compute_double_FFT()
 {
-    int i,j,ik,jk;
+    int i,j;
+    //int ik,jk;
     
     Nx_s=screen_x_res->get_value();
     Ny_s=screen_x_res->get_value();
@@ -503,7 +503,8 @@ void DiffPatternFrame::evt_compute_double_FFT()
 
 void DiffPatternFrame::evt_compute_FT_growth()
 {
-    int i,j,ik,jk;
+    int i,j;
+    //int ik,jk;
     
     Nx_s=screen_x_res->get_value();
     Ny_s=screen_x_res->get_value();
@@ -593,11 +594,11 @@ void DiffPatternFrame::evt_compute_FT_growth()
     G2_to_degra(screen_data,"test.png");
     
     bool unstable=true;
-    bool kx_grow=true;
-    bool ky_grow=true;
+//    bool kx_grow=true;
+//    bool ky_grow=true;
     
     int mode=0;
-    bool loop=false;
+    //bool loop=false;
     
     double threshold=0.5e-3;
     

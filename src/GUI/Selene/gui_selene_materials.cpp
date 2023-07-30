@@ -87,7 +87,7 @@ MaterialsDialog::MaterialsDialog(std::vector<GUI::Material*> &materials_)
 
 void MaterialsDialog::evt_add_material(wxCommandEvent &event)
 {    
-    MaterialPanel *mat_panel=materials_panels->add_panel<MaterialPanel>(nullptr);
+    materials_panels->add_panel<MaterialPanel>(nullptr);
     
     panel->Layout();
     panel->FitInside();

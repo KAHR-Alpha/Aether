@@ -248,8 +248,6 @@ namespace lua_gui_material
     
     void Translator::to_lua(GUI::Material *material,std::ostream &strm,std::string const &prefix)
     {
-        std::size_t i;
-        
         MatType type=material->type;
         
         if(!material->name.empty()) strm<<prefix<<"name(\""<<material->name<<"\")\n";

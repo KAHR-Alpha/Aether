@@ -77,8 +77,8 @@ FacesGroupPanel::FacesGroupPanel(wxWindow *parent,
     std::string ud[2]={"Up ","Down "};
     Material *mats_ud[2]={face.up_mat,face.down_mat};
     Sel::IRF *irfs_ud[2]={face.up_irf,face.down_irf};
-    int tangents_ud[2]={face.tangent_up,face.tangent_down};
-    Vector3 tangents_fixed_ud[2]={face.fixed_tangent_up,face.fixed_tangent_down};
+//    int tangents_ud[2]={face.tangent_up,face.tangent_down};
+//    Vector3 tangents_fixed_ud[2]={face.fixed_tangent_up,face.fixed_tangent_down};
     
     for(int j=0;j<2;j++)
     {

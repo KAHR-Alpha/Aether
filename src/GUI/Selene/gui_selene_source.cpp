@@ -638,7 +638,7 @@ void SourceDialog::save_object()
                                            temperature->get_value());
                 break;
             case 2:
-                light->set_spectrum_file(to_generic_path(file_ctrl->GetValue().ToStdString()));
+                light->set_spectrum_file(std::filesystem::path(file_ctrl->GetValue().ToStdString()).generic_string());
                 break;
         }
     }

@@ -658,7 +658,7 @@ void SeleneFrame::evt_generation_display(wxCommandEvent &event)
 
 void SeleneFrame::evt_generation_display_auto(wxCommandEvent &event)
 {
-    int gen_max_gl=gl->gen_max;
+//    int gen_max_gl=gl->gen_max;
     
     // Generation
     
@@ -1971,8 +1971,8 @@ void SeleneFrame::update_vao(SeleneVAO *vao,Sel::Frame *frame)
             F_arr.resize(3+128);
             
             double s1=0.05;
-            double s2=0.05/2.0;
-            double s3=0.05*std::sqrt(2.0)/2.0;
+//            double s2=0.05/2.0;
+//            double s3=0.05*std::sqrt(2.0)/2.0;
             
             V_arr[ 0].loc(0,0,-s1);
             V_arr[ 1].loc(0,0,+s1);

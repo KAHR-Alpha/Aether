@@ -80,7 +80,7 @@ Vector3 Object::normal_conic_section(RayInter const &inter)
     double x=inter.obj_x;
     double y=inter.obj_y;
     double z=inter.obj_z;
-    double R2=y*y+z*z;
+//    double R2=y*y+z*z;
     
     Vector3 P(0,y,z);
     P.normalize();

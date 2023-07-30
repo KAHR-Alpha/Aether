@@ -80,8 +80,6 @@ void DiffSensor::treat()
     
     for(l=0;l<Nl;l++)
     {
-        double k0=2.0*Pi/lambda[l];
-        
         int pmin=static_cast<int>(-L1*(n_index/lambda[l]+beta_x[l]/(2.0*Pi)));
         int pmax=static_cast<int>(+L1*(n_index/lambda[l]-beta_x[l]/(2.0*Pi)));
         
