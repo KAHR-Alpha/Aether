@@ -25,11 +25,11 @@ extern std::ofstream plog;
 void norm_octave_script(std::string prefix,double n1,double n2)
 {
     std::ofstream file(prefix+"show_norm.m",std::ios::out|std::ios::trunc);
-    chk_var(prefix);
+    
     using std::endl;
     
-    Filename fname(prefix);
-    prefix=fname.get_core();
+    std::filesystem::path fname(prefix);
+    prefix=fname.stem().generic_string();
     
     file<<"function out="<<prefix<<"show_norm(varargin)"<<endl;
     file<<endl;

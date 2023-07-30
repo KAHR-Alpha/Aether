@@ -388,11 +388,9 @@ void MeshDialog::evt_mesh_load(wxCommandEvent &event)
                                     
     if(fname.Exists())
     {
-        std::string fname_str=fname.GetFullPath().ToStdString();
+        std::filesystem::path fname_str=fname.GetFullPath().ToStdString();
         
-        proper_filename_convertion(fname_str);
-        
-        mesh_file->ChangeValue(fname_str);
+        mesh_file->ChangeValue(fname_str.generic_string());
         scaling_factor->set_value(1.0);
         mesh_scaled->SetValue(false);
         

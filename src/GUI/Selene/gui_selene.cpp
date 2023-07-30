@@ -1030,9 +1030,7 @@ int lua_selene_output_directory(lua_State *L)
     SeleneFrame *frame=lua_get_metapointer<SeleneFrame>(L,1);
     
     std::string directory=lua_tostring(L,2);
-    proper_dirname_convertion(directory);
-    chk_var(directory);
-    chk_var(frame);
+    
     frame->output_directory_std=directory;
     frame->output_directory->ChangeValue(directory);
     

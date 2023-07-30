@@ -67,10 +67,6 @@ class PathManager
         static void initialize();
 };
 
-[[deprecated]] bool is_directory(std::string const &dir);
-[[deprecated]] bool make_directory(std::string const &dir);
-[[deprecated]] void proper_dirname_convertion(std::string &dir);
-[[deprecated]] void proper_filename_convertion(std::string &dir);
 std::filesystem::path to_relative_file(std::filesystem::path file,
                                        std::filesystem::path base);
 

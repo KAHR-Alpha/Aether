@@ -65,40 +65,6 @@ class Angle
         double radian() const;
 };
 
-class [[deprecated]] Filename
-{
-    private:
-        std::string separator;
-        std::string core,extension,fullpath,path;
-        
-        void breakdown();
-        void check_separator();
-        void rebuild();
-        
-    public:
-        Filename();
-        Filename(std::string const &fullpath);
-        Filename(Filename const &filename);
-        
-        void clear_core();
-        void clear_extension();
-        void clear_path();
-        
-        std::string get_core() const;
-        std::string get_core_ext() const;
-        std::string get_extension() const;
-        std::string get_fullpath() const;
-        std::string get_path() const;
-        
-        void operator = (std::string const &fullpath);
-        void operator = (Filename const &filename);
-        
-        void set_core(std::string const &core);
-        void set_extension(std::string const &extension);
-        void set_fullpath(std::string const &fullpath);
-        void set_path(std::string const &path);
-};
-
 #define Degree(x) Angle(x,true)
 #define Radian(x) Angle(x)
 

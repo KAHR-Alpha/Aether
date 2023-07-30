@@ -18,6 +18,8 @@ limitations under the License.*/
 #include <mathUT.h>
 #include <enum_constants.h>
 
+#include <filesystem>
+
 class FieldBlockHolder
 {
     public:
@@ -52,14 +54,18 @@ class FieldBlockHolder
         void undo_baseline();
 };
 
-void fmap_mats_name(Filename const &fname,Filename &fname_mats);
-void fmap_mats_raw(Filename const &fname,Grid2<unsigned int> const &mats);
-void fmap_names(Filename const &fname,int type,
-                Filename &fname_x,Filename &fname_y,Filename &fname_z);
-void fmap_raw(Filename const &fname,int type,
+void fmap_mats_name(std::filesystem::path const &fname,
+                    std::filesystem::path &fname_mats);
+void fmap_mats_raw(std::filesystem::path const &fname,
+                   Grid2<unsigned int> const &mats);
+void fmap_names(std::filesystem::path const &fname,int type,
+                std::filesystem::path &fname_x,
+                std::filesystem::path &fname_y,
+                std::filesystem::path &fname_z);
+void fmap_raw(std::filesystem::path const &fname,int type,
               Grid2<Imdouble> const &Gx,
               Grid2<Imdouble> const &Gy,
               Grid2<Imdouble> const &Gz,bool real=false);
-void fmap_script(Filename const &fname,int type,bool real=false,double D1=1.0,double D2=1.0);
+void fmap_script(std::filesystem::path const &fname,int type,bool real=false,double D1=1.0,double D2=1.0);
 
 #endif // FIELDBLOCKHOLDER_H_INCLUDED
