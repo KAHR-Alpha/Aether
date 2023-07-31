@@ -50,7 +50,6 @@ class MieTool: public BaseFrame
 {
     public:
         int Nl,Nr;
-        bool comp_efficiencies;
         double n_dielec;
         double lambda_min,lambda_max;
         double radius;
@@ -59,20 +58,23 @@ class MieTool: public BaseFrame
         
         // Subpanels
         
-        wxPanel *cs_panel,*dr_panel,*r2_panel,*r3_panel,*m2_panel,*m3_panel;
-        
         // Controls
         
         wxChoice *disp_mode_ctrl;
         
-        Graph *cross_graph,*r2_graph;
+        Graph *cross_graph;
         
-        wxTextCtrl *n_ctrl,
-                   *radius_ctrl,
-                   *rec_ctrl;
-        
-        MaterialSelector *mat_selector;
         SpectrumSelector *sp_selector;
+        
+        // Particle
+        
+        LengthSelector *radius_ctrl;
+        NamedTextCtrl<double> *n_ctrl;
+        MiniMaterialSelector *material;
+        
+        
+        NamedTextCtrl<int> *recursion;
+        
         
         wxRadioBox *cs_disp_switch;
         
@@ -84,6 +86,7 @@ class MieTool: public BaseFrame
         MieTool(wxString const &title);
         ~MieTool();
         
+        void evt_recompute(wxCommandEvent &event);
         void load_material(wxCommandEvent &event);
         void recomp_cross_sections();
         void recomp_directional_radiation();
@@ -91,10 +94,7 @@ class MieTool: public BaseFrame
         void show_r2();
         void switch_disp_cs(wxCommandEvent &event);
         void switch_disp_mode(wxCommandEvent &event);
-        void update_dielec(wxCommandEvent &event);
         void update_directional_radiation_angle(wxCommandEvent &event);
-        void update_radius(wxCommandEvent &event);
-        void update_spectrum(wxCommandEvent &event);
 };
 
 #endif // GUI_MIE_H_INCLUDED

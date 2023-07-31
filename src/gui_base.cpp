@@ -127,8 +127,8 @@ bool Aether::OnInit()
 //    GeoGradientFrame *mfr=new GeoGradientFrame("Aether");
 //    MultilayerFrame *mfr=new MultilayerFrame("Aether");
 //    SppFrame *mfr=new SppFrame("Aether");
-//    MieTool *mfr=new MieTool("Aether");
-    HAPSolverFrame *mfr=new HAPSolverFrame("Aether");
+    MieTool *mfr=new MieTool("Aether");
+//    HAPSolverFrame *mfr=new HAPSolverFrame("Aether");
 //    EMGeometry_Frame *mfr=new EMGeometry_Frame("Aether");
 //    SamplesFrame *mfr=new SamplesFrame("Aether");
 //    SelGUI::SeleneFrame *mfr=new SelGUI::SeleneFrame("Aether");
