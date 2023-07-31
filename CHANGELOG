@@ -6,6 +6,9 @@ Todo:
 - Tangent vectors managements for Selene
 - Implement the Lambertian, Guassian and ABg scattering models ( see "What scattering models are available in OpticStudio?" )
 
+0.10.1
+- Fixed the messed-up Mie Tool GUI due to the material rework of 0.10
+
 0.10
 - Complete rework of the materials sytem
 - Materials now operate as shared entities instead of copies
