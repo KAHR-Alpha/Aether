@@ -126,6 +126,52 @@ Object::~Object()
     if(!cleanup_done) cleanup();
 }
 
+void Object::build_variables_map()
+{
+    variables_map["x"]=&loc.x;
+    variables_map["y"]=&loc.y;
+    variables_map["z"]=&loc.z;
+    
+    variables_map["angle_A"]=&in_A.val;
+    variables_map["angle_B"]=&in_B.val;
+    variables_map["angle_C"]=&in_C.val;
+    
+    variables_map["box_length_x"]=&box_lx;
+    variables_map["box_length_y"]=&box_ly;
+    variables_map["box_length_z"]=&box_lz;
+    
+    variables_map["conic_radius"]=&conic_R;
+    variables_map["conic_constant"]=&conic_K;
+    variables_map["conic_internal_radius"]=&conic_in_radius;
+    variables_map["conic_external_radius"]=&conic_out_radius;
+    
+    variables_map["cylinder_radius"]=&cyl_r;
+    variables_map["cylinder_length"]=&cyl_l;
+    variables_map["cylinder_cut_factor"]=&cyl_cut;
+    
+    variables_map["disk_radius"]=&dsk_r;
+    variables_map["disk_internal_radius"]=&dsk_r_in;
+    
+    variables_map["lens_thickness"]=&ls_thickness;
+    variables_map["lens_front_radius"]=&ls_r1;
+    variables_map["lens_back_radius"]=&ls_r2;
+    variables_map["lens_radius"]=&ls_r_max_nominal;
+    
+    variables_map["parabola_focal_lengths"]=&pr_f;
+    variables_map["parabola_length"]=&pr_length;
+    variables_map["parabola_internal_radius"]=&pr_in_radius;
+    
+    variables_map["rectangle_length_y"]=&box_ly;
+    variables_map["rectangle_length_z"]=&box_lz;
+    
+    variables_map["sphere_radius"]=&sph_r;
+    variables_map["sphere_cut_factor"]=&sph_cut;
+    
+    variables_map["spheroid_radius_x"]=&spd_rx;
+    variables_map["spheroid_radius_y"]=&spd_ry;
+    variables_map["spheroid_radius_z"]=&spd_rz;
+    variables_map["spheroid_cut_factor"]=&spd_cut;
+}
 
 void Object::bootstrap(std::filesystem::path const &output_directory,double ray_power)
 {

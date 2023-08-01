@@ -364,9 +364,12 @@ class Object: public Frame
         std::vector<Sel::SelFace> F_arr;
         std::vector<std::string> face_name_arr;
         
+        std::map<std::string,double*> variables_map;
+        
         Object();
         ~Object();
         
+        void build_variables_map();
         void bootstrap(std::filesystem::path const &output_directory,double ray_power);   // switch
         void cleanup();
         void compute_boundaries();
