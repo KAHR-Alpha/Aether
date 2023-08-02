@@ -25,7 +25,7 @@ class Multilayer
     public:
         int N_layers;
         double lambda,k0,kp;
-        AngleOld angle;
+        AngleRad angle;
         double sup_ind;
         Imdouble sub_ind;
         
@@ -46,7 +46,7 @@ class Multilayer
                            double &R_TM,double &T_TM,double &A_TM);
         void recompute_FG();
         void recompute_W();
-        void set_angle(AngleOld const &ang);
+        void set_angle(AngleRad const &ang);
         void set_environment(double sup_ind,Imdouble sub_ind);
         void set_lambda(double lambda);
         void set_layer(int l,double h,Imdouble n);
@@ -306,7 +306,7 @@ class Multilayer_TMM
     public:
         int N_layers;
         double lambda,k0;
-        AngleOld angle;
+        AngleRad angle;
         Imdouble kp;
         Imdouble sup_ind;
         Imdouble sub_ind;
@@ -346,7 +346,7 @@ class Multilayer_TMM
                                           double limit,int max_fail);
         void operator = (Multilayer_TMM const &ml);
         void recompute_L();
-        void set_angle(AngleOld const &ang);
+        void set_angle(AngleRad const &ang);
         void set_environment(Imdouble sup_ind,Imdouble sub_ind);
         void set_environment(Material const &sup_mat,Material const &sub_mat);
         void set_lambda(double lambda);
@@ -361,7 +361,7 @@ class Multilayer_TMM_UD
     public:
         int N_layers;
         double lambda,k0;
-        AngleOld angle;
+        AngleRad angle;
         Imdouble kp;
         Imdouble sup_ind;
         Imdouble sub_ind;
@@ -383,7 +383,7 @@ class Multilayer_TMM_UD
                            double &R_TM,double &T_TM,double &A_TM);
         void operator = (Multilayer_TMM_UD const &ml);
         void recompute_L();
-        void set_angle(AngleOld const &ang);
+        void set_angle(AngleRad const &ang);
         void set_environment(Imdouble sup_ind,Imdouble sub_ind);
         void set_lambda(double lambda);
         void set_layer(int l,double h,Imdouble n);

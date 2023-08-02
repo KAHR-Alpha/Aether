@@ -149,7 +149,8 @@ FrameDialog::FrameDialog(Sel::Frame *frame_,std::vector<Sel::Frame*> const &fram
     
     // - Rotation coordinates
     
-    AngleOld ang_A(frame->in_A),
+    Angle<AngleStorage::DEGREE>
+          ang_A(frame->in_A),
           ang_B(frame->in_B),
           ang_C(frame->in_C);
     

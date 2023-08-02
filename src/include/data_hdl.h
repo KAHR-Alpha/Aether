@@ -43,14 +43,14 @@ class Spectrum
         std::string source_pol,resp_pol;
         std::string type;                   //"ref" or "trans"
         std::vector<double> lambda;
-        std::vector<AngleOld> ang;           //ang is supposed to be the angle of incidence
+        std::vector<AngleRad> ang;           //ang is supposed to be the angle of incidence
         std::vector<Imdouble> spect;
         
         Spectrum();
         Spectrum(int N);
         Spectrum(Spectrum const &sp);
         Spectrum(std::vector<double> const &lambda,double ang,std::vector<Imdouble> const &spect);
-        Spectrum(std::vector<double> const &lambda,std::vector<AngleOld> const &ang,std::vector<Imdouble> const &spect);
+        Spectrum(std::vector<double> const &lambda,std::vector<AngleRad> const &ang,std::vector<Imdouble> const &spect);
         
         bool is_in(double lambda);
         bool is_in_f(double f);

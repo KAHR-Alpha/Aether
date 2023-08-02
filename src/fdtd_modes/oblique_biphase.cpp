@@ -138,8 +138,10 @@ void FDTD_oblique_biphase_comp(FDTD_Mode const &fdtd_mode,double kx_in,double ky
     
     std::cout<<"u "<<eps_sup<<"/"<<index_sup<<" d "<<eps_sub<<"/"<<index_sub<<std::endl;
     
-    AngleOld pol=Degree(0);
-    if(polar_mode=="TM") pol=Degree(90);
+    AngleRad pol;
+    
+    pol.degree(0);
+    if(polar_mode=="TM") pol.degree(90);
     
     Bloch_Wideband inc_field(0,Nx,0,Ny,0,fdtd_r.Nz_s,kx,ky,pol);
         
@@ -384,7 +386,7 @@ void FDTD_oblique_biphase_comp(FDTD_Mode const &fdtd_mode,double kx_in,double ky
     ProgDisp dsp(Nl,"Fourier Transform");
     
     std::vector<double> lambda(Nl,0);
-    std::vector<AngleOld> ang_arr(Nl);
+    std::vector<AngleRad> ang_arr(Nl);
     
     std::vector<Imdouble> base_TE_spectrum_ref(Nl,0);
     std::vector<Imdouble> base_TE_spectrum_trans(Nl,0);
@@ -395,7 +397,7 @@ void FDTD_oblique_biphase_comp(FDTD_Mode const &fdtd_mode,double kx_in,double ky
     fang_name<<fdtd_mode.prefix<<"angdata_"<<sim_index;
     std::ofstream fang(fang_name.str(),std::ios::out|std::ios::trunc);
         
-    AngleOld inc_ang,
+    AngleRad inc_ang,
           ref_ang,
           phi(std::atan2(ky,kx));
     

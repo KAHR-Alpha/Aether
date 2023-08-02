@@ -50,25 +50,25 @@ double randp(double A,double B);
 double randp_norm(double mean,double std_dev);
 void seedp(int i);
 
-class AngleOld
+class AngleRad
 {
     public:
         bool degree_mode;
         double val;
         
-        AngleOld(double val=0,bool degree_mode=false);
-        AngleOld(AngleOld const &A);
+        AngleRad(double val=0,bool degree_mode=false);
+        AngleRad(AngleRad const &A);
         
         double degree() const;
         void degree(double A);
-        void operator = (AngleOld const &A);
+        void operator = (AngleRad const &A);
         void operator = (double A);
         operator double () const;
         double radian() const;
 };
 
-#define Degree(x) AngleOld(x,true)
-#define Radian(x) AngleOld(x)
+#define Degree(x) AngleRad(x,true)
+#define Radian(x) AngleRad(x)
 
 enum class AngleStorage
 {
@@ -143,11 +143,6 @@ class Angle
             {
                 val=A.val*180.0/Pi;
             }
-        }
-        
-        void operator = (double A)
-        {
-            radian(A);
         }
         
         operator double () const

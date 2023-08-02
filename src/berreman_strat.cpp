@@ -246,7 +246,7 @@ void B_strat::compute(double lambda,double ang_rad,
     r_MM=((g11-g21)*kzok3*t_MM+(g12-g22)*t_ME)*kokz1;
 }
 
-void B_strat::compute(double lambda,AngleOld ang,Imdouble &r_TE,Imdouble &r_TM,Imdouble &t_TE,Imdouble &t_TM)
+void B_strat::compute(double lambda,AngleRad ang,Imdouble &r_TE,Imdouble &r_TM,Imdouble &t_TE,Imdouble &t_TM)
 {
     int i,j,k,l;
     

@@ -176,10 +176,10 @@ class FDFD_Mode: public FD_Mode
         enum{ FDFD=0 };
         
         int N_theta;
-        AngleOld theta_min,theta_max;
+        AngleRad theta_min,theta_max;
         
         int N_phi;
-        AngleOld phi_min,phi_max;
+        AngleRad phi_min,phi_max;
         
         //Spectrum
         int Nl;
@@ -191,8 +191,8 @@ class FDFD_Mode: public FD_Mode
         
         FDFD_Mode();
         
-        void set_azimuth(AngleOld phi_min,AngleOld phi_max,int N_phi);
-        void set_incidence(AngleOld theta_min,AngleOld theta_max,int N_th);
+        void set_azimuth(AngleRad phi_min,AngleRad phi_max,int N_phi);
+        void set_incidence(AngleRad theta_min,AngleRad theta_max,int N_th);
         void set_spectrum(double lambda_min,double lambda_max,int Nl);
         
         //##########
@@ -252,10 +252,10 @@ class FDTD_Mode: public FD_Mode
         //Obl phase
         int obl_phase_type,obl_phase_Nkp,obl_phase_skip;
         double obl_phase_kp_ic,obl_phase_kp_fc;
-        AngleOld obl_phase_phi;
-        AngleOld obl_phase_amin,obl_phase_amax;
+        AngleRad obl_phase_phi;
+        AngleRad obl_phase_amin,obl_phase_amax;
         double obl_phase_lmin,obl_phase_lmax;
-        AngleOld obl_phase_cut_angle,obl_phase_safe_angle;
+        AngleRad obl_phase_cut_angle,obl_phase_safe_angle;
         
         FDTD_Mode();
         
@@ -273,7 +273,7 @@ class FDTD_Mode: public FD_Mode
                              double cc_coeff,int cc_quant,
                              std::string const &cc_layout);
         void set_display_step(int N);
-        void set_incidence(AngleOld theta,AngleOld phi);
+        void set_incidence(AngleRad theta,AngleRad phi);
         void set_N_tsteps(int Nt);
         void set_spectrum(double lambda_min,double lambda_max,int Nl=481);
         void set_structure(std::string s_name);

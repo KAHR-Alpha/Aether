@@ -36,7 +36,7 @@ class GL_Ellipso3D: public GL_3D_Base
     public:
         bool watch_paused;
         double period;
-        AngleOld incidence;
+        AngleRad incidence;
         Vector3 ki,kr,pi,pr,sv;
         Imdouble ip,is,rp,rs;
         int density;
@@ -47,7 +47,7 @@ class GL_Ellipso3D: public GL_3D_Base
         
         wxStopWatch *watch;
         
-        GL_Ellipso3D(wxWindow *parent,AngleOld const &incidence,
+        GL_Ellipso3D(wxWindow *parent,AngleRad const &incidence,
                      Imdouble const &ip,Imdouble const &is,
                      Imdouble const &rp,Imdouble const &rs,
                      int density,double span);
@@ -61,7 +61,7 @@ class GL_Ellipso3D: public GL_3D_Base
         void set_coefficients(Imdouble const &ip,Imdouble const &is,
                               Imdouble const &rp,Imdouble const &rs);
         void set_density(int density);
-        void set_incidence(AngleOld const &angle);
+        void set_incidence(AngleRad const &angle);
         void set_period(double period);
         void set_span(double span);
         void switch_watch();

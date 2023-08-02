@@ -94,7 +94,7 @@ void Slice::show()
 //       FDFD
 //####################
         
-void FDFD::solve_prop_3D_SAM(double lambda_,AngleOld theta,AngleOld phi,AngleOld polar)
+void FDFD::solve_prop_3D_SAM(double lambda_,AngleRad theta,AngleRad phi,AngleRad polar)
 {
     int i,j,k;
     

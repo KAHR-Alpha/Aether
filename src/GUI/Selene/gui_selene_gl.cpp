@@ -520,7 +520,7 @@ void parabola_mesh_wireframe(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr
 }
 
 void prism_mesh(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr,
-                double length,double height,AngleOld const &a1,AngleOld const &a2,double width)
+                double length,double height,AngleRad const &a1,AngleRad const &a2,double width)
 {
     double x1=-length/2.0;
     double x2=+length/2.0;
@@ -629,7 +629,7 @@ void prism_mesh(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr,
 }
 
 void prism_mesh_wireframe(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr,
-                          double length,double height,AngleOld const &a1,AngleOld const &a2,double width)
+                          double length,double height,AngleRad const &a1,AngleRad const &a2,double width)
 {
     double x1=-length/2.0;
     double x2=+length/2.0;

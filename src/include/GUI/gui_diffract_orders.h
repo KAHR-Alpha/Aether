@@ -111,7 +111,7 @@ class DiffOrdersFrame: public BaseFrame
                 a1,a2,
                 b1,b2,
                 p1,p2;
-        AngleOld phi,theta;
+        AngleRad phi,theta;
         
         std::vector<double> kx_sup,ky_sup,kz_sup;
         std::vector<double> kx_sub,ky_sub,kz_sub;

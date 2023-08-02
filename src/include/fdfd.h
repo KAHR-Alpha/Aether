@@ -68,7 +68,7 @@ class FDFD: public FD_Base
     private:
         
         double lambda;
-        AngleOld inc_theta,inc_phi;
+        AngleRad inc_theta,inc_phi;
         double kx,ky;
         
         // Injection
@@ -127,11 +127,11 @@ class FDFD: public FD_Base
                                Eigen::SparseVector<Imdouble> &F_src);
         void set_injection_plane_z(int k);
         
-        void solve_prop_1D(double lambda,AngleOld theta,AngleOld phi,AngleOld polar);
-        void solve_prop_2D(double lambda,AngleOld theta,AngleOld phi,AngleOld polar);
-        void solve_prop_3D(double lambda,AngleOld theta,AngleOld phi,AngleOld polar);
+        void solve_prop_1D(double lambda,AngleRad theta,AngleRad phi,AngleRad polar);
+        void solve_prop_2D(double lambda,AngleRad theta,AngleRad phi,AngleRad polar);
+        void solve_prop_3D(double lambda,AngleRad theta,AngleRad phi,AngleRad polar);
         
-        void solve_prop_3D_SAM(double lambda,AngleOld theta,AngleOld phi,AngleOld polar);
+        void solve_prop_3D_SAM(double lambda,AngleRad theta,AngleRad phi,AngleRad polar);
         
         friend void fdfd_single_particle(FDFD_Mode const &fdtd_mode);
         friend void fdfd_periodic(FDFD_Mode const &fdtd_mode);

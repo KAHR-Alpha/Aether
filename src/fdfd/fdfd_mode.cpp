@@ -45,7 +45,7 @@ void fdfd_single_particle(FDFD_Mode const &fdfd_mode)
         std::exit(0);
     }
     
-    AngleOld pol(0);
+    AngleRad pol(0);
     std::string polar_mode=fdfd_mode.polarization;
     
     if(polar_mode=="TE") pol=Degree(0);
@@ -415,7 +415,7 @@ void fdfd_periodic(FDFD_Mode const &fdfd_mode)
         std::exit(EXIT_FAILURE);
     }
     
-    AngleOld pol(0);
+    AngleRad pol(0);
     std::string polar_mode=fdfd_mode.polarization;
     
     if(polar_mode=="TE") pol=Degree(0);
@@ -518,14 +518,14 @@ void fdfd_periodic(FDFD_Mode const &fdfd_mode)
     
     for(int n=0;n<fdfd_mode.N_phi;n++)
     {
-        AngleOld phi=fdfd_mode.phi_min;
+        AngleRad phi=fdfd_mode.phi_min;
         
         if(fdfd_mode.N_phi>1)
             phi=interpolate_linear(fdfd_mode.phi_min,fdfd_mode.phi_max,n/(fdfd_mode.N_phi-1.0));
         
         for(int m=0;m<fdfd_mode.N_theta;m++)
         {
-            AngleOld theta=fdfd_mode.theta_min;
+            AngleRad theta=fdfd_mode.theta_min;
             
             if(fdfd_mode.N_theta>1)
                 theta=interpolate_linear(fdfd_mode.theta_min,fdfd_mode.theta_max,m/(fdfd_mode.N_theta-1.0));
@@ -765,7 +765,7 @@ void mode_3D(FDFD_Mode const &fdfd_mode)
     Grid3<unsigned int> matsgrid(Nx,Ny,Nz,0);
     fdfd_mode.structure->discretize(matsgrid,Nx,Ny,Nz,Dx,Dy,Dz);
     
-    AngleOld pol(0);
+    AngleRad pol(0);
     std::string polar_mode=fdfd_mode.polarization;
     
     if(polar_mode=="TE") pol=Degree(0);

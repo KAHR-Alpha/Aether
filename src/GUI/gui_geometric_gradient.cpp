@@ -487,7 +487,7 @@ void GeoGradientFrame::evt_export_index(wxCommandEvent &event)
     
     int m,l;
     unsigned int i;
-    AngleOld ang_rad;
+    AngleRad ang_rad;
     
     int Nl=layers_ctrl->get_value();
     
@@ -708,7 +708,7 @@ void GeoGradientFrame::recompute()
 {
     int m,l;
     unsigned int i;
-    AngleOld ang_rad;
+    AngleRad ang_rad;
     
     int Nl=layers_ctrl->get_value();
     

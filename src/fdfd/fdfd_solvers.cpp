@@ -18,7 +18,7 @@ limitations under the License.*/
 extern const Imdouble Im;
 extern std::ofstream plog;
 
-void FDFD::solve_prop_1D(double lambda_,AngleOld theta,AngleOld phi,AngleOld polar)
+void FDFD::solve_prop_1D(double lambda_,AngleRad theta,AngleRad phi,AngleRad polar)
 {
     int k;
     
@@ -351,7 +351,7 @@ void solve_BiCGSTAB(Eigen::SparseMatrix<Imdouble> const &A,
     chk_msg_sc(solver.error());
 }
 
-void FDFD::solve_prop_2D(double lambda_,AngleOld theta,AngleOld phi,AngleOld polar)
+void FDFD::solve_prop_2D(double lambda_,AngleRad theta,AngleRad phi,AngleRad polar)
 {
     int i,k;
     
@@ -570,7 +570,7 @@ void FDFD::solve_prop_2D(double lambda_,AngleOld theta,AngleOld phi,AngleOld pol
     }
 }
 
-void FDFD::solve_prop_3D(double lambda_,AngleOld theta,AngleOld phi,AngleOld polar)
+void FDFD::solve_prop_3D(double lambda_,AngleRad theta,AngleRad phi,AngleRad polar)
 {
     int i,j,k;
     

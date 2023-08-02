@@ -26,7 +26,7 @@ void conic_far_focus(double &x,double &y,double R,double K);
 double conic_invert(double y,double R,double K);
 double conic_midpoint(double R,double K);
 void conic_near_focus(double &x,double &y,double R,double K);
-void fresnel_rt_te_tm(AngleOld angle_inc,Imdouble n1,Imdouble n2,
+void fresnel_rt_te_tm(AngleRad angle_inc,Imdouble n1,Imdouble n2,
                       Imdouble &r_te,Imdouble &r_tm,Imdouble &t_te,Imdouble &t_tm);
 void fresnel_rt_te_tm_wn(double lambda,Imdouble n1,Imdouble n2,double kp,
                          Imdouble &r_te,Imdouble &r_tm,Imdouble &t_te,Imdouble &t_tm);
@@ -52,7 +52,7 @@ double rad_Hz_to_m(double w);
 double nm_to_m(double lambda);
 double THz_to_m(double f);
 void plane_wave(double lambda,double n,Vector3 const &dir,double polar,double x,double y,double z,double t,ImVector3 &E,ImVector3 &H);
-void plane_wave(double lambda,double n,double th,double phi,AngleOld polar,double x,double y,double z,double t,ImVector3 &E,ImVector3 &H);
+void plane_wave(double lambda,double n,double th,double phi,AngleRad polar,double x,double y,double z,double t,ImVector3 &E,ImVector3 &H);
 double planck_distribution_wavelength(double lambda,double T);
 Imdouble spp_get_kspp(double w,Imdouble eps_1,Imdouble eps_2);
 

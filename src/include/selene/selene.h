@@ -138,7 +138,7 @@ class Frame
             relative_anchor;
             
         Vector3 in_displacement;
-        AngleOld in_A,in_B,in_C;
+        Angle<AngleStorage::DEGREE> in_A,in_B,in_C;
         
         Frame *relative_origin;
         Frame *translation_frame;
@@ -253,9 +253,9 @@ class Frame
         
         void set_rotation(double A,double B,double C)
         {
-            in_A=Degree(A);
-            in_B=Degree(B);
-            in_C=Degree(C);
+            in_A.degree(A);
+            in_B.degree(B);
+            in_C.degree(C);
         }
         
         void set_rotation_frame(Frame *frame)

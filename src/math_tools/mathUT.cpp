@@ -81,36 +81,36 @@ void seedp(int i)
 //    Angle
 //###############
 
-AngleOld::AngleOld(double val_,bool degree_mode_)
+AngleRad::AngleRad(double val_,bool degree_mode_)
     :degree_mode(degree_mode_), val(val_)
 {
     if(degree_mode) val*=Pi/180.0;
 }
 
-AngleOld::AngleOld(AngleOld const &A)
+AngleRad::AngleRad(AngleRad const &A)
     :degree_mode(A.degree_mode), val(A.val)
 {
 }
 
-double AngleOld::degree() const { return val*180.0/Pi; }
+double AngleRad::degree() const { return val*180.0/Pi; }
 
-void AngleOld::degree(double A) { val=A*Pi/180.0; }
+void AngleRad::degree(double A) { val=A*Pi/180.0; }
 
-void AngleOld::operator = (AngleOld const &A)
+void AngleRad::operator = (AngleRad const &A)
 {
     degree_mode=A.degree_mode;
     val=A.val;
 }
 
-void AngleOld::operator = (double A)
+void AngleRad::operator = (double A)
 {
     degree_mode=false;
     val=A;
 }
 
-AngleOld::operator double() const { return val; }
+AngleRad::operator double() const { return val; }
 
-double AngleOld::radian() const { return val; }
+double AngleRad::radian() const { return val; }
 
 //###############
 //   ProgDisp
