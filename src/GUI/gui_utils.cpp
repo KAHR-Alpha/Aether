@@ -768,7 +768,8 @@ wxDEFINE_EVENT(EVT_WAVELENGTH_SELECTOR,wxCommandEvent);
 
 LengthSelector::LengthSelector(wxWindow *parent,std::string name,double L_,bool static_style,std::string const &zero_unit)
     :wxPanel(parent),
-     L(L_)
+     L(L_),
+     optimize(false)
 {
     wxSizer *sizer=nullptr;
     
@@ -787,9 +788,6 @@ LengthSelector::LengthSelector(wxWindow *parent,std::string name,double L_,bool 
     if(static_style)
     {
         sizer=new wxStaticBoxSizer(wxHORIZONTAL,this,wxString(name));
-        
-        sizer->Add(length_ctrl,wxSizerFlags(1));
-        sizer->Add(unit_ctrl);
     }
     else
     {
@@ -798,13 +796,21 @@ LengthSelector::LengthSelector(wxWindow *parent,std::string name,double L_,bool 
         wxStaticText *name_ctrl=new wxStaticText(this,wxID_ANY,wxString(name));
         
         sizer->Add(name_ctrl,wxSizerFlags().Align(wxALIGN_CENTER_VERTICAL)); // to be replaced with CenterVertical
-        sizer->Add(length_ctrl,wxSizerFlags(1));
-        sizer->Add(unit_ctrl);
     }
+    
+    sizer->Add(length_ctrl,wxSizerFlags(1));
+    sizer->Add(unit_ctrl);
     
     length_ctrl->Bind(wxEVT_TEXT_ENTER,&LengthSelector::value_enter_event,this);
     length_ctrl->Bind(wxEVT_KILL_FOCUS,&LengthSelector::value_focus_event,this);
     unit_ctrl->Bind(wxEVT_CHOICE,&LengthSelector::unit_event,this);
+    
+    // Extension
+    
+    extension_button=new wxButton(this,wxID_ANY,"+",wxDefaultPosition,wxDefaultSize,wxBU_EXACTFIT);
+    extension_button->Hide();
+    extension_button->Bind(wxEVT_BUTTON,&LengthSelector::evt_advanced,this);
+    sizer->Add(extension_button);
     
     SetSizer(sizer);
 }
@@ -848,8 +854,44 @@ void LengthSelector::auto_unit()
     
     length_ctrl->SetValue(strm.str());
 }
+        
+void LengthSelector::evt_advanced(wxCommandEvent &event)
+{
+    LengthSelectorDialog dialog(optimize,optim_rule);
+    
+    if(dialog.selection_ok)
+    {
+        optimize=dialog.optimize;
+        optim_rule=dialog.rule;
+        
+        if(optimize)
+        {
+            if(optim_rule.lock)
+                 length_ctrl->SetBackgroundColour(wxColour(220,220,255));
+            else length_ctrl->SetBackgroundColour(wxColour(220,255,220));
+        }
+        else length_ctrl->SetBackgroundColour(wxColour(255,255,255));
+        
+        Refresh();
+    }
+}
 
 double LengthSelector::get_length() { return L; }
+
+void LengthSelector::handle_external_optimization(double *target,OptimEngine *engine)
+{
+    optimize=engine->get_rule(target,optim_rule);
+    
+    if(optimize)
+    {
+        if(optim_rule.lock)
+             length_ctrl->SetBackgroundColour(wxColour(220,220,255));
+        else length_ctrl->SetBackgroundColour(wxColour(220,255,220));
+    }
+    
+    extension_button->Show();
+    Layout();
+}
 
 void LengthSelector::set_length(double L_)
 {
@@ -933,6 +975,155 @@ void LengthSelector::value_focus_event(wxFocusEvent &event)
     value_change();
     
     event.Skip();
+}
+
+//##########################
+//   LengthSelectorDialog
+//##########################
+
+LengthSelectorDialog::LengthSelectorDialog(bool optimize_, OptimRule const &rule_)
+    :wxDialog(0,wxID_ANY,"Parameters",
+              wxGetApp().default_dialog_origin()),
+     rule(rule_),
+     optimize(optimize_),
+     selection_ok(false)
+{
+    wxBoxSizer *sizer=new wxBoxSizer(wxVERTICAL);
+    
+    optimize_ctrl=new wxCheckBox(this,wxID_ANY,"Optimize");
+    optimize_ctrl->SetValue(optimize);
+    optimize_ctrl->Bind(wxEVT_CHECKBOX,&LengthSelectorDialog::evt_optimize,this);
+    
+    sizer->Add(optimize_ctrl,wxSizerFlags().Border(wxALL,3));
+    
+    // Rule
+    
+    wxStaticBoxSizer *rule_sizer=new wxStaticBoxSizer(wxVERTICAL,this,"Rule");
+    wxWindow *static_panel=rule_sizer->GetStaticBox();
+    
+    lock=new wxCheckBox(static_panel,wxID_ANY,"Lock optimization");
+    lock->SetValue(rule.lock);
+    
+    rule_sizer->Add(lock);
+    
+    // Type
+    
+    wxStaticBoxSizer *op_sizer=new wxStaticBoxSizer(wxVERTICAL,static_panel,"Operation type");
+    
+    operation_type=new wxChoice(static_panel,wxID_ANY);
+    operation_type->Append("Add");
+    operation_type->Append("Growth");
+    
+         if(rule.operation_type==OptimRule::Operation::ADD) operation_type->SetSelection(0);
+    else if(rule.operation_type==OptimRule::Operation::GROWTH) operation_type->SetSelection(1);
+    
+    op_sizer->Add(operation_type,wxSizerFlags().Expand());
+    rule_sizer->Add(op_sizer,wxSizerFlags().Expand());
+    
+    // Delta
+    
+    delta=new LengthSelector(static_panel,"Delta",rule.delta,true);
+    rule_sizer->Add(delta,wxSizerFlags().Expand());
+    
+    // Limits
+    
+    wxStaticBoxSizer *limit_sizer=new wxStaticBoxSizer(wxVERTICAL,static_panel,"Limits");
+    
+    wxBoxSizer *limit_type_sizer=new wxBoxSizer(wxHORIZONTAL);
+    
+    wxStaticText *limit_type_txt=new wxStaticText(static_panel,wxID_ANY,"Type: ");
+    
+    limit_type=new wxChoice(static_panel,wxID_ANY);
+    limit_type->Append("Up");
+    limit_type->Append("Down");
+    limit_type->Append("Both");
+    limit_type->Append("None");
+    
+         if(rule.limit_type==OptimRule::Limit::UP) limit_type->SetSelection(0);
+    else if(rule.limit_type==OptimRule::Limit::DOWN) limit_type->SetSelection(1);
+    else if(rule.limit_type==OptimRule::Limit::BOTH) limit_type->SetSelection(2);
+    else if(rule.limit_type==OptimRule::Limit::NONE) limit_type->SetSelection(3);
+    
+    #ifndef WX30_RESTRICT
+    limit_type_sizer->Add(limit_type_txt,wxSizerFlags().CenterVertical());
+    limit_type_sizer->Add(limit_type,wxSizerFlags(1).CenterVertical());
+    #else
+    limit_type_sizer->Add(limit_type_txt,wxSizerFlags().Align(wxALIGN_CENTER_VERTICAL));
+    limit_type_sizer->Add(limit_type,wxSizerFlags(1).Align(wxALIGN_CENTER_VERTICAL));
+    #endif
+    
+    limit_sizer->Add(limit_type_sizer,wxSizerFlags().Expand());
+    
+    limit_down=new LengthSelector(static_panel,"Down: ",rule.limit_down);
+    limit_up=new LengthSelector(static_panel,"Up: ",rule.limit_up);
+    
+    limit_sizer->Add(limit_down,wxSizerFlags().Expand());
+    limit_sizer->Add(limit_up,wxSizerFlags().Expand());
+    
+    rule_sizer->Add(limit_sizer,wxSizerFlags().Expand());
+    
+    sizer->Add(rule_sizer,wxSizerFlags().Expand());
+    
+    // Buttons
+    
+    wxBoxSizer *buttons_sizer=new wxBoxSizer(wxHORIZONTAL);
+    
+    wxButton *ok_btn=new wxButton(this,wxID_ANY,"Ok");
+    wxButton *cancel_btn=new wxButton(this,wxID_ANY,"Cancel");
+    
+    ok_btn->Bind(wxEVT_BUTTON,&LengthSelectorDialog::evt_ok,this);
+    cancel_btn->Bind(wxEVT_BUTTON,&LengthSelectorDialog::evt_cancel,this);
+    
+    buttons_sizer->Add(ok_btn);
+    buttons_sizer->Add(cancel_btn);
+    
+    sizer->Add(buttons_sizer,wxSizerFlags().Border(wxALL,3).Align(wxALIGN_RIGHT));
+    
+    // Wrapping Up
+    
+    SetSizerAndFit(sizer);
+    ShowModal();
+}
+
+void LengthSelectorDialog::evt_optimize(wxCommandEvent &event)
+{
+}
+
+void LengthSelectorDialog::evt_cancel(wxCommandEvent &event)
+{
+    Close();
+}
+
+void LengthSelectorDialog::evt_ok(wxCommandEvent &event)
+{
+    selection_ok=true;
+    
+    save();
+    Close();
+}
+
+void LengthSelectorDialog::save()
+{
+    optimize=optimize_ctrl->GetValue();
+    
+    rule.lock=lock->GetValue();
+    
+    int op_selection=operation_type->GetSelection();
+    
+         if(op_selection==0) rule.operation_type=OptimRule::Operation::ADD;
+    else if(op_selection==1) rule.operation_type=OptimRule::Operation::GROWTH;
+    
+    rule.delta=delta->get_length();
+    
+    int limit_selection=limit_type->GetSelection();
+    
+         if(limit_selection==0) rule.limit_type=OptimRule::Limit::UP;
+    else if(limit_selection==1) rule.limit_type=OptimRule::Limit::DOWN;
+    else if(limit_selection==2) rule.limit_type=OptimRule::Limit::BOTH;
+    else if(limit_selection==3) rule.limit_type=OptimRule::Limit::NONE;
+    
+    rule.limit_down=limit_down->get_length();
+    rule.limit_up=limit_up->get_length();
 }
 
 //#########################

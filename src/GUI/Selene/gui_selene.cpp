@@ -491,7 +491,7 @@ void SeleneFrame::evt_add_element(wxCommandEvent &event)
             case 0:
                 object->set_box();
                 object->name="Box_" + std::to_string(item_count);
-                dialog=new BoxDialog(object,frames,materials,aggregator);
+                dialog=new BoxDialog(object,frames,materials,aggregator,optim_engine);
                 break;
             case 1: object->set_cone_volume(); break;
             case 2:
@@ -760,7 +760,7 @@ void SeleneFrame::evt_popup_menu(wxCommandEvent &event)
             switch(object->type)
             {
                 case Sel::OBJ_BOX:
-                    dialog=new BoxDialog(object,frames,materials,aggregator);
+                    dialog=new BoxDialog(object,frames,materials,aggregator,optim_engine);
                     break;
                 case Sel::OBJ_CONIC:
                     dialog=new ConicSectionDialog(object,frames,materials,aggregator);

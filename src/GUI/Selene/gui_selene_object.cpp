@@ -590,12 +590,19 @@ void ObjectDialog::save_object()
 
 BoxDialog::BoxDialog(Sel::Object *object_,std::vector<Sel::Frame*> const &frames_,
                      std::vector<GUI::Material*> const &materials_,
-                     std::vector<Sel::IRF*> const &irfs_)
+                     std::vector<Sel::IRF*> const &irfs_,
+                     OptimEngine &optim_engine_)
     :ObjectDialog(object_,frames_,materials_,irfs_)
 {
+    optim_engine=&optim_engine_;
+    
     box_lx=new LengthSelector(ctrl_panel,"X Length",object->box_lx,true);
     box_ly=new LengthSelector(ctrl_panel,"Y Length",object->box_ly,true);
     box_lz=new LengthSelector(ctrl_panel,"Z Length",object->box_lz,true);
+    
+    box_lx->handle_external_optimization(&object->box_lx,optim_engine);
+    box_ly->handle_external_optimization(&object->box_ly,optim_engine);
+    box_lz->handle_external_optimization(&object->box_lz,optim_engine);
     
     box_lx->Bind(EVT_LENGTH_SELECTOR,&ObjectDialog::evt_geometry,this);
     box_ly->Bind(EVT_LENGTH_SELECTOR,&ObjectDialog::evt_geometry,this);
@@ -631,6 +638,15 @@ void BoxDialog::save_object_geometry()
     object->box_lx=box_lx->get_length();
     object->box_ly=box_ly->get_length();
     object->box_lz=box_lz->get_length();
+    
+    if(box_lx->optimize) optim_engine->register_target(&object->box_lx,box_lx->optim_rule);
+    else optim_engine->forget_target(&object->box_lx);
+    
+    if(box_ly->optimize) optim_engine->register_target(&object->box_ly,box_ly->optim_rule);
+    else optim_engine->forget_target(&object->box_ly);
+    
+    if(box_lz->optimize) optim_engine->register_target(&object->box_lz,box_lz->optim_rule);
+    else optim_engine->forget_target(&object->box_lz);
     
     object->set_box();
 }

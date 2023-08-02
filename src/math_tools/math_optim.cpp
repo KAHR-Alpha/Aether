@@ -114,11 +114,18 @@ int OptimEngine::locate_target(double *target)
 
 void OptimEngine::register_target(double *target,OptimRule const &rule)
 {
-    if(locate_target(target)!=-1) return;
+    int target_index=locate_target(target);
     
-    targets.push_back(target);
-    previous_values.push_back(0);
-    rules.push_back(rule);
+    if(target_index!=-1) 
+    {
+        rules[target_index]=rule;
+    }
+    else
+    {
+        targets.push_back(target);
+        previous_values.push_back(0);
+        rules.push_back(rule);
+    }
 }
 
 void OptimEngine::revert_targets()

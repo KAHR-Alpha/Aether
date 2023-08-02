@@ -37,6 +37,7 @@ class FrameDialog: public wxDialog
 {
     public:
         bool cancel_check;
+        OptimEngine *optim_engine;
         
         Sel::Frame *frame;
         std::vector<Sel::Frame*> frames;
@@ -135,7 +136,8 @@ class BoxDialog: public ObjectDialog
         BoxDialog(Sel::Object *data,
                   std::vector<Sel::Frame*> const &frames,
                   std::vector<GUI::Material*> const &materials,
-                  std::vector<Sel::IRF*> const &irfs);
+                  std::vector<Sel::IRF*> const &irfs,
+                  OptimEngine &optim_engine);
         
         double mesh(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr);
         void save_object_geometry();
@@ -542,6 +544,8 @@ class SeleneFrame: public BaseFrame
         
         std::vector<Sel::IRF> irfs;
         std::vector<Sel::IRF*> user_irfs;
+        
+        OptimEngine optim_engine;
         
         SeleneFrame(wxString const &title);
         void SeleneFrame_RayDisp(wxWindow *parent,wxBoxSizer *ctrl_sizer);

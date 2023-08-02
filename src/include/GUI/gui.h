@@ -430,19 +430,44 @@ class LengthSelector: public wxPanel
     public:
         double L;
         
+        bool optimize;
+        OptimRule optim_rule;
+        
         wxTextCtrl *length_ctrl;
         wxChoice *unit_ctrl;
+        wxButton *extension_button;
         
         LengthSelector(wxWindow *parent,std::string name,double L,bool static_style=false,std::string const &zero_unit="m");
         
         void auto_unit();
+        void evt_advanced(wxCommandEvent &event);
         double get_length();
+        void handle_external_optimization(double *target,OptimEngine *engine);
         void set_length(double L);
         void set_unit(std::string const &unit);
         void unit_event(wxCommandEvent &event);
         void value_change();
         void value_enter_event(wxCommandEvent &event);
         void value_focus_event(wxFocusEvent &event);
+};
+
+class LengthSelectorDialog: public wxDialog
+{
+    public:
+        OptimRule rule;
+        bool optimize;
+        bool selection_ok;
+        
+        wxCheckBox *optimize_ctrl,*lock;
+        wxChoice *operation_type,*limit_type;
+        LengthSelector *delta,*limit_down,*limit_up;
+        
+        LengthSelectorDialog(bool optimize, OptimRule const &rule);
+        
+        void evt_cancel(wxCommandEvent &event);
+        void evt_ok(wxCommandEvent &event);
+        void evt_optimize(wxCommandEvent &event);
+        void save();
 };
 
 class WavelengthSelector: public wxPanel
