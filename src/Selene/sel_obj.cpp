@@ -817,6 +817,13 @@ void Object::propagate_faces_group(int index)
     }
 }
 
+double* Object::reference_variable(std::string const &variable_name)
+{
+    if(variables_map.count(variable_name)==0) return nullptr;
+    
+    return variables_map[variable_name];
+}
+
 void Object::save_mesh_to_obj(std::string const &fname)
 {
     obj_file_save(fname,V_arr,F_arr);

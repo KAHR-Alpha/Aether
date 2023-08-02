@@ -62,6 +62,7 @@ namespace LuaUI
     int selene_object_auto_recalc_normals(lua_State *L);
     int selene_object_contains(lua_State *L);
     int selene_object_get_N_faces(lua_State *L);
+    int selene_object_get_variable_reference(lua_State *L);
     int selene_object_rescale_mesh(lua_State *L);
     int selene_object_set_default_in_irf(lua_State *L);
     int selene_object_set_default_in_mat(lua_State *L);

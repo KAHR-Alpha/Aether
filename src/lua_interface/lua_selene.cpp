@@ -552,10 +552,11 @@ namespace LuaUI
         metatable_add_func(L,"name",&LuaUI::selene_frame_set_name);
         metatable_add_func(L,"N_faces",&LuaUI::selene_object_get_N_faces);
         metatable_add_func(L,"origin",&LuaUI::selene_frame_set_origin);
+        metatable_add_func(L,"reference",&LuaUI::selene_object_get_variable_reference);
         metatable_add_func(L,"relative_origin",&LuaUI::selene_frame_set_relative_origin);
+        metatable_add_func(L,"rescale_mesh",&LuaUI::selene_object_rescale_mesh);
         metatable_add_func(L,"rotation",&LuaUI::selene_frame_set_rotation);
         metatable_add_func(L,"rotation_frame",&LuaUI::selene_frame_set_rotation_frame);
-        metatable_add_func(L,"rescale_mesh",&LuaUI::selene_object_rescale_mesh);
         metatable_add_func(L,"sensor",&LuaUI::selene_object_set_sensor);
         metatable_add_func(L,"translation_frame",&LuaUI::selene_frame_set_translation_frame);
         

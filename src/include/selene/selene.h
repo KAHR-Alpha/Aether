@@ -394,6 +394,7 @@ class Object: public Frame
         void process_intersection(RayPath &path);
         void propagate_faces_group(int index);
         void save_mesh_to_obj(std::string const &fname);
+        double* reference_variable(std::string const &variable_name);
         void set_default_in_irf(IRF *irf);
         void set_default_in_mat(Material *mat);
         void set_default_irf(IRF *irf);
