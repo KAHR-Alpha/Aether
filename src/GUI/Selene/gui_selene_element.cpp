@@ -241,9 +241,9 @@ void FrameDialog::evt_ok(wxCommandEvent &event)
                           y_ctrl->get_length(),
                           z_ctrl->get_length());
     
-    frame->in_A=a_ctrl->get_value()*Pi/180.0;
-    frame->in_B=b_ctrl->get_value()*Pi/180.0;
-    frame->in_C=c_ctrl->get_value()*Pi/180.0;
+    frame->in_A.degree(a_ctrl->get_value());
+    frame->in_B.degree(b_ctrl->get_value());
+    frame->in_C.degree(c_ctrl->get_value());
     
     frame->name=name_ctrl->get_value();
     

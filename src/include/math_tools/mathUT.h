@@ -128,6 +128,8 @@ class Angle
             }
         }
         
+        void operator = (double A) = delete;
+        
         template<AngleStorage mode_>
         void operator = (Angle<mode_> const &A)
         {
