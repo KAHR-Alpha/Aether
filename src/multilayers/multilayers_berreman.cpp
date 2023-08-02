@@ -14,5 +14,5 @@ limitations under the License.*/
 
 #include <phys_tools.h>
 
-extern const double Pi;
+
 extern const Imdouble Im;

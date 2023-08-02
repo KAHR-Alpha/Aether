@@ -18,7 +18,7 @@ limitations under the License.*/
 #include <multilayers.h>
 #include <planar_wgd.h>
 
-extern const double Pi;
+
 extern std::ofstream plog;
 
 //###################################

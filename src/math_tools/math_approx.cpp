@@ -14,7 +14,7 @@ limitations under the License.*/
 
 #include <math_approx.h>
 
-extern const double Pi;
+
 
 Cspline::Cspline()
     :Np(0),

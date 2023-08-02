@@ -15,8 +15,6 @@ limitations under the License.*/
 #include <selene_mesh.h>
 #include <mesh_tools.h>
 
-extern const double Pi;
-
 namespace Sel
 {
 

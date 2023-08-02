@@ -14,7 +14,7 @@ limitations under the License.*/
 
 #include <math_bessel.h>
 
-extern const double Pi;
+
 
 double bessel_J_kernel(double nu,double z,double t)
 {

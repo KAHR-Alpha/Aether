@@ -31,7 +31,7 @@ limitations under the License.*/
 #include <cstdlib>
 
 std::ofstream plog;
-extern const double Pi;
+
 
 AsciiDataLoader::AsciiDataLoader()
     :file_ok(false)

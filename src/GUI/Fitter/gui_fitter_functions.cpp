@@ -14,8 +14,6 @@ limitations under the License.*/
 
 #include <gui_fitter_functions.h>
 
-extern const double Pi;
-
 //#######################
 //   Constant Function
 //#######################

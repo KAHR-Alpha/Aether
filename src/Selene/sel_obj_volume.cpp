@@ -14,7 +14,6 @@ limitations under the License.*/
 
 #include <selene.h>
 
-extern const double Pi;
 extern std::ofstream plog;
 
 extern const Vector3 unit_vec_x;

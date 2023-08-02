@@ -17,8 +17,6 @@ limitations under the License.*/
 
 #include <gui_geometric_gradient.h>
 
-extern const double Pi;
-
 GeoGradientHolder::GeoGradientHolder()
     :lattice(LAT_HEXA),
      profile(PROF_LINEAR),

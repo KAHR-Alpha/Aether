@@ -18,7 +18,7 @@ limitations under the License.*/
 #include <phys_tools.h>
 
 extern std::ofstream plog;
-extern const double Pi;
+
 extern const Imdouble Im;
 
 int spec_mat_ID=0;

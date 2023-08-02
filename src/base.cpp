@@ -38,7 +38,6 @@ limitations under the License.*/
     #include <quenching.h>
 #endif
 
-extern const double Pi;
 extern const Imdouble Im;
 extern std::ofstream plog;
 

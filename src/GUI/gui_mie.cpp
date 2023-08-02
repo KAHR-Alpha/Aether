@@ -14,7 +14,6 @@ limitations under the License.*/
 
 #include <gui_mie.h>
 
-extern const double Pi;
 extern const Imdouble Im;
 
 //############

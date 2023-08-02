@@ -15,8 +15,6 @@ limitations under the License.*/
 #include <gui_selene_gl.h>
 #include <selene.h>
 
-extern const double Pi;
-
 extern const Vector3 unit_vec_x;
 extern const Vector3 unit_vec_y;
 extern const Vector3 unit_vec_z;

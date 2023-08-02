@@ -17,7 +17,7 @@ limitations under the License.*/
 #include <filehdl.h>
 #include <string_tools.h>
 
-extern const double Pi;
+
 extern const Imdouble Im;
 extern std::ofstream plog;
 

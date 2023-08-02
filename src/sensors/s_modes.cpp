@@ -14,7 +14,7 @@ limitations under the License.*/
 
 #include <sensors.h>
 
-extern const double Pi;
+
 extern const Imdouble Im;
 extern std::ofstream plog;
 

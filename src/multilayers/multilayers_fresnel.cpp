@@ -15,7 +15,7 @@ limitations under the License.*/
 #include <multilayers.h>
 #include <phys_tools.h>
 
-extern const double Pi;
+
 extern const Imdouble Im;
 
 //################

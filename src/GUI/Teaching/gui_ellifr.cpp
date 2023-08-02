@@ -17,7 +17,6 @@ limitations under the License.*/
 
 #include <iomanip>
 
-extern const double Pi;
 extern const Imdouble Im;
 
 //###############

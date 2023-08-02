@@ -16,8 +16,6 @@ limitations under the License.*/
 
 #include <gui_gl_fd.h>
 
-extern const double Pi;
-
 //###################
 //   GL_2D_display
 //###################

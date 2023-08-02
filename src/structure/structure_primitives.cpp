@@ -15,7 +15,7 @@ limitations under the License.*/
 #include <mesh_tools.h>
 #include <structure.h>
 
-extern const double Pi;
+
 
 //###############
 //   Add_Block

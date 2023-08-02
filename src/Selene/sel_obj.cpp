@@ -16,8 +16,6 @@ limitations under the License.*/
 #include <mesh_tools.h>
 #include <ray_intersect.h>
 
-extern const double Pi;
-//extern pthread_mutex_t mutex_cout;
 extern std::ofstream plog;
 
 extern const Vector3 unit_vec_x;

@@ -20,7 +20,7 @@ limitations under the License.*/
 #include <mesh_tools.h>
 #include <string_tools.h>
 
-extern const double Pi;
+
 
 //####################
 //      Sources

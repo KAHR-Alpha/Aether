@@ -20,7 +20,6 @@ limitations under the License.*/
 #include <iomanip>
 #include <limits>
 
-extern const double Pi;
 extern std::ofstream plog;
 
 GL_DiffOrders::GL_DiffOrders(wxWindow *parent)

@@ -30,6 +30,8 @@ limitations under the License.*/
 #define TEST_MODE
 #define DEBUG_MSG_ON
 
+inline constexpr double Pi=4.0*std::atan(1.0);
+
 class Vector2;
 class Vector3;
 
@@ -67,6 +69,116 @@ class AngleOld
 
 #define Degree(x) AngleOld(x,true)
 #define Radian(x) AngleOld(x)
+
+enum class AngleStorage
+{
+    RADIAN,
+    DEGREE
+};
+
+template<AngleStorage mode=AngleStorage::RADIAN>
+class Angle
+{
+    public:        
+        double val;
+        
+        Angle(double val_=0)
+            :val(val_)
+        {
+        }
+        
+        template<AngleStorage mode_>
+        Angle(Angle<mode_> const &A)
+        {
+            if constexpr(mode==mode_)
+            {
+                val=A.val;
+            }
+            else if constexpr(mode==AngleStorage::RADIAN)
+            {
+                val=A.val*Pi/180.0;
+            }
+            else
+            {
+                val=A.val*180.0/Pi;
+            }
+        }
+        
+        double degree() const
+        {
+            if constexpr(mode==AngleStorage::DEGREE)
+            {
+                return val;
+            }
+            else
+            {
+                return val*180.0/Pi;
+            }
+        }
+        
+        void degree(double A)
+        {
+            if constexpr(mode==AngleStorage::DEGREE)
+            {
+                val=A;
+            }
+            else
+            {
+                val=A*180.0/Pi;
+            }
+        }
+        
+        template<AngleStorage mode_>
+        void operator = (Angle<mode_> const &A)
+        {
+            if constexpr(mode==mode_)
+            {
+                val=A.val;
+            }
+            else if constexpr(mode==AngleStorage::RADIAN)
+            {
+                val=A.val*Pi/180.0;
+            }
+            else
+            {
+                val=A.val*180.0/Pi;
+            }
+        }
+        
+        void operator = (double A)
+        {
+            radian(A);
+        }
+        
+        operator double () const
+        {
+            return radian();
+        }
+        
+        double radian() const
+        {
+            if constexpr(mode==AngleStorage::RADIAN)
+            {
+                return val;
+            }
+            else
+            {
+                return val*Pi/180.0;
+            }
+        }
+        
+        void radian(double A)
+        {
+            if constexpr(mode==AngleStorage::RADIAN)
+            {
+                val=A;
+            }
+            else
+            {
+                val=A*Pi/180.0;
+            }
+        }
+};
 
 // for displaying a progress bar
 class ProgDisp

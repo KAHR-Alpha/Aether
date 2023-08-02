@@ -17,7 +17,6 @@ limitations under the License.*/
 #include <gui_matspanel.h>
 #include <gui_matsfitter.h>
 
-extern const double Pi;
 extern const Imdouble Im;
 
 wxDEFINE_EVENT(EVT_MODEL_NEW,wxCommandEvent);

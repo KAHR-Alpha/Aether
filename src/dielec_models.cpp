@@ -14,7 +14,6 @@ limitations under the License.*/
 
 #include <dielec_models.h>
 
-extern const double Pi;
 extern const Imdouble Im;
 
 extern std::ofstream plog;

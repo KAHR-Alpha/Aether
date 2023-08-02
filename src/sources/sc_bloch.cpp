@@ -16,7 +16,7 @@ limitations under the License.*/
 #include <phys_constants.h>
 #include <phys_tools.h>
 
-extern const double Pi;
+
 extern const Imdouble Im;
 extern std::ofstream plog;
 

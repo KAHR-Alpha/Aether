@@ -19,7 +19,6 @@ limitations under the License.*/
 
 #include <wx/splitter.h>
 
-extern const double Pi;
 extern std::ofstream plog;
 
 #ifndef WX30_RESTRICT

@@ -21,7 +21,7 @@ limitations under the License.*/
 #include <fstream>
 #include <sstream>
 
-extern const double Pi;
+
 
 namespace LuaUI
 {

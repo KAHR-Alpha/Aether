@@ -21,7 +21,6 @@ limitations under the License.*/
 #include <mutex>
 #include <thread>
 
-extern const double Pi=4.0*std::atan(1.0);
 extern const double Pio4=Pi/4.0;
 extern const double dPi=2.0*Pi;
 extern const Imdouble Im(0,1);

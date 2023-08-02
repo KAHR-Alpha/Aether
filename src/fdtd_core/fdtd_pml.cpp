@@ -16,7 +16,7 @@ limitations under the License.*/
 #include <bitmap3.h>
 #include <thread_utils.h>
 
-extern const double Pi;
+
 extern const Imdouble Im;
 extern std::ofstream plog;
 

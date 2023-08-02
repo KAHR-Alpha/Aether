@@ -14,7 +14,7 @@ limitations under the License.*/
 
 #include <phys_tools.h>
 
-extern const double Pi;
+
 extern const Imdouble Im;
 
 // Formula obtained thanks to https://www.telescope-optics.net/conics_and_aberrations.htm

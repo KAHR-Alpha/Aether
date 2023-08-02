@@ -16,7 +16,6 @@ limitations under the License.*/
 
 #include <gui_ellipso3.h>
 
-extern const double Pi;
 extern const Imdouble Im;
 
 GL_Ellipso3D::GL_Ellipso3D(wxWindow *parent,AngleOld const &incidence_,

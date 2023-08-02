@@ -18,7 +18,6 @@ limitations under the License.*/
 #include <complex>
 #include <berreman_strat.h>
 
-extern const double Pi;
 extern const Imdouble Im;
 
 extern std::ofstream plog;

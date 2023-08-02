@@ -20,7 +20,6 @@ limitations under the License.*/
 bool glew_ok=false;
 
 extern std::ofstream plog;
-extern const double Pi;
 
 //###############
 //  EMGeometry_GL
