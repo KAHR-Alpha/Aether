@@ -27,7 +27,7 @@ class Multilayer_Berreman_mode: public base_mode
     public:
         int Nl;
         double lambda_min,lambda_max;
-        Angle angle;
+        AngleOld angle;
         double index_sub,index_sup;
         std::string output;
         std::vector<double> layer_h;
@@ -54,7 +54,7 @@ class Multilayer_mode: public base_mode
     public:
         int Nl;
         double lambda_min,lambda_max;
-        Angle angle;
+        AngleOld angle;
         double index_sub,index_sup;
         std::string output;
         std::vector<double> layer_h;
@@ -84,7 +84,7 @@ class Multilayer_TMM_mode: public base_mode
         int mode,Nl;
         double lambda_min,lambda_max;
         double lambda_guess,nr_guess,ni_guess;
-        Angle angle;
+        AngleOld angle;
         std::string mat_sup_str,
                     mat_sub_str,
                     output,

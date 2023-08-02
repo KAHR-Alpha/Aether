@@ -19,7 +19,7 @@ limitations under the License.*/
 extern const double Pi;
 extern const Imdouble Im;
 
-GL_Ellipso3D::GL_Ellipso3D(wxWindow *parent,Angle const &incidence_,
+GL_Ellipso3D::GL_Ellipso3D(wxWindow *parent,AngleOld const &incidence_,
                            Imdouble const &ip_,Imdouble const &is_,
                            Imdouble const &rp_,Imdouble const &rs_,
                            int density_,double span_)
@@ -274,7 +274,7 @@ void GL_Ellipso3D::set_density(int density_)
     density=density_;
 }
 
-void GL_Ellipso3D::set_incidence(Angle const &angle)
+void GL_Ellipso3D::set_incidence(AngleOld const &angle)
 {
     incidence=angle;
     

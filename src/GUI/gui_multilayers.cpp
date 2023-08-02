@@ -732,7 +732,7 @@ void MultilayerFrame::recompute_statistical_thread()
     
     int l;
     unsigned int i;
-    Angle ang_rad;
+    AngleOld ang_rad;
     
     ml.set_N_layers(N_layers);
     
@@ -814,7 +814,7 @@ void MultilayerFrame::recompute_straight()
 {
     int l;
     unsigned int i;
-    Angle ang_rad;
+    AngleOld ang_rad;
     
     int Nl=0;
     int Nlb=layers_list->get_size();

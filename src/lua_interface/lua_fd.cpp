@@ -849,14 +849,14 @@ void FDFD_Mode::process()
     }
 }
 
-void FDFD_Mode::set_azimuth(Angle phi_min_,Angle phi_max_,int N_phi_)
+void FDFD_Mode::set_azimuth(AngleOld phi_min_,AngleOld phi_max_,int N_phi_)
 {
     phi_min=phi_min_;
     phi_max=phi_max_;
     N_phi=N_phi_;
 }
 
-void FDFD_Mode::set_incidence(Angle theta_min_,Angle theta_max_,int N_theta_)
+void FDFD_Mode::set_incidence(AngleOld theta_min_,AngleOld theta_max_,int N_theta_)
 {
     theta_min=theta_min_;
     theta_max=theta_max_;
@@ -874,8 +874,8 @@ int FDFD_mode_set_azimuth(lua_State *L)
 {
     FDFD_Mode **pp_fdfd=reinterpret_cast<FDFD_Mode**>(lua_touserdata(L,1));
     
-    Angle phi_min=Degree(lua_tonumber(L,2));
-    Angle phi_max=Degree(lua_tonumber(L,3));
+    AngleOld phi_min=Degree(lua_tonumber(L,2));
+    AngleOld phi_max=Degree(lua_tonumber(L,3));
     int N_phi=lua_tointeger(L,4);
     
     (*pp_fdfd)->set_azimuth(phi_min,phi_max,N_phi);
@@ -887,8 +887,8 @@ int FDFD_mode_set_incidence(lua_State *L)
 {
     FDFD_Mode **pp_fdfd=reinterpret_cast<FDFD_Mode**>(lua_touserdata(L,1));
     
-    Angle theta_min=Degree(lua_tonumber(L,2));
-    Angle theta_max=Degree(lua_tonumber(L,3));
+    AngleOld theta_min=Degree(lua_tonumber(L,2));
+    AngleOld theta_max=Degree(lua_tonumber(L,3));
     int N_theta=lua_tointeger(L,4);
     
     (*pp_fdfd)->set_incidence(theta_min,theta_max,N_theta);

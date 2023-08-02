@@ -48,7 +48,7 @@ class B_strat
         
         B_strat(int Nl,Imdouble sup_ind,Imdouble sub_ind);
         
-        void compute(double lambda,Angle ang,Imdouble &r_TE,Imdouble &r_TM,
+        void compute(double lambda,AngleOld ang,Imdouble &r_TE,Imdouble &r_TM,
                                              Imdouble &t_TE,Imdouble &t_TM);
         
         void compute(double lambda,double ang_rad,

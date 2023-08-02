@@ -163,7 +163,7 @@ void Multilayer::recompute_W()
     }
 }
 
-void Multilayer::set_angle(Angle const &angle_)
+void Multilayer::set_angle(AngleOld const &angle_)
 {
     angle=angle_;
 }

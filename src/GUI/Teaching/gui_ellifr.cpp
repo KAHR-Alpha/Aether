@@ -53,7 +53,7 @@ void ImdoubleCtrl::set_amp(double amp)
     amp_ctrl->SetValue(strm.str());
 }
 
-void ImdoubleCtrl::set_phase(Angle phase)
+void ImdoubleCtrl::set_phase(AngleOld phase)
 {
     std::stringstream strm;
     strm<<std::setprecision(7)<<phase.degree();

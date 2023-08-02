@@ -143,13 +143,13 @@ class Bloch_Wideband: public Source
         double kx,ky,kxy,eps_inf;
         double polar;
         
-        Angle safe_angle,cut_angle;
+        AngleOld safe_angle,cut_angle;
         
         Grid1<double> kn,kz,Sp;
         Grid1<Vector3> E_base,H_base;
         
         Bloch_Wideband(int x1,int x2,int y1,int y2,int z1,int z2,
-                       double kx,double ky,Angle polar);
+                       double kx,double ky,AngleOld polar);
         ~Bloch_Wideband();
         
         void deep_link(FDTD const &fdtd);
@@ -160,7 +160,7 @@ class Bloch_Wideband: public Source
         void initialize();
         void inject_E(FDTD &real_fdtd,FDTD &imag_fdtd);
         void inject_H(FDTD &real_fdtd,FDTD &imag_fdtd);
-        void set_cut_angle(Angle const &safe_angle,Angle const &cut_angle);
+        void set_cut_angle(AngleOld const &safe_angle,AngleOld const &cut_angle);
 };
 
 class Electric_Dipole: public Source

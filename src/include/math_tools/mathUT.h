@@ -48,25 +48,25 @@ double randp(double A,double B);
 double randp_norm(double mean,double std_dev);
 void seedp(int i);
 
-class Angle
+class AngleOld
 {
     public:
         bool degree_mode;
         double val;
         
-        Angle(double val=0,bool degree_mode=false);
-        Angle(Angle const &A);
+        AngleOld(double val=0,bool degree_mode=false);
+        AngleOld(AngleOld const &A);
         
         double degree() const;
         void degree(double A);
-        void operator = (Angle const &A);
+        void operator = (AngleOld const &A);
         void operator = (double A);
         operator double () const;
         double radian() const;
 };
 
-#define Degree(x) Angle(x,true)
-#define Radian(x) Angle(x)
+#define Degree(x) AngleOld(x,true)
+#define Radian(x) AngleOld(x)
 
 // for displaying a progress bar
 class ProgDisp

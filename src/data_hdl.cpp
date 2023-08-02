@@ -153,7 +153,7 @@ Spectrum::Spectrum(std::vector<double> const &lambda_,
 }
 
 Spectrum::Spectrum(std::vector<double> const &lambda_,
-                   std::vector<Angle> const &ang_,
+                   std::vector<AngleOld> const &ang_,
                    std::vector<Imdouble> const &spect_)
     :N(lambda_.size()),
      source_pol("TE"),

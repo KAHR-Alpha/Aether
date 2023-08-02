@@ -57,7 +57,7 @@ class Add_Coating: public Structure_OP
         Vector3 dir;
         int origin_mat;
         
-        Add_Coating(Angle const &theta,Angle const &phi,
+        Add_Coating(AngleOld const &theta,AngleOld const &phi,
                     double thickness,double delta,int origin_mat,int mat_index);
         
         int index(double x,double y,double z);

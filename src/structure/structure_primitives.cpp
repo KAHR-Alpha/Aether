@@ -42,7 +42,7 @@ int Add_Block::index(double x,double y,double z)
 //   Add_Coating
 //#################
 
-Add_Coating::Add_Coating(Angle const &theta,Angle const &phi,
+Add_Coating::Add_Coating(AngleOld const &theta,AngleOld const &phi,
                          double thickness_,double delta_,int origin_mat_,int mat_index_)
     :Structure_OP(0,0,0,0,0,0,mat_index_),
      thickness(thickness_), delta(delta_), origin_mat(origin_mat_)

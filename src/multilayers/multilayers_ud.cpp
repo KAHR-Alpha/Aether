@@ -232,7 +232,7 @@ void Multilayer_TMM_UD::recompute_L()
     }
 }
 
-void Multilayer_TMM_UD::set_angle(Angle const &angle_)
+void Multilayer_TMM_UD::set_angle(AngleOld const &angle_)
 {
     angle=angle_;
 }

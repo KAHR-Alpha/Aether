@@ -138,7 +138,7 @@ class Frame
             relative_anchor;
             
         Vector3 in_displacement;
-        Angle in_A,in_B,in_C;
+        AngleOld in_A,in_B,in_C;
         
         Frame *relative_origin;
         Frame *translation_frame;

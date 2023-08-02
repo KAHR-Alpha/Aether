@@ -97,7 +97,7 @@ class GeoGradientFrame: public BaseFrame
         std::vector<double> lambda,angle,
                             min_R_TE,max_R_TE,min_T_TE,max_T_TE,
                             min_R_TM,max_R_TM,min_T_TM,max_T_TM;
-        std::vector<Angle> angle_rad;
+        std::vector<AngleOld> angle_rad;
         
         GeoGradientFrame(wxString const &title);
         

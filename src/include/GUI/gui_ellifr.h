@@ -27,7 +27,7 @@ class ImdoubleCtrl: public wxPanel
         ImdoubleCtrl(wxWindow *parent,std::string const &name);
         
         void set_amp(double amp);
-        void set_phase(Angle phase);
+        void set_phase(AngleOld phase);
 };
 
 class ElliGraph: public wxPanel
