@@ -497,17 +497,17 @@ void SeleneFrame::evt_add_element(wxCommandEvent &event)
             case 2:
                 object->set_cylinder_volume();
                 object->name="Cylinder_" + std::to_string(item_count);
-                dialog=new CylinderDialog(object,frames,materials,aggregator);
+                dialog=new CylinderDialog(object,frames,materials,aggregator,optim_engine);
                 break;
             case 3:
                 object->set_lens();
                 object->name="Lens_" + std::to_string(item_count);
-                dialog=new LensDialog(object,frames,materials,aggregator);
+                dialog=new LensDialog(object,frames,materials,aggregator,optim_engine);
                 break;
             case 4:
                 object->set_mesh();
                 object->name="Mesh_" + std::to_string(item_count);
-                dialog=new MeshDialog(object,frames,materials,aggregator);
+                dialog=new MeshDialog(object,frames,materials,aggregator,optim_engine);
                 break;
             case 5:
                 // Prism
@@ -515,33 +515,33 @@ void SeleneFrame::evt_add_element(wxCommandEvent &event)
             case 6:
                 object->set_sphere();
                 object->name="Sphere_" + std::to_string(item_count);
-                dialog=new SphereDialog(object,frames,materials,aggregator);
+                dialog=new SphereDialog(object,frames,materials,aggregator,optim_engine);
                 break;
             // Case 7 is the separator
             case 8:
                 object->set_conic_section();
                 object->name="Conic_" + std::to_string(item_count);
-                dialog=new ConicSectionDialog(object,frames,materials,aggregator);
+                dialog=new ConicSectionDialog(object,frames,materials,aggregator,optim_engine);
                 break;
             case 9:
                 object->set_disk();
                 object->name="Disk_" + std::to_string(item_count);
-                dialog=new DiskDialog(object,frames,materials,aggregator);
+                dialog=new DiskDialog(object,frames,materials,aggregator,optim_engine);
                 break;
             case 10:
                 object->set_parabola();
                 object->name="Parabola_" + std::to_string(item_count);
-                dialog=new ParabolaDialog(object,frames,materials,aggregator);
+                dialog=new ParabolaDialog(object,frames,materials,aggregator,optim_engine);
                 break;
             case 11:
                 object->set_rectangle();
                 object->name="Rectangle_" + std::to_string(item_count);
-                dialog=new RectangleDialog(object,frames,materials,aggregator);
+                dialog=new RectangleDialog(object,frames,materials,aggregator,optim_engine);
                 break;
             case 12:
                 object->set_spherical_patch();
                 object->name="Spherical_Patch_" + std::to_string(item_count);
-                dialog=new SpherePatchDialog(object,frames,materials,aggregator);
+                dialog=new SpherePatchDialog(object,frames,materials,aggregator,optim_engine);
                 break;
         }
     }
@@ -579,7 +579,7 @@ void SeleneFrame::evt_add_element(wxCommandEvent &event)
                 break;
         }
         
-        dialog=new SourceDialog(light,frames,materials);
+        dialog=new SourceDialog(light,frames,materials,optim_engine);
     }
     
     if(dialog!=nullptr)
@@ -763,36 +763,36 @@ void SeleneFrame::evt_popup_menu(wxCommandEvent &event)
                     dialog=new BoxDialog(object,frames,materials,aggregator,optim_engine);
                     break;
                 case Sel::OBJ_CONIC:
-                    dialog=new ConicSectionDialog(object,frames,materials,aggregator);
+                    dialog=new ConicSectionDialog(object,frames,materials,aggregator,optim_engine);
                     break;
                 case Sel::OBJ_DISK:
-                    dialog=new DiskDialog(object,frames,materials,aggregator);
+                    dialog=new DiskDialog(object,frames,materials,aggregator,optim_engine);
                     break;
                 case Sel::OBJ_PARABOLA:
-                    dialog=new ParabolaDialog(object,frames,materials,aggregator);
+                    dialog=new ParabolaDialog(object,frames,materials,aggregator,optim_engine);
                     break;
                 case Sel::OBJ_LENS:
-                    dialog=new LensDialog(object,frames,materials,aggregator);
+                    dialog=new LensDialog(object,frames,materials,aggregator,optim_engine);
                     break;
                 case Sel::OBJ_MESH:
-                    dialog=new MeshDialog(object,frames,materials,aggregator);
+                    dialog=new MeshDialog(object,frames,materials,aggregator,optim_engine);
                     break;
                 case Sel::OBJ_RECTANGLE:
-                    dialog=new RectangleDialog(object,frames,materials,aggregator);
+                    dialog=new RectangleDialog(object,frames,materials,aggregator,optim_engine);
                     break;
                 case Sel::OBJ_SPHERE:
-                    dialog=new SphereDialog(object,frames,materials,aggregator);
+                    dialog=new SphereDialog(object,frames,materials,aggregator,optim_engine);
                     break;
                 case Sel::OBJ_SPHERE_PATCH:
-                    dialog=new SpherePatchDialog(object,frames,materials,aggregator);
+                    dialog=new SpherePatchDialog(object,frames,materials,aggregator,optim_engine);
                     break;
                 case Sel::OBJ_VOL_CYLINDER:
-                    dialog=new CylinderDialog(object,frames,materials,aggregator);
+                    dialog=new CylinderDialog(object,frames,materials,aggregator,optim_engine);
                     break;
             }
         }
         else if(light!=nullptr)
-            dialog=new SourceDialog(light,frames,materials);
+            dialog=new SourceDialog(light,frames,materials,optim_engine);
             
         if(dialog!=nullptr)
         {

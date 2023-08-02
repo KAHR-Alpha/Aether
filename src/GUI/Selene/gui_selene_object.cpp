@@ -27,8 +27,9 @@ namespace SelGUI
 ObjectDialog::ObjectDialog(Sel::Object *object_,
                            std::vector<Sel::Frame*> const &frames_,
                            std::vector<GUI::Material*> const &materials_,
-                           std::vector<Sel::IRF*> const &irfs_)
-    :FrameDialog(dynamic_cast<Sel::Frame*>(object_),frames_),
+                           std::vector<Sel::IRF*> const &irfs_,
+                           OptimEngine &optim_engine_)
+    :FrameDialog(dynamic_cast<Sel::Frame*>(object_),frames_,optim_engine_),
      object(object_),
      materials(materials_),
      irfs(irfs_)
@@ -592,17 +593,15 @@ BoxDialog::BoxDialog(Sel::Object *object_,std::vector<Sel::Frame*> const &frames
                      std::vector<GUI::Material*> const &materials_,
                      std::vector<Sel::IRF*> const &irfs_,
                      OptimEngine &optim_engine_)
-    :ObjectDialog(object_,frames_,materials_,irfs_)
-{
-    optim_engine=&optim_engine_;
-    
+    :ObjectDialog(object_,frames_,materials_,irfs_,optim_engine_)
+{    
     box_lx=new LengthSelector(ctrl_panel,"X Length",object->box_lx,true);
     box_ly=new LengthSelector(ctrl_panel,"Y Length",object->box_ly,true);
     box_lz=new LengthSelector(ctrl_panel,"Z Length",object->box_lz,true);
     
-    box_lx->handle_external_optimization(&object->box_lx,optim_engine);
-    box_ly->handle_external_optimization(&object->box_ly,optim_engine);
-    box_lz->handle_external_optimization(&object->box_lz,optim_engine);
+    box_lx->handle_external_optimization(&object->box_lx,&optim_engine);
+    box_ly->handle_external_optimization(&object->box_ly,&optim_engine);
+    box_lz->handle_external_optimization(&object->box_lz,&optim_engine);
     
     box_lx->Bind(EVT_LENGTH_SELECTOR,&ObjectDialog::evt_geometry,this);
     box_ly->Bind(EVT_LENGTH_SELECTOR,&ObjectDialog::evt_geometry,this);
@@ -639,14 +638,14 @@ void BoxDialog::save_object_geometry()
     object->box_ly=box_ly->get_length();
     object->box_lz=box_lz->get_length();
     
-    if(box_lx->optimize) optim_engine->register_target(&object->box_lx,box_lx->optim_rule);
-    else optim_engine->forget_target(&object->box_lx);
+    if(box_lx->optimize) optim_engine.register_target(&object->box_lx,box_lx->optim_rule);
+    else optim_engine.forget_target(&object->box_lx);
     
-    if(box_ly->optimize) optim_engine->register_target(&object->box_ly,box_ly->optim_rule);
-    else optim_engine->forget_target(&object->box_ly);
+    if(box_ly->optimize) optim_engine.register_target(&object->box_ly,box_ly->optim_rule);
+    else optim_engine.forget_target(&object->box_ly);
     
-    if(box_lz->optimize) optim_engine->register_target(&object->box_lz,box_lz->optim_rule);
-    else optim_engine->forget_target(&object->box_lz);
+    if(box_lz->optimize) optim_engine.register_target(&object->box_lz,box_lz->optim_rule);
+    else optim_engine.forget_target(&object->box_lz);
     
     object->set_box();
 }
@@ -658,8 +657,9 @@ void BoxDialog::save_object_geometry()
 ConicSectionDialog::ConicSectionDialog(Sel::Object *object_,
                                        std::vector<Sel::Frame*> const &frames_,
                                        std::vector<GUI::Material*> const &materials_,
-                                       std::vector<Sel::IRF*> const &irfs_)
-    :ObjectDialog(object_,frames_,materials_,irfs_)
+                                       std::vector<Sel::IRF*> const &irfs_,
+                                       OptimEngine &optim_engine_)
+    :ObjectDialog(object_,frames_,materials_,irfs_,optim_engine_)
 {
     conic_R=new LengthSelector(ctrl_panel,"Conic Radius",object->conic_R,true);
     conic_K=new NamedTextCtrl<double>(ctrl_panel,"Conic Constant",object->conic_K,true);
@@ -706,8 +706,9 @@ void ConicSectionDialog::save_object_geometry()
 CylinderDialog::CylinderDialog(Sel::Object *object_,
                                std::vector<Sel::Frame*> const &frames_,
                                std::vector<GUI::Material*> const &materials_,
-                               std::vector<Sel::IRF*> const &irfs_)
-    :ObjectDialog(object_,frames_,materials_,irfs_)
+                               std::vector<Sel::IRF*> const &irfs_,
+                               OptimEngine &optim_engine_)
+    :ObjectDialog(object_,frames_,materials_,irfs_,optim_engine_)
 {
     cyl_r=new LengthSelector(ctrl_panel,"Radius",object->cyl_r,true);
     cyl_l=new LengthSelector(ctrl_panel,"Length",object->cyl_l,true);
@@ -751,8 +752,9 @@ void CylinderDialog::save_object_geometry()
 DiskDialog::DiskDialog(Sel::Object *object_,
                        std::vector<Sel::Frame*> const &frames_,
                        std::vector<GUI::Material*> const &materials_,
-                       std::vector<Sel::IRF*> const &irfs_)
-    :ObjectDialog(object_,frames_,materials_,irfs_)
+                       std::vector<Sel::IRF*> const &irfs_,
+                       OptimEngine &optim_engine_)
+    :ObjectDialog(object_,frames_,materials_,irfs_,optim_engine_)
 {
     dsk_r=new LengthSelector(ctrl_panel,"Radius",object->dsk_r,true);
     dsk_r_in=new LengthSelector(ctrl_panel,"In Radius",object->dsk_r_in,true,"mm");
@@ -789,8 +791,9 @@ void DiskDialog::save_object_geometry()
 LensDialog::LensDialog(Sel::Object *object_,
                        std::vector<Sel::Frame*> const &frames_,
                        std::vector<GUI::Material*> const &materials_,
-                       std::vector<Sel::IRF*> const &irfs_)
-    :ObjectDialog(object_,frames_,materials_,irfs_)
+                       std::vector<Sel::IRF*> const &irfs_,
+                       OptimEngine &optim_engine_)
+    :ObjectDialog(object_,frames_,materials_,irfs_,optim_engine_)
 {
     ls_thickness=new LengthSelector(ctrl_panel,"Thickness",object->ls_thickness,true);
     ls_r1=new LengthSelector(ctrl_panel,"In Radius",object->ls_r1,true);
@@ -847,8 +850,9 @@ void LensDialog::save_object_geometry()
 ParabolaDialog::ParabolaDialog(Sel::Object *object_,
                                std::vector<Sel::Frame*> const &frames_,
                                std::vector<GUI::Material*> const &materials_,
-                               std::vector<Sel::IRF*> const &irfs_)
-    :ObjectDialog(object_,frames_,materials_,irfs_)
+                               std::vector<Sel::IRF*> const &irfs_,
+                               OptimEngine &optim_engine_)
+    :ObjectDialog(object_,frames_,materials_,irfs_,optim_engine_)
 {
     pr_focal=new LengthSelector(ctrl_panel,"Focal Point",object->pr_f,true);
     pr_in_radius=new LengthSelector(ctrl_panel,"In Radius",object->pr_in_radius,true);
@@ -891,8 +895,9 @@ void ParabolaDialog::save_object_geometry()
 
 RectangleDialog::RectangleDialog(Sel::Object *object_,std::vector<Sel::Frame*> const &frames_,
                      std::vector<GUI::Material*> const &materials_,
-                     std::vector<Sel::IRF*> const &irfs_)
-    :ObjectDialog(object_,frames_,materials_,irfs_)
+                     std::vector<Sel::IRF*> const &irfs_,
+                     OptimEngine &optim_engine_)
+    :ObjectDialog(object_,frames_,materials_,irfs_,optim_engine_)
 {
     box_ly=new LengthSelector(ctrl_panel,"Y Length",object->box_ly,true,"mm");
     box_lz=new LengthSelector(ctrl_panel,"Z Length",object->box_lz,true,"mm");
@@ -929,8 +934,9 @@ void RectangleDialog::save_object_geometry()
 SphereDialog::SphereDialog(Sel::Object *object_,
                                std::vector<Sel::Frame*> const &frames_,
                                std::vector<GUI::Material*> const &materials_,
-                               std::vector<Sel::IRF*> const &irfs_)
-    :ObjectDialog(object_,frames_,materials_,irfs_)
+                               std::vector<Sel::IRF*> const &irfs_,
+                               OptimEngine &optim_engine_)
+    :ObjectDialog(object_,frames_,materials_,irfs_,optim_engine_)
 {
     sph_r=new LengthSelector(ctrl_panel,"Radius",object->sph_r,true);
     sph_cut=new NamedTextCtrl(ctrl_panel,"Slice Factor",object->sph_cut,true);
@@ -967,8 +973,9 @@ void SphereDialog::save_object_geometry()
 SpherePatchDialog::SpherePatchDialog(Sel::Object *object_,
                                      std::vector<Sel::Frame*> const &frames_,
                                      std::vector<GUI::Material*> const &materials_,
-                                     std::vector<Sel::IRF*> const &irfs_)
-    :ObjectDialog(object_,frames_,materials_,irfs_)
+                                     std::vector<Sel::IRF*> const &irfs_,
+                                     OptimEngine &optim_engine_)
+    :ObjectDialog(object_,frames_,materials_,irfs_,optim_engine_)
 {
     sph_r=new LengthSelector(ctrl_panel,"Radius",object->sph_r,true);
     sph_cut=new NamedTextCtrl(ctrl_panel,"Slice Factor",object->sph_cut,true);

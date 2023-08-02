@@ -139,8 +139,9 @@ FacesGroupPanel::FacesGroupPanel(wxWindow *parent,
 MeshDialog::MeshDialog(Sel::Object *object_,
                        std::vector<Sel::Frame*> const &frames_,
                        std::vector<GUI::Material*> const &materials_,
-                       std::vector<Sel::IRF*> const &irfs_)
-    :ObjectDialog(object_,frames_,materials_,irfs_)
+                       std::vector<Sel::IRF*> const &irfs_,
+                       OptimEngine &optim_engine_)
+    :ObjectDialog(object_,frames_,materials_,irfs_,optim_engine_)
 {
     faces=object->Fg_arr;
     groups_start=object->Fg_start;

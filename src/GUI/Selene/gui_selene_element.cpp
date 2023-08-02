@@ -24,11 +24,14 @@ namespace SelGUI
 //   FrameDialog
 //#########################
 
-FrameDialog::FrameDialog(Sel::Frame *frame_,std::vector<Sel::Frame*> const &frames_)
+FrameDialog::FrameDialog(Sel::Frame *frame_,
+                         std::vector<Sel::Frame*> const &frames_,
+                         OptimEngine &optim_engine_)
     :wxDialog(NULL,-1,"Object Properties",
               wxGetApp().default_dialog_origin(),
               wxGetApp().default_dialog_size()),
      cancel_check(true),
+     optim_engine(optim_engine_),
      frame(frame_)
 {
     for(std::size_t i=0;i<frames_.size();i++)
