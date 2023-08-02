@@ -23,6 +23,7 @@ limitations under the License.*/
 #include <lua_interface.h>
 #include <lua_material.h>
 #include <lua_multilayers.h>
+#include <lua_optim.h>
 #include <lua_selene.h>
 #include <lua_structure.h>
 #include <mathUT.h>
@@ -361,6 +362,14 @@ int mode_choice(lua_State *L)
     LuaUI::Selene_create_base_metatable(L);
     LuaUI::Selene_create_light_metatable(L);
     LuaUI::Selene_create_object_metatable(L);
+    
+    //#########################
+    //   Optimization Engine
+    //#########################
+    
+    LuaUI::create_optimization_metatable(L);
+    
+    //
     
     if(luaL_loadfile(L,script_fname.c_str()) || docall(L, 0, 0))
     {

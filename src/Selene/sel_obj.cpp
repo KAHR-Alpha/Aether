@@ -117,6 +117,7 @@ Object::Object()
      sens_ray_obj_face(false)
 {
     type=OBJ_UNSET;
+    build_variables_map();
 }
 
 Object::~Object()
