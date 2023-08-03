@@ -129,6 +129,10 @@ FrameDialog::FrameDialog(Sel::Frame *frame_,
     y_ctrl=new LengthSelector(ctrl_panel,"y: ",frame->in_displacement.y,false,"mm");
     z_ctrl=new LengthSelector(ctrl_panel,"z: ",frame->in_displacement.z,false,"mm");
     
+    x_ctrl->handle_external_optimization(&frame->in_displacement.x,&optim_engine);
+    y_ctrl->handle_external_optimization(&frame->in_displacement.y,&optim_engine);
+    z_ctrl->handle_external_optimization(&frame->in_displacement.z,&optim_engine);
+    
     loc_sizer->Add(x_ctrl,wxSizerFlags().Expand());
     loc_sizer->Add(y_ctrl,wxSizerFlags().Expand());
     loc_sizer->Add(z_ctrl,wxSizerFlags().Expand());
@@ -152,14 +156,13 @@ FrameDialog::FrameDialog(Sel::Frame *frame_,
     
     // - Rotation coordinates
     
-    Angle<AngleStorage::DEGREE>
-          ang_A(frame->in_A),
-          ang_B(frame->in_B),
-          ang_C(frame->in_C);
+    a_ctrl=new NamedTextCtrl<double>(ctrl_panel,"a: ",frame->in_A.degree());
+    b_ctrl=new NamedTextCtrl<double>(ctrl_panel,"b: ",frame->in_B.degree());
+    c_ctrl=new NamedTextCtrl<double>(ctrl_panel,"c: ",frame->in_C.degree());
     
-    a_ctrl=new NamedTextCtrl<double>(ctrl_panel,"a: ",ang_A.degree());
-    b_ctrl=new NamedTextCtrl<double>(ctrl_panel,"b: ",ang_B.degree());
-    c_ctrl=new NamedTextCtrl<double>(ctrl_panel,"c: ",ang_C.degree());
+    a_ctrl->handle_external_optimization(&frame->in_A.val,&optim_engine);
+    b_ctrl->handle_external_optimization(&frame->in_B.val,&optim_engine);
+    c_ctrl->handle_external_optimization(&frame->in_C.val,&optim_engine);
     
     ang_sizer->Add(a_ctrl,wxSizerFlags().Expand());
     ang_sizer->Add(b_ctrl,wxSizerFlags().Expand());
@@ -240,13 +243,35 @@ void FrameDialog::evt_ok(wxCommandEvent &event)
     if(rotation_frame->GetSelection()==0) frame->rotation_frame=nullptr;
     else frame->rotation_frame=frames[rotation_frame->GetSelection()-1];
     
+    // Location
+    
     frame->in_displacement(x_ctrl->get_length(),
-                          y_ctrl->get_length(),
-                          z_ctrl->get_length());
+                           y_ctrl->get_length(),
+                           z_ctrl->get_length());
+    
+    if(x_ctrl->optimize) optim_engine.register_target(&frame->in_displacement.x,x_ctrl->optim_rule);
+    else optim_engine.forget_target(&frame->in_displacement.x);
+    
+    if(y_ctrl->optimize) optim_engine.register_target(&frame->in_displacement.y,y_ctrl->optim_rule);
+    else optim_engine.forget_target(&frame->in_displacement.y);
+    
+    if(z_ctrl->optimize) optim_engine.register_target(&frame->in_displacement.z,z_ctrl->optim_rule);
+    else optim_engine.forget_target(&frame->in_displacement.z);
+    
+    // Rotation
     
     frame->in_A.degree(a_ctrl->get_value());
     frame->in_B.degree(b_ctrl->get_value());
     frame->in_C.degree(c_ctrl->get_value());
+    
+    if(a_ctrl->optimize) optim_engine.register_target(&frame->in_A.val,a_ctrl->optim_rule);
+    else optim_engine.forget_target(&frame->in_A.val);
+    
+    if(b_ctrl->optimize) optim_engine.register_target(&frame->in_B.val,b_ctrl->optim_rule);
+    else optim_engine.forget_target(&frame->in_B.val);
+    
+    if(c_ctrl->optimize) optim_engine.register_target(&frame->in_C.val,c_ctrl->optim_rule);
+    else optim_engine.forget_target(&frame->in_C.val);
     
     frame->name=name_ctrl->get_value();
     

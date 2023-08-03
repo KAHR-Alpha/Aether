@@ -247,59 +247,68 @@ void ColorPanel::set_XYZ(double X_,double Y_,double Z_)
 //   NamedTextCtrl
 //###################
 
-NamedTextCtrlDialog::NamedTextCtrlDialog(OptimRule *rule_)
-    :OptimRule(*rule_),
-     wxDialog(0,wxID_ANY,"Parameters",
+NamedTextCtrlDialog::NamedTextCtrlDialog(bool optimize_, OptimRule const &rule_)
+    :wxDialog(0,wxID_ANY,"Parameters",
               wxGetApp().default_dialog_origin()),
-     rule_holder(rule_),
+     rule(rule_),
+     optimize(optimize_),
      selection_ok(false)
 {
     wxBoxSizer *sizer=new wxBoxSizer(wxVERTICAL);
     
-    // 
+    optimize_ctrl=new wxCheckBox(this,wxID_ANY,"Optimize");
+    optimize_ctrl->SetValue(optimize);
+    optimize_ctrl->Bind(wxEVT_CHECKBOX,&NamedTextCtrlDialog::evt_optimize,this);
     
-    lock=new wxCheckBox(this,wxID_ANY,"Lock optimization");
-    lock->SetValue(rule_holder->lock);
+    sizer->Add(optimize_ctrl,wxSizerFlags().Border(wxALL,3));
     
-    sizer->Add(lock);
+    // Rule
+    
+    wxStaticBoxSizer *rule_sizer=new wxStaticBoxSizer(wxVERTICAL,this,"Rule");
+    wxWindow *static_panel=rule_sizer->GetStaticBox();
+    
+    lock=new wxCheckBox(static_panel,wxID_ANY,"Lock optimization");
+    lock->SetValue(rule.lock);
+    
+    rule_sizer->Add(lock);
     
     // Type
     
-    wxStaticBoxSizer *op_sizer=new wxStaticBoxSizer(wxVERTICAL,this,"Operation type");
+    wxStaticBoxSizer *op_sizer=new wxStaticBoxSizer(wxVERTICAL,static_panel,"Operation type");
     
-    operation_type=new wxChoice(this,wxID_ANY);
+    operation_type=new wxChoice(static_panel,wxID_ANY);
     operation_type->Append("Add");
     operation_type->Append("Growth");
     
-         if(rule_holder->operation_type==OptimRule::Operation::ADD) operation_type->SetSelection(0);
-    else if(rule_holder->operation_type==OptimRule::Operation::GROWTH) operation_type->SetSelection(1);
+         if(rule.operation_type==OptimRule::Operation::ADD) operation_type->SetSelection(0);
+    else if(rule.operation_type==OptimRule::Operation::GROWTH) operation_type->SetSelection(1);
     
     op_sizer->Add(operation_type,wxSizerFlags().Expand());
-    sizer->Add(op_sizer,wxSizerFlags().Expand());
+    rule_sizer->Add(op_sizer,wxSizerFlags().Expand());
     
     // Delta
     
-    delta=new NamedTextCtrl<double>(this,"Delta",rule_holder->delta,true);
-    sizer->Add(delta,wxSizerFlags().Expand());
+    delta=new NamedTextCtrl<double>(static_panel,"Delta",rule.delta,true);
+    rule_sizer->Add(delta,wxSizerFlags().Expand());
     
     // Limits
     
-    wxStaticBoxSizer *limit_sizer=new wxStaticBoxSizer(wxVERTICAL,this,"Limits");
+    wxStaticBoxSizer *limit_sizer=new wxStaticBoxSizer(wxVERTICAL,static_panel,"Limits");
     
     wxBoxSizer *limit_type_sizer=new wxBoxSizer(wxHORIZONTAL);
     
-    wxStaticText *limit_type_txt=new wxStaticText(this,wxID_ANY,"Type: ");
+    wxStaticText *limit_type_txt=new wxStaticText(static_panel,wxID_ANY,"Type: ");
     
-    limit_type=new wxChoice(this,wxID_ANY);
+    limit_type=new wxChoice(static_panel,wxID_ANY);
     limit_type->Append("Up");
     limit_type->Append("Down");
     limit_type->Append("Both");
     limit_type->Append("None");
     
-         if(rule_holder->limit_type==OptimRule::Limit::UP) limit_type->SetSelection(0);
-    else if(rule_holder->limit_type==OptimRule::Limit::DOWN) limit_type->SetSelection(1);
-    else if(rule_holder->limit_type==OptimRule::Limit::BOTH) limit_type->SetSelection(2);
-    else if(rule_holder->limit_type==OptimRule::Limit::NONE) limit_type->SetSelection(3);
+         if(rule.limit_type==OptimRule::Limit::UP) limit_type->SetSelection(0);
+    else if(rule.limit_type==OptimRule::Limit::DOWN) limit_type->SetSelection(1);
+    else if(rule.limit_type==OptimRule::Limit::BOTH) limit_type->SetSelection(2);
+    else if(rule.limit_type==OptimRule::Limit::NONE) limit_type->SetSelection(3);
     
     #ifndef WX30_RESTRICT
     limit_type_sizer->Add(limit_type_txt,wxSizerFlags().CenterVertical());
@@ -311,13 +320,15 @@ NamedTextCtrlDialog::NamedTextCtrlDialog(OptimRule *rule_)
     
     limit_sizer->Add(limit_type_sizer,wxSizerFlags().Expand());
     
-    limit_down=new NamedTextCtrl<double>(this,"Down: ",rule_holder->limit_down);
-    limit_up=new NamedTextCtrl<double>(this,"Up: ",rule_holder->limit_up);
+    limit_down=new NamedTextCtrl<double>(static_panel,"Down: ",rule.limit_down);
+    limit_up=new NamedTextCtrl<double>(static_panel,"Up: ",rule.limit_up);
     
     limit_sizer->Add(limit_down,wxSizerFlags().Expand());
     limit_sizer->Add(limit_up,wxSizerFlags().Expand());
     
-    sizer->Add(limit_sizer,wxSizerFlags().Expand());
+    rule_sizer->Add(limit_sizer,wxSizerFlags().Expand());
+    
+    sizer->Add(rule_sizer,wxSizerFlags().Expand());
     
     // Buttons
     
@@ -340,6 +351,10 @@ NamedTextCtrlDialog::NamedTextCtrlDialog(OptimRule *rule_)
     ShowModal();
 }
 
+void NamedTextCtrlDialog::evt_optimize(wxCommandEvent &event)
+{
+}
+
 void NamedTextCtrlDialog::evt_cancel(wxCommandEvent &event)
 {
     Close();
@@ -355,28 +370,26 @@ void NamedTextCtrlDialog::evt_ok(wxCommandEvent &event)
 
 void NamedTextCtrlDialog::save()
 {
-    OptimRule::lock=lock->GetValue();
+    optimize=optimize_ctrl->GetValue();
+    
+    rule.lock=lock->GetValue();
     
     int op_selection=operation_type->GetSelection();
     
-         if(op_selection==0) OptimRule::operation_type=OptimRule::Operation::ADD;
-    else if(op_selection==1) OptimRule::operation_type=OptimRule::Operation::GROWTH;
+         if(op_selection==0) rule.operation_type=OptimRule::Operation::ADD;
+    else if(op_selection==1) rule.operation_type=OptimRule::Operation::GROWTH;
     
-    OptimRule::delta=delta->get_value();
+    rule.delta=delta->get_value();
     
     int limit_selection=limit_type->GetSelection();
     
-         if(limit_selection==0) OptimRule::limit_type=OptimRule::Limit::UP;
-    else if(limit_selection==1) OptimRule::limit_type=OptimRule::Limit::DOWN;
-    else if(limit_selection==2) OptimRule::limit_type=OptimRule::Limit::BOTH;
-    else if(limit_selection==3) OptimRule::limit_type=OptimRule::Limit::NONE;
+         if(limit_selection==0) rule.limit_type=OptimRule::Limit::UP;
+    else if(limit_selection==1) rule.limit_type=OptimRule::Limit::DOWN;
+    else if(limit_selection==2) rule.limit_type=OptimRule::Limit::BOTH;
+    else if(limit_selection==3) rule.limit_type=OptimRule::Limit::NONE;
     
-    OptimRule::limit_down=limit_down->get_value();
-    OptimRule::limit_up=limit_up->get_value();
-    
-    OptimRule *base_p=this;
-    
-    (*rule_holder)=*base_p;
+    rule.limit_down=limit_down->get_value();
+    rule.limit_up=limit_up->get_value();
 }
 
 

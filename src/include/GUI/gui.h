@@ -61,20 +61,22 @@ void textctrl_to_value(wxTextCtrl *ctrl,T &target)
 
 template<typename T> class NamedTextCtrl;
 
-class NamedTextCtrlDialog: public OptimRule, public wxDialog
+class NamedTextCtrlDialog: public wxDialog
 {
     public:
-        OptimRule *rule_holder;
+        OptimRule rule;
+        bool optimize;
         bool selection_ok;
         
-        wxCheckBox *lock;
+        wxCheckBox *optimize_ctrl,*lock;
         wxChoice *operation_type,*limit_type;
         NamedTextCtrl<double> *delta,*limit_down,*limit_up;
         
-        NamedTextCtrlDialog(OptimRule *rule);
+        NamedTextCtrlDialog(bool optimize, OptimRule const &rule);
         
         void evt_cancel(wxCommandEvent &event);
         void evt_ok(wxCommandEvent &event);
+        void evt_optimize(wxCommandEvent &event);
         void save();
 };
 
@@ -83,7 +85,15 @@ class NamedTextCtrl: public wxPanel
 {
     public:
         T val;
+        
+        // Internal optimization
         OptimEngine *optim_engine;
+        
+        // External optimization
+        bool optimize;
+        OptimRule optim_rule;
+        
+        // Controls
         
         wxStaticText *name_ctrl;
         wxTextCtrl *txt;
@@ -92,7 +102,8 @@ class NamedTextCtrl: public wxPanel
         NamedTextCtrl(wxWindow *parent,std::string name,T const &x,bool static_style=false,int Nc=0)
             :wxPanel(parent),
              val(x),
-             optim_engine(nullptr)
+             optim_engine(nullptr),
+             optimize(false)
         {
             wxBoxSizer *sizer;
             wxStaticText *name_ctrl=nullptr;
@@ -139,21 +150,58 @@ class NamedTextCtrl: public wxPanel
         
         void evt_advanced(wxCommandEvent &event)
         {
-            if(optim_engine!=nullptr)
+            if(optim_engine!=nullptr) // Internal optimization
             {
-                OptimRule rule;
-                
-                bool known=optim_engine->get_rule(&val,rule);
+                bool known=optim_engine->get_rule(&val,optim_rule);
                 
                 if(!known) return;
                 
-                NamedTextCtrlDialog dialog(&rule);
+                NamedTextCtrlDialog dialog(true,optim_rule);
                 
-                if(dialog.selection_ok) optim_engine->set_rule(&val,rule);
+                if(dialog.selection_ok)
+                {
+                    optim_rule=dialog.rule;
+                    optim_engine->set_rule(&val,optim_rule);
+                }
+            }
+            else // External optimization
+            {
+                NamedTextCtrlDialog dialog(optimize,optim_rule);
+    
+                if(dialog.selection_ok)
+                {
+                    optimize=dialog.optimize;
+                    optim_rule=dialog.rule;
+                    
+                    if(optimize)
+                    {
+                        if(optim_rule.lock)
+                             txt->SetBackgroundColour(wxColour(220,220,255));
+                        else txt->SetBackgroundColour(wxColour(220,255,220));
+                    }
+                    else txt->SetBackgroundColour(wxColour(255,255,255));
+                    
+                    Refresh();
+                }
             }
         }
         
         T get_value() { return val; }
+        
+        void handle_external_optimization(T *target,OptimEngine *engine)
+        {
+            optimize=engine->get_rule(target,optim_rule);
+    
+            if(optimize)
+            {
+                if(optim_rule.lock)
+                     txt->SetBackgroundColour(wxColour(220,220,255));
+                else txt->SetBackgroundColour(wxColour(220,255,220));
+            }
+            
+            adv_ctrl->Show();
+            Layout();
+        }
                 
         void lock()
         {

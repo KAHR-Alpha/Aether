@@ -132,6 +132,7 @@ class Frame
         Vector3 local_x,local_y,local_z;
         
         std::string name;
+        std::map<std::string,double*> variables_map;
         
         int type,
             origin_anchor,
@@ -363,8 +364,6 @@ class Object: public Frame
         int NFc;
         std::vector<Sel::SelFace> F_arr;
         std::vector<std::string> face_name_arr;
-        
-        std::map<std::string,double*> variables_map;
         
         Object();
         ~Object();

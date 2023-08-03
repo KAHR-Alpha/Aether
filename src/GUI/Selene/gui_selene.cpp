@@ -20,6 +20,8 @@ limitations under the License.*/
 
 #include <gui_selene.h>
 
+#include <map>
+
 extern std::ofstream plog;
 
 namespace SelGUI
@@ -806,6 +808,14 @@ void SeleneFrame::evt_popup_menu(wxCommandEvent &event)
             frames[i]->forget_frame(frames[focus_ID]);
         
         gl->delete_vao(frames_vao[focus_ID]);
+        
+        std::map<std::string,double*> &variables_map=frames[focus_ID]->variables_map;
+        std::map<std::string,double*>::const_iterator it;
+        
+        for(it=variables_map.begin();it!=variables_map.end();++it)
+        {
+            optim_engine.forget_target(it->second);
+        }
         
         std::vector<Sel::Frame*>::const_iterator it_frame=frames.begin()+focus_ID;
         std::vector<wxTreeItemId>::const_iterator it_tree=frames_ID.begin()+focus_ID;
