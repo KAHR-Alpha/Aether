@@ -42,7 +42,9 @@ enum
     MENU_SAVE_AS,
     MENU_EXIT,
     MENU_REF_IND,
-    MENU_IRF
+    MENU_IRF,
+    MENU_OPTIMIZE,
+    MENU_OPTIMIZATION_TARGETS
 };
 
 SeleneFrame::SeleneFrame(wxString const &title)
@@ -167,6 +169,7 @@ SeleneFrame::SeleneFrame(wxString const &title)
     wxMenuBar *menu_bar=new wxMenuBar;
     wxMenu *file_menu=new wxMenu();
     wxMenu *materials_menu=new wxMenu();
+    wxMenu *optimization_menu=new wxMenu();
     
     file_menu->Append(MENU_NEW,"New");
     file_menu->AppendSeparator();
@@ -179,8 +182,12 @@ SeleneFrame::SeleneFrame(wxString const &title)
     materials_menu->Append(MENU_REF_IND,"Refractive Index");
     materials_menu->Append(MENU_IRF,"Interface Responce Functions");
     
+    optimization_menu->AppendCheckItem(MENU_OPTIMIZE,"Enable");
+    optimization_menu->Append(MENU_OPTIMIZATION_TARGETS,"Target");
+    
     menu_bar->Append(file_menu,"File");
     menu_bar->Append(materials_menu,"Materials");
+    menu_bar->Append(optimization_menu,"Optimization");
     
     append_help_menu(menu_bar);
     
@@ -199,7 +206,6 @@ SeleneFrame::SeleneFrame(wxString const &title)
     
     //
     
-//    splitter->SplitVertically(ctrl_panel,display_panel,250);
     splitter->SplitVertically(ctrl_panel,gl,250);
     splitter->SetMinimumPaneSize(20);
     
