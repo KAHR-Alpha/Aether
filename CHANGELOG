@@ -8,6 +8,7 @@ Todo:
 
 0.10.2
 - Fixed how Materials are displayed in Selene
+- Reduced the OpenGL Framerate on Linux temporarily
 
 0.10.1
 - Fixed the messed-up Mie Tool GUI due to the material rework of 0.10

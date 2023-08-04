@@ -16,6 +16,15 @@ limitations under the License.*/
 
 #include <gui_gl_fd.h>
 
+
+#if defined(unix) || defined(__unix__) || defined(__unix)
+#define UNIX_PLATFORM
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h> 
+#endif
+
+
 extern const double Pi;
 
 //###################
@@ -32,7 +41,11 @@ GL_2D_display::GL_2D_display(wxWindow *parent)
     timer=new wxTimer(this);
     Bind(wxEVT_TIMER,&GL_2D_display::evt_timed_refresh,this);
     Bind(wxEVT_SIZE,&GL_2D_display::evt_resize,this);
+    #ifdef UNIX_PLATFORM
+    timer->Start(1000/15);
+    #else
     timer->Start(1000/60);
+    #endif
 }
 
 GL_2D_display::~GL_2D_display()
@@ -349,7 +362,11 @@ GL_3D_Base::GL_3D_Base(wxWindow *parent)
 //    Bind(wxEVT_MOTION,&GL_3D_Base::evt_mouse_motion,this);
 //    Bind(wxEVT_MOUSEWHEEL,&GL_3D_Base::evt_mouse_wheel,this);    
     Bind(wxEVT_TIMER,&GL_3D_Base::timed_refresh,this);
+    #ifdef UNIX_PLATFORM
+    timer->Start(1000/15);
+    #else
     timer->Start(1000/60);
+    #endif
     
 //    Bind(wxEVT_CREATE,&GL_3D_Base::evt_shown,this);
     
