@@ -16,6 +16,7 @@ limitations under the License.*/
 #include <filehdl.h>
 #include <lua_base.h>
 #include <lua_interface.h>
+#include <lua_optim.h>
 #include <lua_selene.h>
 
 #include <gui_selene.h>
@@ -1047,6 +1048,16 @@ int lua_selene_output_directory(lua_State *L)
     return 0;
 }
 
+int lua_selene_optimization_engine(lua_State *L)
+{
+    lua_getglobal(L,"bound_class");
+    SeleneFrame *frame=reinterpret_cast<SeleneFrame*>(lua_touserdata(L,-1));
+    
+    lua_set_metapointer<OptimEngine>(L,"metatable_optimization_engine",&frame->optim_engine);
+    
+    return 1;
+}
+
 void SeleneFrame::load_project(wxFileName const &fname_)
 {
     std::cout<<"\n\nThis: "<<this<<"\n\n";
@@ -1089,6 +1100,11 @@ void SeleneFrame::load_project(wxFileName const &fname_)
     
     lua_gui_material::Loader loader;
     loader.create_metatable(L);
+    
+    // - Optimization Engine
+    
+    LuaUI::create_optimization_metatable(L);
+    lua_register(L,"Optimizer",&lua_selene_optimization_engine); // Override
     
     // - Simulations parameters
     
@@ -1231,6 +1247,10 @@ void SeleneFrame::save_project(wxFileName const &fname_)
     }
     
     file<<mtr.get_header()<<"\n";
+    
+    // Optimization Engine
+    
+    file<<"optim=Optimizer()\n\n";
         
     // IRFs
     
@@ -1614,6 +1634,39 @@ void SeleneFrame::save_project(wxFileName const &fname_)
                 if(object->sens_ray_obj_face) file<<",\"obj_face\"";
                 
                 file<<")\n";
+            }
+            
+            // Optimized components
+            
+            std::map<std::string,double*> &variables_map=object->variables_map;
+            
+            for(auto [key,var]:variables_map)
+            {
+                OptimRule rule;
+                bool known=optim_engine.get_rule(var,rule);
+                
+                if(known)
+                {
+                    file<<"optim:optimize("<<ID[i]<<":reference(\""<<key<<"\"),";
+                    
+                    switch(rule.operation_type)
+                    {
+                        case OptimRule::ADD: file<<"OPTIM_ADD"; break;
+                        case OptimRule::GROWTH: file<<"OPTIM_GROWTH"; break;
+                    }
+                    file<<","
+                        <<rule.delta<<","
+                        <<rule.limit_down<<","
+                        <<rule.limit_up<<",";
+                    switch(rule.limit_type)
+                    {
+                        case OptimRule::NONE: file<<"OPTIM_LIMIT_NONE"; break;
+                        case OptimRule::DOWN: file<<"OPTIM_LIMIT_DOWN"; break;
+                        case OptimRule::UP: file<<"OPTIM_LIMIT_UP"; break;
+                        case OptimRule::BOTH: file<<"OPTIM_LIMIT_BOTH"; break;
+                    }
+                    file<<","<<static_cast<int>(rule.lock)<<")\n";
+                }
             }
             
             file<<"\n";

@@ -600,6 +600,7 @@ int lua_selene_add_object(lua_State *L);
 int lua_selene_set_N_rays_disp(lua_State *L);
 int lua_selene_set_N_rays_total(lua_State *L);
 int lua_selene_output_directory(lua_State *L);
+int lua_selene_optimization_engine(lua_State *L);
 
 }
 
