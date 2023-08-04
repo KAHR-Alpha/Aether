@@ -188,9 +188,9 @@ class NamedTextCtrl: public wxPanel
         
         T get_value() { return val; }
         
-        void handle_external_optimization(T *target,OptimEngine *engine)
+        void handle_external_optimization(T *target,OptimEngine const &engine)
         {
-            optimize=engine->get_rule(target,optim_rule);
+            optimize=engine.get_rule(target,optim_rule);
     
             if(optimize)
             {
@@ -490,7 +490,7 @@ class LengthSelector: public wxPanel
         void auto_unit();
         void evt_advanced(wxCommandEvent &event);
         double get_length();
-        void handle_external_optimization(double *target,OptimEngine *engine);
+        void handle_external_optimization(double *target,OptimEngine const &engine);
         void set_length(double L);
         void set_unit(std::string const &unit);
         void unit_event(wxCommandEvent &event);

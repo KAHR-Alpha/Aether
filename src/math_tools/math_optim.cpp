@@ -77,17 +77,17 @@ void OptimEngine::forget_target(std::string *target)
 {
 }
 
-bool OptimEngine::get_rule(int *target,OptimRule &rule)
+bool OptimEngine::get_rule(int *target,OptimRule &rule) const
 {
     return false;
 }
 
-bool OptimEngine::get_rule(unsigned int *target,OptimRule &rule)
+bool OptimEngine::get_rule(unsigned int *target,OptimRule &rule) const
 {
     return false;
 }
 
-bool OptimEngine::get_rule(double *target,OptimRule &rule)
+bool OptimEngine::get_rule(double *target,OptimRule &rule) const
 {
     int i=locate_target(target);
     
@@ -99,12 +99,12 @@ bool OptimEngine::get_rule(double *target,OptimRule &rule)
     }
 }
 
-bool OptimEngine::get_rule(std::string *target,OptimRule &rule)
+bool OptimEngine::get_rule(std::string *target,OptimRule &rule) const
 {
     return false;
 }
 
-int OptimEngine::locate_target(double *target)
+int OptimEngine::locate_target(double *target) const
 {
     for(int i=0;i<static_cast<int>(targets.size());i++)
         if(target==targets[i]) return i;

@@ -1,10 +1,11 @@
 Todo:
 - Rework the multilayers using the S-matrix formalism
-- Adding a scripting effective materials
-- Extending effective materials to more than two at a time
-- Saving/loading multilayers with effective materials
+- Extending effective materials to more than two at a time for the Bruggeman model
 - Tangent vectors managements for Selene
 - Implement the Lambertian, Guassian and ABg scattering models ( see "What scattering models are available in OpticStudio?" )
+
+0.11
+- Added an optimization system to Selene
 
 0.10.1
 - Fixed the messed-up Mie Tool GUI due to the material rework of 0.10

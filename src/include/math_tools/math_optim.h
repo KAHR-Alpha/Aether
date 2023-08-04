@@ -46,11 +46,11 @@ class OptimEngine
         void forget_target(unsigned int *target);
         void forget_target(double *target);
         void forget_target(std::string *target);
-        bool get_rule(int *target,OptimRule &rule);
-        bool get_rule(unsigned int *target,OptimRule &rule);
-        bool get_rule(double *target,OptimRule &rule);
-        bool get_rule(std::string *target,OptimRule &rule);
-        int locate_target(double *target);
+        bool get_rule(int *target,OptimRule &rule) const;
+        bool get_rule(unsigned int *target,OptimRule &rule) const;
+        bool get_rule(double *target,OptimRule &rule) const;
+        bool get_rule(std::string *target,OptimRule &rule) const;
+        int locate_target(double *target) const;
         void register_target(double *target,OptimRule const &rule);
         void revert_targets();
         void set_rule(int *target,OptimRule const &rule);

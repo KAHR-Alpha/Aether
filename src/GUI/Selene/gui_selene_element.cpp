@@ -129,9 +129,9 @@ FrameDialog::FrameDialog(Sel::Frame *frame_,
     y_ctrl=new LengthSelector(ctrl_panel,"y: ",frame->in_displacement.y,false,"mm");
     z_ctrl=new LengthSelector(ctrl_panel,"z: ",frame->in_displacement.z,false,"mm");
     
-    x_ctrl->handle_external_optimization(&frame->in_displacement.x,&optim_engine);
-    y_ctrl->handle_external_optimization(&frame->in_displacement.y,&optim_engine);
-    z_ctrl->handle_external_optimization(&frame->in_displacement.z,&optim_engine);
+    x_ctrl->handle_external_optimization(&frame->in_displacement.x,optim_engine);
+    y_ctrl->handle_external_optimization(&frame->in_displacement.y,optim_engine);
+    z_ctrl->handle_external_optimization(&frame->in_displacement.z,optim_engine);
     
     loc_sizer->Add(x_ctrl,wxSizerFlags().Expand());
     loc_sizer->Add(y_ctrl,wxSizerFlags().Expand());
@@ -160,9 +160,9 @@ FrameDialog::FrameDialog(Sel::Frame *frame_,
     b_ctrl=new NamedTextCtrl<double>(ctrl_panel,"b: ",frame->in_B.degree());
     c_ctrl=new NamedTextCtrl<double>(ctrl_panel,"c: ",frame->in_C.degree());
     
-    a_ctrl->handle_external_optimization(&frame->in_A.val,&optim_engine);
-    b_ctrl->handle_external_optimization(&frame->in_B.val,&optim_engine);
-    c_ctrl->handle_external_optimization(&frame->in_C.val,&optim_engine);
+    a_ctrl->handle_external_optimization(&frame->in_A.val,optim_engine);
+    b_ctrl->handle_external_optimization(&frame->in_B.val,optim_engine);
+    c_ctrl->handle_external_optimization(&frame->in_C.val,optim_engine);
     
     ang_sizer->Add(a_ctrl,wxSizerFlags().Expand());
     ang_sizer->Add(b_ctrl,wxSizerFlags().Expand());

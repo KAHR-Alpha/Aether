@@ -891,9 +891,9 @@ void LengthSelector::evt_advanced(wxCommandEvent &event)
 
 double LengthSelector::get_length() { return L; }
 
-void LengthSelector::handle_external_optimization(double *target,OptimEngine *engine)
+void LengthSelector::handle_external_optimization(double *target,OptimEngine const &engine)
 {
-    optimize=engine->get_rule(target,optim_rule);
+    optimize=engine.get_rule(target,optim_rule);
     
     if(optimize)
     {
