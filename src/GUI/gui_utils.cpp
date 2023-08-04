@@ -247,9 +247,8 @@ void ColorPanel::set_XYZ(double X_,double Y_,double Z_)
 //   NamedTextCtrl
 //###################
 
-NamedTextCtrlDialog::NamedTextCtrlDialog(bool optimize_, OptimRule const &rule_)
-    :wxDialog(0,wxID_ANY,"Parameters",
-              wxGetApp().default_dialog_origin()),
+NamedTextCtrlDialog::NamedTextCtrlDialog(wxPoint const &position,bool optimize_, OptimRule const &rule_)
+    :wxDialog(0,wxID_ANY,"Parameters"),
      rule(rule_),
      optimize(optimize_),
      selection_ok(false)
@@ -348,6 +347,17 @@ NamedTextCtrlDialog::NamedTextCtrlDialog(bool optimize_, OptimRule const &rule_)
     // Wrapping Up
     
     SetSizerAndFit(sizer);
+    
+    wxSize dialog_size=GetClientSize();
+    wxSize screen_size=wxGetApp().active_screen_size();
+    
+    wxPoint target_location;
+    
+    target_location.x=std::min(position.x,screen_size.x-dialog_size.x);
+    target_location.y=std::min(position.y,screen_size.y-dialog_size.y);
+    
+    SetPosition(target_location);
+    
     ShowModal();
 }
 
@@ -870,7 +880,8 @@ void LengthSelector::auto_unit()
         
 void LengthSelector::evt_advanced(wxCommandEvent &event)
 {
-    LengthSelectorDialog dialog(optimize,optim_rule);
+    LengthSelectorDialog dialog(extension_button->GetScreenPosition(),
+                                optimize,optim_rule);
     
     if(dialog.selection_ok)
     {
@@ -994,9 +1005,8 @@ void LengthSelector::value_focus_event(wxFocusEvent &event)
 //   LengthSelectorDialog
 //##########################
 
-LengthSelectorDialog::LengthSelectorDialog(bool optimize_, OptimRule const &rule_)
-    :wxDialog(0,wxID_ANY,"Parameters",
-              wxGetApp().default_dialog_origin()),
+LengthSelectorDialog::LengthSelectorDialog(wxPoint const &position,bool optimize_, OptimRule const &rule_)
+    :wxDialog(0,wxID_ANY,"Parameters"),
      rule(rule_),
      optimize(optimize_),
      selection_ok(false)
@@ -1095,6 +1105,17 @@ LengthSelectorDialog::LengthSelectorDialog(bool optimize_, OptimRule const &rule
     // Wrapping Up
     
     SetSizerAndFit(sizer);
+    
+    wxSize dialog_size=GetClientSize();
+    wxSize screen_size=wxGetApp().active_screen_size();
+    
+    wxPoint target_location;
+    
+    target_location.x=std::min(position.x,screen_size.x-dialog_size.x);
+    target_location.y=std::min(position.y,screen_size.y-dialog_size.y);
+    
+    SetPosition(target_location);
+    
     ShowModal();
 }
 

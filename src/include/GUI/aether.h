@@ -17,46 +17,28 @@ limitations under the License.*/
 
 #include <wx/wx.h>
 
-#ifndef LIMULE_MODE
-    class MainFrame;
-    
-    
-    class Aether: public wxApp
-    {
-        private:
-            bool main_frame;
-            int NSFrames;
-            MainFrame *mfr;
-            
-        public:
-            wxPoint default_dialog_origin();
-            wxSize default_dialog_size();
-            void frame_closed();
-            void main_frame_closed();
-            void new_frame();
-            void restore_main_frame();
-            
-            virtual bool OnInit();
-            virtual int OnExit();
-    };
+class MainFrame;
 
-    wxDECLARE_APP(Aether);
-#else
-    class LimuleApp: public wxApp
-    {
-        public:
-            wxPoint default_dialog_origin();
-            wxSize default_dialog_size();
-            void frame_closed();
-            void main_frame_closed();
-            void new_frame();
-            void screen_size(int &sx,int &sy);
-            
-            virtual bool OnInit();
-            virtual int OnExit();
-    };
+class Aether: public wxApp
+{
+    private:
+        bool main_frame;
+        int NSFrames;
+        MainFrame *mfr;
+        
+    public:
+        wxSize active_screen_size();
+        wxPoint default_dialog_origin();
+        wxSize default_dialog_size();
+        void frame_closed();
+        void main_frame_closed();
+        void new_frame();
+        void restore_main_frame();
+        
+        virtual bool OnInit();
+        virtual int OnExit();
+};
 
-    wxDECLARE_APP(LimuleApp);
-#endif
+wxDECLARE_APP(Aether);
 
 #endif // AETHER_H_INCLUDED

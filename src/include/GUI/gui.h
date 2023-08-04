@@ -72,7 +72,7 @@ class NamedTextCtrlDialog: public wxDialog
         wxChoice *operation_type,*limit_type;
         NamedTextCtrl<double> *delta,*limit_down,*limit_up;
         
-        NamedTextCtrlDialog(bool optimize, OptimRule const &rule);
+        NamedTextCtrlDialog(wxPoint const &position,bool optimize, OptimRule const &rule);
         
         void evt_cancel(wxCommandEvent &event);
         void evt_ok(wxCommandEvent &event);
@@ -156,7 +156,7 @@ class NamedTextCtrl: public wxPanel
                 
                 if(!known) return;
                 
-                NamedTextCtrlDialog dialog(true,optim_rule);
+                NamedTextCtrlDialog dialog(adv_ctrl->GetScreenPosition(),true,optim_rule);
                 
                 if(dialog.selection_ok)
                 {
@@ -166,7 +166,7 @@ class NamedTextCtrl: public wxPanel
             }
             else // External optimization
             {
-                NamedTextCtrlDialog dialog(optimize,optim_rule);
+                NamedTextCtrlDialog dialog(adv_ctrl->GetScreenPosition(),optimize,optim_rule);
     
                 if(dialog.selection_ok)
                 {
@@ -510,7 +510,7 @@ class LengthSelectorDialog: public wxDialog
         wxChoice *operation_type,*limit_type;
         LengthSelector *delta,*limit_down,*limit_up;
         
-        LengthSelectorDialog(bool optimize, OptimRule const &rule);
+        LengthSelectorDialog(wxPoint const &position,bool optimize, OptimRule const &rule);
         
         void evt_cancel(wxCommandEvent &event);
         void evt_ok(wxCommandEvent &event);

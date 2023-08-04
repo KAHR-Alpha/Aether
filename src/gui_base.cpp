@@ -52,6 +52,18 @@ extern std::ofstream plog;
 
 wxIMPLEMENT_APP(Aether);
 
+wxSize Aether::active_screen_size()
+{
+    int s=wxDisplay::GetFromWindow(wxGetActiveWindow());
+    
+    wxDisplay dsp(s);
+    
+    int w=dsp.GetGeometry().GetWidth();
+    int h=dsp.GetGeometry().GetHeight();
+    
+    return wxSize(w,h);
+}
+
 wxPoint Aether::default_dialog_origin()
 {
 //    int s=wxDisplay::GetFromWindow(GetTopWindow());
