@@ -509,6 +509,51 @@ class IRF_Dialog: public wxDialog
         void evt_ok(wxCloseEvent &event);
 };
 
+//##################
+//   Optimization
+//##################
+
+enum class OptimTreatment
+{
+    MINIMIZE_SPATIAL_SPREAD,
+    MINIMIZE_DIRECTION_SPREAD
+};
+
+class OptimTarget
+{
+    public:
+        Sel::Object *sensor;
+        OptimTreatment treatment;
+        double weight;
+};
+
+class OptimTargetPanel: public PanelsListBase
+{
+    public:
+        wxChoice *sensors;
+        wxChoice *treatment;
+        NamedTextCtrl<double> *weight;
+        
+        OptimTargetPanel(wxWindow *parent,std::vector<std::string> const &sensor_names);
+};
+
+class OptimizationDialog: public wxDialog
+{
+    public:
+        std::vector<OptimTarget> &targets;
+        std::vector<Sel::Object*> const &sensors;
+        std::vector<std::string> sensor_names;
+        
+        PanelsList<OptimTargetPanel> *targets_ctrl;
+        
+        OptimizationDialog(std::vector<OptimTarget> &targets,
+                           std::vector<Sel::Object*> const &sensors);
+        
+        void evt_add_target(wxCommandEvent &event);
+        void evt_close(wxCloseEvent &event);
+        void evt_delete_target(wxCommandEvent &event);
+};
+
 //################
 //   Main Frame
 //################
@@ -558,7 +603,11 @@ class SeleneFrame: public BaseFrame
         std::vector<Sel::IRF> irfs;
         std::vector<Sel::IRF*> user_irfs;
         
+        // Optimization
+        
         OptimEngine optim_engine;
+        bool optimize;
+        std::vector<OptimTarget> optimization_targets;
         
         SeleneFrame(wxString const &title);
         void SeleneFrame_RayDisp(wxWindow *parent,wxBoxSizer *ctrl_sizer);

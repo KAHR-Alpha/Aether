@@ -44,10 +44,14 @@ enum
     TANGENT_EXPAND,
     TANGENT_EXPAND_NEG,
     TANGENT_POLAR,
-    TANGENT_POLAR_NEG,
-    SENS_ABS,
-    SENS_NONE,
-    SENS_TRANSP,
+    TANGENT_POLAR_NEG
+};
+
+enum class Sensor
+{
+    ABS,
+    NONE,
+    TRANSP
 };
 
 //typedef Material Material;

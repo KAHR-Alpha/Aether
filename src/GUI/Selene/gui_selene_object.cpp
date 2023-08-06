@@ -305,9 +305,9 @@ void ObjectDialog::ObjectDialogSensor()
     
     switch(object->sensor_type)
     {
-        case Sel::SENS_NONE: sensor_type->SetSelection(0); break;
-        case Sel::SENS_ABS: sensor_type->SetSelection(1); break;
-        case Sel::SENS_TRANSP: sensor_type->SetSelection(2); break;
+        case Sel::Sensor::NONE: sensor_type->SetSelection(0); break;
+        case Sel::Sensor::ABS: sensor_type->SetSelection(1); break;
+        case Sel::Sensor::TRANSP: sensor_type->SetSelection(2); break;
     }
     
     sensor_sizer->Add(sensor_type);
@@ -565,9 +565,9 @@ void ObjectDialog::save_object()
     
     switch(sensor_type->GetSelection())
     {
-        case 0: object->sensor_type=Sel::SENS_NONE; break;
-        case 1: object->sensor_type=Sel::SENS_ABS; break;
-        case 2: object->sensor_type=Sel::SENS_TRANSP; break;
+        case 0: object->sensor_type=Sel::Sensor::NONE; break;
+        case 1: object->sensor_type=Sel::Sensor::ABS; break;
+        case 2: object->sensor_type=Sel::Sensor::TRANSP; break;
     }
     
     object->sens_wavelength=ray_wavelength->GetValue();

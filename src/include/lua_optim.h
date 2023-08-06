@@ -10,6 +10,6 @@ int allocate_optimization_engine(lua_State *L);
 void create_optimization_metatable(lua_State *L);
 int optimize(lua_State *L);
 
-};
+}
 
 #endif // LUA_OPTIM_H_INCLUDED

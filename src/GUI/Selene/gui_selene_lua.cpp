@@ -685,11 +685,11 @@ void SeleneFrame::save_project(wxFileName const &fname_)
             
             // Sensor properties
             
-            if(object->sensor_type!=Sel::SENS_NONE)
+            if(object->sensor_type!=Sel::Sensor::NONE)
             {
                 file<<ID[i]<<":sensor(";
-                     if(object->sensor_type==Sel::SENS_ABS) file<<"\"abs\"";
-                else if(object->sensor_type==Sel::SENS_TRANSP) file<<"\"transp\"";
+                     if(object->sensor_type==Sel::Sensor::ABS) file<<"\"abs\"";
+                else if(object->sensor_type==Sel::Sensor::TRANSP) file<<"\"transp\"";
                 
                 if(object->sens_wavelength) file<<",\"wavelength\"";
                 if(object->sens_source) file<<",\"source\"";

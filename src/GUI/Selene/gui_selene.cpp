@@ -49,7 +49,8 @@ enum
 
 SeleneFrame::SeleneFrame(wxString const &title)
     :BaseFrame(title),
-     item_count(0)
+     item_count(0),
+     optimize(false)
 {
     irfs.resize(4);
     
@@ -713,6 +714,28 @@ void SeleneFrame::evt_menu(wxCommandEvent &event)
         case MENU_IRF:
             { IRF_Dialog dialog{user_irfs}; }
             check_objects_irfs();
+            break;
+        case MENU_OPTIMIZE: optimize=event.IsChecked(); break;
+        case MENU_OPTIMIZATION_TARGETS:
+            {
+                std::vector<Sel::Object*> sensors;
+                
+                for(Sel::Frame *frame: frames)
+                {
+                    if(Sel::Object *object=dynamic_cast<Sel::Object*>(frame);
+                          object!=nullptr
+                       && object->sensor_type!=Sel::Sensor::NONE)
+                    {
+                        sensors.push_back(object);
+                    }
+                }
+                
+                if(!sensors.empty()) OptimizationDialog dialog(optimization_targets,sensors);
+                else
+                {
+                    wxMessageBox("Error: no sensor to optimize for");
+                }
+            }
             break;
         case MENU_DELETE: evt_popup_menu(event); break;
         case MENU_PROPERTIES: evt_popup_menu(event); break;

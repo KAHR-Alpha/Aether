@@ -101,7 +101,7 @@ Object::Object()
      sph_r(0.05), sph_cut(1.0),
 //     prism_length(5e-2), prism_height(2e-2), prism_a1(Pi/3.0), prism_a2(Pi/3.0), prism_width(1),
      cleanup_done(false),
-     sensor_type(SENS_NONE),
+     sensor_type(Sensor::NONE),
      sens_wavelength(false),
      sens_source(false),
      sens_path(false),
@@ -192,7 +192,7 @@ void Object::bootstrap(std::filesystem::path const &output_directory,double ray_
 //    
 //    std::cout<<"\n\n";
     
-    if(sensor_type!=SENS_NONE)
+    if(sensor_type!=Sensor::NONE)
     {
         sb_fname=output_directory / (name+"_ray_sensor");
         
@@ -277,7 +277,7 @@ void Object::bootstrap(std::filesystem::path const &output_directory,double ray_
 
 void Object::cleanup()
 {
-    if(sensor_type!=SENS_NONE)
+    if(sensor_type!=Sensor::NONE)
     {
         sens_buffer_dump();
         
@@ -699,11 +699,11 @@ void Object::process_intersection(RayPath &path)
     ray.age+=std::real(ray.n_ind)*(next_start-ray.start).norm();
     int &face_inter=inter.face;
     
-    if(sensor_type!=SENS_NONE)
+    if(sensor_type!=Sensor::NONE)
     {
         sens_buffer_add(ray,next_start,next_start_obj,face_inter);
         
-        if(sensor_type==SENS_ABS)
+        if(sensor_type==Sensor::ABS)
         {
             ray.prev_start=ray.start;
             ray.start=next_start;
@@ -1010,17 +1010,17 @@ void Object::set_default_out_mat(Material *mat)
 
 void Object::set_sens_abs()
 {
-    sensor_type=SENS_ABS;
+    sensor_type=Sensor::ABS;
 }
 
 void Object::set_sens_none()
 {
-    sensor_type=SENS_NONE;
+    sensor_type=Sensor::NONE;
 }
 
 void Object::set_sens_transp()
 {
-    sensor_type=SENS_TRANSP;
+    sensor_type=Sensor::TRANSP;
 }
 
 

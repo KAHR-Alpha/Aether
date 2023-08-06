@@ -14,3 +14,130 @@ limitations under the License.*/
 
 #include <gui_selene.h>
 
+namespace SelGUI
+{
+
+OptimTargetPanel::OptimTargetPanel(wxWindow *parent,std::vector<std::string> const &sensor_names)
+    :PanelsListBase(parent)
+{
+    wxPanel *panel=new wxPanel(this);
+    
+    wxBoxSizer *panel_sizer=new wxBoxSizer(wxHORIZONTAL);
+    panel->SetSizer(panel_sizer);
+    
+    panel_sizer->Add(new wxStaticText(panel,wxID_ANY,"Sensor: "));
+    
+    sensors=new wxChoice(panel,wxID_ANY);
+    for(std::string const &name:sensor_names) sensors->Append(name);
+    sensors->SetSelection(0);
+        
+    panel_sizer->Add(sensors);
+    
+    panel_sizer->Add(new wxStaticText(panel,wxID_ANY," Treatment: "));
+    
+    treatment=new wxChoice(panel,wxID_ANY);
+    treatment->Append("Minimize spatial dispersion");
+    treatment->Append("Minimize direction dispersion");
+    treatment->SetSelection(0);
+    
+    panel_sizer->Add(treatment);
+    
+    weight=new NamedTextCtrl<double>(panel," weight: ",1.0);
+    
+    panel_sizer->Add(weight);
+    
+    sizer->Add(panel);
+}
+
+OptimizationDialog::OptimizationDialog(std::vector<OptimTarget> &targets_,
+                                       std::vector<Sel::Object*> const &sensors_)
+    :wxDialog(0,wxID_ANY,"Optimization targets",
+              wxGetApp().default_dialog_origin(),
+              wxGetApp().default_dialog_size()),
+     targets(targets_),
+     sensors(sensors_)
+{
+    for(Sel::Object *obj : sensors)
+        sensor_names.push_back(obj->name);
+        
+    wxBoxSizer *sizer=new wxBoxSizer(wxHORIZONTAL);
+    
+    targets_ctrl=new PanelsList<OptimTargetPanel>(this);
+    
+    for(OptimTarget target : targets)
+    {
+        
+        bool found;
+        std::size_t i=vector_locate(found,sensors,target.sensor);
+        
+        if(!found) continue;
+            
+        OptimTargetPanel *panel=targets_ctrl->add_panel<OptimTargetPanel>(sensor_names);
+        
+        panel->sensors->SetSelection(i);
+        
+        switch(target.treatment)
+        {
+            case OptimTreatment::MINIMIZE_SPATIAL_SPREAD:
+                panel->treatment->SetSelection(0);
+                break;
+            case OptimTreatment::MINIMIZE_DIRECTION_SPREAD:
+                panel->treatment->SetSelection(1);
+                break;
+        }
+        
+        panel->weight->set_value(target.weight);
+    }
+    
+    sizer->Add(targets_ctrl,wxSizerFlags(1).Expand());
+    
+    wxButton *add_target_btn=new wxButton(this,wxID_ANY,"Add Target");
+    add_target_btn->Bind(wxEVT_BUTTON,&OptimizationDialog::evt_add_target,this);
+    
+    sizer->Add(add_target_btn,wxSizerFlags().Border(wxALL,3));
+    
+    Bind(wxEVT_CLOSE_WINDOW,&OptimizationDialog::evt_close,this);
+    
+    SetSizer(sizer);
+    
+    Layout();
+    ShowModal();
+}
+
+void OptimizationDialog::evt_add_target(wxCommandEvent &event)
+{
+    targets_ctrl->add_panel<OptimTargetPanel>(sensor_names);
+    
+    Layout();
+}
+
+void OptimizationDialog::evt_close(wxCloseEvent &event)
+{
+    targets.resize(targets_ctrl->get_size());
+    
+    for(std::size_t i=0;i<targets.size();i++)
+    {
+        OptimTargetPanel *panel=targets_ctrl->get_panel(i);
+        
+        int sensor_ID=panel->sensors->GetSelection();
+        int treatment=panel->treatment->GetSelection();
+        
+        targets[i].sensor=sensors[sensor_ID];
+        
+        switch(treatment)
+        {
+            case 0:
+                targets[i].treatment=OptimTreatment::MINIMIZE_SPATIAL_SPREAD;
+                break;
+            case 1:
+                targets[i].treatment=OptimTreatment::MINIMIZE_DIRECTION_SPREAD;
+                break;
+        }
+        
+        targets[i].weight=panel->weight->get_value();
+    }
+    
+    Destroy();
+}
+
+}

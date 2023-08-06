@@ -62,9 +62,6 @@ enum
     SRC_POINT,
     SRC_POINT_PLANAR,
     SRC_USER_DEFINED,
-    SENS_BOX,
-    SENS_PLANE,
-    SENS_SPHERE,
     SPECTRUM_FLAT,
     SPECTRUM_FILE,
     SPECTRUM_PLANCK,
@@ -614,7 +611,7 @@ class Object: public Frame
         // Sensor
         
         bool cleanup_done;
-        int sensor_type;
+        Sensor sensor_type;
         
         bool sens_wavelength,
              sens_source,
