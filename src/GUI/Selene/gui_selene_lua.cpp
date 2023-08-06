@@ -170,6 +170,8 @@ std::string SeleneFrame::get_IRF_script_name(Sel::IRF *irf)
 
 void SeleneFrame::load_project(wxFileName const &fname_)
 {
+    if(optimization_running) return;
+    
     std::cout<<"\n\nThis: "<<this<<"\n\n";
     
     clear_state();

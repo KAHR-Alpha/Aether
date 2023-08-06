@@ -50,7 +50,8 @@ enum
 SeleneFrame::SeleneFrame(wxString const &title)
     :BaseFrame(title),
      item_count(0),
-     optimize(false)
+     optimize(false),
+     optimization_running(false)
 {
     irfs.resize(4);
     
@@ -156,7 +157,8 @@ SeleneFrame::SeleneFrame(wxString const &title)
     
     ctrl_sizer->Add(output_sizer,std_flags);
     
-    wxButton *trace_btn=new wxButton(ctrl_panel,wxID_ANY,"Trace");
+    trace_btn=new wxToggleButton(ctrl_panel,wxID_ANY,"Trace");
+    trace_btn->Bind(wxEVT_TOGGLEBUTTON,&SeleneFrame::evt_trace,this);
     ctrl_sizer->Add(trace_btn,std_flags);
     
     // Tree initialization
@@ -201,7 +203,6 @@ SeleneFrame::SeleneFrame(wxString const &title)
     // Bindings
     
     objects_tree->Bind(wxEVT_TREE_ITEM_MENU,&SeleneFrame::evt_object_menu,this);
-    trace_btn->Bind(wxEVT_BUTTON,&SeleneFrame::evt_trace,this);
     
     Bind(wxEVT_MENU,&SeleneFrame::evt_menu,this);
     
@@ -453,6 +454,8 @@ void SeleneFrame::clear_state()
 
 void SeleneFrame::evt_add_element(wxCommandEvent &event)
 {
+    if(optimization_running) return;
+    
     int selection=add_element_list->GetSelection();
     
     bool cancel_check=true;
@@ -698,6 +701,8 @@ void SeleneFrame::evt_lost_length(wxCommandEvent &event)
 
 void SeleneFrame::evt_menu(wxCommandEvent &event)
 {
+    if(optimization_running) return;
+    
     int menu_ID=event.GetId();
     
     switch(menu_ID)
@@ -715,7 +720,7 @@ void SeleneFrame::evt_menu(wxCommandEvent &event)
             { IRF_Dialog dialog{user_irfs}; }
             check_objects_irfs();
             break;
-        case MENU_OPTIMIZE: optimize=event.IsChecked(); break;
+        case MENU_OPTIMIZE:optimize=event.IsChecked(); break;
         case MENU_OPTIMIZATION_TARGETS:
             {
                 std::vector<Sel::Object*> sensors;
@@ -746,6 +751,8 @@ void SeleneFrame::evt_menu(wxCommandEvent &event)
 
 void SeleneFrame::evt_object_menu(wxTreeEvent &event)
 {
+    if(optimization_running) return;
+    
     wxTreeItemId item_ID=event.GetItem();
         
     bool found;
@@ -758,6 +765,8 @@ void SeleneFrame::evt_object_menu(wxTreeEvent &event)
 
 void SeleneFrame::evt_output_directory(wxCommandEvent &event)
 {
+    if(optimization_running) return;
+    
     wxDirDialog dialog(0,"Select the output directory");
     dialog.ShowModal();
     
@@ -899,28 +908,38 @@ void SeleneFrame::evt_trace(wxCommandEvent &event)
     
     if(scene_check)
     {
-        Sel::Selene selene;
-        
-        for(std::size_t i=0;i<frames.size();i++)
+        if(optimize)
         {
-            Sel::Object *object=dynamic_cast<Sel::Object*>(frames[i]);
-            Sel::Light *light=dynamic_cast<Sel::Light*>(frames[i]);
-            
-            if(object!=nullptr) selene.add_object(object);
-            else if(light!=nullptr) selene.add_light(light);
+            optimization_running=trace_btn->GetValue();
         }
-        
-        selene.set_output_directory(output_directory_std);
-        
-        selene.render(nr_disp->get_value(),
-                      nr_tot->get_value());
-        
-        gl->set_rays(selene.xs_ftc,selene.xe_ftc,
-                     selene.ys_ftc,selene.ye_ftc,
-                     selene.zs_ftc,selene.ze_ftc,
-                     selene.gen_ftc,selene.lambda_ftc,
-                     selene.lost_ftc);
+        else
+        {
+            Sel::Selene selene;
+            
+            for(std::size_t i=0;i<frames.size();i++)
+            {
+                Sel::Object *object=dynamic_cast<Sel::Object*>(frames[i]);
+                Sel::Light *light=dynamic_cast<Sel::Light*>(frames[i]);
+                
+                if(object!=nullptr) selene.add_object(object);
+                else if(light!=nullptr) selene.add_light(light);
+            }
+            
+            selene.set_output_directory(output_directory_std);
+            
+            selene.render(nr_disp->get_value(),
+                          nr_tot->get_value());
+            
+            gl->set_rays(selene.xs_ftc,selene.xe_ftc,
+                         selene.ys_ftc,selene.ye_ftc,
+                         selene.zs_ftc,selene.ze_ftc,
+                         selene.gen_ftc,selene.lambda_ftc,
+                         selene.lost_ftc);
+            
+            trace_btn->SetValue(false);
+        }
     }
+    else trace_btn->SetValue(false);
     
     event.Skip();
 }

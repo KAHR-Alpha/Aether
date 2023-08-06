@@ -593,6 +593,8 @@ class SeleneFrame: public BaseFrame
         wxTreeCtrl *objects_tree;
         wxImageList *tree_icons;
         
+        wxToggleButton *trace_btn;
+        
         std::vector<Sel::Frame*> frames;
         std::vector<bool> render_element;
         std::vector<wxTreeItemId> frames_ID;
@@ -606,7 +608,7 @@ class SeleneFrame: public BaseFrame
         // Optimization
         
         OptimEngine optim_engine;
-        bool optimize;
+        bool optimize,optimization_running;;
         std::vector<OptimTarget> optimization_targets;
         
         SeleneFrame(wxString const &title);
@@ -618,7 +620,6 @@ class SeleneFrame: public BaseFrame
         void delete_element(Sel::Frame *element);
         void delete_irf(Sel::IRF *irf);
         void evt_add_element(wxCommandEvent &event);
-        void evt_forget_object(wxCommandEvent &event);
         void evt_generation_display(wxCommandEvent &event);
         void evt_generation_display_auto(wxCommandEvent &event);
         void evt_lost_length(wxCommandEvent &event);
@@ -628,10 +629,10 @@ class SeleneFrame: public BaseFrame
         void evt_popup_menu(wxCommandEvent &event);
         void evt_ray_display_type(wxCommandEvent &event);
         void evt_trace(wxCommandEvent &event);
-        void evt_tree_right_click(wxMouseEvent &event);
         void gather_materials();
         std::string get_IRF_script_name(Sel::IRF *irf);
         void load_project(wxFileName const &fname);
+        void optimization_trace();
         void rebuild_tree();
         void save_project(wxFileName const &fname);
         void update_vao(SeleneVAO *vao,Sel::Frame *frame);
