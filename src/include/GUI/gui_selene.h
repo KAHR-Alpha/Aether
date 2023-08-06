@@ -23,6 +23,8 @@ limitations under the License.*/
 #include <phys_tools.h>
 #include <selene.h>
 
+#include <thread>
+
 #include <wx/splitter.h>
 #include <wx/treectrl.h>
 
@@ -608,11 +610,14 @@ class SeleneFrame: public BaseFrame
         // Optimization
         
         OptimEngine optim_engine;
-        bool optimize,optimization_running;;
+        bool optimize,optimization_running;
+        std::thread *optimization_thread;
         std::vector<OptimTarget> optimization_targets;
         
         SeleneFrame(wxString const &title);
         void SeleneFrame_RayDisp(wxWindow *parent,wxBoxSizer *ctrl_sizer);
+        
+        ~SeleneFrame();
         
         void check_objects_irfs();
         void check_objects_materials();

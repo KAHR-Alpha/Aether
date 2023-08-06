@@ -51,7 +51,8 @@ SeleneFrame::SeleneFrame(wxString const &title)
     :BaseFrame(title),
      item_count(0),
      optimize(false),
-     optimization_running(false)
+     optimization_running(false),
+     optimization_thread(nullptr)
 {
     irfs.resize(4);
     
@@ -215,6 +216,15 @@ SeleneFrame::SeleneFrame(wxString const &title)
     
     ctrl_panel->SetScrollRate(10,10);
     ctrl_panel->FitInside();
+}
+
+SeleneFrame::~SeleneFrame()
+{
+    if(optimization_thread!=nullptr)
+    {
+        optimization_thread->join();
+        delete optimization_thread;
+    }
 }
 
 void SeleneFrame::SeleneFrame_RayDisp(wxWindow *parent,wxBoxSizer *ctrl_sizer)
@@ -911,6 +921,20 @@ void SeleneFrame::evt_trace(wxCommandEvent &event)
         if(optimize)
         {
             optimization_running=trace_btn->GetValue();
+            
+            if(optimization_running)
+            {
+                optimization_thread=new std::thread(&SeleneFrame::optimization_trace,this);
+            }
+            else
+            {
+                if(optimization_thread!=nullptr)
+                {
+                    optimization_thread->join();
+                    delete optimization_thread;
+                    optimization_thread=nullptr;
+                }
+            }
         }
         else
         {

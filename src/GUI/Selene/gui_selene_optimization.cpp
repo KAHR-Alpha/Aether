@@ -140,4 +140,11 @@ void OptimizationDialog::evt_close(wxCloseEvent &event)
     Destroy();
 }
 
+void SeleneFrame::optimization_trace()
+{
+    while(optimization_running)
+    {
+    }
+}
+
 }
