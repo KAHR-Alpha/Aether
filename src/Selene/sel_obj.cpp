@@ -127,9 +127,9 @@ Object::~Object()
 
 void Object::build_variables_map()
 {
-    variables_map["x"]=&loc.x;
-    variables_map["y"]=&loc.y;
-    variables_map["z"]=&loc.z;
+    variables_map["x"]=&in_displacement.x;
+    variables_map["y"]=&in_displacement.y;
+    variables_map["z"]=&in_displacement.z;
     
     variables_map["angle_A"]=&in_A.val;
     variables_map["angle_B"]=&in_B.val;
@@ -573,6 +573,11 @@ std::string Object::get_anchor_script_name(int anchor)
 
 int Object::get_N_faces() { return NFc; }
 int Object::get_N_faces_groups() { return Fg_arr.size(); }
+
+std::filesystem::path Object::get_sensor_file_path() const
+{
+    return sb_fname;
+}
 
 std::string Object::get_type_name()
 {

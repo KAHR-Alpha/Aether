@@ -34,6 +34,46 @@ RayCounter::RayCounter()
 {
 }
 
+double RayCounter::compute_spatial_spread()
+{
+    double x_avg=0,
+           y_avg=0,
+           z_avg=0,
+           x_stddev=0,
+           y_stddev=0,
+           z_stddev=0;
+    
+    std::size_t N=obj_dir.size();
+    
+    for(std::size_t i=0;i<N;i++)
+    {
+        x_avg+=obj_inter[i].x;
+        y_avg+=obj_inter[i].y;
+        z_avg+=obj_inter[i].z;
+    }
+    
+    x_avg/=N;
+    y_avg/=N;
+    z_avg/=N;
+    
+    for(std::size_t i=0;i<N;i++)
+    {
+        double xs=obj_inter[i].x-x_avg;
+        double ys=obj_inter[i].y-y_avg;
+        double zs=obj_inter[i].z-z_avg;
+        
+        x_stddev+=xs*xs;
+        y_stddev+=ys*ys;
+        z_stddev+=zs*zs;
+    }
+    
+    x_stddev/=N;
+    y_stddev/=N;
+    z_stddev/=N;
+    
+    return std::sqrt(x_stddev)+std::sqrt(y_stddev)+std::sqrt(z_stddev);
+}
+
 void RayCounter::initialize()
 {
     // Power unit
@@ -192,7 +232,7 @@ void RayCounter::initialize()
 void RayCounter::set_sensor(Sel::Object *object_)
 {
     object=object_;
-//    sensor_fname=object->get_sensor_fname();
+    sensor_fname=object->get_sensor_file_path();
     
     loader.initialize(sensor_fname.generic_string());
     

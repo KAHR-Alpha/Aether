@@ -641,6 +641,7 @@ class SeleneFrame: public BaseFrame
         void rebuild_tree();
         void save_project(wxFileName const &fname);
         void update_vao(SeleneVAO *vao,Sel::Frame *frame);
+        void update_vao_location(SeleneVAO *vao,Sel::Frame *frame);
 };
 
 // Lua bindings

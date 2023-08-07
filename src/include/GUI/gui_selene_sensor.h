@@ -74,12 +74,15 @@ class RayCounter
         
         RayCounter();
         
-        void initialize();
+        double compute_spatial_spread();
         void set_sensor(Sel::Object *object);
         void set_sensor(std::filesystem::path const &sensor_file);
-        void reallocate();
         void update();
         void update_from_file();
+    
+    private:
+        void initialize();
+        void reallocate();
 };
 
 class RayCounterFrame: public BaseFrame

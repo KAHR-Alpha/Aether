@@ -1286,13 +1286,21 @@ void SeleneFrame::update_vao(SeleneVAO *vao,Sel::Frame *frame)
     
     gl->focus();
     
+    vao->set_mesh_wireframe(V_arr,F_arr);
+    vao->set_shading(color,true,true);
+    
+    update_vao_location(vao,frame);
+}
+
+void SeleneFrame::update_vao_location(SeleneVAO *vao,Sel::Frame *frame)
+{
+    gl->focus();
+    
     Vector3 O=frame->loc,
             A=frame->local_x,
             B=frame->local_y,
             C=frame->local_z;
-    
-    vao->set_mesh_wireframe(V_arr,F_arr);
-    vao->set_shading(color,true,true);
+            
     vao->set_matrix(O,A,B,C);
 }
 

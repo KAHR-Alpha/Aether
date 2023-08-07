@@ -13,6 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include <gui_selene.h>
+#include <gui_selene_sensor.h>
 
 namespace SelGUI
 {
@@ -142,8 +143,54 @@ void OptimizationDialog::evt_close(wxCloseEvent &event)
 
 void SeleneFrame::optimization_trace()
 {
+    double best_score=std::numeric_limits<double>::max();
+    
     while(optimization_running)
     {
+        optim_engine.evolve(1.0);
+            
+        Sel::Selene selene;
+            
+        for(std::size_t i=0;i<frames.size();i++)
+        {
+            Sel::Object *object=dynamic_cast<Sel::Object*>(frames[i]);
+            Sel::Light *light=dynamic_cast<Sel::Light*>(frames[i]);
+            
+            if(object!=nullptr) selene.add_object(object);
+            else if(light!=nullptr) selene.add_light(light);
+        }
+        
+        selene.set_output_directory(output_directory_std);
+        
+        selene.render(nr_disp->get_value(),
+                      nr_tot->get_value());
+        
+        double current_score=0;
+        
+        for(std::size_t i=0;i<optimization_targets.size();i++)
+        {
+            RayCounter counter;
+            counter.set_sensor(optimization_targets[i].sensor);
+            current_score=counter.compute_spatial_spread();
+        }
+        
+        if(current_score<best_score)
+        {
+            best_score=current_score;
+            
+            for(std::size_t i=0;i<frames.size();i++)
+                update_vao_location(frames_vao[i],frames[i]);
+        }
+        else
+        {
+            optim_engine.revert_targets();
+        }
+        
+        gl->set_rays(selene.xs_ftc,selene.xe_ftc,
+                     selene.ys_ftc,selene.ye_ftc,
+                     selene.zs_ftc,selene.ze_ftc,
+                     selene.gen_ftc,selene.lambda_ftc,
+                     selene.lost_ftc);
     }
 }
 

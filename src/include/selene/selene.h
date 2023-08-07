@@ -384,6 +384,7 @@ class Object: public Frame
         int get_anchors_number();                       // switch
         int get_N_faces();
         int get_N_faces_groups();
+        std::filesystem::path get_sensor_file_path() const;
         std::string get_type_name();                    // switch
         void intersect(SelRay const &ray,std::vector<RayInter> &inter_list,int face_last_intersect=-1,bool first_forward=true); //switch
         bool intersect_boundaries_box(SelRay const &ray);
