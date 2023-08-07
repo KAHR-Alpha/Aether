@@ -147,8 +147,7 @@ void SeleneFrame::optimization_trace()
     
     while(optimization_running)
     {
-        optim_engine.evolve(1.0);
-            
+        std::cout<<"Best score: "<<best_score<<std::endl;
         Sel::Selene selene;
             
         for(std::size_t i=0;i<frames.size();i++)
@@ -180,18 +179,40 @@ void SeleneFrame::optimization_trace()
             
             for(std::size_t i=0;i<frames.size();i++)
                 update_vao_location(frames_vao[i],frames[i]);
+        
+            for(std::size_t i=0;i<Nrays;i++)
+            {
+                if(i<selene.xs_ftc.size())
+                {
+                    rays_x1[i]=selene.xs_ftc[i]; rays_x2[i]=selene.xe_ftc[i];
+                    rays_y1[i]=selene.ys_ftc[i]; rays_y2[i]=selene.ye_ftc[i];
+                    rays_z1[i]=selene.zs_ftc[i]; rays_z2[i]=selene.ze_ftc[i];
+                    
+                    rays_gen[i]=selene.gen_ftc[i];
+                    rays_lambda[i]=selene.lambda_ftc[i];
+                    rays_lost[i]=selene.lost_ftc[i];
+                }
+                else
+                {
+                    rays_x1[i]=0; rays_x2[i]=0;
+                    rays_y1[i]=0; rays_y2[i]=0;
+                    rays_z1[i]=0; rays_z2[i]=0;
+                    
+                    rays_gen[i]=0;
+                    rays_lambda[i]=0;
+                    rays_lost[i]=0;
+                }
+            }
         }
         else
         {
             optim_engine.revert_targets();
         }
-        
-        gl->set_rays(selene.xs_ftc,selene.xe_ftc,
-                     selene.ys_ftc,selene.ye_ftc,
-                     selene.zs_ftc,selene.ze_ftc,
-                     selene.gen_ftc,selene.lambda_ftc,
-                     selene.lost_ftc);
+                     
+        optim_engine.evolve(1.0);
     }
+    
+    optim_engine.revert_targets();
 }
 
 }

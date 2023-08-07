@@ -1290,6 +1290,8 @@ SeleneVAO* GL_Selene::request_vao()
 
 void GL_Selene::render()
 {
+    std::unique_lock lock(display_mutex);
+    
     glLineWidth(1);
     
     glUseProgram(prog_rays);
@@ -1347,6 +1349,8 @@ void GL_Selene::set_rays(std::vector<double> const &x1,std::vector<double> const
                          std::vector<int> const &gen,std::vector<double> const &lambda,
                          std::vector<bool> const &lost)
 {
+    std::unique_lock lock(display_mutex);
+    
     Nrays=std::min(50000,int(x1.size()));
     
     GLfloat *buffer_pos=new GLfloat[4*Nrays];

@@ -207,6 +207,9 @@ SeleneFrame::SeleneFrame(wxString const &title)
     
     Bind(wxEVT_MENU,&SeleneFrame::evt_menu,this);
     
+    rays_timer=new wxTimer(this);
+    Bind(wxEVT_TIMER,&SeleneFrame::evt_timed_rays_update,this);
+    
     //
     
     splitter->SplitVertically(ctrl_panel,gl,250);
@@ -886,6 +889,11 @@ void SeleneFrame::evt_popup_menu(wxCommandEvent &event)
     event.Skip();
 }
 
+void SeleneFrame::evt_timed_rays_update(wxTimerEvent &event)
+{
+    update_rays();
+}
+
 void SeleneFrame::evt_trace(wxCommandEvent &event)
 {
     bool scene_check=true;
@@ -924,10 +932,22 @@ void SeleneFrame::evt_trace(wxCommandEvent &event)
             
             if(optimization_running)
             {
+                rays_timer->Start(250);
+                
+                rays_x1.resize(Nrays); rays_x2.resize(Nrays);
+                rays_y1.resize(Nrays); rays_y2.resize(Nrays);
+                rays_z1.resize(Nrays); rays_z2.resize(Nrays);
+                
+                rays_gen.resize(Nrays);
+                rays_lambda.resize(Nrays);
+                rays_lost.resize(Nrays);
+                
                 optimization_thread=new std::thread(&SeleneFrame::optimization_trace,this);
             }
             else
             {
+                rays_timer->Stop();
+                
                 if(optimization_thread!=nullptr)
                 {
                     optimization_thread->join();
@@ -1044,6 +1064,15 @@ void SeleneFrame::rebuild_tree()
     }
     
     objects_tree->ExpandAll();
+}
+
+void SeleneFrame::update_rays()
+{
+    gl->set_rays(rays_x1,rays_x2,
+                 rays_y1,rays_y2,
+                 rays_z1,rays_z2,
+                 rays_gen,rays_lambda,
+                 rays_lost);
 }
 
 void SeleneFrame::update_vao(SeleneVAO *vao,Sel::Frame *frame)

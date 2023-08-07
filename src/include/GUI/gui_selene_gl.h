@@ -79,6 +79,7 @@ class SeleneVAO
 class GL_Selene: public GL_3D_Base
 {
     public:
+        std::mutex display_mutex;
         std::vector<SeleneVAO*> vao;
         
         GLuint prog_solid,prog_wires,prog_rays;

@@ -600,7 +600,6 @@ class SeleneFrame: public BaseFrame
         std::vector<Sel::Frame*> frames;
         std::vector<bool> render_element;
         std::vector<wxTreeItemId> frames_ID;
-        std::vector<SeleneVAO*> frames_vao;
         
         std::vector<GUI::Material*> materials;
         
@@ -613,6 +612,19 @@ class SeleneFrame: public BaseFrame
         bool optimize,optimization_running;
         std::thread *optimization_thread;
         std::vector<OptimTarget> optimization_targets;
+        
+        // Display
+        
+        std::vector<SeleneVAO*> frames_vao;
+        wxTimer *rays_timer;
+        std::size_t const Nrays=50000;
+        
+        std::vector<double> rays_x1,rays_x2,
+                            rays_y1,rays_y2,
+                            rays_z1,rays_z2;
+        std::vector<int> rays_gen;
+        std::vector<double> rays_lambda;
+        std::vector<bool> rays_lost;
         
         SeleneFrame(wxString const &title);
         void SeleneFrame_RayDisp(wxWindow *parent,wxBoxSizer *ctrl_sizer);
@@ -633,6 +645,7 @@ class SeleneFrame: public BaseFrame
         void evt_output_directory(wxCommandEvent &event);
         void evt_popup_menu(wxCommandEvent &event);
         void evt_ray_display_type(wxCommandEvent &event);
+        void evt_timed_rays_update(wxTimerEvent &event);
         void evt_trace(wxCommandEvent &event);
         void gather_materials();
         std::string get_IRF_script_name(Sel::IRF *irf);
@@ -640,6 +653,7 @@ class SeleneFrame: public BaseFrame
         void optimization_trace();
         void rebuild_tree();
         void save_project(wxFileName const &fname);
+        void update_rays();
         void update_vao(SeleneVAO *vao,Sel::Frame *frame);
         void update_vao_location(SeleneVAO *vao,Sel::Frame *frame);
 };
