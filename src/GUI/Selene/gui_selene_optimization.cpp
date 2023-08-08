@@ -17,7 +17,7 @@ limitations under the License.*/
 
 namespace SelGUI
 {
-wxDEFINE_EVENT(EVT_SELENE_GEOMETRY_REFRESH,wxCommandEvent);
+wxDEFINE_EVENT(EVT_REFRESH_GEOMETRY,wxCommandEvent);
 
 OptimTargetPanel::OptimTargetPanel(wxWindow *parent,std::vector<std::string> const &sensor_names)
     :PanelsListBase(parent)
@@ -39,7 +39,7 @@ OptimTargetPanel::OptimTargetPanel(wxWindow *parent,std::vector<std::string> con
     
     treatment=new wxChoice(panel,wxID_ANY);
     treatment->Append("Minimize spatial dispersion");
-    treatment->Append("Minimize direction dispersion");
+    treatment->Append("Minimize angular dispersion");
     treatment->SetSelection(0);
     
     panel_sizer->Add(treatment);
@@ -186,12 +186,12 @@ void SeleneFrame::optimization_trace()
             counter.set_sensor(target.sensor);
             
             if(target.treatment==OptimTreatment::MINIMIZE_SPATIAL_SPREAD)
-            {                
+            {
                 current_score+=counter.compute_spatial_spread();
             }
             else
             {
-                current_score+=counter.compute_directionnal_spread();
+                current_score+=counter.compute_angular_spread();
             }
         }
         
@@ -238,7 +238,7 @@ void SeleneFrame::optimization_trace()
         {
             start=end;
             
-            wxCommandEvent event(EVT_SELENE_GEOMETRY_REFRESH);
+            wxCommandEvent event(EVT_REFRESH_GEOMETRY);
             wxPostEvent(this,event);
             
             pause_optimization=true;

@@ -34,7 +34,7 @@ RayCounter::RayCounter()
 {
 }
 
-double RayCounter::compute_directionnal_spread()
+double RayCounter::compute_angular_spread()
 {
     double x_avg=0,
            y_avg=0,

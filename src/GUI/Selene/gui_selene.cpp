@@ -208,7 +208,7 @@ SeleneFrame::SeleneFrame(wxString const &title)
     
     Bind(wxEVT_MENU,&SeleneFrame::evt_menu,this);
     
-    Bind(EVT_SELENE_GEOMETRY_REFRESH,&SeleneFrame::evt_timed_rays_update,this);
+    Bind(EVT_REFRESH_GEOMETRY,&SeleneFrame::evt_refresh_geometry,this);
     
     //
     
@@ -889,7 +889,7 @@ void SeleneFrame::evt_popup_menu(wxCommandEvent &event)
     event.Skip();
 }
 
-void SeleneFrame::evt_timed_rays_update(wxCommandEvent &event)
+void SeleneFrame::evt_refresh_geometry(wxCommandEvent &event)
 {
     update_rays();
         
@@ -1325,6 +1325,7 @@ void SeleneFrame::update_vao(SeleneVAO *vao,Sel::Frame *frame)
 void SeleneFrame::update_vao_location(SeleneVAO *vao,Sel::Frame *frame)
 {
     gl->focus();
+    frame->consolidate_position();
     
     Vector3 O=frame->loc,
             A=frame->local_x,
