@@ -21,76 +21,12 @@ limitations under the License.*/
 
 namespace SelGUI
 {
-enum
-{
-    RC_COLOR,
-    RC_COUNTING,
-    RC_POWER,
-    SP_FULL,
-    SP_MINMAX,
-    SP_WINDOW
-};
-
-class RayCounter
-{
-    public:
-        bool owner;
-        Sel::Object *object;
-        int N_faces,computation_type;
-        
-        // Spectral filter
-        int spectral_mode;
-        double lambda_min,lambda_max;
-        
-        // Data
-        AsciiDataLoader loader;
-        std::filesystem::path sensor_fname;
-        
-        double ray_unit;
-        std::vector<Grid2<double>> bins;
-        std::vector<double> Du,Dv;
-        std::vector<int> Nu,Nv;
-        
-        int lambda_column,
-            source_column,
-            path_column,
-            generation_column,
-            phase_column,
-            obj_inter_column,
-            obj_dir_column,
-            obj_polar_column,
-            face_column;
-        
-        bool has_lambda,
-             has_source,
-             has_path,
-             has_generation,
-             has_phase,
-             has_polarization;
-        
-        std::vector<double> lambda,phase;
-        std::vector<Vector3> obj_inter,obj_dir,obj_polarization;
-        std::vector<int> source,path,generation,face;
-        
-        RayCounter();
-        
-        double compute_angular_spread();
-        double compute_spatial_spread();
-        void set_sensor(Sel::Object *object);
-        void set_sensor(std::filesystem::path const &sensor_file);
-        void update();
-        void update_from_file();
-    
-    private:
-        void initialize();
-        void reallocate();
-};
 
 class RayCounterFrame: public BaseFrame
 {
     public:
         bool linked;
-        RayCounter *counter;
+        Sel::RayCounter *counter;
         
         wxPanel *left_panel;
         wxScrolledWindow *ctrl_panel;
@@ -114,7 +50,7 @@ class RayCounterFrame: public BaseFrame
         
         wxTimer *timer;
         
-        RayCounterFrame(wxString const &title,RayCounter *counter=nullptr);
+        RayCounterFrame(wxString const &title,Sel::RayCounter *counter=nullptr);
         ~RayCounterFrame();
         
         void allocate_face_controls();

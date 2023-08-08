@@ -515,21 +515,6 @@ class IRF_Dialog: public wxDialog
 //   Optimization
 //##################
 
-enum class OptimTreatment
-{
-    MINIMIZE_SPATIAL_SPREAD,
-    MINIMIZE_DIRECTION_SPREAD
-};
-
-class OptimTarget: public ::OptimTarget
-{
-    public:
-        Sel::Object *sensor;
-        OptimTreatment treatment;
-        
-        double evaluate() const override;
-};
-
 class OptimTargetPanel: public PanelsListBase
 {
     public:
@@ -543,13 +528,13 @@ class OptimTargetPanel: public PanelsListBase
 class OptimizationDialog: public wxDialog
 {
     public:
-        std::vector<OptimTarget> &targets;
+        std::vector<Sel::OptimTarget> &targets;
         std::vector<Sel::Object*> const &sensors;
         std::vector<std::string> sensor_names;
         
         PanelsList<OptimTargetPanel> *targets_ctrl;
         
-        OptimizationDialog(std::vector<OptimTarget> &targets,
+        OptimizationDialog(std::vector<Sel::OptimTarget> &targets,
                            std::vector<Sel::Object*> const &sensors);
         
         void evt_add_target(wxCommandEvent &event);
@@ -615,7 +600,7 @@ class SeleneFrame: public BaseFrame
         bool optimize;
         std::atomic<bool> optimization_running, pause_optimization;
         std::thread *optimization_thread;
-        std::vector<OptimTarget> optimization_targets;
+        std::vector<Sel::OptimTarget> optimization_targets;
         
         // Display
         

@@ -173,7 +173,35 @@ void RayPath::operator = (RayPath const &path)
     intersection=path.intersection;
 }
 
-//####################
+//#################
+//   OptimTarget
+//#################
+
+
+double OptimTarget::evaluate() const
+{
+    double score=0;
+    
+    RayCounter counter;
+    counter.set_sensor(sensor);
+    
+    if(treatment==OptimTreatment::MINIMIZE_SPATIAL_SPREAD)
+    {
+        score+=counter.compute_spatial_spread();
+    }
+    else
+    {
+        score+=counter.compute_angular_spread();
+    }
+    
+    return score*weight;
+}
+
+
+//############
+//   Selene
+//############
+
 
 Selene::Selene()
     :Nobj(0),

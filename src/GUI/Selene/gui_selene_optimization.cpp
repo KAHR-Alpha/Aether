@@ -19,30 +19,6 @@ namespace SelGUI
 {
 wxDEFINE_EVENT(EVT_REFRESH_GEOMETRY,wxCommandEvent);
 
-//#################
-//   OptimTarget
-//#################
-
-
-double OptimTarget::evaluate() const
-{
-    double score=0;
-    
-    RayCounter counter;
-    counter.set_sensor(sensor);
-    
-    if(treatment==OptimTreatment::MINIMIZE_SPATIAL_SPREAD)
-    {
-        score+=counter.compute_spatial_spread();
-    }
-    else
-    {
-        score+=counter.compute_angular_spread();
-    }
-    
-    return score*weight;
-}
-
 
 //######################
 //   OptimTargetPanel
@@ -87,7 +63,7 @@ OptimTargetPanel::OptimTargetPanel(wxWindow *parent,std::vector<std::string> con
 //########################
 
 
-OptimizationDialog::OptimizationDialog(std::vector<OptimTarget> &targets_,
+OptimizationDialog::OptimizationDialog(std::vector<Sel::OptimTarget> &targets_,
                                        std::vector<Sel::Object*> const &sensors_)
     :wxDialog(0,wxID_ANY,"Optimization targets",
               wxGetApp().default_dialog_origin(),
@@ -102,7 +78,7 @@ OptimizationDialog::OptimizationDialog(std::vector<OptimTarget> &targets_,
     
     targets_ctrl=new PanelsList<OptimTargetPanel>(this);
     
-    for(OptimTarget target : targets)
+    for(Sel::OptimTarget target : targets)
     {
         
         bool found;
@@ -116,10 +92,10 @@ OptimizationDialog::OptimizationDialog(std::vector<OptimTarget> &targets_,
         
         switch(target.treatment)
         {
-            case OptimTreatment::MINIMIZE_SPATIAL_SPREAD:
+            case Sel::OptimTreatment::MINIMIZE_SPATIAL_SPREAD:
                 panel->treatment->SetSelection(0);
                 break;
-            case OptimTreatment::MINIMIZE_DIRECTION_SPREAD:
+            case Sel::OptimTreatment::MINIMIZE_DIRECTION_SPREAD:
                 panel->treatment->SetSelection(1);
                 break;
         }
@@ -165,10 +141,10 @@ void OptimizationDialog::evt_close(wxCloseEvent &event)
         switch(treatment)
         {
             case 0:
-                targets[i].treatment=OptimTreatment::MINIMIZE_SPATIAL_SPREAD;
+                targets[i].treatment=Sel::OptimTreatment::MINIMIZE_SPATIAL_SPREAD;
                 break;
             case 1:
-                targets[i].treatment=OptimTreatment::MINIMIZE_DIRECTION_SPREAD;
+                targets[i].treatment=Sel::OptimTreatment::MINIMIZE_DIRECTION_SPREAD;
                 break;
         }
         
