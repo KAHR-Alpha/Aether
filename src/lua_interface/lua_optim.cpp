@@ -17,8 +17,8 @@ void create_optimization_metatable(lua_State *L)
     lua_pushinteger(L,OptimRule::Operation::ADD);
     lua_setglobal(L,"OPTIM_ADD");
     
-    lua_pushinteger(L,OptimRule::Operation::GROWTH);
-    lua_setglobal(L,"OPTIM_GROWTH");
+    lua_pushinteger(L,OptimRule::Operation::GROW);
+    lua_setglobal(L,"OPTIM_GROW");
     
     lua_pushinteger(L,OptimRule::Limit::UP);
     lua_setglobal(L,"OPTIM_LIMIT_UP");
@@ -49,7 +49,12 @@ int optimize(lua_State *L)
     double *variable=static_cast<double*>(lua_touserdata(L,2));
     
     rule.operation_type=static_cast<OptimRule::Operation>(lua_tointeger(L,3));
-    rule.delta=lua_tonumber(L,4);
+    
+    if(rule.operation_type==OptimRule::ADD)
+    {
+        rule.delta_add=lua_tonumber(L,4);
+    }
+    else rule.delta_grow=lua_tonumber(L,4);
     
     rule.limit_down=lua_tonumber(L,5);
     rule.limit_up=lua_tonumber(L,6);

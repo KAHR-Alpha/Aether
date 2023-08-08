@@ -722,12 +722,14 @@ void SeleneFrame::save_project(wxFileName const &fname_)
                     
                     switch(rule.operation_type)
                     {
-                        case OptimRule::ADD: file<<"OPTIM_ADD"; break;
-                        case OptimRule::GROWTH: file<<"OPTIM_GROWTH"; break;
+                        case OptimRule::ADD:
+                            file<<"OPTIM_ADD,"<<rule.delta_add<<",";
+                            break;
+                        case OptimRule::GROW:
+                            file<<"OPTIM_GROW,"<<rule.delta_grow<<",";
+                            break;
                     }
-                    file<<","
-                        <<rule.delta<<","
-                        <<rule.limit_down<<","
+                    file<<rule.limit_down<<","
                         <<rule.limit_up<<",";
                     switch(rule.limit_type)
                     {

@@ -632,11 +632,12 @@ void ModelPanel::set_optimization_engine(OptimEngine *engine)
     OptimRule rule;
     
     rule.lock=false;
-    rule.delta=0.05;
+    rule.delta_add=0.05;
+    rule.delta_grow=0.05;
     rule.limit_down=0;
     
     rule.limit_type=OptimRule::Limit::DOWN;
-    rule.operation_type=OptimRule::Operation::GROWTH;
+    rule.operation_type=OptimRule::Operation::GROW;
     
     if(type==FIT_CONST)
     {

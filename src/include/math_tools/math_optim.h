@@ -20,11 +20,11 @@ limitations under the License.*/
 class OptimRule
 {
     public:
-        enum Operation { ADD, GROWTH };
+        enum Operation { ADD, GROW };
         enum Limit { UP, DOWN, BOTH, NONE };
         
         bool lock;
-        double delta,limit_down,limit_up;
+        double delta_add,delta_grow,limit_down,limit_up;
         Operation operation_type;
         Limit limit_type;
         

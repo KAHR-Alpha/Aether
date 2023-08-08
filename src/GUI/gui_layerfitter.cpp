@@ -50,11 +50,12 @@ void Dielec_Panel_Const::set_optimization_engine_deep()
     OptimRule rule;
     
     rule.lock=false;
-    rule.delta=0.05;
+    rule.delta_add=0.05;
+    rule.delta_grow=0.05;
     rule.limit_down=1.0;
     
     rule.limit_type=OptimRule::Limit::DOWN;
-    rule.operation_type=OptimRule::Operation::GROWTH;
+    rule.operation_type=OptimRule::Operation::GROW;
         
     eps_inf->set_optimization_engine(engine,rule);
 }
@@ -102,11 +103,12 @@ void Dielec_Panel_Drude::set_optimization_engine_deep()
     OptimRule rule;
     
     rule.lock=false;
-    rule.delta=0.05;
+    rule.delta_add=0.05;
+    rule.delta_grow=0.05;
     rule.limit_down=0.0;
     
     rule.limit_type=OptimRule::Limit::DOWN;
-    rule.operation_type=OptimRule::Operation::GROWTH;
+    rule.operation_type=OptimRule::Operation::GROW;
         
     wd->set_optimization_engine(engine,rule);
     g->set_optimization_engine(engine,rule);
@@ -158,11 +160,12 @@ void Dielec_Panel_Lorentz::set_optimization_engine_deep()
     OptimRule rule;
     
     rule.lock=false;
-    rule.delta=0.05;
+    rule.delta_add=0.05;
+    rule.delta_grow=0.05;
     rule.limit_down=0.0;
     
     rule.limit_type=OptimRule::Limit::DOWN;
-    rule.operation_type=OptimRule::Operation::GROWTH;
+    rule.operation_type=OptimRule::Operation::GROW;
         
     A->set_optimization_engine(engine,rule);
     O->set_optimization_engine(engine,rule);
@@ -213,11 +216,12 @@ void Dielec_Panel_CritPoint::set_optimization_engine_deep()
     OptimRule rule;
     
     rule.lock=false;
-    rule.delta=0.05;
+    rule.delta_add=0.05;
+    rule.delta_grow=0.05;
     rule.limit_down=0.0;
     
     rule.limit_type=OptimRule::Limit::DOWN;
-    rule.operation_type=OptimRule::Operation::GROWTH;
+    rule.operation_type=OptimRule::Operation::GROW;
         
     A->set_optimization_engine(engine,rule);
     O->set_optimization_engine(engine,rule);
@@ -305,8 +309,9 @@ LayerFitter::LayerFitter(wxString const &title)
     sub_sizer->GetStaticBox()->SetBackgroundColour(wxColour(255,255,255));
     
     OptimRule rule;
-    rule.delta=5e-2;
-    rule.operation_type=OptimRule::Operation::GROWTH;
+    rule.delta_add=0.05;
+    rule.delta_grow=0.05;
+    rule.operation_type=OptimRule::Operation::GROW;
     rule.limit_type=OptimRule::Limit::DOWN;
     rule.limit_down=0;
     

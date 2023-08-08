@@ -17,8 +17,8 @@ limitations under the License.*/
 
 OptimRule::OptimRule()
     :lock(false), 
-     delta(1.0), limit_down(0), limit_up(0),
-     operation_type(Operation::GROWTH),
+     delta_add(1.0), delta_grow(0.05), limit_down(0), limit_up(0),
+     operation_type(Operation::GROW),
      limit_type(Limit::NONE)
 {
 }
@@ -38,10 +38,16 @@ void OptimEngine::evolve(double factor)
         
         if(!rule.lock)
         {
-            double p=randp(-rule.delta,rule.delta)*factor;
-            
-                 if(rule.operation_type==OptimRule::Operation::ADD) val+=p;
-            else if(rule.operation_type==OptimRule::Operation::GROWTH) val*=1.0+p;
+            if(rule.operation_type==OptimRule::Operation::ADD)
+            {
+                double p=randp(-rule.delta_add,rule.delta_add)*factor;
+                val+=p;
+            }
+            else if(rule.operation_type==OptimRule::Operation::GROW)
+            {
+                double p=randp(-rule.delta_grow,rule.delta_grow)*factor;
+                val*=1.0+p;
+            }
             
                  if(rule.limit_type==OptimRule::Limit::UP) val=std::min(rule.limit_up,val);
             else if(rule.limit_type==OptimRule::Limit::DOWN) val=std::max(rule.limit_down,val);
