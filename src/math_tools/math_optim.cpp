@@ -27,6 +27,31 @@ OptimRule::OptimRule()
 //   OptimEngine
 //#################
 
+void OptimEngine::add_target(OptimTarget *target)
+{
+    targets.push_back(target);
+}
+
+
+void OptimEngine::clear_targets()
+{
+    targets.clear();
+}
+
+
+double OptimEngine::evaluate_targets()
+{
+    double score=0;
+    
+    for(OptimTarget *target : targets)
+    {
+        score+=target->evaluate();
+    }
+    
+    return score;
+}
+
+
 void OptimEngine::evolve(double factor)
 {
     for(unsigned int i=0;i<variables.size();i++)

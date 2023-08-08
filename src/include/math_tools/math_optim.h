@@ -48,7 +48,11 @@ class OptimEngine
         std::vector<double*> variables;
         std::vector<double> previous_values;
         std::vector<OptimRule> rules;
+        std::vector<OptimTarget*> targets;
         
+        void add_target(OptimTarget *target);
+        void clear_targets();
+        double evaluate_targets();
         void evolve(double factor);
         void forget_variable(double *target);
         bool get_rule(double *target,OptimRule &rule) const;

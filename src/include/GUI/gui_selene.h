@@ -521,12 +521,13 @@ enum class OptimTreatment
     MINIMIZE_DIRECTION_SPREAD
 };
 
-class OptimTarget
+class OptimTarget: public ::OptimTarget
 {
     public:
         Sel::Object *sensor;
         OptimTreatment treatment;
-        double weight;
+        
+        double evaluate() const override;
 };
 
 class OptimTargetPanel: public PanelsListBase

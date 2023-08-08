@@ -19,6 +19,36 @@ namespace SelGUI
 {
 wxDEFINE_EVENT(EVT_REFRESH_GEOMETRY,wxCommandEvent);
 
+//#################
+//   OptimTarget
+//#################
+
+
+double OptimTarget::evaluate() const
+{
+    double score=0;
+    
+    RayCounter counter;
+    counter.set_sensor(sensor);
+    
+    if(treatment==OptimTreatment::MINIMIZE_SPATIAL_SPREAD)
+    {
+        score+=counter.compute_spatial_spread();
+    }
+    else
+    {
+        score+=counter.compute_angular_spread();
+    }
+    
+    return score*weight;
+}
+
+
+//######################
+//   OptimTargetPanel
+//######################
+
+
 OptimTargetPanel::OptimTargetPanel(wxWindow *parent,std::vector<std::string> const &sensor_names)
     :PanelsListBase(parent)
 {
@@ -50,6 +80,12 @@ OptimTargetPanel::OptimTargetPanel(wxWindow *parent,std::vector<std::string> con
     
     sizer->Add(panel);
 }
+
+
+//########################
+//   OptimizationDialog
+//########################
+
 
 OptimizationDialog::OptimizationDialog(std::vector<OptimTarget> &targets_,
                                        std::vector<Sel::Object*> const &sensors_)
@@ -142,6 +178,12 @@ void OptimizationDialog::evt_close(wxCloseEvent &event)
     Destroy();
 }
 
+
+//#################
+//   SeleneFrame
+//#################
+
+
 void SeleneFrame::optimization_trace()
 {
     bool first_run=true;
@@ -150,6 +192,11 @@ void SeleneFrame::optimization_trace()
     std::chrono::time_point<std::chrono::high_resolution_clock> start,end;
     
     start=std::chrono::high_resolution_clock::now();
+    
+    optim_engine.clear_targets();
+    
+    for(OptimTarget &target : optimization_targets)
+        optim_engine.add_target(&target);
     
     while(optimization_running)
     {
@@ -178,22 +225,7 @@ void SeleneFrame::optimization_trace()
         
         // Score evaluation
         
-        double current_score=0;
-        
-        for(OptimTarget const &target : optimization_targets)
-        {
-            RayCounter counter;
-            counter.set_sensor(target.sensor);
-            
-            if(target.treatment==OptimTreatment::MINIMIZE_SPATIAL_SPREAD)
-            {
-                current_score+=counter.compute_spatial_spread();
-            }
-            else
-            {
-                current_score+=counter.compute_angular_spread();
-            }
-        }
+        double current_score=optim_engine.evaluate_targets();
         
         if(current_score<best_score)
         {
