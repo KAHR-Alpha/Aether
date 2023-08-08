@@ -637,8 +637,8 @@ double BoxDialog::mesh(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr)
 template<typename T>
 void register_optimization(T *ctrl,double *var,OptimEngine &engine)
 {
-    if(ctrl->optimize) engine.register_target(var,ctrl->optim_rule);
-    else engine.forget_target(var);
+    if(ctrl->optimize) engine.register_variable(var,ctrl->optim_rule);
+    else engine.forget_variable(var);
 }
 
 void BoxDialog::save_object_geometry()

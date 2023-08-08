@@ -866,7 +866,7 @@ void SeleneFrame::evt_popup_menu(wxCommandEvent &event)
         
         for(it=variables_map.begin();it!=variables_map.end();++it)
         {
-            optim_engine.forget_target(it->second);
+            optim_engine.forget_variable(it->second);
         }
         
         std::vector<Sel::Frame*>::const_iterator it_frame=frames.begin()+focus_ID;

@@ -249,14 +249,14 @@ void FrameDialog::evt_ok(wxCommandEvent &event)
                            y_ctrl->get_length(),
                            z_ctrl->get_length());
     
-    if(x_ctrl->optimize) optim_engine.register_target(&frame->in_displacement.x,x_ctrl->optim_rule);
-    else optim_engine.forget_target(&frame->in_displacement.x);
+    if(x_ctrl->optimize) optim_engine.register_variable(&frame->in_displacement.x,x_ctrl->optim_rule);
+    else optim_engine.forget_variable(&frame->in_displacement.x);
     
-    if(y_ctrl->optimize) optim_engine.register_target(&frame->in_displacement.y,y_ctrl->optim_rule);
-    else optim_engine.forget_target(&frame->in_displacement.y);
+    if(y_ctrl->optimize) optim_engine.register_variable(&frame->in_displacement.y,y_ctrl->optim_rule);
+    else optim_engine.forget_variable(&frame->in_displacement.y);
     
-    if(z_ctrl->optimize) optim_engine.register_target(&frame->in_displacement.z,z_ctrl->optim_rule);
-    else optim_engine.forget_target(&frame->in_displacement.z);
+    if(z_ctrl->optimize) optim_engine.register_variable(&frame->in_displacement.z,z_ctrl->optim_rule);
+    else optim_engine.forget_variable(&frame->in_displacement.z);
     
     // Rotation
     
@@ -264,14 +264,14 @@ void FrameDialog::evt_ok(wxCommandEvent &event)
     frame->in_B.degree(b_ctrl->get_value());
     frame->in_C.degree(c_ctrl->get_value());
     
-    if(a_ctrl->optimize) optim_engine.register_target(&frame->in_A.val,a_ctrl->optim_rule);
-    else optim_engine.forget_target(&frame->in_A.val);
+    if(a_ctrl->optimize) optim_engine.register_variable(&frame->in_A.val,a_ctrl->optim_rule);
+    else optim_engine.forget_variable(&frame->in_A.val);
     
-    if(b_ctrl->optimize) optim_engine.register_target(&frame->in_B.val,b_ctrl->optim_rule);
-    else optim_engine.forget_target(&frame->in_B.val);
+    if(b_ctrl->optimize) optim_engine.register_variable(&frame->in_B.val,b_ctrl->optim_rule);
+    else optim_engine.forget_variable(&frame->in_B.val);
     
-    if(c_ctrl->optimize) optim_engine.register_target(&frame->in_C.val,c_ctrl->optim_rule);
-    else optim_engine.forget_target(&frame->in_C.val);
+    if(c_ctrl->optimize) optim_engine.register_variable(&frame->in_C.val,c_ctrl->optim_rule);
+    else optim_engine.forget_variable(&frame->in_C.val);
     
     frame->name=name_ctrl->get_value();
     

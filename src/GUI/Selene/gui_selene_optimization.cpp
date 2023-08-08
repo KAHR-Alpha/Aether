@@ -225,7 +225,7 @@ void SeleneFrame::optimization_trace()
         }
         else
         {
-            optim_engine.revert_targets();
+            optim_engine.revert_variables();
         }
         
         // Graphical updates
@@ -252,7 +252,7 @@ void SeleneFrame::optimization_trace()
         first_run=false;
     }
     
-    optim_engine.revert_targets();
+    optim_engine.revert_variables();
 }
 
 }

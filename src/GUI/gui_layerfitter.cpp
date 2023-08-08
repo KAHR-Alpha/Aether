@@ -817,7 +817,7 @@ void LayerFitter::threaded_optimization()
         if(tmp_score>best_score)
         {
             N_fail++;
-            optim_engine.revert_targets();
+            optim_engine.revert_variables();
             
             if(N_fail>100) factor*=0.9;
         }

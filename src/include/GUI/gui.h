@@ -125,8 +125,11 @@ class NamedTextCtrl: public wxPanel
         
         ~NamedTextCtrl()
         {
-            if(optim_engine!=nullptr)
-                optim_engine->forget_target(&val);
+            if constexpr (std::is_same_v<T,double>)
+            {
+                if(optim_engine!=nullptr)
+                    optim_engine->forget_variable(&val);
+            }
         }
         
         void evt_advanced(wxCommandEvent &event)
@@ -175,7 +178,7 @@ class NamedTextCtrl: public wxPanel
         void handle_external_optimization(T *target,OptimEngine const &engine)
         {
             optimize=engine.get_rule(target,optim_rule);
-    
+            
             if(optimize)
             {
                 if(optim_rule.lock)
@@ -206,12 +209,15 @@ class NamedTextCtrl: public wxPanel
         
         void set_optimization_engine(OptimEngine *engine,OptimRule const &rule)
         {
-            optim_engine=engine;
-            
-            optim_engine->register_target(&val,rule);
-            
-            adv_ctrl->Show();
-            Layout();
+            if constexpr (std::is_same_v<T,double>)
+            {
+                optim_engine=engine;
+                
+                optim_engine->register_variable(&val,rule);
+                
+                adv_ctrl->Show();
+                Layout();
+            }
         }
         
         void set_value(T const &x)

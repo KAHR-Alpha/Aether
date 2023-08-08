@@ -60,7 +60,7 @@ int optimize(lua_State *L)
     rule.limit_up=lua_tonumber(L,6);
     rule.limit_type=static_cast<OptimRule::Limit>(lua_tointeger(L,7));
     
-    p_engine->register_target(variable,rule);
+    p_engine->register_variable(variable,rule);
     
     return 0;
 }

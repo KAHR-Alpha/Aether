@@ -17,6 +17,14 @@ limitations under the License.*/
 
 #include <mathUT.h>
 
+class OptimTarget
+{
+    public:
+        double weight;
+        
+        virtual double evaluate() const=0;
+};
+
 class OptimRule
 {
     public:
@@ -37,26 +45,17 @@ class OptimRule
 class OptimEngine
 {
     public:
-        std::vector<double*> targets;
+        std::vector<double*> variables;
         std::vector<double> previous_values;
         std::vector<OptimRule> rules;
         
         void evolve(double factor);
-        void forget_target(int *target);
-        void forget_target(unsigned int *target);
-        void forget_target(double *target);
-        void forget_target(std::string *target);
-        bool get_rule(int *target,OptimRule &rule) const;
-        bool get_rule(unsigned int *target,OptimRule &rule) const;
+        void forget_variable(double *target);
         bool get_rule(double *target,OptimRule &rule) const;
-        bool get_rule(std::string *target,OptimRule &rule) const;
-        int locate_target(double *target) const;
-        void register_target(double *target,OptimRule const &rule);
-        void revert_targets();
-        void set_rule(int *target,OptimRule const &rule);
-        void set_rule(unsigned int *target,OptimRule const &rule);
+        int locate_variable(double *target) const;
+        void register_variable(double *target,OptimRule const &rule);
+        void revert_variables();
         void set_rule(double *target,OptimRule const &rule);
-        void set_rule(std::string *target,OptimRule const &rule);
 };
 
 #endif // MATH_OPTIM_H_INCLUDED
