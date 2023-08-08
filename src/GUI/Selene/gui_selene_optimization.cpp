@@ -17,6 +17,7 @@ limitations under the License.*/
 
 namespace SelGUI
 {
+wxDEFINE_EVENT(EVT_SELENE_GEOMETRY_REFRESH,wxCommandEvent);
 
 OptimTargetPanel::OptimTargetPanel(wxWindow *parent,std::vector<std::string> const &sensor_names)
     :PanelsListBase(parent)
@@ -146,6 +147,10 @@ void SeleneFrame::optimization_trace()
     bool first_run=true;
     double best_score=std::numeric_limits<double>::max();
     
+    std::chrono::time_point<std::chrono::high_resolution_clock> start,end;
+    
+    start=std::chrono::high_resolution_clock::now();
+    
     while(optimization_running)
     {
         if(!first_run) optim_engine.evolve(1.0);
@@ -171,6 +176,8 @@ void SeleneFrame::optimization_trace()
         selene.render(nr_disp->get_value(),
                       nr_tot->get_value());
         
+        // Score evaluation
+        
         double current_score=0;
         
         for(OptimTarget const &target : optimization_targets)
@@ -192,9 +199,6 @@ void SeleneFrame::optimization_trace()
         {
             best_score=current_score;
             
-            for(std::size_t i=0;i<frames.size();i++)
-                update_vao_location(frames_vao[i],frames[i]);
-        
             for(std::size_t i=0;i<Nrays;i++)
             {
                 if(i<selene.xs_ftc.size())
@@ -222,6 +226,27 @@ void SeleneFrame::optimization_trace()
         else
         {
             optim_engine.revert_targets();
+        }
+        
+        // Graphical updates
+        
+        end=std::chrono::high_resolution_clock::now();
+        
+        std::chrono::duration<double> d=end-start;
+        
+        if(d>std::chrono::milliseconds(250))
+        {
+            start=end;
+            
+            wxCommandEvent event(EVT_SELENE_GEOMETRY_REFRESH);
+            wxPostEvent(this,event);
+            
+            pause_optimization=true;
+        }
+        
+        while(optimization_running && pause_optimization)
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
         
         first_run=false;

@@ -560,6 +560,8 @@ class OptimizationDialog: public wxDialog
 //   Main Frame
 //################
 
+wxDECLARE_EVENT(EVT_SELENE_GEOMETRY_REFRESH,wxCommandEvent);
+
 class SeleneFrame: public BaseFrame
 {
     public:
@@ -609,14 +611,14 @@ class SeleneFrame: public BaseFrame
         // Optimization
         
         OptimEngine optim_engine;
-        bool optimize,optimization_running;
+        bool optimize;
+        std::atomic<bool> optimization_running, pause_optimization;
         std::thread *optimization_thread;
         std::vector<OptimTarget> optimization_targets;
         
         // Display
         
         std::vector<SeleneVAO*> frames_vao;
-        wxTimer *rays_timer;
         std::size_t const Nrays=50000;
         
         std::vector<double> rays_x1,rays_x2,
@@ -645,7 +647,7 @@ class SeleneFrame: public BaseFrame
         void evt_output_directory(wxCommandEvent &event);
         void evt_popup_menu(wxCommandEvent &event);
         void evt_ray_display_type(wxCommandEvent &event);
-        void evt_timed_rays_update(wxTimerEvent &event);
+        void evt_timed_rays_update(wxCommandEvent &event);
         void evt_trace(wxCommandEvent &event);
         void gather_materials();
         std::string get_IRF_script_name(Sel::IRF *irf);

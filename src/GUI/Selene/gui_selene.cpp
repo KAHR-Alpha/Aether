@@ -52,6 +52,7 @@ SeleneFrame::SeleneFrame(wxString const &title)
      item_count(0),
      optimize(false),
      optimization_running(false),
+     pause_optimization(false),
      optimization_thread(nullptr)
 {
     irfs.resize(4);
@@ -207,8 +208,7 @@ SeleneFrame::SeleneFrame(wxString const &title)
     
     Bind(wxEVT_MENU,&SeleneFrame::evt_menu,this);
     
-    rays_timer=new wxTimer(this);
-    Bind(wxEVT_TIMER,&SeleneFrame::evt_timed_rays_update,this);
+    Bind(EVT_SELENE_GEOMETRY_REFRESH,&SeleneFrame::evt_timed_rays_update,this);
     
     //
     
@@ -889,9 +889,14 @@ void SeleneFrame::evt_popup_menu(wxCommandEvent &event)
     event.Skip();
 }
 
-void SeleneFrame::evt_timed_rays_update(wxTimerEvent &event)
+void SeleneFrame::evt_timed_rays_update(wxCommandEvent &event)
 {
     update_rays();
+        
+    for(std::size_t i=0;i<frames.size();i++)
+        update_vao(frames_vao[i],frames[i]);
+        
+    pause_optimization=false;
 }
 
 void SeleneFrame::evt_trace(wxCommandEvent &event)
@@ -932,8 +937,6 @@ void SeleneFrame::evt_trace(wxCommandEvent &event)
             
             if(optimization_running)
             {
-                rays_timer->Start(250);
-                
                 rays_x1.resize(Nrays); rays_x2.resize(Nrays);
                 rays_y1.resize(Nrays); rays_y2.resize(Nrays);
                 rays_z1.resize(Nrays); rays_z2.resize(Nrays);
@@ -946,8 +949,6 @@ void SeleneFrame::evt_trace(wxCommandEvent &event)
             }
             else
             {
-                rays_timer->Stop();
-                
                 if(optimization_thread!=nullptr)
                 {
                     optimization_thread->join();
