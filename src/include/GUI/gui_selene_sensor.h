@@ -74,6 +74,7 @@ class RayCounter
         
         RayCounter();
         
+        double compute_directionnal_spread();
         double compute_spatial_spread();
         void set_sensor(Sel::Object *object);
         void set_sensor(std::filesystem::path const &sensor_file);

@@ -143,10 +143,13 @@ void OptimizationDialog::evt_close(wxCloseEvent &event)
 
 void SeleneFrame::optimization_trace()
 {
+    bool first_run=true;
     double best_score=std::numeric_limits<double>::max();
     
     while(optimization_running)
     {
+        if(!first_run) optim_engine.evolve(1.0);
+            
         std::cout<<"Best score: "<<best_score<<std::endl;
         Sel::Selene selene;
             
@@ -155,7 +158,11 @@ void SeleneFrame::optimization_trace()
             Sel::Object *object=dynamic_cast<Sel::Object*>(frames[i]);
             Sel::Light *light=dynamic_cast<Sel::Light*>(frames[i]);
             
-            if(object!=nullptr) selene.add_object(object);
+            if(object!=nullptr)
+            {
+                object->update_geometry();
+                selene.add_object(object);
+            }
             else if(light!=nullptr) selene.add_light(light);
         }
         
@@ -166,11 +173,19 @@ void SeleneFrame::optimization_trace()
         
         double current_score=0;
         
-        for(std::size_t i=0;i<optimization_targets.size();i++)
+        for(OptimTarget const &target : optimization_targets)
         {
             RayCounter counter;
-            counter.set_sensor(optimization_targets[i].sensor);
-            current_score=counter.compute_spatial_spread();
+            counter.set_sensor(target.sensor);
+            
+            if(target.treatment==OptimTreatment::MINIMIZE_SPATIAL_SPREAD)
+            {                
+                current_score+=counter.compute_spatial_spread();
+            }
+            else
+            {
+                current_score+=counter.compute_directionnal_spread();
+            }
         }
         
         if(current_score<best_score)
@@ -208,8 +223,8 @@ void SeleneFrame::optimization_trace()
         {
             optim_engine.revert_targets();
         }
-                     
-        optim_engine.evolve(1.0);
+        
+        first_run=false;
     }
     
     optim_engine.revert_targets();

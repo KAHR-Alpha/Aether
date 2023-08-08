@@ -1048,6 +1048,30 @@ void Object::to_local_ray(SelRay &ray,SelRay const &base_ray)
     ray.pol=to_local(base_ray.pol);
 }
 
+
+void Object::update_geometry()
+{
+    switch(type)
+    {
+        case OBJ_BOOLEAN: break;
+        case OBJ_BOX: set_box(); break;
+        case OBJ_CONIC: set_conic_section(); break;
+        case OBJ_DISK: set_disk(); break;
+        case OBJ_LENS: set_lens(); break;
+        case OBJ_MESH: break;
+        case OBJ_PARABOLA: set_parabola(); break;
+        case OBJ_RECTANGLE: set_rectangle(); break;
+        case OBJ_SPHERE: set_sphere(); break;
+        case OBJ_SPHERE_PATCH: set_spherical_patch(); break;
+        case OBJ_VOL_CONE: set_cone_volume(); break;
+        case OBJ_VOL_CYLINDER: set_cylinder_volume(); break;
+        default:
+            std::cout<<"Geometry unaccounted for\n";
+            std::exit(EXIT_FAILURE);
+    }
+}
+
+
 void Object::xyz_to_uv(double &u,double &v,int face_,
                        double x,double y,double z)
 {

@@ -401,6 +401,7 @@ class Object: public Frame
         void set_sens_none();
         void set_sens_transp();
         void to_local_ray(SelRay &ray,SelRay const &base_ray);
+        void update_geometry();                         // switch
         void xyz_to_uv(double &u,double &v,int face,
                        double x,double y,double z);   // switch
         
