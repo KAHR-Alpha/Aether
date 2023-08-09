@@ -21,6 +21,7 @@ limitations under the License.*/
 #include <cstdlib>
 #include <chrono>
 #include <iostream>
+#include <numbers>
 #include <random>
 #include <string>
 #include <vector>
@@ -30,7 +31,7 @@ limitations under the License.*/
 #define TEST_MODE
 #define DEBUG_MSG_ON
 
-inline constexpr double Pi=4.0*std::atan(1.0);
+inline constexpr double Pi=std::numbers::pi_v<double>;
 
 class Vector2;
 class Vector3;

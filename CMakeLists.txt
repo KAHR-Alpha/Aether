@@ -13,8 +13,8 @@ function(Dll_Install library_name)
 endfunction()
 
 set(CPACK_PACKAGE_VERSION_MAJOR 0)
-set(CPACK_PACKAGE_VERSION_MINOR 10)
-set(CPACK_PACKAGE_VERSION_PATCH 2)
+set(CPACK_PACKAGE_VERSION_MINOR 11)
+set(CPACK_PACKAGE_VERSION_PATCH 0)
 
 set(TASK "Build CLI" CACHE STRING "What to do")
 set_property(CACHE TASK PROPERTY STRINGS "Build CLI" "Build CLI+GUI")
@@ -28,8 +28,8 @@ endif()
 set(INSTALL_PATH "" CACHE PATH "Installation path")
 set(NThreads 0 CACHE STRING "Max number of threads" )
 
-# Global setting: Use C++17
-set(CMAKE_CXX_STANDARD 17)
+# Global setting: Use C++20
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 

@@ -505,13 +505,13 @@ void SymNode::parse_single(std::string const &frm)
     }
 }
 
-bool SymNode::requires(std::string const &var_)
+bool SymNode::requires_one(std::string const &var_)
 {
          if(type==SYM_VAR && var==var_) return true;
     else if(type==SYM_EXPR)
     {
         for(unsigned int i=0;i<nodes_arr.size();i++)
-            if(nodes_arr[i]->requires(var_)) return true;
+            if(nodes_arr[i]->requires_one(var_)) return true;
     }
         
     return false;
@@ -520,7 +520,7 @@ bool SymNode::requires(std::string const &var_)
 bool SymNode::requires_any(std::vector<std::string> const &var_)
 {
     for(unsigned int i=0;i<var_.size();i++)
-        if(requires(var_[i])) return true;
+        if(requires_one(var_[i])) return true;
         
     return false;
 }

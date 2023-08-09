@@ -83,7 +83,7 @@ class SymNode
         double evaluate();
         double evaluate(std::list<SymNode*> &backtrace);
         std::string get_expression();
-        bool requires(std::string const &var);
+        bool requires_one(std::string const &var);
         bool requires_any(std::vector<std::string> const &var);
         void set_expression(std::string const &frm);
         void set_lib(SymLib *lib);
