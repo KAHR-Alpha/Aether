@@ -20,7 +20,6 @@ limitations under the License.*/
 #include <iomanip>
 #include <limits>
 
-extern const double Pi;
 extern std::ofstream plog;
 
 GL_DiffOrders::GL_DiffOrders(wxWindow *parent)
@@ -460,7 +459,7 @@ void DiffOrdersSDFrame::evt_spectrum(wxCommandEvent &event)
 
 void DiffOrdersSDFrame::evt_vectors(wxCommandEvent &event)
 {
-    Angle ang;
+    AngleRad ang;
     double length;
     
     ang=Degree(a1_ang_ctrl->get_value());
@@ -768,7 +767,7 @@ DiffOrdersFrame::DiffOrdersFrame(wxString const &title)
 
 void DiffOrdersFrame::evt_a1(wxCommandEvent &event)
 {
-    Angle ang=Degree(a1_ang_ctrl->get_value());
+    AngleRad ang=Degree(a1_ang_ctrl->get_value());
     double length=a1_length_ctrl->get_length();
     
     a1(length*std::cos(ang),length*std::sin(ang),0);
@@ -779,7 +778,7 @@ void DiffOrdersFrame::evt_a1(wxCommandEvent &event)
 
 void DiffOrdersFrame::evt_a2(wxCommandEvent &event)
 {
-    Angle ang=Degree(a2_ang_ctrl->get_value());
+    AngleRad ang=Degree(a2_ang_ctrl->get_value());
     double length=a2_length_ctrl->get_length();
     
     a2(length*std::cos(ang),length*std::sin(ang),0);

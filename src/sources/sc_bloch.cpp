@@ -16,12 +16,12 @@ limitations under the License.*/
 #include <phys_constants.h>
 #include <phys_tools.h>
 
-extern const double Pi;
+
 extern const Imdouble Im;
 extern std::ofstream plog;
 
 Bloch_Wideband::Bloch_Wideband(int x1_,int x2_,int y1_,int y2_,int z1_,int z2_,
-                               double kx_,double ky_,Angle polar_)
+                               double kx_,double ky_,AngleRad polar_)
     :Source(x1_,x2_,y1_,y2_,z1_,z2_),
      t_offset(0),
      kx(kx_), ky(ky_),
@@ -284,7 +284,7 @@ void Bloch_Wideband::inject_H(FDTD &real_fdtd,FDTD &imag_fdtd)
     step+=1;
 }
 
-void Bloch_Wideband::set_cut_angle(Angle const &safe_angle_,Angle const &cut_angle_)
+void Bloch_Wideband::set_cut_angle(AngleRad const &safe_angle_,AngleRad const &cut_angle_)
 {
     safe_angle=safe_angle_;
     cut_angle=cut_angle_;

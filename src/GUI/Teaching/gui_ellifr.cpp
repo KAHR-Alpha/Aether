@@ -17,7 +17,6 @@ limitations under the License.*/
 
 #include <iomanip>
 
-extern const double Pi;
 extern const Imdouble Im;
 
 //###############
@@ -53,7 +52,7 @@ void ImdoubleCtrl::set_amp(double amp)
     amp_ctrl->SetValue(strm.str());
 }
 
-void ImdoubleCtrl::set_phase(Angle phase)
+void ImdoubleCtrl::set_phase(AngleRad phase)
 {
     std::stringstream strm;
     strm<<std::setprecision(7)<<phase.degree();

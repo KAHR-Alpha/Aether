@@ -24,11 +24,14 @@ namespace SelGUI
 //   FrameDialog
 //#########################
 
-FrameDialog::FrameDialog(Sel::Frame *frame_,std::vector<Sel::Frame*> const &frames_)
+FrameDialog::FrameDialog(Sel::Frame *frame_,
+                         std::vector<Sel::Frame*> const &frames_,
+                         OptimEngine &optim_engine_)
     :wxDialog(NULL,-1,"Object Properties",
               wxGetApp().default_dialog_origin(),
               wxGetApp().default_dialog_size()),
      cancel_check(true),
+     optim_engine(optim_engine_),
      frame(frame_)
 {
     for(std::size_t i=0;i<frames_.size();i++)
@@ -126,6 +129,10 @@ FrameDialog::FrameDialog(Sel::Frame *frame_,std::vector<Sel::Frame*> const &fram
     y_ctrl=new LengthSelector(ctrl_panel,"y: ",frame->in_displacement.y,false,"mm");
     z_ctrl=new LengthSelector(ctrl_panel,"z: ",frame->in_displacement.z,false,"mm");
     
+    x_ctrl->handle_external_optimization(&frame->in_displacement.x,optim_engine);
+    y_ctrl->handle_external_optimization(&frame->in_displacement.y,optim_engine);
+    z_ctrl->handle_external_optimization(&frame->in_displacement.z,optim_engine);
+    
     loc_sizer->Add(x_ctrl,wxSizerFlags().Expand());
     loc_sizer->Add(y_ctrl,wxSizerFlags().Expand());
     loc_sizer->Add(z_ctrl,wxSizerFlags().Expand());
@@ -149,13 +156,13 @@ FrameDialog::FrameDialog(Sel::Frame *frame_,std::vector<Sel::Frame*> const &fram
     
     // - Rotation coordinates
     
-    Angle ang_A(frame->in_A),
-          ang_B(frame->in_B),
-          ang_C(frame->in_C);
+    a_ctrl=new NamedTextCtrl<double>(ctrl_panel,"a: ",frame->in_A.degree());
+    b_ctrl=new NamedTextCtrl<double>(ctrl_panel,"b: ",frame->in_B.degree());
+    c_ctrl=new NamedTextCtrl<double>(ctrl_panel,"c: ",frame->in_C.degree());
     
-    a_ctrl=new NamedTextCtrl<double>(ctrl_panel,"a: ",ang_A.degree());
-    b_ctrl=new NamedTextCtrl<double>(ctrl_panel,"b: ",ang_B.degree());
-    c_ctrl=new NamedTextCtrl<double>(ctrl_panel,"c: ",ang_C.degree());
+    a_ctrl->handle_external_optimization(&frame->in_A.val,optim_engine);
+    b_ctrl->handle_external_optimization(&frame->in_B.val,optim_engine);
+    c_ctrl->handle_external_optimization(&frame->in_C.val,optim_engine);
     
     ang_sizer->Add(a_ctrl,wxSizerFlags().Expand());
     ang_sizer->Add(b_ctrl,wxSizerFlags().Expand());
@@ -236,13 +243,35 @@ void FrameDialog::evt_ok(wxCommandEvent &event)
     if(rotation_frame->GetSelection()==0) frame->rotation_frame=nullptr;
     else frame->rotation_frame=frames[rotation_frame->GetSelection()-1];
     
-    frame->in_displacement(x_ctrl->get_length(),
-                          y_ctrl->get_length(),
-                          z_ctrl->get_length());
+    // Location
     
-    frame->in_A=a_ctrl->get_value()*Pi/180.0;
-    frame->in_B=b_ctrl->get_value()*Pi/180.0;
-    frame->in_C=c_ctrl->get_value()*Pi/180.0;
+    frame->in_displacement(x_ctrl->get_length(),
+                           y_ctrl->get_length(),
+                           z_ctrl->get_length());
+    
+    if(x_ctrl->optimize) optim_engine.register_variable(&frame->in_displacement.x,x_ctrl->optim_rule);
+    else optim_engine.forget_variable(&frame->in_displacement.x);
+    
+    if(y_ctrl->optimize) optim_engine.register_variable(&frame->in_displacement.y,y_ctrl->optim_rule);
+    else optim_engine.forget_variable(&frame->in_displacement.y);
+    
+    if(z_ctrl->optimize) optim_engine.register_variable(&frame->in_displacement.z,z_ctrl->optim_rule);
+    else optim_engine.forget_variable(&frame->in_displacement.z);
+    
+    // Rotation
+    
+    frame->in_A.degree(a_ctrl->get_value());
+    frame->in_B.degree(b_ctrl->get_value());
+    frame->in_C.degree(c_ctrl->get_value());
+    
+    if(a_ctrl->optimize) optim_engine.register_variable(&frame->in_A.val,a_ctrl->optim_rule);
+    else optim_engine.forget_variable(&frame->in_A.val);
+    
+    if(b_ctrl->optimize) optim_engine.register_variable(&frame->in_B.val,b_ctrl->optim_rule);
+    else optim_engine.forget_variable(&frame->in_B.val);
+    
+    if(c_ctrl->optimize) optim_engine.register_variable(&frame->in_C.val,c_ctrl->optim_rule);
+    else optim_engine.forget_variable(&frame->in_C.val);
     
     frame->name=name_ctrl->get_value();
     

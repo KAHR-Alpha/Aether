@@ -17,8 +17,6 @@ limitations under the License.*/
 
 #include <gui_geometric_gradient.h>
 
-extern const double Pi;
-
 GeoGradientHolder::GeoGradientHolder()
     :lattice(LAT_HEXA),
      profile(PROF_LINEAR),
@@ -489,7 +487,7 @@ void GeoGradientFrame::evt_export_index(wxCommandEvent &event)
     
     int m,l;
     unsigned int i;
-    Angle ang_rad;
+    AngleRad ang_rad;
     
     int Nl=layers_ctrl->get_value();
     
@@ -710,7 +708,7 @@ void GeoGradientFrame::recompute()
 {
     int m,l;
     unsigned int i;
-    Angle ang_rad;
+    AngleRad ang_rad;
     
     int Nl=layers_ctrl->get_value();
     

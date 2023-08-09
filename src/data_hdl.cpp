@@ -17,7 +17,6 @@ limitations under the License.*/
 
 #include <lua_interface.h>
 
-extern const double Pi;
 extern const Imdouble Im;
 extern std::ofstream plog;
 
@@ -153,7 +152,7 @@ Spectrum::Spectrum(std::vector<double> const &lambda_,
 }
 
 Spectrum::Spectrum(std::vector<double> const &lambda_,
-                   std::vector<Angle> const &ang_,
+                   std::vector<AngleRad> const &ang_,
                    std::vector<Imdouble> const &spect_)
     :N(lambda_.size()),
      source_pol("TE"),

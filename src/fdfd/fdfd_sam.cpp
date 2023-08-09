@@ -14,7 +14,7 @@ limitations under the License.*/
 
 #include <fdfd.h>
 
-extern const double Pi;
+
 extern const Imdouble Im;
 extern std::ofstream plog;
 
@@ -94,7 +94,7 @@ void Slice::show()
 //       FDFD
 //####################
         
-void FDFD::solve_prop_3D_SAM(double lambda_,Angle theta,Angle phi,Angle polar)
+void FDFD::solve_prop_3D_SAM(double lambda_,AngleRad theta,AngleRad phi,AngleRad polar)
 {
     int i,j,k;
     

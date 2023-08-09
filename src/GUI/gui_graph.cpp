@@ -20,7 +20,6 @@ limitations under the License.*/
 #include <sstream>
 
 extern std::ofstream plog;
-extern const double Pi;
 
 enum
 {

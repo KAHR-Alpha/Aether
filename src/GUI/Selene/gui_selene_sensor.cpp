@@ -19,323 +19,6 @@ limitations under the License.*/
 namespace SelGUI
 {
 
-RayCounter::RayCounter()
-    :owner(false),
-     object(nullptr),
-     N_faces(0),
-     computation_type(RC_COUNTING),
-     spectral_mode(SP_FULL),
-     has_lambda(false),
-     has_source(false),
-     has_path(false),
-     has_generation(false),
-     has_phase(false),
-     has_polarization(false)
-{
-}
-
-void RayCounter::initialize()
-{
-    // Power unit
-    
-    std::string sensor_values=loader.header[1];
-    
-    std::vector<std::string> sv_split;
-    split_string(sv_split,sensor_values);
-    
-    ray_unit=std::stod(sv_split[sv_split.size()-1]);
-    chk_var(ray_unit);
-    
-    // Sensor type
-    
-    std::string sensor_content_linear=loader.header[2];
-    
-    std::vector<std::string> sensor_content;
-    split_string(sensor_content,sensor_content_linear);
-    
-    int column_offset=0;
-    
-    if(vector_contains(sensor_content,std::string("wavelength")))
-    {
-        has_lambda=true;
-        lambda_column=column_offset;
-        column_offset++;
-    }
-    if(vector_contains(sensor_content,std::string("source")))
-    {
-        has_source=true;
-        source_column=column_offset;
-        column_offset++;
-    }
-    if(vector_contains(sensor_content,std::string("path")))
-    {
-        has_path=true;
-        path_column=column_offset;
-        column_offset++;
-    }
-    if(vector_contains(sensor_content,std::string("generation")))
-    {
-        has_generation=true;
-        generation_column=column_offset;
-        column_offset++;
-    }
-    if(vector_contains(sensor_content,std::string("length"))) column_offset++;
-    if(vector_contains(sensor_content,std::string("phase")))
-    {
-        has_phase=true;
-        phase_column=column_offset;
-        column_offset++;
-    }
-    if(vector_contains(sensor_content,std::string("world_intersection"))) column_offset+=3;
-    if(vector_contains(sensor_content,std::string("world_direction"))) column_offset+=3;
-    if(vector_contains(sensor_content,std::string("world_polarization"))) column_offset+=3;
-    if(vector_contains(sensor_content,std::string("obj_intersection")))
-    {
-        obj_inter_column=column_offset;
-        column_offset+=3;
-    }
-    else
-    {
-        std::cerr<<"Invalid ray file "<<sensor_fname<<"\n";
-        std::cerr<<"Missing object intersection points\nAborting...\n";
-        std::exit(EXIT_FAILURE);
-    }
-    if(vector_contains(sensor_content,std::string("obj_direction")))
-    {
-        obj_dir_column=column_offset;
-        column_offset+=3;
-    }
-    if(vector_contains(sensor_content,std::string("obj_polarization")))
-    {
-        has_polarization=true;
-        obj_polar_column=column_offset;
-        column_offset+=3;
-    }
-    if(vector_contains(sensor_content,std::string("obj_face")))
-    {
-        face_column=column_offset;
-    }
-    else
-    {
-        std::cerr<<"Invalid ray file "<<sensor_fname<<"\n";
-        std::cerr<<"Missing face intersections\nAborting...\n";
-        std::exit(EXIT_FAILURE);
-    }
-    
-    N_faces=object->get_N_faces();
-    
-    bins.resize(N_faces);
-    
-    Du.resize(N_faces);
-    Dv.resize(N_faces);
-    
-    Nu.resize(N_faces);
-    Nv.resize(N_faces);
-    
-    for(int i=0;i<N_faces;i++)
-    {
-        object->default_N_uv(Nu[i],Nv[i],i);
-        
-        Du[i]=1.0/Nu[i];
-        Dv[i]=1.0/Nv[i];
-        
-        bins[i].init(Nu[i],Nv[i]);
-    }
-    
-    // Loading
-    
-    int Nl=loader.Nl;
-    
-    if(has_lambda) lambda.resize(Nl);
-    if(has_source) source.resize(Nl);
-    if(has_path) path.resize(Nl);
-    if(has_generation) generation.resize(Nl);
-    if(has_phase) phase.resize(Nl);
-    if(has_polarization) obj_polarization.resize(Nl);
-    
-    obj_inter.resize(Nl);
-    obj_dir.resize(Nl);
-    face.resize(Nl);
-    
-    std::vector<double> data;
-    
-    lambda_max=0;
-    lambda_min=std::numeric_limits<double>::max();
-    
-    for(int i=0;i<Nl;i++)
-    {
-        loader.load_seq(data);
-        
-        if(has_lambda)
-        {
-            lambda[i]=data[lambda_column];
-            
-            lambda_min=std::min(lambda_min,lambda[i]);
-            lambda_max=std::max(lambda_max,lambda[i]);
-        }
-        
-        if(has_polarization)
-        {
-            obj_polarization[i].x=data[obj_polar_column+0];
-            obj_polarization[i].y=data[obj_polar_column+1];
-            obj_polarization[i].z=data[obj_polar_column+2];
-        }
-        
-        obj_inter[i].x=data[obj_inter_column+0];
-        obj_inter[i].y=data[obj_inter_column+1];
-        obj_inter[i].z=data[obj_inter_column+2];
-        
-        face[i]=data[face_column];
-    }
-}
-
-void RayCounter::set_sensor(Sel::Object *object_)
-{
-    object=object_;
-//    sensor_fname=object->get_sensor_fname();
-    
-    loader.initialize(sensor_fname.generic_string());
-    
-    initialize();
-}
-
-void RayCounter::set_sensor(std::filesystem::path const &sensor_file)
-{
-    sensor_fname=sensor_file;
-    
-    if(object==nullptr)
-    {
-        owner=true;
-        object=new Sel::Object;
-    }
-    
-    // Reading the object geometry from the sensor file
-    
-    loader.initialize(sensor_fname.generic_string());
-    
-    std::string object_header=loader.header[0];
-    chk_var(object_header);
-    
-    std::vector<std::string> header_split;
-    split_string(header_split,object_header);
-    
-    std::string object_type=header_split[0];
-    std::vector<double> parameters(header_split.size()-1);
-    
-    for(std::size_t i=1;i<header_split.size();i++)
-        parameters[i-1]=std::stod(header_split[i]);
-    
-    // Setting the object with the proper geometry
-    
-    if(owner)
-    {
-             if(object_type=="box") object->set_box(parameters[0],parameters[1],parameters[2]);
-        else if(object_type=="cylinder") object->set_cylinder_volume(parameters[0],parameters[1],parameters[2]);
-        else if(object_type=="disk") object->set_disk(parameters[0],parameters[1]);
-        else if(object_type=="lens") object->set_lens(parameters[0],parameters[1],parameters[2],parameters[3]);
-        else if(object_type=="mesh") ;
-        else if(object_type=="rectangle") object->set_rectangle(parameters[0],parameters[1]);
-        else if(object_type=="parabola") object->set_parabola(parameters[0],parameters[1],parameters[2]);
-        else if(object_type=="sphere") object->set_sphere(parameters[0],parameters[1]);
-        else if(object_type=="spherical_patch") object->set_spherical_patch(parameters[0],parameters[1]);
-        else
-        {
-            std::cerr<<"Ray analysis error, couldn't set up the object type "<<object_type<<"\nAborting...\n";
-            std::exit(EXIT_FAILURE);
-        }
-    }
-    
-    initialize();
-}
-
-void RayCounter::reallocate()
-{
-    for(int i=0;i<N_faces;i++)
-    {
-        if(   Nu[i]!=bins[i].L1()
-           || Nv[i]!=bins[i].L2())
-        {
-            bins[i].init(Nu[i],Nv[i]);
-            
-            Du[i]=1.0/Nu[i];
-            Dv[i]=1.0/Nv[i];
-        }
-    }
-}
-
-void RayCounter::update()
-{
-    reallocate();
-    
-    for(int i=0;i<N_faces;i++)
-        bins[i]=0;
-    
-    double unit=1.0;
-    if(computation_type==RC_POWER) unit=ray_unit;
-    
-    for(std::size_t i=0;i<obj_inter.size();i++)
-    {
-        if(has_lambda && spectral_mode!=SP_FULL)
-        {
-            if(lambda[i]<lambda_min || lambda[i]>lambda_max) continue;
-        }
-        
-        double u,v;
-        
-        object->xyz_to_uv(u,v,face[i],
-                          obj_inter[i].x,
-                          obj_inter[i].y,
-                          obj_inter[i].z);
-        
-        int m=u/Du[face[i]];
-        int n=v/Dv[face[i]];
-        
-        Grid2<double> &fbins=bins[face[i]];
-        
-        if(m>=0 && m<Nu[face[i]] && n>=0 && n<Nv[face[i]])
-        {
-            fbins(m,n)+=unit;
-        }
-    }
-}
-
-void RayCounter::update_from_file()
-{
-    reallocate();
-    
-    for(int i=0;i<N_faces;i++)
-        bins[i]=0;
-    
-    int Nl=loader.Nl;
-    
-    std::vector<double> data;
-    
-    for(int i=0;i<Nl;i++)
-    {
-        loader.load_seq(data);
-        
-        double x=data[obj_inter_column+0];
-        double y=data[obj_inter_column+1];
-        double z=data[obj_inter_column+2];
-        
-        int face=data[face_column];
-        
-        double u,v;
-        
-        object->xyz_to_uv(u,v,face,x,y,z);
-        
-        int m=u/Du[face];
-        int n=v/Dv[face];
-        
-        Grid2<double> &fbins=bins[face];
-        
-        if(m>=0 && m<Nu[face] && n>=0 && n<Nv[face])
-        {
-            fbins(m,n)++;
-        }
-    }
-}
-
 //######################
 //   RayCounterFrame
 //######################
@@ -349,13 +32,13 @@ enum
     MENU_GRADIENT_JET_EXT,
 };
 
-RayCounterFrame::RayCounterFrame(wxString const &title,RayCounter *counter_)
+RayCounterFrame::RayCounterFrame(wxString const &title,Sel::RayCounter *counter_)
     :BaseFrame(title),
      linked(false),
      counter(counter_)
 {
     if(counter!=nullptr) linked=true;
-    else counter=new RayCounter;
+    else counter=new Sel::RayCounter;
     
     wxSplitterWindow *splitter=new wxSplitterWindow(this);
     
@@ -493,9 +176,9 @@ void RayCounterFrame::allocate_face_controls()
     
     switch(counter->computation_type)
     {
-        case RC_COLOR: computation_type->SetSelection(2); break;
-        case RC_COUNTING: computation_type->SetSelection(0); break;
-        case RC_POWER: computation_type->SetSelection(1); break;
+        case Sel::RC_COLOR: computation_type->SetSelection(2); break;
+        case Sel::RC_COUNTING: computation_type->SetSelection(0); break;
+        case Sel::RC_POWER: computation_type->SetSelection(1); break;
     }
     
     computation_type->Bind(wxEVT_CHOICE,&RayCounterFrame::evt_computation_type,this);
@@ -516,9 +199,9 @@ void RayCounterFrame::allocate_face_controls()
         
         switch(counter->spectral_mode)
         {
-            case SP_FULL: spectral_mode->SetSelection(0); break;
-            case SP_MINMAX: spectral_mode->SetSelection(1); break;
-            case SP_WINDOW: spectral_mode->SetSelection(2); break;
+            case Sel::SP_FULL: spectral_mode->SetSelection(0); break;
+            case Sel::SP_MINMAX: spectral_mode->SetSelection(1); break;
+            case Sel::SP_WINDOW: spectral_mode->SetSelection(2); break;
         }
         
         spectral_mode->Bind(wxEVT_CHOICE,&RayCounterFrame::evt_spectral_filter,this);
@@ -555,8 +238,8 @@ void RayCounterFrame::evt_computation_type(wxCommandEvent &event)
 {
     int selection=computation_type->GetSelection();
     
-         if(selection==0) counter->computation_type=RC_COUNTING;
-    else if(selection==1) counter->computation_type=RC_POWER;
+         if(selection==0) counter->computation_type=Sel::RC_COUNTING;
+    else if(selection==1) counter->computation_type=Sel::RC_POWER;
     
     counter->update();
     update_graph();
@@ -720,16 +403,16 @@ void RayCounterFrame::evt_spectral_filter(wxCommandEvent &event)
 {
     int selection=spectral_mode->GetSelection();
     
-         if(selection==0) counter->spectral_mode=SP_FULL;
+         if(selection==0) counter->spectral_mode=Sel::SP_FULL;
     else if(selection==1)
     {
-        counter->spectral_mode=SP_MINMAX;
+        counter->spectral_mode=Sel::SP_MINMAX;
         counter->lambda_min=lambda_min->get_lambda();
         counter->lambda_max=lambda_max->get_lambda();
     }
     else if(selection==2)
     {
-        counter->spectral_mode=SP_WINDOW;
+        counter->spectral_mode=Sel::SP_WINDOW;
         counter->lambda_min=lambda_center->get_lambda()-lambda_width->get_lambda()/2.0;
         counter->lambda_max=lambda_center->get_lambda()+lambda_width->get_lambda()/2.0;
     }

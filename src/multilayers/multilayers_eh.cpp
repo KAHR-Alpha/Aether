@@ -15,7 +15,7 @@ limitations under the License.*/
 #include <multilayers.h>
 #include <phys_tools.h>
 
-extern const double Pi;
+
 extern const Imdouble Im;
 
 //#######################
@@ -810,7 +810,7 @@ void Multilayer_TMM::recompute_L()
     }
 }
 
-void Multilayer_TMM::set_angle(Angle const &angle_)
+void Multilayer_TMM::set_angle(AngleRad const &angle_)
 {
     angle=angle_;
 }

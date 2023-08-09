@@ -17,14 +17,22 @@ limitations under the License.*/
 
 #include <mathUT.h>
 
+class OptimTarget
+{
+    public:
+        double weight;
+        
+        virtual double evaluate() const=0;
+};
+
 class OptimRule
 {
     public:
-        enum Operation { ADD, GROWTH };
+        enum Operation { ADD, GROW };
         enum Limit { UP, DOWN, BOTH, NONE };
         
         bool lock;
-        double delta,limit_down,limit_up;
+        double delta_add,delta_grow,limit_down,limit_up;
         Operation operation_type;
         Limit limit_type;
         
@@ -37,26 +45,24 @@ class OptimRule
 class OptimEngine
 {
     public:
-        std::vector<double*> targets;
+        int max_fails=100;
+        
+        std::vector<double*> variables;
         std::vector<double> previous_values;
         std::vector<OptimRule> rules;
+        std::vector<OptimTarget*> targets;
         
+        void add_target(OptimTarget *target);
+        void clear_targets();
+        double evaluate_targets();
         void evolve(double factor);
-        void forget_target(int *target);
-        void forget_target(unsigned int *target);
-        void forget_target(double *target);
-        void forget_target(std::string *target);
-        bool get_rule(int *target,OptimRule &rule);
-        bool get_rule(unsigned int *target,OptimRule &rule);
-        bool get_rule(double *target,OptimRule &rule);
-        bool get_rule(std::string *target,OptimRule &rule);
-        int locate_target(double *target);
-        void register_target(double *target,OptimRule const &rule);
-        void revert_targets();
-        void set_rule(int *target,OptimRule const &rule);
-        void set_rule(unsigned int *target,OptimRule const &rule);
+        void forget_variable(double *target);
+        bool get_rule(double *target,OptimRule &rule) const;
+        int locate_variable(double *target) const;
+        void register_variable(double *target,OptimRule const &rule);
+        void revert_variables();
         void set_rule(double *target,OptimRule const &rule);
-        void set_rule(std::string *target,OptimRule const &rule);
+        void set_max_fails(int max_fails);
 };
 
 #endif // MATH_OPTIM_H_INCLUDED

@@ -18,7 +18,6 @@ limitations under the License.*/
 #include <complex>
 #include <berreman_strat.h>
 
-extern const double Pi;
 extern const Imdouble Im;
 
 extern std::ofstream plog;
@@ -247,7 +246,7 @@ void B_strat::compute(double lambda,double ang_rad,
     r_MM=((g11-g21)*kzok3*t_MM+(g12-g22)*t_ME)*kokz1;
 }
 
-void B_strat::compute(double lambda,Angle ang,Imdouble &r_TE,Imdouble &r_TM,Imdouble &t_TE,Imdouble &t_TM)
+void B_strat::compute(double lambda,AngleRad ang,Imdouble &r_TE,Imdouble &r_TM,Imdouble &t_TE,Imdouble &t_TM)
 {
     int i,j,k,l;
     

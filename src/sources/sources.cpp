@@ -17,7 +17,7 @@ limitations under the License.*/
 #include <sources.h>
 
 extern const Imdouble Im;
-extern const double Pi;
+
 
 extern std::ofstream plog;
 

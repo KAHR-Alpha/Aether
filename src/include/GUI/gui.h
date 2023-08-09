@@ -59,31 +59,22 @@ void textctrl_to_value(wxTextCtrl *ctrl,T &target)
     }
 }
 
-template<typename T> class NamedTextCtrl;
-
-class NamedTextCtrlDialog: public OptimRule, public wxDialog
-{
-    public:
-        OptimRule *rule_holder;
-        bool selection_ok;
-        
-        wxCheckBox *lock;
-        wxChoice *operation_type,*limit_type;
-        NamedTextCtrl<double> *delta,*limit_down,*limit_up;
-        
-        NamedTextCtrlDialog(OptimRule *rule);
-        
-        void evt_cancel(wxCommandEvent &event);
-        void evt_ok(wxCommandEvent &event);
-        void save();
-};
+template<typename native_ctrl> class OptimRuleDialog;
 
 template<typename T>
 class NamedTextCtrl: public wxPanel
 {
     public:
         T val;
+        
+        // Internal optimization
         OptimEngine *optim_engine;
+        
+        // External optimization
+        bool optimize;
+        OptimRule optim_rule;
+        
+        // Controls
         
         wxStaticText *name_ctrl;
         wxTextCtrl *txt;
@@ -92,7 +83,8 @@ class NamedTextCtrl: public wxPanel
         NamedTextCtrl(wxWindow *parent,std::string name,T const &x,bool static_style=false,int Nc=0)
             :wxPanel(parent),
              val(x),
-             optim_engine(nullptr)
+             optim_engine(nullptr),
+             optimize(false)
         {
             wxBoxSizer *sizer;
             wxStaticText *name_ctrl=nullptr;
@@ -133,27 +125,70 @@ class NamedTextCtrl: public wxPanel
         
         ~NamedTextCtrl()
         {
-            if(optim_engine!=nullptr)
-                optim_engine->forget_target(&val);
+            if constexpr (std::is_same_v<T,double>)
+            {
+                if(optim_engine!=nullptr)
+                    optim_engine->forget_variable(&val);
+            }
         }
         
         void evt_advanced(wxCommandEvent &event)
         {
-            if(optim_engine!=nullptr)
+            if constexpr (std::is_same_v<T,double>)
             {
-                OptimRule rule;
-                
-                bool known=optim_engine->get_rule(&val,rule);
-                
-                if(!known) return;
-                
-                NamedTextCtrlDialog dialog(&rule);
-                
-                if(dialog.selection_ok) optim_engine->set_rule(&val,rule);
+                if(optim_engine!=nullptr) // Internal optimization
+                {
+                    bool known=optim_engine->get_rule(&val,optim_rule);
+                    
+                    if(!known) return;
+                    
+                    OptimRuleDialog<NamedTextCtrl<T>> dialog(adv_ctrl->GetScreenPosition(),true,optim_rule);
+                    
+                    if(dialog.selection_ok)
+                    {
+                        optim_rule=dialog.rule;
+                        optim_engine->set_rule(&val,optim_rule);
+                    }
+                }
+                else // External optimization
+                {
+                    OptimRuleDialog<NamedTextCtrl<T>> dialog(adv_ctrl->GetScreenPosition(),optimize,optim_rule);
+        
+                    if(dialog.selection_ok)
+                    {
+                        optimize=dialog.optimize;
+                        optim_rule=dialog.rule;
+                        
+                        if(optimize)
+                        {
+                            if(optim_rule.lock)
+                                 txt->SetBackgroundColour(wxColour(220,220,255));
+                            else txt->SetBackgroundColour(wxColour(220,255,220));
+                        }
+                        else txt->SetBackgroundColour(wxColour(255,255,255));
+                        
+                        Refresh();
+                    }
+                }
             }
         }
         
         T get_value() { return val; }
+        
+        void handle_external_optimization(T *target,OptimEngine const &engine)
+        {
+            optimize=engine.get_rule(target,optim_rule);
+            
+            if(optimize)
+            {
+                if(optim_rule.lock)
+                     txt->SetBackgroundColour(wxColour(220,220,255));
+                else txt->SetBackgroundColour(wxColour(220,255,220));
+            }
+            
+            adv_ctrl->Show();
+            Layout();
+        }
                 
         void lock()
         {
@@ -174,12 +209,15 @@ class NamedTextCtrl: public wxPanel
         
         void set_optimization_engine(OptimEngine *engine,OptimRule const &rule)
         {
-            optim_engine=engine;
-            
-            optim_engine->register_target(&val,rule);
-            
-            adv_ctrl->Show();
-            Layout();
+            if constexpr (std::is_same_v<T,double>)
+            {
+                optim_engine=engine;
+                
+                optim_engine->register_variable(&val,rule);
+                
+                adv_ctrl->Show();
+                Layout();
+            }
         }
         
         void set_value(T const &x)
@@ -213,6 +251,194 @@ class NamedTextCtrl: public wxPanel
         void unlock()
         {
             txt->SetEditable(true);
+        }
+};
+
+template<typename native_ctrl>
+class OptimRuleDialog: public wxDialog
+{
+    public:
+        OptimRule rule;
+        bool optimize;
+        bool selection_ok;
+        
+        wxCheckBox *optimize_ctrl,*lock;
+        wxChoice *operation_type,*limit_type;
+        NamedTextCtrl<double> *delta_grow;
+        native_ctrl *delta_add,*limit_down,*limit_up;
+        
+        
+        OptimRuleDialog(wxPoint const &position,bool optimize_, OptimRule const &rule_)
+            :wxDialog(0,wxID_ANY,"Parameters"),
+             rule(rule_),
+             optimize(optimize_),
+             selection_ok(false)
+        {
+            wxBoxSizer *sizer=new wxBoxSizer(wxVERTICAL);
+            
+            optimize_ctrl=new wxCheckBox(this,wxID_ANY,"Optimize");
+            optimize_ctrl->SetValue(optimize);;
+            
+            sizer->Add(optimize_ctrl,wxSizerFlags().Border(wxALL,3));
+            
+            // Rule
+            
+            wxStaticBoxSizer *rule_sizer=new wxStaticBoxSizer(wxVERTICAL,this,"Rule");
+            wxWindow *static_panel=rule_sizer->GetStaticBox();
+            
+            lock=new wxCheckBox(static_panel,wxID_ANY,"Lock optimization");
+            lock->SetValue(rule.lock);
+            
+            rule_sizer->Add(lock);
+            
+            // Type
+            
+            wxStaticBoxSizer *op_sizer=new wxStaticBoxSizer(wxVERTICAL,static_panel,"Operation type");
+            
+            operation_type=new wxChoice(static_panel,wxID_ANY);
+            operation_type->Bind(wxEVT_CHOICE,&OptimRuleDialog::evt_operation_type,this);
+            operation_type->Append("Add");
+            operation_type->Append("Grow");
+            
+                 if(rule.operation_type==OptimRule::Operation::ADD) operation_type->SetSelection(0);
+            else if(rule.operation_type==OptimRule::Operation::GROW) operation_type->SetSelection(1);
+            
+            op_sizer->Add(operation_type,wxSizerFlags().Expand());
+            rule_sizer->Add(op_sizer,wxSizerFlags().Expand());
+            
+            // Deltas
+            
+            delta_add=new native_ctrl(static_panel,"Delta addition",rule.delta_add,true);
+            rule_sizer->Add(delta_add,wxSizerFlags().Expand());
+            if(rule.operation_type==OptimRule::GROW) delta_add->Hide();
+            
+            delta_grow=new NamedTextCtrl<double>(static_panel,"Delta factor",rule.delta_grow,true);
+            rule_sizer->Add(delta_grow,wxSizerFlags().Expand());
+            if(rule.operation_type==OptimRule::ADD) delta_grow->Hide();
+            
+            // Limits
+            
+            wxStaticBoxSizer *limit_sizer=new wxStaticBoxSizer(wxVERTICAL,static_panel,"Limits");
+            
+            wxBoxSizer *limit_type_sizer=new wxBoxSizer(wxHORIZONTAL);
+            
+            wxStaticText *limit_type_txt=new wxStaticText(static_panel,wxID_ANY,"Type: ");
+            
+            limit_type=new wxChoice(static_panel,wxID_ANY);
+            limit_type->Append("Up");
+            limit_type->Append("Down");
+            limit_type->Append("Both");
+            limit_type->Append("None");
+            
+                 if(rule.limit_type==OptimRule::Limit::UP) limit_type->SetSelection(0);
+            else if(rule.limit_type==OptimRule::Limit::DOWN) limit_type->SetSelection(1);
+            else if(rule.limit_type==OptimRule::Limit::BOTH) limit_type->SetSelection(2);
+            else if(rule.limit_type==OptimRule::Limit::NONE) limit_type->SetSelection(3);
+            
+            limit_type_sizer->Add(limit_type_txt,wxSizerFlags().Align(wxALIGN_CENTER_VERTICAL));
+            limit_type_sizer->Add(limit_type,wxSizerFlags(1).Align(wxALIGN_CENTER_VERTICAL));
+            
+            limit_sizer->Add(limit_type_sizer,wxSizerFlags().Expand());
+            
+            limit_down=new native_ctrl(static_panel,"Down: ",rule.limit_down);
+            limit_up=new native_ctrl(static_panel,"Up: ",rule.limit_up);
+            
+            limit_sizer->Add(limit_down,wxSizerFlags().Expand());
+            limit_sizer->Add(limit_up,wxSizerFlags().Expand());
+            
+            rule_sizer->Add(limit_sizer,wxSizerFlags().Expand());
+            
+            sizer->Add(rule_sizer,wxSizerFlags().Expand());
+            
+            // Buttons
+            
+            wxBoxSizer *buttons_sizer=new wxBoxSizer(wxHORIZONTAL);
+            
+            wxButton *ok_btn=new wxButton(this,wxID_ANY,"Ok");
+            wxButton *cancel_btn=new wxButton(this,wxID_ANY,"Cancel");
+            
+            ok_btn->Bind(wxEVT_BUTTON,&OptimRuleDialog::evt_ok,this);
+            cancel_btn->Bind(wxEVT_BUTTON,&OptimRuleDialog::evt_cancel,this);
+            
+            buttons_sizer->Add(ok_btn);
+            buttons_sizer->Add(cancel_btn);
+            
+            sizer->Add(buttons_sizer,wxSizerFlags().Border(wxALL,3).Align(wxALIGN_RIGHT));
+            
+            // Wrapping Up
+            
+            SetSizerAndFit(sizer);
+            
+            wxSize dialog_size=GetClientSize();
+            wxSize screen_size=wxGetApp().active_screen_size();
+            
+            wxPoint target_location;
+            
+            target_location.x=std::min(position.x,screen_size.x-dialog_size.x);
+            target_location.y=std::min(position.y,screen_size.y-dialog_size.y);
+            
+            SetPosition(target_location);
+            
+            ShowModal();
+        }
+        
+        
+        void evt_operation_type(wxCommandEvent &event)
+        {
+            if(operation_type->GetSelection()==0)
+            {
+                delta_add->Show();
+                delta_grow->Hide();
+            }
+            else
+            {
+                delta_add->Hide();
+                delta_grow->Show();
+            }
+            
+            Layout();
+            Fit();
+        }
+        
+
+        void evt_cancel(wxCommandEvent &event)
+        {
+            Close();
+        }
+        
+        
+        void evt_ok(wxCommandEvent &event)
+        {
+            selection_ok=true;
+            
+            save();
+            Close();
+        }
+        
+        
+        void save()
+        {
+            optimize=optimize_ctrl->GetValue();
+            
+            rule.lock=lock->GetValue();
+            
+            int op_selection=operation_type->GetSelection();
+            
+                 if(op_selection==0) rule.operation_type=OptimRule::Operation::ADD;
+            else if(op_selection==1) rule.operation_type=OptimRule::Operation::GROW;
+            
+            rule.delta_add=delta_add->get_value();
+            rule.delta_grow=delta_grow->get_value();
+            
+            int limit_selection=limit_type->GetSelection();
+            
+                 if(limit_selection==0) rule.limit_type=OptimRule::Limit::UP;
+            else if(limit_selection==1) rule.limit_type=OptimRule::Limit::DOWN;
+            else if(limit_selection==2) rule.limit_type=OptimRule::Limit::BOTH;
+            else if(limit_selection==3) rule.limit_type=OptimRule::Limit::NONE;
+            
+            rule.limit_down=limit_down->get_value();
+            rule.limit_up=limit_up->get_value();
         }
 };
 
@@ -430,13 +656,20 @@ class LengthSelector: public wxPanel
     public:
         double L;
         
+        bool optimize;
+        OptimRule optim_rule;
+        
         wxTextCtrl *length_ctrl;
         wxChoice *unit_ctrl;
+        wxButton *extension_button;
         
         LengthSelector(wxWindow *parent,std::string name,double L,bool static_style=false,std::string const &zero_unit="m");
         
         void auto_unit();
+        void evt_advanced(wxCommandEvent &event);
         double get_length();
+        double get_value();
+        void handle_external_optimization(double *target,OptimEngine const &engine);
         void set_length(double L);
         void set_unit(std::string const &unit);
         void unit_event(wxCommandEvent &event);

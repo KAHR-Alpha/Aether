@@ -16,8 +16,6 @@ limitations under the License.*/
 #include <mesh_tools.h>
 #include <ray_intersect.h>
 
-extern const double Pi;
-//extern pthread_mutex_t mutex_cout;
 extern std::ofstream plog;
 
 extern const Vector3 unit_vec_x;
@@ -103,7 +101,7 @@ Object::Object()
      sph_r(0.05), sph_cut(1.0),
 //     prism_length(5e-2), prism_height(2e-2), prism_a1(Pi/3.0), prism_a2(Pi/3.0), prism_width(1),
      cleanup_done(false),
-     sensor_type(SENS_NONE),
+     sensor_type(Sensor::NONE),
      sens_wavelength(false),
      sens_source(false),
      sens_path(false),
@@ -119,6 +117,7 @@ Object::Object()
      sens_ray_obj_face(false)
 {
     type=OBJ_UNSET;
+    build_variables_map();
 }
 
 Object::~Object()
@@ -126,6 +125,52 @@ Object::~Object()
     if(!cleanup_done) cleanup();
 }
 
+void Object::build_variables_map()
+{
+    variables_map["x"]=&in_displacement.x;
+    variables_map["y"]=&in_displacement.y;
+    variables_map["z"]=&in_displacement.z;
+    
+    variables_map["angle_A"]=&in_A.val;
+    variables_map["angle_B"]=&in_B.val;
+    variables_map["angle_C"]=&in_C.val;
+    
+    variables_map["box_length_x"]=&box_lx;
+    variables_map["box_length_y"]=&box_ly;
+    variables_map["box_length_z"]=&box_lz;
+    
+    variables_map["conic_radius"]=&conic_R;
+    variables_map["conic_constant"]=&conic_K;
+    variables_map["conic_internal_radius"]=&conic_in_radius;
+    variables_map["conic_external_radius"]=&conic_out_radius;
+    
+    variables_map["cylinder_radius"]=&cyl_r;
+    variables_map["cylinder_length"]=&cyl_l;
+    variables_map["cylinder_cut_factor"]=&cyl_cut;
+    
+    variables_map["disk_radius"]=&dsk_r;
+    variables_map["disk_internal_radius"]=&dsk_r_in;
+    
+    variables_map["lens_thickness"]=&ls_thickness;
+    variables_map["lens_front_radius"]=&ls_r1;
+    variables_map["lens_back_radius"]=&ls_r2;
+    variables_map["lens_radius"]=&ls_r_max_nominal;
+    
+    variables_map["parabola_focal_lengths"]=&pr_f;
+    variables_map["parabola_length"]=&pr_length;
+    variables_map["parabola_internal_radius"]=&pr_in_radius;
+    
+    variables_map["rectangle_length_y"]=&box_ly;
+    variables_map["rectangle_length_z"]=&box_lz;
+    
+    variables_map["sphere_radius"]=&sph_r;
+    variables_map["sphere_cut_factor"]=&sph_cut;
+    
+    variables_map["spheroid_radius_x"]=&spd_rx;
+    variables_map["spheroid_radius_y"]=&spd_ry;
+    variables_map["spheroid_radius_z"]=&spd_rz;
+    variables_map["spheroid_cut_factor"]=&spd_cut;
+}
 
 void Object::bootstrap(std::filesystem::path const &output_directory,double ray_power)
 {
@@ -147,7 +192,7 @@ void Object::bootstrap(std::filesystem::path const &output_directory,double ray_
 //    
 //    std::cout<<"\n\n";
     
-    if(sensor_type!=SENS_NONE)
+    if(sensor_type!=Sensor::NONE)
     {
         sb_fname=output_directory / (name+"_ray_sensor");
         
@@ -232,7 +277,7 @@ void Object::bootstrap(std::filesystem::path const &output_directory,double ray_
 
 void Object::cleanup()
 {
-    if(sensor_type!=SENS_NONE)
+    if(sensor_type!=Sensor::NONE)
     {
         sens_buffer_dump();
         
@@ -529,6 +574,11 @@ std::string Object::get_anchor_script_name(int anchor)
 int Object::get_N_faces() { return NFc; }
 int Object::get_N_faces_groups() { return Fg_arr.size(); }
 
+std::filesystem::path Object::get_sensor_file_path() const
+{
+    return sb_fname;
+}
+
 std::string Object::get_type_name()
 {
     switch(type)
@@ -654,11 +704,11 @@ void Object::process_intersection(RayPath &path)
     ray.age+=std::real(ray.n_ind)*(next_start-ray.start).norm();
     int &face_inter=inter.face;
     
-    if(sensor_type!=SENS_NONE)
+    if(sensor_type!=Sensor::NONE)
     {
         sens_buffer_add(ray,next_start,next_start_obj,face_inter);
         
-        if(sensor_type==SENS_ABS)
+        if(sensor_type==Sensor::ABS)
         {
             ray.prev_start=ray.start;
             ray.start=next_start;
@@ -771,6 +821,13 @@ void Object::propagate_faces_group(int index)
         F_arr[i].fixed_tangent_up=Fg_arr[index].fixed_tangent_up;
         F_arr[i].fixed_tangent_down=Fg_arr[index].fixed_tangent_down;
     }
+}
+
+double* Object::reference_variable(std::string const &variable_name)
+{
+    if(variables_map.count(variable_name)==0) return nullptr;
+    
+    return variables_map[variable_name];
 }
 
 void Object::save_mesh_to_obj(std::string const &fname)
@@ -958,17 +1015,17 @@ void Object::set_default_out_mat(Material *mat)
 
 void Object::set_sens_abs()
 {
-    sensor_type=SENS_ABS;
+    sensor_type=Sensor::ABS;
 }
 
 void Object::set_sens_none()
 {
-    sensor_type=SENS_NONE;
+    sensor_type=Sensor::NONE;
 }
 
 void Object::set_sens_transp()
 {
-    sensor_type=SENS_TRANSP;
+    sensor_type=Sensor::TRANSP;
 }
 
 
@@ -990,6 +1047,30 @@ void Object::to_local_ray(SelRay &ray,SelRay const &base_ray)
     
     ray.pol=to_local(base_ray.pol);
 }
+
+
+void Object::update_geometry()
+{
+    switch(type)
+    {
+        case OBJ_BOOLEAN: break;
+        case OBJ_BOX: set_box(); break;
+        case OBJ_CONIC: set_conic_section(); break;
+        case OBJ_DISK: set_disk(); break;
+        case OBJ_LENS: set_lens(); break;
+        case OBJ_MESH: break;
+        case OBJ_PARABOLA: set_parabola(); break;
+        case OBJ_RECTANGLE: set_rectangle(); break;
+        case OBJ_SPHERE: set_sphere(); break;
+        case OBJ_SPHERE_PATCH: set_spherical_patch(); break;
+        case OBJ_VOL_CONE: set_cone_volume(); break;
+        case OBJ_VOL_CYLINDER: set_cylinder_volume(); break;
+        default:
+            std::cout<<"Geometry unaccounted for\n";
+            std::exit(EXIT_FAILURE);
+    }
+}
+
 
 void Object::xyz_to_uv(double &u,double &v,int face_,
                        double x,double y,double z)

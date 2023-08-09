@@ -52,6 +52,18 @@ extern std::ofstream plog;
 
 wxIMPLEMENT_APP(Aether);
 
+wxSize Aether::active_screen_size()
+{
+    int s=wxDisplay::GetFromWindow(wxGetActiveWindow());
+    
+    wxDisplay dsp(s);
+    
+    int w=dsp.GetGeometry().GetWidth();
+    int h=dsp.GetGeometry().GetHeight();
+    
+    return wxSize(w,h);
+}
+
 wxPoint Aether::default_dialog_origin()
 {
 //    int s=wxDisplay::GetFromWindow(GetTopWindow());
@@ -127,11 +139,11 @@ bool Aether::OnInit()
 //    GeoGradientFrame *mfr=new GeoGradientFrame("Aether");
 //    MultilayerFrame *mfr=new MultilayerFrame("Aether");
 //    SppFrame *mfr=new SppFrame("Aether");
-    MieTool *mfr=new MieTool("Aether");
+//    MieTool *mfr=new MieTool("Aether");
 //    HAPSolverFrame *mfr=new HAPSolverFrame("Aether");
 //    EMGeometry_Frame *mfr=new EMGeometry_Frame("Aether");
 //    SamplesFrame *mfr=new SamplesFrame("Aether");
-//    SelGUI::SeleneFrame *mfr=new SelGUI::SeleneFrame("Aether");
+    SelGUI::SeleneFrame *mfr=new SelGUI::SeleneFrame("Aether");
 //    SelGUI::RayCounterFrame *mfr=new SelGUI::RayCounterFrame("Aether");
 //    SEM_2D_Frame *mfr=new SEM_2D_Frame("Aether");
 //    FDTD_Frame *mfr=new FDTD_Frame("Aether");

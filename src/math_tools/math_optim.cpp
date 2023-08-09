@@ -17,8 +17,8 @@ limitations under the License.*/
 
 OptimRule::OptimRule()
     :lock(false), 
-     delta(1.0), limit_down(0), limit_up(0),
-     operation_type(Operation::GROWTH),
+     delta_add(1.0), delta_grow(0.05), limit_down(0), limit_up(0),
+     operation_type(Operation::GROW),
      limit_type(Limit::NONE)
 {
 }
@@ -27,21 +27,52 @@ OptimRule::OptimRule()
 //   OptimEngine
 //#################
 
+void OptimEngine::add_target(OptimTarget *target)
+{
+    targets.push_back(target);
+}
+
+
+void OptimEngine::clear_targets()
+{
+    targets.clear();
+}
+
+
+double OptimEngine::evaluate_targets()
+{
+    double score=0;
+    
+    for(OptimTarget *target : targets)
+    {
+        score+=target->evaluate();
+    }
+    
+    return score;
+}
+
+
 void OptimEngine::evolve(double factor)
 {
-    for(unsigned int i=0;i<targets.size();i++)
+    for(unsigned int i=0;i<variables.size();i++)
     {
-        double &val=*(targets[i]);
+        double &val=*(variables[i]);
         OptimRule &rule=rules[i];
         
         previous_values[i]=val;
         
         if(!rule.lock)
         {
-            double p=randp(-rule.delta,rule.delta)*factor;
-            
-                 if(rule.operation_type==OptimRule::Operation::ADD) val+=p;
-            else if(rule.operation_type==OptimRule::Operation::GROWTH) val*=1.0+p;
+            if(rule.operation_type==OptimRule::Operation::ADD)
+            {
+                double p=randp(-rule.delta_add,rule.delta_add)*factor;
+                val+=p;
+            }
+            else if(rule.operation_type==OptimRule::Operation::GROW)
+            {
+                double p=randp(-rule.delta_grow,rule.delta_grow)*factor;
+                val*=1.0+p;
+            }
             
                  if(rule.limit_type==OptimRule::Limit::UP) val=std::min(rule.limit_up,val);
             else if(rule.limit_type==OptimRule::Limit::DOWN) val=std::max(rule.limit_down,val);
@@ -50,46 +81,26 @@ void OptimEngine::evolve(double factor)
     }
 }
 
-void OptimEngine::forget_target(int *target)
-{
-}
 
-void OptimEngine::forget_target(unsigned int *target)
+void OptimEngine::forget_variable(double *target)
 {
-}
-
-void OptimEngine::forget_target(double *target)
-{
-    int i=locate_target(target);
+    int i=locate_variable(target);
     
     if(i==-1) return;
     
-    std::vector<double*>::const_iterator it1=targets.begin()+i;
+    std::vector<double*>::const_iterator it1=variables.begin()+i;
     std::vector<double>::const_iterator it2=previous_values.begin()+i;
     std::vector<OptimRule>::const_iterator it3=rules.begin()+i;
     
-    targets.erase(it1);
+    variables.erase(it1);
     previous_values.erase(it2);
     rules.erase(it3);
 }
 
-void OptimEngine::forget_target(std::string *target)
-{
-}
 
-bool OptimEngine::get_rule(int *target,OptimRule &rule)
+bool OptimEngine::get_rule(double *target,OptimRule &rule) const
 {
-    return false;
-}
-
-bool OptimEngine::get_rule(unsigned int *target,OptimRule &rule)
-{
-    return false;
-}
-
-bool OptimEngine::get_rule(double *target,OptimRule &rule)
-{
-    int i=locate_target(target);
+    int i=locate_variable(target);
     
     if(i==-1) return false;
     else
@@ -99,52 +110,45 @@ bool OptimEngine::get_rule(double *target,OptimRule &rule)
     }
 }
 
-bool OptimEngine::get_rule(std::string *target,OptimRule &rule)
-{
-    return false;
-}
 
-int OptimEngine::locate_target(double *target)
+int OptimEngine::locate_variable(double *target) const
 {
-    for(int i=0;i<static_cast<int>(targets.size());i++)
-        if(target==targets[i]) return i;
+    for(int i=0;i<static_cast<int>(variables.size());i++)
+        if(target==variables[i]) return i;
     
     return -1;
 }
 
-void OptimEngine::register_target(double *target,OptimRule const &rule)
-{
-    if(locate_target(target)!=-1) return;
-    
-    targets.push_back(target);
-    previous_values.push_back(0);
-    rules.push_back(rule);
-}
 
-void OptimEngine::revert_targets()
+void OptimEngine::register_variable(double *target,OptimRule const &rule)
 {
-    for(unsigned int i=0;i<targets.size();i++)
+    int target_index=locate_variable(target);
+    
+    if(target_index!=-1) 
     {
-        if(!rules[i].lock) *(targets[i])=previous_values[i];
+        rules[target_index]=rule;
+    }
+    else
+    {
+        variables.push_back(target);
+        previous_values.push_back(0);
+        rules.push_back(rule);
     }
 }
 
-void OptimEngine::set_rule(int *target,OptimRule const &rule)
+
+void OptimEngine::revert_variables()
 {
+    for(unsigned int i=0;i<variables.size();i++)
+    {
+        if(!rules[i].lock) *(variables[i])=previous_values[i];
+    }
 }
 
-void OptimEngine::set_rule(unsigned int *target,OptimRule const &rule)
-{
-}
 
 void OptimEngine::set_rule(double *target,OptimRule const &rule)
 {
-    int i=locate_target(target);
+    int i=locate_variable(target);
     
     if(i!=-1) rules[i]=rule;
 }
-
-void OptimEngine::set_rule(std::string *target,OptimRule const &rule)
-{
-}
-

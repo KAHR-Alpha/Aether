@@ -21,7 +21,7 @@ limitations under the License.*/
 #include <iostream>
 #include <cstdint>
 
-extern const double Pi;
+
 extern const Imdouble Im;
 extern std::ofstream plog;
 

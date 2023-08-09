@@ -15,7 +15,7 @@ limitations under the License.*/
 #include <mesh_base.h>
 #include <mesh_tools.h>
 
-extern const double Pi;
+
 
 //####################
 //     Vertex

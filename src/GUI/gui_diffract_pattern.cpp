@@ -16,7 +16,6 @@ limitations under the License.*/
 
 #include <wx/splitter.h>
 
-extern const double Pi;
 extern const Imdouble Im;
 extern std::ofstream plog;
 

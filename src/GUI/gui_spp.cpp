@@ -15,7 +15,6 @@ limitations under the License.*/
 #include <gui_ellifr.h>
 #include <gui_spp.h>
 
-extern const double Pi;
 extern const Imdouble Im;
 
 //############

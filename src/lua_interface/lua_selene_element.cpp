@@ -173,6 +173,19 @@ namespace LuaUI
         return 1;
     }
     
+    int selene_object_get_variable_reference(lua_State *L)
+    {
+        Sel::Object *p_object=get_object_cast_metapointer(L);
+        
+        std::string variable_name=lua_tostring(L,2);
+        
+        double *variable=p_object->reference_variable(variable_name);
+        
+        lua_pushlightuserdata(L,static_cast<void*>(variable));
+        
+        return 1;
+    }
+    
     int selene_object_get_N_faces(lua_State *L)
     {
         Sel::Object *p_object=get_object_cast_metapointer(L);

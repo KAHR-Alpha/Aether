@@ -18,7 +18,7 @@ limitations under the License.*/
 #include <math_bessel.h>
 #include <string_tools.h>
 
-extern const double Pi;
+
 
 OpticalFiber::OpticalFiber()
     :Ns(1001),

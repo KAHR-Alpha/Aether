@@ -35,9 +35,9 @@ void parabolic_mirror_mesh_wireframe(std::vector<Vertex> &V_arr,std::vector<Face
 void parabola_mesh_wireframe(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr,unsigned int disc,
                              double focal,double in_radius,double height);
 void prism_mesh(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr,
-                double length,double height,Angle const &a1,Angle const &a2,double width);
+                double length,double height,AngleRad const &a1,AngleRad const &a2,double width);
 void prism_mesh_wireframe(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr,
-                          double length,double height,Angle const &a1,Angle const &a2,double width);
+                          double length,double height,AngleRad const &a1,AngleRad const &a2,double width);
 void rectangle_mesh_wireframe(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr,
                               double ly,double lz);
 void sphere_cut_mesh_wireframe(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr,
@@ -79,6 +79,7 @@ class SeleneVAO
 class GL_Selene: public GL_3D_Base
 {
     public:
+        std::mutex display_mutex;
         std::vector<SeleneVAO*> vao;
         
         GLuint prog_solid,prog_wires,prog_rays;

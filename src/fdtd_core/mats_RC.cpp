@@ -15,7 +15,7 @@ limitations under the License.*/
 #include <fdtd_material.h>
 #include <fdtd_utils.h>
 
-extern const double Pi;
+
 extern std::ofstream plog;
 
 void FDTD_Material::RC_ante(int i,int j,int k,

@@ -22,7 +22,7 @@ limitations under the License.*/
 #include <fstream>
 #include <vector>
 
-extern const double Pi;
+
 extern const Imdouble Im;
 
 void normD_index_calc();

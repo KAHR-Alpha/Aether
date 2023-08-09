@@ -23,6 +23,8 @@ limitations under the License.*/
 #include <phys_tools.h>
 #include <selene.h>
 
+#include <thread>
+
 #include <wx/splitter.h>
 #include <wx/treectrl.h>
 
@@ -37,6 +39,7 @@ class FrameDialog: public wxDialog
 {
     public:
         bool cancel_check;
+        OptimEngine &optim_engine;
         
         Sel::Frame *frame;
         std::vector<Sel::Frame*> frames;
@@ -53,7 +56,9 @@ class FrameDialog: public wxDialog
                  *relative_origin,*relative_anchor,
                  *translation_frame,*rotation_frame;
         
-        FrameDialog(Sel::Frame *frame,std::vector<Sel::Frame*> const &frames);
+        FrameDialog(Sel::Frame *frame,
+                    std::vector<Sel::Frame*> const &frames,
+                    OptimEngine &optim_engine);
         
         void evt_cancel(wxCommandEvent &event);
         void evt_close(wxCloseEvent &event);
@@ -110,7 +115,8 @@ class ObjectDialog: public FrameDialog
         ObjectDialog(Sel::Object *object,
                      std::vector<Sel::Frame*> const &frames,
                      std::vector<GUI::Material*> const &materials,
-                     std::vector<Sel::IRF*> const &irfs);
+                     std::vector<Sel::IRF*> const &irfs,
+                     OptimEngine &optim_engine);
         void ObjectDialogSensor();
         
         void evt_geometry(wxCommandEvent &event);
@@ -135,7 +141,8 @@ class BoxDialog: public ObjectDialog
         BoxDialog(Sel::Object *data,
                   std::vector<Sel::Frame*> const &frames,
                   std::vector<GUI::Material*> const &materials,
-                  std::vector<Sel::IRF*> const &irfs);
+                  std::vector<Sel::IRF*> const &irfs,
+                  OptimEngine &optim_engine);
         
         double mesh(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr);
         void save_object_geometry();
@@ -150,7 +157,8 @@ class ConicSectionDialog: public ObjectDialog
         ConicSectionDialog(Sel::Object *data,
                            std::vector<Sel::Frame*> const &frames,
                            std::vector<GUI::Material*> const &materials,
-                           std::vector<Sel::IRF*> const &irfs);
+                           std::vector<Sel::IRF*> const &irfs,
+                           OptimEngine &optim_engine);
         
         double mesh(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr);
         void save_object_geometry();
@@ -165,7 +173,8 @@ class CylinderDialog: public ObjectDialog
         CylinderDialog(Sel::Object *data,
                        std::vector<Sel::Frame*> const &frames,
                        std::vector<GUI::Material*> const &materials,
-                       std::vector<Sel::IRF*> const &irfs);
+                       std::vector<Sel::IRF*> const &irfs,
+                       OptimEngine &optim_engine);
         
         double mesh(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr);
         void save_object_geometry();
@@ -179,7 +188,8 @@ class DiskDialog: public ObjectDialog
         DiskDialog(Sel::Object *data,
                    std::vector<Sel::Frame*> const &frames,
                    std::vector<GUI::Material*> const &materials,
-                   std::vector<Sel::IRF*> const &irfs);
+                   std::vector<Sel::IRF*> const &irfs,
+                   OptimEngine &optim_engine);
         
         double mesh(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr);
         void save_object_geometry();
@@ -193,7 +203,8 @@ class LensDialog: public ObjectDialog
         LensDialog(Sel::Object *data,
                    std::vector<Sel::Frame*> const &frames,
                    std::vector<GUI::Material*> const &materials,
-                   std::vector<Sel::IRF*> const &irfs);
+                   std::vector<Sel::IRF*> const &irfs,
+                   OptimEngine &optim_engine);
         
         double mesh(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr);
         void save_object_geometry();
@@ -238,7 +249,8 @@ class MeshDialog: public ObjectDialog
         MeshDialog(Sel::Object *data,
                    std::vector<Sel::Frame*> const &frames,
                    std::vector<GUI::Material*> const &materials,
-                   std::vector<Sel::IRF*> const &irfs);
+                   std::vector<Sel::IRF*> const &irfs,
+                   OptimEngine &optim_engine);
         
         void evt_add_group(wxCommandEvent &event);
         void evt_groups_reorder(wxCommandEvent &event);
@@ -263,7 +275,8 @@ class ParabolaDialog: public ObjectDialog
         ParabolaDialog(Sel::Object *data,
                        std::vector<Sel::Frame*> const &frames,
                        std::vector<GUI::Material*> const &materials,
-                       std::vector<Sel::IRF*> const &irfs);
+                       std::vector<Sel::IRF*> const &irfs,
+                       OptimEngine &optim_engine);
         
         double mesh(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr);
         void save_object_geometry();
@@ -277,7 +290,8 @@ class RectangleDialog: public ObjectDialog
         RectangleDialog(Sel::Object *data,
                         std::vector<Sel::Frame*> const &frames,
                         std::vector<GUI::Material*> const &materials,
-                        std::vector<Sel::IRF*> const &irfs);
+                        std::vector<Sel::IRF*> const &irfs,
+                        OptimEngine &optim_engine);
         
         double mesh(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr);
         void save_object_geometry();
@@ -292,7 +306,8 @@ class SphereDialog: public ObjectDialog
         SphereDialog(Sel::Object *data,
                      std::vector<Sel::Frame*> const &frames,
                      std::vector<GUI::Material*> const &materials,
-                     std::vector<Sel::IRF*> const &irfs);
+                     std::vector<Sel::IRF*> const &irfs,
+                     OptimEngine &optim_engine);
         
         double mesh(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr);
         void save_object_geometry();
@@ -307,7 +322,8 @@ class SpherePatchDialog: public ObjectDialog
         SpherePatchDialog(Sel::Object *data,
                           std::vector<Sel::Frame*> const &frames,
                           std::vector<GUI::Material*> const &materials,
-                          std::vector<Sel::IRF*> const &irfs);
+                          std::vector<Sel::IRF*> const &irfs,
+                          OptimEngine &optim_engine);
         
         double mesh(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr);
         void save_object_geometry();
@@ -377,7 +393,8 @@ class SourceDialog: public FrameDialog
         
         SourceDialog(Sel::Light *light,
                      std::vector<Sel::Frame*> const &frames,
-                     std::vector<GUI::Material*> &materials);
+                     std::vector<GUI::Material*> &materials,
+                     OptimEngine &optim_engine);
         
         void evt_add_polymono(wxCommandEvent &event);
         void evt_delete_polymono(wxCommandEvent &event);
@@ -494,9 +511,42 @@ class IRF_Dialog: public wxDialog
         void evt_ok(wxCloseEvent &event);
 };
 
+//##################
+//   Optimization
+//##################
+
+class OptimTargetPanel: public PanelsListBase
+{
+    public:
+        wxChoice *sensors;
+        wxChoice *goal;
+        NamedTextCtrl<double> *weight;
+        
+        OptimTargetPanel(wxWindow *parent,std::vector<std::string> const &sensor_names);
+};
+
+class OptimizationDialog: public wxDialog
+{
+    public:
+        std::vector<Sel::OptimTarget> &targets;
+        std::vector<Sel::Object*> const &sensors;
+        std::vector<std::string> sensor_names;
+        
+        PanelsList<OptimTargetPanel> *targets_ctrl;
+        
+        OptimizationDialog(std::vector<Sel::OptimTarget> &targets,
+                           std::vector<Sel::Object*> const &sensors);
+        
+        void evt_add_target(wxCommandEvent &event);
+        void evt_close(wxCloseEvent &event);
+        void evt_delete_target(wxCommandEvent &event);
+};
+
 //################
 //   Main Frame
 //################
+
+wxDECLARE_EVENT(EVT_REFRESH_GEOMETRY,wxCommandEvent);
 
 class SeleneFrame: public BaseFrame
 {
@@ -533,18 +583,42 @@ class SeleneFrame: public BaseFrame
         wxTreeCtrl *objects_tree;
         wxImageList *tree_icons;
         
+        wxToggleButton *trace_btn;
+        
         std::vector<Sel::Frame*> frames;
         std::vector<bool> render_element;
         std::vector<wxTreeItemId> frames_ID;
-        std::vector<SeleneVAO*> frames_vao;
         
         std::vector<GUI::Material*> materials;
         
         std::vector<Sel::IRF> irfs;
         std::vector<Sel::IRF*> user_irfs;
         
+        // Optimization
+        
+        OptimEngine optim_engine;
+        bool optimize;
+        wxMenuItem *optimize_ctrl;
+        std::atomic<bool> optimization_running, pause_optimization;
+        std::thread *optimization_thread;
+        std::vector<Sel::OptimTarget> optimization_targets;
+        
+        // Display
+        
+        std::vector<SeleneVAO*> frames_vao;
+        std::size_t const Nrays=50000;
+        
+        std::vector<double> rays_x1,rays_x2,
+                            rays_y1,rays_y2,
+                            rays_z1,rays_z2;
+        std::vector<int> rays_gen;
+        std::vector<double> rays_lambda;
+        std::vector<bool> rays_lost;
+        
         SeleneFrame(wxString const &title);
         void SeleneFrame_RayDisp(wxWindow *parent,wxBoxSizer *ctrl_sizer);
+        
+        ~SeleneFrame();
         
         void check_objects_irfs();
         void check_objects_materials();
@@ -552,7 +626,6 @@ class SeleneFrame: public BaseFrame
         void delete_element(Sel::Frame *element);
         void delete_irf(Sel::IRF *irf);
         void evt_add_element(wxCommandEvent &event);
-        void evt_forget_object(wxCommandEvent &event);
         void evt_generation_display(wxCommandEvent &event);
         void evt_generation_display_auto(wxCommandEvent &event);
         void evt_lost_length(wxCommandEvent &event);
@@ -561,14 +634,17 @@ class SeleneFrame: public BaseFrame
         void evt_output_directory(wxCommandEvent &event);
         void evt_popup_menu(wxCommandEvent &event);
         void evt_ray_display_type(wxCommandEvent &event);
+        void evt_refresh_geometry(wxCommandEvent &event);
         void evt_trace(wxCommandEvent &event);
-        void evt_tree_right_click(wxMouseEvent &event);
         void gather_materials();
         std::string get_IRF_script_name(Sel::IRF *irf);
         void load_project(wxFileName const &fname);
+        void optimization_trace();
         void rebuild_tree();
         void save_project(wxFileName const &fname);
+        void update_rays();
         void update_vao(SeleneVAO *vao,Sel::Frame *frame);
+        void update_vao_location(SeleneVAO *vao,Sel::Frame *frame);
 };
 
 // Lua bindings
@@ -582,7 +658,10 @@ int lua_selene_add_light(lua_State *L);
 int lua_selene_add_object(lua_State *L);
 int lua_selene_set_N_rays_disp(lua_State *L);
 int lua_selene_set_N_rays_total(lua_State *L);
+int lua_selene_optimize(lua_State *L);
 int lua_selene_output_directory(lua_State *L);
+int lua_selene_render(lua_State *L);
+int lua_selene_optimization_engine(lua_State *L);
 
 }
 

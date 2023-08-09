@@ -14,7 +14,7 @@ limitations under the License.*/
 
 #include <geometry.h>
 
-extern const double Pi;
+
 extern const Imdouble Im;
 
 extern const Vector3 unit_vec_x(1.0,0,0);

@@ -15,8 +15,6 @@ limitations under the License.*/
 #include <gui_selene_gl.h>
 #include <selene.h>
 
-extern const double Pi;
-
 extern const Vector3 unit_vec_x;
 extern const Vector3 unit_vec_y;
 extern const Vector3 unit_vec_z;
@@ -522,7 +520,7 @@ void parabola_mesh_wireframe(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr
 }
 
 void prism_mesh(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr,
-                double length,double height,Angle const &a1,Angle const &a2,double width)
+                double length,double height,AngleRad const &a1,AngleRad const &a2,double width)
 {
     double x1=-length/2.0;
     double x2=+length/2.0;
@@ -631,7 +629,7 @@ void prism_mesh(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr,
 }
 
 void prism_mesh_wireframe(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr,
-                          double length,double height,Angle const &a1,Angle const &a2,double width)
+                          double length,double height,AngleRad const &a1,AngleRad const &a2,double width)
 {
     double x1=-length/2.0;
     double x2=+length/2.0;
@@ -1292,6 +1290,8 @@ SeleneVAO* GL_Selene::request_vao()
 
 void GL_Selene::render()
 {
+    std::unique_lock lock(display_mutex);
+    
     glLineWidth(1);
     
     glUseProgram(prog_rays);
@@ -1349,6 +1349,8 @@ void GL_Selene::set_rays(std::vector<double> const &x1,std::vector<double> const
                          std::vector<int> const &gen,std::vector<double> const &lambda,
                          std::vector<bool> const &lost)
 {
+    std::unique_lock lock(display_mutex);
+    
     Nrays=std::min(50000,int(x1.size()));
     
     GLfloat *buffer_pos=new GLfloat[4*Nrays];

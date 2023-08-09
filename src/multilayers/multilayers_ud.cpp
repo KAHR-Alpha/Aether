@@ -14,7 +14,7 @@ limitations under the License.*/
 
 #include <multilayers.h>
 
-extern const double Pi;
+
 extern const Imdouble Im;
 extern std::ofstream plog;
 
@@ -232,7 +232,7 @@ void Multilayer_TMM_UD::recompute_L()
     }
 }
 
-void Multilayer_TMM_UD::set_angle(Angle const &angle_)
+void Multilayer_TMM_UD::set_angle(AngleRad const &angle_)
 {
     angle=angle_;
 }

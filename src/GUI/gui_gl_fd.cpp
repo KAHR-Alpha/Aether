@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2022 - LoÃ¯c Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -16,16 +16,12 @@ limitations under the License.*/
 
 #include <gui_gl_fd.h>
 
-
 #if defined(unix) || defined(__unix__) || defined(__unix)
 #define UNIX_PLATFORM
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h> 
 #endif
-
-
-extern const double Pi;
 
 //###################
 //   GL_2D_display

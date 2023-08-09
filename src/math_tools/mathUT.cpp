@@ -21,7 +21,6 @@ limitations under the License.*/
 #include <mutex>
 #include <thread>
 
-extern const double Pi=4.0*std::atan(1.0);
 extern const double Pio4=Pi/4.0;
 extern const double dPi=2.0*Pi;
 extern const Imdouble Im(0,1);
@@ -82,36 +81,36 @@ void seedp(int i)
 //    Angle
 //###############
 
-Angle::Angle(double val_,bool degree_mode_)
+AngleRad::AngleRad(double val_,bool degree_mode_)
     :degree_mode(degree_mode_), val(val_)
 {
     if(degree_mode) val*=Pi/180.0;
 }
 
-Angle::Angle(Angle const &A)
+AngleRad::AngleRad(AngleRad const &A)
     :degree_mode(A.degree_mode), val(A.val)
 {
 }
 
-double Angle::degree() const { return val*180.0/Pi; }
+double AngleRad::degree() const { return val*180.0/Pi; }
 
-void Angle::degree(double A) { val=A*Pi/180.0; }
+void AngleRad::degree(double A) { val=A*Pi/180.0; }
 
-void Angle::operator = (Angle const &A)
+void AngleRad::operator = (AngleRad const &A)
 {
     degree_mode=A.degree_mode;
     val=A.val;
 }
 
-void Angle::operator = (double A)
+void AngleRad::operator = (double A)
 {
     degree_mode=false;
     val=A;
 }
 
-Angle::operator double() const { return val; }
+AngleRad::operator double() const { return val; }
 
-double Angle::radian() const { return val; }
+double AngleRad::radian() const { return val; }
 
 //###############
 //   ProgDisp

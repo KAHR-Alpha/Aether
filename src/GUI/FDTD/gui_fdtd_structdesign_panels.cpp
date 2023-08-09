@@ -14,8 +14,6 @@ limitations under the License.*/
 
 #include <gui_fdtd_structdesign.h>
 
-extern const double Pi;
-
 GOP_Block::GOP_Block(wxWindow *parent,EMGeometry_GL *engine)
     :GeomOP_Panel(parent,engine)
 {

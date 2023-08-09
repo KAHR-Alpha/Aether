@@ -16,7 +16,6 @@ limitations under the License.*/
 
 #include <gui_sem.h>
 
-extern const double Pi;
 extern const Imdouble Im;
 
 GL_SEM_2D::GL_SEM_2D(wxWindow *parent)

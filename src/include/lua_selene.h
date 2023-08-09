@@ -22,6 +22,8 @@ class Selene_Mode: public base_mode
 {
     public:
         bool rendered;
+        std::vector<Sel::Light*> lights;
+        std::vector<Sel::Object*> objects;
         Sel::Selene selene;
         
         Selene_Mode();
@@ -29,6 +31,7 @@ class Selene_Mode: public base_mode
         void add_object(Sel::Object *object);
         void add_light(Sel::Light *light);
         bool interruption_type() { return true; }
+        void optimize(OptimEngine *engine);
         void process();
         void render();
         void set_N_rays_disp(int Nr_disp);
@@ -62,6 +65,7 @@ namespace LuaUI
     int selene_object_auto_recalc_normals(lua_State *L);
     int selene_object_contains(lua_State *L);
     int selene_object_get_N_faces(lua_State *L);
+    int selene_object_get_variable_reference(lua_State *L);
     int selene_object_rescale_mesh(lua_State *L);
     int selene_object_set_default_in_irf(lua_State *L);
     int selene_object_set_default_in_mat(lua_State *L);
@@ -120,12 +124,24 @@ namespace LuaUI
     int selene_light_set_wavelength(lua_State *L);
     int selene_light_set_waist_distance(lua_State *L);
     
+    // Targets
+    
+    int create_selene_target(lua_State *L);
+    void selene_create_target_metatable(lua_State *L);
+    int selene_target_set_operation(lua_State *L);
+    int selene_target_set_sensor(lua_State *L);
+    int selene_target_set_weight(lua_State *L);
+    
+    Sel::OptimGoal to_goal(std::string const &str);
+    std::string to_lua(Sel::OptimGoal goal);
+    
     // Selene
     
     void Selene_create_allocation_functions(lua_State *L);
     void Selene_create_base_metatable(lua_State *L);
     int selene_mode_add_object(lua_State *L);
     int selene_mode_add_light(lua_State *L);
+    int selene_mode_optimize(lua_State *L);
     int selene_mode_output_directory(lua_State *L);
     int selene_mode_render(lua_State *L);
     int selene_mode_set_N_rays_disp(lua_State *L);

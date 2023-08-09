@@ -19,12 +19,94 @@ Selene_Mode::Selene_Mode()
 {
 }
 
-void Selene_Mode::add_object(Sel::Object *object) { selene.add_object(object); }
-void Selene_Mode::add_light(Sel::Light *light) { selene.add_light(light); }
+void Selene_Mode::add_object(Sel::Object *object)
+{
+    objects.push_back(object);
+    selene.add_object(object);
+}
+
+void Selene_Mode::add_light(Sel::Light *light)
+{
+    lights.push_back(light);
+    selene.add_light(light);
+}
 
 void Selene_Mode::process()
 {
     if(!rendered) selene.render();
+}
+
+void Selene_Mode::optimize(OptimEngine *engine)
+{    
+    bool first_run=true;
+    double best_score=std::numeric_limits<double>::max();
+    
+    bool optimization_running=true;
+    
+    int Nfail=0;
+    
+    while(optimization_running)
+    {
+        if(!first_run) engine->evolve(1.0);
+            
+        std::cout<<"Best score: "<<best_score<<std::endl;
+            
+        for(std::size_t i=0;i<objects.size();i++)
+        {
+            objects[i]->update_geometry();
+        }
+        
+        selene.render();
+        
+        // Score evaluation
+        
+        double current_score=engine->evaluate_targets();
+        
+        if(current_score<best_score)
+        {
+            best_score=current_score;
+            
+            if(Nfail!=0) std::cout<<"Failure rate reset\n";
+            
+            Nfail=0;
+        }
+        else
+        {
+            engine->revert_variables();
+            Nfail++;
+            
+            std::cout<<"Acceptable failure rate: "<<Nfail*100.0/engine->max_fails<<"%\n";
+        }
+        
+        first_run=false;
+        
+        if(Nfail>=engine->max_fails)
+        {
+            std::cout<<"Acceptable failure rate exceeded, stopping\n";
+            optimization_running=false;
+        }
+    }
+    
+    rendered=true;
+    
+    std::cout<<"Optimization report\n\n";
+    
+    for(Sel::Object *object : objects)
+    {
+        std::cout<<object->name<<":\n";
+        
+        std::map<std::string,double*> &variables_map=object->variables_map;
+            
+        for(auto [key,var]:variables_map)
+        {
+            OptimRule rule;
+            bool known=engine->get_rule(var,rule);
+            
+            if(known) std::cout<<"   "<<key<<": "<<(*var)<<"\n";
+        }
+        
+        std::cout<<"\n";
+    }
 }
 
 void Selene_Mode::render() { selene.render(); rendered=true; }
@@ -433,6 +515,7 @@ namespace LuaUI
         lua_register(L,"Selene_object",&LuaUI::create_selene_object);
         lua_register(L,"Selene_IRF",&LuaUI::create_selene_IRF);
         lua_register(L,"Selene_light",&LuaUI::create_selene_light);
+        lua_register(L,"Selene_target",&LuaUI::create_selene_target);
     }
     
     void Selene_create_base_metatable(lua_State *L)
@@ -443,8 +526,9 @@ namespace LuaUI
         metatable_add_func(L,"add_light",&LuaUI::selene_mode_add_light);
         metatable_add_func(L,"N_rays_disp",&LuaUI::selene_mode_set_N_rays_disp);
         metatable_add_func(L,"N_rays_total",&LuaUI::selene_mode_set_N_rays_total);
-        metatable_add_func(L,"render",&LuaUI::selene_mode_render);
+        metatable_add_func(L,"optimize",&LuaUI::selene_mode_optimize);
         metatable_add_func(L,"output_directory",&LuaUI::selene_mode_output_directory);
+        metatable_add_func(L,"render",&LuaUI::selene_mode_render);
     }
     
     void Selene_create_light_metatable(lua_State *L)
@@ -552,10 +636,11 @@ namespace LuaUI
         metatable_add_func(L,"name",&LuaUI::selene_frame_set_name);
         metatable_add_func(L,"N_faces",&LuaUI::selene_object_get_N_faces);
         metatable_add_func(L,"origin",&LuaUI::selene_frame_set_origin);
+        metatable_add_func(L,"reference",&LuaUI::selene_object_get_variable_reference);
         metatable_add_func(L,"relative_origin",&LuaUI::selene_frame_set_relative_origin);
+        metatable_add_func(L,"rescale_mesh",&LuaUI::selene_object_rescale_mesh);
         metatable_add_func(L,"rotation",&LuaUI::selene_frame_set_rotation);
         metatable_add_func(L,"rotation_frame",&LuaUI::selene_frame_set_rotation_frame);
-        metatable_add_func(L,"rescale_mesh",&LuaUI::selene_object_rescale_mesh);
         metatable_add_func(L,"sensor",&LuaUI::selene_object_set_sensor);
         metatable_add_func(L,"translation_frame",&LuaUI::selene_frame_set_translation_frame);
         
@@ -589,11 +674,12 @@ namespace LuaUI
         return 0;
     }
     
-    int selene_mode_render(lua_State *L)
+    int selene_mode_optimize(lua_State *L)
     {
         Selene_Mode *p_mode=lua_get_metapointer<Selene_Mode>(L,1);
+        OptimEngine *p_engine=lua_get_metapointer<OptimEngine>(L,2);
         
-        p_mode->render();
+        p_mode->optimize(p_engine);
         
         return 0;
     }
@@ -612,6 +698,15 @@ namespace LuaUI
         Selene_Mode *p_mode=*(reinterpret_cast<Selene_Mode**>(lua_touserdata(L,1)));
         
         p_mode->set_N_rays_disp(lua_tointeger(L,2));
+        
+        return 0;
+    }
+    
+    int selene_mode_render(lua_State *L)
+    {
+        Selene_Mode *p_mode=lua_get_metapointer<Selene_Mode>(L,1);
+        
+        p_mode->render();
         
         return 0;
     }

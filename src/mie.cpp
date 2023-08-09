@@ -15,7 +15,7 @@ limitations under the License.*/
 #include <lua_material.h>
 #include <mie.h>
 
-extern const double Pi;
+
 extern const Imdouble Im;
 extern std::ostream plog;
 

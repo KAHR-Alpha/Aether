@@ -15,7 +15,6 @@ limitations under the License.*/
 #include <fd_base.h>
 #include <lua_material.h>
 
-extern const double Pi;
 extern const Imdouble Im;
 
 FD_Base::FD_Base()

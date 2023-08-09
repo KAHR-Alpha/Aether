@@ -21,7 +21,6 @@ limitations under the License.*/
 #include <gui_fd_ms.h>
 #include <gui_rsc.h>
 
-extern const double Pi;
 extern const Imdouble Im;
 extern std::ofstream plog;
 

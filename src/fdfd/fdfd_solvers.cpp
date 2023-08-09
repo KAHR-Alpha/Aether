@@ -14,11 +14,11 @@ limitations under the License.*/
 
 #include <fdfd.h>
 
-extern const double Pi;
+
 extern const Imdouble Im;
 extern std::ofstream plog;
 
-void FDFD::solve_prop_1D(double lambda_,Angle theta,Angle phi,Angle polar)
+void FDFD::solve_prop_1D(double lambda_,AngleRad theta,AngleRad phi,AngleRad polar)
 {
     int k;
     
@@ -351,7 +351,7 @@ void solve_BiCGSTAB(Eigen::SparseMatrix<Imdouble> const &A,
     chk_msg_sc(solver.error());
 }
 
-void FDFD::solve_prop_2D(double lambda_,Angle theta,Angle phi,Angle polar)
+void FDFD::solve_prop_2D(double lambda_,AngleRad theta,AngleRad phi,AngleRad polar)
 {
     int i,k;
     
@@ -570,7 +570,7 @@ void FDFD::solve_prop_2D(double lambda_,Angle theta,Angle phi,Angle polar)
     }
 }
 
-void FDFD::solve_prop_3D(double lambda_,Angle theta,Angle phi,Angle polar)
+void FDFD::solve_prop_3D(double lambda_,AngleRad theta,AngleRad phi,AngleRad polar)
 {
     int i,j,k;
     

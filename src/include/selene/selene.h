@@ -19,6 +19,7 @@ limitations under the License.*/
 
 #include <filehdl.h>
 #include <mathUT.h>
+#include <math_optim.h>
 #include <phys_tools.h>
 #include <selene_mesh.h>
 
@@ -62,9 +63,6 @@ enum
     SRC_POINT,
     SRC_POINT_PLANAR,
     SRC_USER_DEFINED,
-    SENS_BOX,
-    SENS_PLANE,
-    SENS_SPHERE,
     SPECTRUM_FLAT,
     SPECTRUM_FILE,
     SPECTRUM_PLANCK,
@@ -132,13 +130,14 @@ class Frame
         Vector3 local_x,local_y,local_z;
         
         std::string name;
+        std::map<std::string,double*> variables_map;
         
         int type,
             origin_anchor,
             relative_anchor;
             
         Vector3 in_displacement;
-        Angle in_A,in_B,in_C;
+        Angle<AngleStorage::DEGREE> in_A,in_B,in_C;
         
         Frame *relative_origin;
         Frame *translation_frame;
@@ -253,9 +252,9 @@ class Frame
         
         void set_rotation(double A,double B,double C)
         {
-            in_A=Degree(A);
-            in_B=Degree(B);
-            in_C=Degree(C);
+            in_A.degree(A);
+            in_B.degree(B);
+            in_C.degree(C);
         }
         
         void set_rotation_frame(Frame *frame)
@@ -367,6 +366,7 @@ class Object: public Frame
         Object();
         ~Object();
         
+        void build_variables_map();
         void bootstrap(std::filesystem::path const &output_directory,double ray_power);   // switch
         void cleanup();
         void compute_boundaries();
@@ -385,12 +385,14 @@ class Object: public Frame
         int get_anchors_number();                       // switch
         int get_N_faces();
         int get_N_faces_groups();
+        std::filesystem::path get_sensor_file_path() const;
         std::string get_type_name();                    // switch
         void intersect(SelRay const &ray,std::vector<RayInter> &inter_list,int face_last_intersect=-1,bool first_forward=true); //switch
         bool intersect_boundaries_box(SelRay const &ray);
         void process_intersection(RayPath &path);
         void propagate_faces_group(int index);
         void save_mesh_to_obj(std::string const &fname);
+        double* reference_variable(std::string const &variable_name);
         void set_default_in_irf(IRF *irf);
         void set_default_in_mat(Material *mat);
         void set_default_irf(IRF *irf);
@@ -400,6 +402,7 @@ class Object: public Frame
         void set_sens_none();
         void set_sens_transp();
         void to_local_ray(SelRay &ray,SelRay const &base_ray);
+        void update_geometry();                         // switch
         void xyz_to_uv(double &u,double &v,int face,
                        double x,double y,double z);   // switch
         
@@ -611,7 +614,7 @@ class Object: public Frame
         // Sensor
         
         bool cleanup_done;
-        int sensor_type;
+        Sensor sensor_type;
         
         bool sens_wavelength,
              sens_source,
@@ -641,6 +644,91 @@ class Object: public Frame
                              int face_hit);
         void sens_buffer_dump();
 };
+
+
+enum
+{
+    RC_COLOR,
+    RC_COUNTING,
+    RC_POWER,
+    SP_FULL,
+    SP_MINMAX,
+    SP_WINDOW
+};
+
+
+class RayCounter
+{
+    public:
+        bool owner;
+        Sel::Object *object;
+        int N_faces,computation_type;
+        
+        // Spectral filter
+        int spectral_mode;
+        double lambda_min,lambda_max;
+        
+        // Data
+        AsciiDataLoader loader;
+        std::filesystem::path sensor_fname;
+        
+        double ray_unit;
+        std::vector<Grid2<double>> bins;
+        std::vector<double> Du,Dv;
+        std::vector<int> Nu,Nv;
+        
+        int lambda_column,
+            source_column,
+            path_column,
+            generation_column,
+            phase_column,
+            obj_inter_column,
+            obj_dir_column,
+            obj_polar_column,
+            face_column;
+        
+        bool has_lambda,
+             has_source,
+             has_path,
+             has_generation,
+             has_phase,
+             has_polarization;
+        
+        std::vector<double> lambda,phase;
+        std::vector<Vector3> obj_inter,obj_dir,obj_polarization;
+        std::vector<int> source,path,generation,face;
+        
+        RayCounter();
+        
+        double compute_angular_spread();
+        double compute_spatial_spread();
+        void set_sensor(Sel::Object *object);
+        void set_sensor(std::filesystem::path const &sensor_file);
+        void update();
+        void update_from_file();
+    
+    private:
+        void initialize();
+        void reallocate();
+};
+
+
+enum class OptimGoal
+{
+    MINIMIZE_ANGULAR_SPREAD,
+    MINIMIZE_SPATIAL_SPREAD
+};
+
+
+class OptimTarget: public ::OptimTarget
+{
+    public:
+        Sel::Object *sensor;
+        OptimGoal goal;
+        
+        double evaluate() const override;
+};
+
 
 class Selene
 {

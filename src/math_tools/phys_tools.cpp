@@ -14,7 +14,7 @@ limitations under the License.*/
 
 #include <phys_tools.h>
 
-extern const double Pi;
+
 extern const Imdouble Im;
 
 // Formula obtained thanks to https://www.telescope-optics.net/conics_and_aberrations.htm
@@ -63,7 +63,7 @@ void conic_near_focus(double &x,double &y,double R,double K)
 
 double eV_to_m(double E) { return h_planck*c_light/(elem_charge*E); }
 
-void fresnel_rt_te_tm(Angle angle_inc,Imdouble n1,Imdouble n2,
+void fresnel_rt_te_tm(AngleRad angle_inc,Imdouble n1,Imdouble n2,
                       Imdouble &r_te,Imdouble &r_tm,Imdouble &t_te,Imdouble &t_tm)
 {
     Imdouble angle_ref=std::asin(n1/n2*std::sin(angle_inc));
@@ -207,7 +207,7 @@ void plane_wave(double lambda,double n,Vector3 const &dir,double polar,double x,
     H/=mu0*w;
 }
 
-void plane_wave(double lambda,double n,double th,double phi,Angle polar,double x,double y,double z,double t,ImVector3 &E,ImVector3 &H)
+void plane_wave(double lambda,double n,double th,double phi,AngleRad polar,double x,double y,double z,double t,ImVector3 &E,ImVector3 &H)
 {
     using std::cos;
     using std::sin;

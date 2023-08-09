@@ -15,7 +15,6 @@ limitations under the License.*/
 #include <gl_utils.h>
 
 extern std::ofstream plog;
-extern const double Pi;
 
 namespace Glite
 {

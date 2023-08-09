@@ -21,7 +21,7 @@ limitations under the License.*/
 #include <fstream>
 #include <sstream>
 
-extern const double Pi;
+
 
 namespace LuaUI
 {
@@ -314,8 +314,8 @@ int structure_add_coating(lua_State *L)
 {
     Structure *p_struct=get_structure_pointer(L);
     
-    Angle theta=Degree(lua_tonumber(L,1));
-    Angle phi=Degree(lua_tonumber(L,2));
+    AngleRad theta=Degree(lua_tonumber(L,1));
+    AngleRad phi=Degree(lua_tonumber(L,2));
     double thickness=lua_tonumber(L,3);
     double delta=lua_tonumber(L,4);
     int origin_index=lua_tointeger(L,5);

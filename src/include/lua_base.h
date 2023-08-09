@@ -263,7 +263,7 @@ void (C::*lua_wrapper<ID,C,Args...>::f)(Args...)=nullptr;
 
 
 template<typename T,typename... Args>
-[[nodiscard]] T*& lua_allocate_metapointer(lua_State *L,std::string const &meta_name,Args... args)
+T*& lua_allocate_metapointer(lua_State *L,std::string const &meta_name,Args... args)
 {
     T **pp=reinterpret_cast<T**>(lua_newuserdata(L,sizeof(T*)));
     

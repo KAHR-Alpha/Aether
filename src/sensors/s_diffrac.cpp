@@ -16,7 +16,7 @@ limitations under the License.*/
 #include <sensors.h>
 #include <bitmap3.h>
 
-extern const double Pi;
+
 extern const Imdouble Im;
 extern std::ofstream plog;
 
@@ -105,7 +105,7 @@ void DiffSensor::treat()
         int qmin=static_cast<int>(-L2*(n_index/lambda[l]+beta_y[l]/(2.0*Pi)));
         int qmax=static_cast<int>(+L2*(n_index/lambda[l]-beta_y[l]/(2.0*Pi)));
         
-        Angle inc_th,inc_phi;
+        AngleRad inc_th,inc_phi;
         
         double b2=beta_x[l]*beta_x[l]+beta_y[l]*beta_y[l];
         

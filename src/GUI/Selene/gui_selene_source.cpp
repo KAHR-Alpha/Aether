@@ -50,8 +50,8 @@ class Polymono_item: public PanelsListBase
 //   SourceDialog
 //########################
 
-SourceDialog::SourceDialog(Sel::Light *light_,std::vector<Sel::Frame*> const &frames_,std::vector<GUI::Material*> &materials_)
-    :FrameDialog(dynamic_cast<Sel::Frame*>(light_),frames_),
+SourceDialog::SourceDialog(Sel::Light *light_,std::vector<Sel::Frame*> const &frames_,std::vector<GUI::Material*> &materials_,OptimEngine &optim_engine_)
+    :FrameDialog(dynamic_cast<Sel::Frame*>(light_),frames_,optim_engine_),
      materials(materials_),
      light(light_),
      file_x(2), file_y(2),
