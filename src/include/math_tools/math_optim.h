@@ -45,6 +45,8 @@ class OptimRule
 class OptimEngine
 {
     public:
+        int max_fails=100;
+        
         std::vector<double*> variables;
         std::vector<double> previous_values;
         std::vector<OptimRule> rules;
@@ -60,6 +62,7 @@ class OptimEngine
         void register_variable(double *target,OptimRule const &rule);
         void revert_variables();
         void set_rule(double *target,OptimRule const &rule);
+        void set_max_fails(int max_fails);
 };
 
 #endif // MATH_OPTIM_H_INCLUDED

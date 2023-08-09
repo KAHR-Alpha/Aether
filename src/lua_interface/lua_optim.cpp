@@ -22,6 +22,7 @@ void create_optimization_metatable(lua_State *L)
     create_obj_metatable(L,"metatable_optimization_engine");
     
     metatable_add_func(L,"add_target",&optimizer_add_target);
+    metatable_add_func(L,"max_failures",&optimizer_set_max_failures);
     metatable_add_func(L,"optimize",&optimizer_add_variable);
 }
 
@@ -58,6 +59,17 @@ int optimizer_add_variable(lua_State *L)
     rule.limit_type=to_optim_limit(lua_tostring(L,7));
     
     p_engine->register_variable(variable,rule);
+    
+    return 0;
+}
+
+
+int optimizer_set_max_failures(lua_State *L)
+{
+    OptimEngine *engine=lua_get_metapointer<OptimEngine>(L,1);
+    
+    engine->max_fails=lua_tointeger(L,2);
+    engine->max_fails=std::max(1,engine->max_fails);
     
     return 0;
 }

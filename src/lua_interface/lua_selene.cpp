@@ -65,20 +65,48 @@ void Selene_Mode::optimize(OptimEngine *engine)
         if(current_score<best_score)
         {
             best_score=current_score;
+            
+            if(Nfail!=0) std::cout<<"Failure rate reset\n";
+            
             Nfail=0;
         }
         else
         {
             engine->revert_variables();
             Nfail++;
+            
+            std::cout<<"Acceptable failure rate: "<<Nfail*100.0/engine->max_fails<<"%\n";
         }
         
         first_run=false;
         
-        if(Nfail>100) optimization_running=false;
+        if(Nfail>=engine->max_fails)
+        {
+            std::cout<<"Acceptable failure rate exceeded, stopping\n";
+            optimization_running=false;
+        }
     }
     
     rendered=true;
+    
+    std::cout<<"Optimization report\n\n";
+    
+    for(Sel::Object *object : objects)
+    {
+        std::cout<<object->name<<":\n";
+        
+        std::map<std::string,double*> &variables_map=object->variables_map;
+            
+        for(auto [key,var]:variables_map)
+        {
+            OptimRule rule;
+            bool known=engine->get_rule(var,rule);
+            
+            if(known) std::cout<<"   "<<key<<": "<<(*var)<<"\n";
+        }
+        
+        std::cout<<"\n";
+    }
 }
 
 void Selene_Mode::render() { selene.render(); rendered=true; }
@@ -498,8 +526,9 @@ namespace LuaUI
         metatable_add_func(L,"add_light",&LuaUI::selene_mode_add_light);
         metatable_add_func(L,"N_rays_disp",&LuaUI::selene_mode_set_N_rays_disp);
         metatable_add_func(L,"N_rays_total",&LuaUI::selene_mode_set_N_rays_total);
-        metatable_add_func(L,"render",&LuaUI::selene_mode_render);
+        metatable_add_func(L,"optimize",&LuaUI::selene_mode_optimize);
         metatable_add_func(L,"output_directory",&LuaUI::selene_mode_output_directory);
+        metatable_add_func(L,"render",&LuaUI::selene_mode_render);
     }
     
     void Selene_create_light_metatable(lua_State *L)

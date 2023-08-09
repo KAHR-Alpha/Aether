@@ -388,7 +388,8 @@ void SeleneFrame::save_project(wxFileName const &fname_)
     
     // Optimization Engine
     
-    file<<"optim=Optimizer()\n\n";
+    file<<"optim=Optimizer()\n";
+    file<<"optim:max_failures("<<optim_engine.max_fails<<")\n\n";
         
     // IRFs
     
