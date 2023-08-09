@@ -14,8 +14,6 @@ limitations under the License.*/
 
 #include <geometry.h>
 
-extern const double Pi;
-
 //###############
 //   Triangle
 //###############

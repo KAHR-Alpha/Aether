@@ -15,8 +15,6 @@ limitations under the License.*/
 #include <bitmap3.h>
 #include <polygons_2D.h>
 
-extern const double Pi;
-
 //###############
 //   Polygon2D
 //###############

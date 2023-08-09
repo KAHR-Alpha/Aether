@@ -256,8 +256,8 @@ void SeleneFrame::SeleneFrame_RayDisp(wxWindow *parent,wxBoxSizer *ctrl_sizer)
     
     wxBoxSizer *minmax_sizer=new wxBoxSizer(wxVERTICAL);
     
-    gen_min=new NamedTextCtrl<int>(box,"Min Gen: ",0,5);
-    gen_max=new NamedTextCtrl<int>(box,"Max Gen: ",10,5);
+    gen_min=new NamedTextCtrl<int>(box,"Min Gen: ",0,true);
+    gen_max=new NamedTextCtrl<int>(box,"Max Gen: ",10,true);
     gen_min->Bind(EVT_NAMEDTXTCTRL,&SeleneFrame::evt_generation_display,this);
     gen_max->Bind(EVT_NAMEDTXTCTRL,&SeleneFrame::evt_generation_display,this);
     
