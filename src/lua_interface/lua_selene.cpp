@@ -27,6 +27,12 @@ void Selene_Mode::process()
     if(!rendered) selene.render();
 }
 
+void Selene_Mode::optimize(OptimEngine *engine)
+{
+    selene.render();
+    rendered=true;
+}
+
 void Selene_Mode::render() { selene.render(); rendered=true; }
 void Selene_Mode::set_N_rays_disp(int Nr_disp) { selene.set_N_rays_disp(Nr_disp); }
 void Selene_Mode::set_N_rays_total(int Nr_tot) { selene.set_N_rays_total(Nr_tot); }
@@ -591,11 +597,12 @@ namespace LuaUI
         return 0;
     }
     
-    int selene_mode_render(lua_State *L)
+    int selene_mode_optimize(lua_State *L)
     {
         Selene_Mode *p_mode=lua_get_metapointer<Selene_Mode>(L,1);
+        OptimEngine *p_engine=lua_get_metapointer<OptimEngine>(L,2);
         
-        p_mode->render();
+        p_mode->optimize(p_engine);
         
         return 0;
     }
@@ -614,6 +621,15 @@ namespace LuaUI
         Selene_Mode *p_mode=*(reinterpret_cast<Selene_Mode**>(lua_touserdata(L,1)));
         
         p_mode->set_N_rays_disp(lua_tointeger(L,2));
+        
+        return 0;
+    }
+    
+    int selene_mode_render(lua_State *L)
+    {
+        Selene_Mode *p_mode=lua_get_metapointer<Selene_Mode>(L,1);
+        
+        p_mode->render();
         
         return 0;
     }

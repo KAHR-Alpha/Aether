@@ -187,7 +187,7 @@ SeleneFrame::SeleneFrame(wxString const &title)
     materials_menu->Append(MENU_REF_IND,"Refractive Index");
     materials_menu->Append(MENU_IRF,"Interface Responce Functions");
     
-    optimization_menu->AppendCheckItem(MENU_OPTIMIZE,"Enable");
+    optimize_ctrl=optimization_menu->AppendCheckItem(MENU_OPTIMIZE,"Enable");
     optimization_menu->Append(MENU_OPTIMIZATION_TARGETS,"Target");
     
     menu_bar->Append(file_menu,"File");

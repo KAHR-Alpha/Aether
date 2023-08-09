@@ -29,6 +29,7 @@ class Selene_Mode: public base_mode
         void add_object(Sel::Object *object);
         void add_light(Sel::Light *light);
         bool interruption_type() { return true; }
+        void optimize(OptimEngine *engine);
         void process();
         void render();
         void set_N_rays_disp(int Nr_disp);
@@ -138,6 +139,7 @@ namespace LuaUI
     void Selene_create_base_metatable(lua_State *L);
     int selene_mode_add_object(lua_State *L);
     int selene_mode_add_light(lua_State *L);
+    int selene_mode_optimize(lua_State *L);
     int selene_mode_output_directory(lua_State *L);
     int selene_mode_render(lua_State *L);
     int selene_mode_set_N_rays_disp(lua_State *L);

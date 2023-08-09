@@ -127,6 +127,18 @@ int lua_selene_set_N_rays_total(lua_State *L)
     return 0;
 }
 
+
+int lua_selene_optimize(lua_State *L)
+{
+    SeleneFrame *frame=lua_get_metapointer<SeleneFrame>(L,1);
+    
+    frame->optimize=true;
+    frame->optimize_ctrl->Check(true);
+    
+    return 0;
+}
+
+
 int lua_selene_output_directory(lua_State *L)
 {
     SeleneFrame *frame=lua_get_metapointer<SeleneFrame>(L,1);
@@ -139,6 +151,7 @@ int lua_selene_output_directory(lua_State *L)
     return 0;
 }
 
+
 int lua_selene_optimization_engine(lua_State *L)
 {
     lua_getglobal(L,"bound_class");
@@ -148,6 +161,18 @@ int lua_selene_optimization_engine(lua_State *L)
     
     return 1;
 }
+
+
+int lua_selene_render(lua_State *L)
+{
+    SeleneFrame *frame=lua_get_metapointer<SeleneFrame>(L,1);
+    
+    frame->optimize=false;
+    frame->optimize_ctrl->Check(false);
+    
+    return 0;
+}
+
 
 std::string SeleneFrame::get_IRF_script_name(Sel::IRF *irf)
 {
@@ -231,8 +256,9 @@ void SeleneFrame::load_project(wxFileName const &fname_)
     metatable_add_func(L,"add_light",&SelGUI::lua_selene_add_light);
     metatable_add_func(L,"N_rays_disp",&SelGUI::lua_selene_set_N_rays_disp);
     metatable_add_func(L,"N_rays_total",&SelGUI::lua_selene_set_N_rays_total);
-    metatable_add_func(L,"render",&null_lua);
+    metatable_add_func(L,"optimize",&SelGUI::lua_selene_optimize);
     metatable_add_func(L,"output_directory",&SelGUI::lua_selene_output_directory);
+    metatable_add_func(L,"render",&SelGUI::lua_selene_render);
     
     // - Selene elements
     
@@ -300,6 +326,7 @@ void SeleneFrame::load_project(wxFileName const &fname_)
     rebuild_tree();
 }
 
+
 void save_optimization_targets(std::ofstream &file,
                                std::vector<Sel::OptimTarget> const &targets,
                                std::vector<Sel::Frame*> const &frames,
@@ -332,6 +359,7 @@ void save_optimization_targets(std::ofstream &file,
         }
     }
 }
+
 
 void SeleneFrame::save_project(wxFileName const &fname_)
 {
@@ -922,6 +950,10 @@ void SeleneFrame::save_project(wxFileName const &fname_)
         if(light!=nullptr) file<<"selene:add_light("<<ID[i]<<")\n";
     }
     
-    file<<"\nselene:render()";
+    if(optimize)
+    {
+        file<<"\nselene:optimize(optim)";
+    }
+    else file<<"\nselene:render()";
 }
 }
