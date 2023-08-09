@@ -71,6 +71,6 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: Aether_ubuntu
-        path: cmake_build/Aether*.7z cmake_build/Aether*.tar.gz
+        path: cmake_build/Aether*
         retention-days: 1
 
