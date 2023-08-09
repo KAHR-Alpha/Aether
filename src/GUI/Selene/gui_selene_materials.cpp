@@ -32,6 +32,8 @@ MaterialPanel::MaterialPanel(wxWindow *parent,
     title->Hide();
     
     selector=new MaterialSelector(this,"",true,material);
+    selector->hide_description();
+    selector->hide_validity();
     
     sizer->Add(selector,wxSizerFlags().Expand());
 }
