@@ -121,6 +121,17 @@ namespace LuaUI
     int selene_light_set_wavelength(lua_State *L);
     int selene_light_set_waist_distance(lua_State *L);
     
+    // Targets
+    
+    int create_selene_target(lua_State *L);
+    void selene_create_target_metatable(lua_State *L);
+    int selene_target_set_operation(lua_State *L);
+    int selene_target_set_sensor(lua_State *L);
+    int selene_target_set_weight(lua_State *L);
+    
+    Sel::OptimGoal to_goal(std::string const &str);
+    std::string to_lua(Sel::OptimGoal goal);
+    
     // Selene
     
     void Selene_create_allocation_functions(lua_State *L);

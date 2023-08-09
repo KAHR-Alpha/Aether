@@ -185,7 +185,7 @@ double OptimTarget::evaluate() const
     RayCounter counter;
     counter.set_sensor(sensor);
     
-    if(treatment==OptimTreatment::MINIMIZE_SPATIAL_SPREAD)
+    if(goal==OptimGoal::MINIMIZE_SPATIAL_SPREAD)
     {
         score+=counter.compute_spatial_spread();
     }

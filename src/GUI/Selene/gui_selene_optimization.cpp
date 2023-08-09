@@ -33,7 +33,7 @@ OptimTargetPanel::OptimTargetPanel(wxWindow *parent,std::vector<std::string> con
     wxBoxSizer *panel_sizer=new wxBoxSizer(wxHORIZONTAL);
     panel->SetSizer(panel_sizer);
     
-    panel_sizer->Add(new wxStaticText(panel,wxID_ANY,"Sensor: "));
+    panel_sizer->Add(new wxStaticText(panel,wxID_ANY,"Sensor: "),wxSizerFlags().Align(wxALIGN_CENTER_VERTICAL));
     
     sensors=new wxChoice(panel,wxID_ANY);
     for(std::string const &name:sensor_names) sensors->Append(name);
@@ -41,16 +41,16 @@ OptimTargetPanel::OptimTargetPanel(wxWindow *parent,std::vector<std::string> con
         
     panel_sizer->Add(sensors);
     
-    panel_sizer->Add(new wxStaticText(panel,wxID_ANY," Treatment: "));
+    panel_sizer->Add(new wxStaticText(panel,wxID_ANY," Goal: "),wxSizerFlags().Align(wxALIGN_CENTER_VERTICAL));
     
-    treatment=new wxChoice(panel,wxID_ANY);
-    treatment->Append("Minimize spatial dispersion");
-    treatment->Append("Minimize angular dispersion");
-    treatment->SetSelection(0);
+    goal=new wxChoice(panel,wxID_ANY);
+    goal->Append("Minimize spatial dispersion");
+    goal->Append("Minimize angular dispersion");
+    goal->SetSelection(0);
     
-    panel_sizer->Add(treatment);
+    panel_sizer->Add(goal);
     
-    weight=new NamedTextCtrl<double>(panel," weight: ",1.0);
+    weight=new NamedTextCtrl<double>(panel," Weight: ",1.0);
     
     panel_sizer->Add(weight);
     
@@ -90,13 +90,13 @@ OptimizationDialog::OptimizationDialog(std::vector<Sel::OptimTarget> &targets_,
         
         panel->sensors->SetSelection(i);
         
-        switch(target.treatment)
+        switch(target.goal)
         {
-            case Sel::OptimTreatment::MINIMIZE_SPATIAL_SPREAD:
-                panel->treatment->SetSelection(0);
+            case Sel::OptimGoal::MINIMIZE_SPATIAL_SPREAD:
+                panel->goal->SetSelection(0);
                 break;
-            case Sel::OptimTreatment::MINIMIZE_DIRECTION_SPREAD:
-                panel->treatment->SetSelection(1);
+            case Sel::OptimGoal::MINIMIZE_ANGULAR_SPREAD:
+                panel->goal->SetSelection(1);
                 break;
         }
         
@@ -134,17 +134,17 @@ void OptimizationDialog::evt_close(wxCloseEvent &event)
         OptimTargetPanel *panel=targets_ctrl->get_panel(i);
         
         int sensor_ID=panel->sensors->GetSelection();
-        int treatment=panel->treatment->GetSelection();
+        int treatment=panel->goal->GetSelection();
         
         targets[i].sensor=sensors[sensor_ID];
         
         switch(treatment)
         {
             case 0:
-                targets[i].treatment=Sel::OptimTreatment::MINIMIZE_SPATIAL_SPREAD;
+                targets[i].goal=Sel::OptimGoal::MINIMIZE_SPATIAL_SPREAD;
                 break;
             case 1:
-                targets[i].treatment=Sel::OptimTreatment::MINIMIZE_DIRECTION_SPREAD;
+                targets[i].goal=Sel::OptimGoal::MINIMIZE_ANGULAR_SPREAD;
                 break;
         }
         

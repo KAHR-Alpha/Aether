@@ -713,10 +713,10 @@ class RayCounter
 };
 
 
-enum class OptimTreatment
+enum class OptimGoal
 {
-    MINIMIZE_SPATIAL_SPREAD,
-    MINIMIZE_DIRECTION_SPREAD
+    MINIMIZE_ANGULAR_SPREAD,
+    MINIMIZE_SPATIAL_SPREAD
 };
 
 
@@ -724,7 +724,7 @@ class OptimTarget: public ::OptimTarget
 {
     public:
         Sel::Object *sensor;
-        OptimTreatment treatment;
+        OptimGoal goal;
         
         double evaluate() const override;
 };

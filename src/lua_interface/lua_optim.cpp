@@ -3,6 +3,9 @@
 
 namespace LuaUI
 {
+    
+OptimRule::Operation to_optim_operation(std::string const &str);
+OptimRule::Limit to_optim_limit(std::string const &str);
 
 int allocate_optimization_engine(lua_State *L)
 {
@@ -14,33 +17,27 @@ int allocate_optimization_engine(lua_State *L)
 
 void create_optimization_metatable(lua_State *L)
 {
-    lua_pushinteger(L,OptimRule::Operation::ADD);
-    lua_setglobal(L,"OPTIM_ADD");
-    
-    lua_pushinteger(L,OptimRule::Operation::GROW);
-    lua_setglobal(L,"OPTIM_GROW");
-    
-    lua_pushinteger(L,OptimRule::Limit::UP);
-    lua_setglobal(L,"OPTIM_LIMIT_UP");
-    
-    lua_pushinteger(L,OptimRule::Limit::DOWN);
-    lua_setglobal(L,"OPTIM_LIMIT_DOWN");
-    
-    lua_pushinteger(L,OptimRule::Limit::BOTH);
-    lua_setglobal(L,"OPTIM_LIMIT_BOTH");
-    
-    lua_pushinteger(L,OptimRule::Limit::NONE);
-    lua_setglobal(L,"OPTIM_LIMIT_NONE");
-    
     lua_register(L,"Optimizer",&allocate_optimization_engine);
     
     create_obj_metatable(L,"metatable_optimization_engine");
     
-    metatable_add_func(L,"optimize",&optimize);
+    metatable_add_func(L,"add_target",&optimizer_add_target);
+    metatable_add_func(L,"optimize",&optimizer_add_variable);
 }
 
 
-int optimize(lua_State *L)
+int optimizer_add_target(lua_State *L)
+{
+    OptimEngine *engine=lua_get_metapointer<OptimEngine>(L,1);
+    OptimTarget *target=lua_get_metapointer<OptimTarget>(L,2);
+    
+    engine->add_target(target);
+    
+    return 0;
+}
+
+
+int optimizer_add_variable(lua_State *L)
 {
     OptimEngine *p_engine=lua_get_metapointer<OptimEngine>(L,1);
     
@@ -48,7 +45,7 @@ int optimize(lua_State *L)
     
     double *variable=static_cast<double*>(lua_touserdata(L,2));
     
-    rule.operation_type=static_cast<OptimRule::Operation>(lua_tointeger(L,3));
+    rule.operation_type=to_optim_operation(lua_tostring(L,3));
     
     if(rule.operation_type==OptimRule::ADD)
     {
@@ -58,11 +55,65 @@ int optimize(lua_State *L)
     
     rule.limit_down=lua_tonumber(L,5);
     rule.limit_up=lua_tonumber(L,6);
-    rule.limit_type=static_cast<OptimRule::Limit>(lua_tointeger(L,7));
+    rule.limit_type=to_optim_limit(lua_tostring(L,7));
     
     p_engine->register_variable(variable,rule);
     
     return 0;
+}
+
+
+std::string to_lua(OptimRule::Operation operation)
+{
+    switch(operation)
+    {
+        case OptimRule::Operation::ADD: return "add";
+        case OptimRule::Operation::GROW: return "grow";
+    }
+    
+    return "";
+}
+
+
+std::string to_lua(OptimRule::Limit limit)
+{
+    switch(limit)
+    {
+        case OptimRule::Limit::BOTH: return "both";
+        case OptimRule::Limit::UP: return "up";
+        case OptimRule::Limit::DOWN: return "down";
+        case OptimRule::Limit::NONE: return "none";
+    }
+    
+    return "";
+}
+
+
+OptimRule::Operation to_optim_operation(std::string const &str)
+{
+    if(str==to_lua(OptimRule::Operation::ADD))
+    {
+        return OptimRule::Operation::ADD;
+    }
+    else return OptimRule::Operation::GROW;
+}
+
+
+OptimRule::Limit to_optim_limit(std::string const &str)
+{
+         if(str==to_lua(OptimRule::Limit::BOTH))
+    {
+        return OptimRule::Limit::BOTH;
+    }
+    else if(str==to_lua(OptimRule::Limit::UP))
+    {
+        return OptimRule::Limit::UP;
+    }
+    else if(str==to_lua(OptimRule::Limit::DOWN))
+    {
+        return OptimRule::Limit::DOWN;
+    }
+    else return OptimRule::Limit::NONE;
 }
 
 }

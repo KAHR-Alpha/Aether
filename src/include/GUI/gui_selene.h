@@ -519,7 +519,7 @@ class OptimTargetPanel: public PanelsListBase
 {
     public:
         wxChoice *sensors;
-        wxChoice *treatment;
+        wxChoice *goal;
         NamedTextCtrl<double> *weight;
         
         OptimTargetPanel(wxWindow *parent,std::vector<std::string> const &sensor_names);

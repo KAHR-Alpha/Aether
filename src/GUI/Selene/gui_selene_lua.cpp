@@ -205,6 +205,7 @@ void SeleneFrame::load_project(wxFileName const &fname_)
     lua_register(L,"Selene_IRF",&lua_allocate_selene_IRF);
     lua_register(L,"Selene_light",&lua_allocate_selene_light);
     lua_register(L,"Selene_object",&lua_allocate_selene_object);
+    lua_register(L,"Selene_target",&LuaUI::create_selene_target);
     
     // Metatables
     
@@ -217,6 +218,8 @@ void SeleneFrame::load_project(wxFileName const &fname_)
     
     LuaUI::create_optimization_metatable(L);
     lua_register(L,"Optimizer",&lua_selene_optimization_engine); // Override
+    
+    LuaUI::selene_create_target_metatable(L);
     
     // - Simulations parameters
     
@@ -283,15 +286,51 @@ void SeleneFrame::load_project(wxFileName const &fname_)
     
     item_count=frames.size();
     
-    //MaterialsLib::consolidate();
     gather_materials();
     
-//    for(GUI::Material *m : materials)
-//    {
-//        std::cout<<m->name<<std::endl;
-//    }
+    optimization_targets.clear();
+    
+    for(OptimTarget *target : optim_engine.targets)
+    {
+        Sel::OptimTarget *st=dynamic_cast<Sel::OptimTarget*>(target);
+        
+        optimization_targets.push_back(*st);
+    }
     
     rebuild_tree();
+}
+
+void save_optimization_targets(std::ofstream &file,
+                               std::vector<Sel::OptimTarget> const &targets,
+                               std::vector<Sel::Frame*> const &frames,
+                               std::vector<std::string> const &frames_ID)
+{
+    file<<"-- Optimization targets\n\n";
+    
+    for(std::size_t i=0;i<targets.size();i++)
+    {
+        std::string prefix="target_"+std::to_string(i);
+        
+        bool found;
+        std::size_t j=vector_locate(found,frames,dynamic_cast<Sel::Frame*>(targets[i].sensor));
+        
+        if(found)
+        {
+            file<<prefix<<"=Selene_target()\n";
+            file<<prefix<<":goal(\""<<LuaUI::to_lua(targets[i].goal)<<"\")\n";
+            file<<prefix<<":sensor("<<frames_ID[j]<<")\n";
+            file<<prefix<<":weight("<<targets[i].weight<<")\n\n";
+            
+            file<<"optim:add_target("<<prefix<<")\n";
+            
+            file<<"\n";
+        }
+        else
+        {
+            std::cout<<"Error: sensor "<<targets[i].sensor<<" not found\n";
+            continue;
+        }
+    }
 }
 
 void SeleneFrame::save_project(wxFileName const &fname_)
@@ -723,22 +762,16 @@ void SeleneFrame::save_project(wxFileName const &fname_)
                     switch(rule.operation_type)
                     {
                         case OptimRule::ADD:
-                            file<<"OPTIM_ADD,"<<rule.delta_add<<",";
+                            file<<"\""<<LuaUI::to_lua(OptimRule::ADD)<<"\","<<rule.delta_add<<",";
                             break;
                         case OptimRule::GROW:
-                            file<<"OPTIM_GROW,"<<rule.delta_grow<<",";
+                            file<<"\""<<LuaUI::to_lua(OptimRule::GROW)<<"\","<<rule.delta_grow<<",";
                             break;
                     }
                     file<<rule.limit_down<<","
-                        <<rule.limit_up<<",";
-                    switch(rule.limit_type)
-                    {
-                        case OptimRule::NONE: file<<"OPTIM_LIMIT_NONE"; break;
-                        case OptimRule::DOWN: file<<"OPTIM_LIMIT_DOWN"; break;
-                        case OptimRule::UP: file<<"OPTIM_LIMIT_UP"; break;
-                        case OptimRule::BOTH: file<<"OPTIM_LIMIT_BOTH"; break;
-                    }
-                    file<<","<<static_cast<int>(rule.lock)<<")\n";
+                        <<rule.limit_up<<","
+                        <<"\""<<LuaUI::to_lua(rule.limit_type)<<"\","
+                        <<static_cast<int>(rule.lock)<<")\n";
                 }
             }
             
@@ -861,7 +894,9 @@ void SeleneFrame::save_project(wxFileName const &fname_)
         }
     }
     
-    file<<"\n";
+    // Optimization targets
+    
+    save_optimization_targets(file,optimization_targets,frames,ID);
     
     // Simulation properties
     file<<"-- Simulation properties\n\n";
