@@ -22,6 +22,8 @@ class Selene_Mode: public base_mode
 {
     public:
         bool rendered;
+        std::vector<Sel::Light*> lights;
+        std::vector<Sel::Object*> objects;
         Sel::Selene selene;
         
         Selene_Mode();

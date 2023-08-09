@@ -19,8 +19,17 @@ Selene_Mode::Selene_Mode()
 {
 }
 
-void Selene_Mode::add_object(Sel::Object *object) { selene.add_object(object); }
-void Selene_Mode::add_light(Sel::Light *light) { selene.add_light(light); }
+void Selene_Mode::add_object(Sel::Object *object)
+{
+    objects.push_back(object);
+    selene.add_object(object);
+}
+
+void Selene_Mode::add_light(Sel::Light *light)
+{
+    lights.push_back(light);
+    selene.add_light(light);
+}
 
 void Selene_Mode::process()
 {
@@ -28,8 +37,47 @@ void Selene_Mode::process()
 }
 
 void Selene_Mode::optimize(OptimEngine *engine)
-{
-    selene.render();
+{    
+    bool first_run=true;
+    double best_score=std::numeric_limits<double>::max();
+    
+    bool optimization_running=true;
+    
+    int Nfail=0;
+    
+    while(optimization_running)
+    {
+        if(!first_run) engine->evolve(1.0);
+            
+        std::cout<<"Best score: "<<best_score<<std::endl;
+            
+        for(std::size_t i=0;i<objects.size();i++)
+        {
+            objects[i]->update_geometry();
+        }
+        
+        selene.render();
+        
+        // Score evaluation
+        
+        double current_score=engine->evaluate_targets();
+        
+        if(current_score<best_score)
+        {
+            best_score=current_score;
+            Nfail=0;
+        }
+        else
+        {
+            engine->revert_variables();
+            Nfail++;
+        }
+        
+        first_run=false;
+        
+        if(Nfail>100) optimization_running=false;
+    }
+    
     rendered=true;
 }
 
