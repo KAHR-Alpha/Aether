@@ -139,9 +139,9 @@ IRF_Panel::IRF_Panel(wxWindow *parent,Sel::IRF const &irf)
     
     switch(irf.type)
     {
-        case Sel::IRF_GRATING: type->SetSelection(0); break;
-        case Sel::IRF_MULTILAYER: type->SetSelection(1); break;
-        case Sel::IRF_SNELL_SPLITTER: type->SetSelection(2); break;
+        case Sel::IRF_Type::GRATING: type->SetSelection(0); break;
+        case Sel::IRF_Type::MULTILAYER: type->SetSelection(1); break;
+        case Sel::IRF_Type::SNELL_SPLITTER: type->SetSelection(2); break;
     }
     
     type->Bind(wxEVT_CHOICE,&IRF_Panel::evt_irf_type,this);

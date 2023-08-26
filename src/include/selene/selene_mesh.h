@@ -24,21 +24,25 @@ limitations under the License.*/
 namespace Sel
 {
     
+enum class IRF_Type
+{
+    FRESNEL,
+    FRESNEL_SCATT,
+    GRATING,
+    LAMBERT,
+    MULTILAYER,
+    NONE,
+    PERF_ABS,
+    PERF_ANTIREF,
+    PERF_MIRROR,
+    SCATT_ABS,
+    SNELL_FILE,
+    SNELL_SCATT_FILE,
+    SNELL_SPLITTER
+};
+
 enum
 {
-    IRF_FRESNEL,
-    IRF_FRESNEL_SCATT,
-    IRF_GRATING,
-    IRF_LAMBERT,
-    IRF_MULTILAYER,
-    IRF_NONE,
-    IRF_PERF_ABS,
-    IRF_PERF_ANTIREF,
-    IRF_PERF_MIRROR,
-    IRF_SCATT_ABS,
-    IRF_SNELL_FILE,
-    IRF_SNELL_SCATT_FILE,
-    IRF_SNELL_SPLITTER,
     TANGENT_UNSET,
     TANGENT_FIXED,
     TANGENT_EXPAND,
@@ -66,7 +70,7 @@ class smp_order
 class IRF
 {
     public:
-        int type;
+        IRF_Type type;
         std::string name;
         
         std::string ref_fname;
@@ -147,7 +151,7 @@ class IRF
         bool near_normal(double n_scal);
         void operator = (IRF const &IRF);
         
-        void set_type(int type);
+        void set_type(IRF_Type type);
         void set_type_grating(std::string ref_fname,std::string tra_fname);
         void set_type_fresnel();
         void set_type_multilayer();
