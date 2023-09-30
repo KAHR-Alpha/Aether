@@ -1,4 +1,15 @@
 {
-    "build": { "dockerfile": "Dockerfile" }
+	"build": {
+		"dockerfile": "Dockerfile"
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"twxs.cmake",
+				"ms-vscode.cmake-tools",
+				"ms-azuretools.vscode-docker"
+			]
+		}
+	}
 }
   
