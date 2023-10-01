@@ -5,10 +5,12 @@
 	"customizations": {
 		"vscode": {
 			"extensions": [
-				"twxs.cmake",
 				"ms-vscode.cmake-tools",
 				"ms-azuretools.vscode-docker"
-			]
+			],
+			"settings": {
+				"cmake.buildDirectory": "${workspaceFolder}/../build"
+			}
 		}
 	}
 }
