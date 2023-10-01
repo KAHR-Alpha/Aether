@@ -9,7 +9,10 @@
 				"ms-azuretools.vscode-docker"
 			],
 			"settings": {
-				"cmake.buildDirectory": "${workspaceFolder}/../build"
+				"cmake.buildDirectory": "${workspaceFolder}/../build",
+				"cmake.configureArgs": [
+					"-DFFTW_LIB=\"/lib/x86_64-linux-gnu/libfftw3.a\""
+				]
 			}
 		}
 	}
