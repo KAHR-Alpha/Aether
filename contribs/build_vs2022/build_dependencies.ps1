@@ -35,12 +35,12 @@ cmake --install "cmake_build"
 ###########
 
 cd ${sources_path}
-if(!(Test-Path zlib1213.zip))
+if(!(Test-Path zlib13.zip))
 {
-	Invoke-WebRequest -URI https://zlib.net/zlib1213.zip -OutFile zlib1213.zip
-	Expand-Archive -Force ./zlib1213.zip
+	Invoke-WebRequest -URI https://zlib.net/zlib13.zip -OutFile zlib13.zip
+	Expand-Archive -Force ./zlib13.zip
 }
-cd zlib1213/zlib-1.2.13
+cd zlib13/zlib-1.3
 cmake -B "cmake_build" -G "Visual Studio 17 2022" -DCMAKE_INSTALL_PREFIX="${build_path}/zlib" -DCMAKE_BUILD_TYPE=Release
 cmake --build "cmake_build" --config Release --parallel 8
 cmake --install "cmake_build"
@@ -72,7 +72,7 @@ if(!(Test-Path freetype.zip))
 	Invoke-WebRequest -UserAgent "Wget" -URI https://sourceforge.net/projects/freetype/files/latest/download -OutFile freetype.zip
 	Expand-Archive -Force ./freetype.zip
 }
-cd freetype/freetype-2.13.1
+cd freetype/freetype-2.13.2
 cmake -B "cmake_build" -G "Visual Studio 17 2022" -DCMAKE_INSTALL_PREFIX="${build_path}/freetype" -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="${build_path}/zlib" `
 	-DFT_DISABLE_HARFBUZZ=ON `
 	-DFT_DISABLE_BZIP2=ON `
