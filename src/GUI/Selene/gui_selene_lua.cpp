@@ -402,11 +402,11 @@ void SeleneFrame::save_project(wxFileName const &fname_)
         file<<name<<":type(";
         switch(user_irfs[i]->type)
         {
-            case Sel::IRF_GRATING:
+            case Sel::IRF_Type::GRATING:
                 file<<"\"grating\","<<user_irfs[i]->grat_ref_path.generic_string()<<","
                                     <<user_irfs[i]->grat_ref_path.generic_string()<<")\n";
                 break;
-            case Sel::IRF_MULTILAYER:
+            case Sel::IRF_Type::MULTILAYER:
                 file<<"\"multilayer\")\n";
                 
                 for(std::size_t j=0;j<user_irfs[i]->ml_heights.size();j++)
@@ -415,7 +415,7 @@ void SeleneFrame::save_project(wxFileName const &fname_)
                     file<<name<<":add_layer("<<user_irfs[i]->ml_heights[j]<<","<<mtr(mat)<<")\n";
                 }
                 break;
-            case Sel::IRF_SNELL_SPLITTER:
+            case Sel::IRF_Type::SNELL_SPLITTER:
                 file<<"\"snell_splitter\","<<user_irfs[i]->splitting_factor<<")\n";
                 break;
             default:

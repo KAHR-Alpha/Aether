@@ -124,6 +124,12 @@ if(GUI)
 		target_compile_definitions(Aether_GUI PUBLIC -DGTK_RMV_RESIZE -DWX30_RESTRICT)
 	endif()
 endif()
+	
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${base_gui} ${gui_src} ${gl_tools_src}  ${gl3w}
+													${extra_sources} ${fd_solver} ${fdfd_core} ${fdtd_core}
+													${fdtd_modes} ${lua_src}
+													${math_src} ${multilayers_src} ${sensor_src}
+													${selene_src} ${source_src} ${structure_src})
 
 if(OLD_ITERATOR)
 	add_definitions(-DLINUX_ITERATOR_TWEAK)

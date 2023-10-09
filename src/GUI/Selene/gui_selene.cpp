@@ -58,9 +58,9 @@ SeleneFrame::SeleneFrame(wxString const &title)
     irfs.resize(4);
     
     irfs[0].set_type_fresnel(); irfs[0].name="Fresnel";
-    irfs[1].set_type(Sel::IRF_PERF_ABS); irfs[1].name="Perfect Absorber";
-    irfs[2].set_type(Sel::IRF_PERF_ANTIREF); irfs[2].name="Perfect Antireflector";
-    irfs[3].set_type(Sel::IRF_PERF_MIRROR); irfs[3].name="Perfect Mirror";
+    irfs[1].set_type(Sel::IRF_Type::PERF_ABS); irfs[1].name="Perfect Absorber";
+    irfs[2].set_type(Sel::IRF_Type::PERF_ANTIREF); irfs[2].name="Perfect Antireflector";
+    irfs[3].set_type(Sel::IRF_Type::PERF_MIRROR); irfs[3].name="Perfect Mirror";
     
     // UI
     

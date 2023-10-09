@@ -342,9 +342,9 @@ int mode_choice(lua_State *L)
              perfect_mirror_IRF;
     
     fresnel_IRF.set_type_fresnel();
-    perfect_abs_IRF.set_type(Sel::IRF_PERF_ABS);
-    perfect_antiref_IRF.set_type(Sel::IRF_PERF_ANTIREF);
-    perfect_mirror_IRF.set_type(Sel::IRF_PERF_MIRROR);
+    perfect_abs_IRF.set_type(Sel::IRF_Type::PERF_ABS);
+    perfect_antiref_IRF.set_type(Sel::IRF_Type::PERF_ANTIREF);
+    perfect_mirror_IRF.set_type(Sel::IRF_Type::PERF_MIRROR);
     
     lua_pushlightuserdata(L,reinterpret_cast<void*>(&fresnel_IRF));
     lua_setglobal(L,"SEL_IRF_FRESNEL");

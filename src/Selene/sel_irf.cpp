@@ -24,7 +24,7 @@ namespace Sel
 //####################
 
 IRF::IRF()
-    :type(IRF_NONE),
+    :type(IRF_Type::NONE),
      scatt_ref(0),
      splitting_factor(0),
      Nl(0), Nth(0)
@@ -73,7 +73,7 @@ IRF::IRF(IRF const &irf)
 
 void IRF::bootstrap()
 {
-    if(type==IRF_MULTILAYER)
+    if(type==IRF_Type::MULTILAYER)
         ml_model.set_N_layers(ml_heights.size());
 }
 
@@ -144,15 +144,15 @@ bool IRF::get_response(Vector3 &out_dir,Vector3 &out_polar,
     Vector3 S_vec;
     bool is_TE=determine_polarization(S_vec,Fnorm,in_dir,in_polar,is_near_normal);
     
-         if(type==IRF_FRESNEL) ray_abs=get_response_fresnel(out_dir,in_dir,Fnorm,n_scal,lambda,n1,n2,is_TE,is_near_normal);
-    else if(type==IRF_MULTILAYER) ray_abs=get_response_multilayer(out_dir,in_dir,Fnorm,n_scal,lambda,n1,n2,is_TE,is_near_normal);
-    else if(type==IRF_PERF_ABS)
+         if(type==IRF_Type::FRESNEL) ray_abs=get_response_fresnel(out_dir,in_dir,Fnorm,n_scal,lambda,n1,n2,is_TE,is_near_normal);
+    else if(type==IRF_Type::MULTILAYER) ray_abs=get_response_multilayer(out_dir,in_dir,Fnorm,n_scal,lambda,n1,n2,is_TE,is_near_normal);
+    else if(type==IRF_Type::PERF_ABS)
     {
         return true;
     }
-    else if(type==IRF_PERF_ANTIREF) ray_abs=get_response_perf_antiref(in_dir,out_dir,Fnorm,lambda,n1,n2);
-    else if(type==IRF_PERF_MIRROR) compute_snell_reflection(out_dir,in_dir,Fnorm,n_scal);
-    else if(type==IRF_SCATT_ABS)
+    else if(type==IRF_Type::PERF_ANTIREF) ray_abs=get_response_perf_antiref(in_dir,out_dir,Fnorm,lambda,n1,n2);
+    else if(type==IRF_Type::PERF_MIRROR) compute_snell_reflection(out_dir,in_dir,Fnorm,n_scal);
+    else if(type==IRF_Type::SCATT_ABS)
     {
         double p=randp();
         
@@ -167,18 +167,18 @@ bool IRF::get_response(Vector3 &out_dir,Vector3 &out_polar,
         }
         else return true;
     }
-    else if(type==IRF_GRATING) ray_abs=get_response_grating(in_dir,out_dir,Fnorm,Ftangent,lambda,n1,n2);
-    else if(type==IRF_SNELL_SCATT_FILE) ray_abs=get_response_snell_scatt_file(in_dir,out_dir,Fnorm,lambda,n1,n2);
-    else if(type==IRF_SNELL_FILE) ray_abs=get_response_snell_file(in_dir,out_dir,Fnorm,lambda,n1,n2);
-    else if(type==IRF_SNELL_SPLITTER) ray_abs=get_response_snell_splitter(in_dir,out_dir,Fnorm,lambda,n1,n2);
+    else if(type==IRF_Type::GRATING) ray_abs=get_response_grating(in_dir,out_dir,Fnorm,Ftangent,lambda,n1,n2);
+    else if(type==IRF_Type::SNELL_SCATT_FILE) ray_abs=get_response_snell_scatt_file(in_dir,out_dir,Fnorm,lambda,n1,n2);
+    else if(type==IRF_Type::SNELL_FILE) ray_abs=get_response_snell_file(in_dir,out_dir,Fnorm,lambda,n1,n2);
+    else if(type==IRF_Type::SNELL_SPLITTER) ray_abs=get_response_snell_splitter(in_dir,out_dir,Fnorm,lambda,n1,n2);
     
     out_dir.normalize();
     
-    if(   type==IRF_FRESNEL
-       || type==IRF_MULTILAYER
-       || type==IRF_PERF_ANTIREF
-       || type==IRF_PERF_MIRROR
-       || type==IRF_SNELL_SPLITTER)
+    if(   type==IRF_Type::FRESNEL
+       || type==IRF_Type::MULTILAYER
+       || type==IRF_Type::PERF_ANTIREF
+       || type==IRF_Type::PERF_MIRROR
+       || type==IRF_Type::SNELL_SPLITTER)
     {
         if(is_TE) out_polar=S_vec;
         else out_polar=crossprod(out_dir,S_vec);
@@ -667,7 +667,7 @@ void IRF::operator = (IRF const &irf)
     g3_tra=irf.g3_tra;
 }
 
-void IRF::set_type(int type_)
+void IRF::set_type(IRF_Type type_)
 {
     type=type_;
 }
@@ -676,7 +676,7 @@ void IRF::set_type_grating(std::string ref_fname,std::string tra_fname)
 {
     int l,p,q;
     
-    type=IRF_GRATING;
+    type=IRF_Type::GRATING;
     
     grat_ref_path=ref_fname;
     grat_tra_path=tra_fname;
@@ -831,17 +831,17 @@ void IRF::set_type_grating(std::string ref_fname,std::string tra_fname)
 
 void IRF::set_type_fresnel()
 {
-    type=IRF_FRESNEL;
+    type=IRF_Type::FRESNEL;
 }
 
 void IRF::set_type_multilayer()
 {
-    type=IRF_MULTILAYER;
+    type=IRF_Type::MULTILAYER;
 }
 
 void IRF::set_type_scatt_abs(double ref)
 {
-    type=IRF_SCATT_ABS;
+    type=IRF_Type::SCATT_ABS;
     scatt_ref=ref;
 }
 
@@ -864,7 +864,7 @@ void IRF::set_type_snell_file(std::string fname)
     
     double tmp;
     
-    type=IRF_SNELL_FILE;
+    type=IRF_Type::SNELL_FILE;
     
     int Nc=fcountlines(fname);
     
@@ -895,7 +895,7 @@ void IRF::set_type_snell_scatt_file(std::string fname)
 {
     int i;
     
-    type=IRF_SNELL_SCATT_FILE;
+    type=IRF_Type::SNELL_SCATT_FILE;
     
     std::vector<std::vector<double>> data;
     
@@ -926,7 +926,7 @@ void IRF::set_type_snell_scatt_file(std::string fname)
 void IRF::set_type_snell_splitter(double splitting_factor_)
 {
     splitting_factor=splitting_factor_;
-    type=IRF_SNELL_SPLITTER;
+    type=IRF_Type::SNELL_SPLITTER;
 }
 
 }
