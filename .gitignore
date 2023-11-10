@@ -7,3 +7,7 @@ docu/manual/manual.*
 !docu/manual/manual.tex
 Aether.layout
 Aether.cscope_file_list
+libs
+libs_mingw
+libs_vs22
+cmake_build

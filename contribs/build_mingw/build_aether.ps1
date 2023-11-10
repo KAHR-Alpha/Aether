@@ -1,6 +1,6 @@
 set base_path $pwd
-set sources_path ${base_path}/sources
-set build_path ${base_path}/builds
+set sources_path ${base_path}/libs/sources
+set build_path ${base_path}libs//builds
 
 set wxWidgets_ROOT_DIR "${build_path}/wxWidgets"
 
