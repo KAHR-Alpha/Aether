@@ -6,10 +6,12 @@ message(${CMAKE_GENERATOR})
 message(${CMAKE_CXX_COMPILER_ID})
 
 function(Dll_Install library_name)
+	message("Marking " ${library_name} " for install")
 	cmake_path(GET library_name EXTENSION ext)
-	if(${ext} STREQUAL "dll")
+	if(ext STREQUAL ".dll")
 		install(FILES ${library_name} DESTINATION .)
 	endif()
+	message(Done)
 endfunction()
 
 set(CPACK_PACKAGE_VERSION_MAJOR 0)
@@ -21,7 +23,7 @@ set_property(CACHE TASK PROPERTY STRINGS "Build CLI" "Build CLI+GUI")
 
 set(GUI 0)
 
-if(${TASK} STREQUAL "Build CLI+GUI")
+if(TASK STREQUAL "Build CLI+GUI")
 	set(GUI 1)
 endif()
 
@@ -35,10 +37,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel." FORCE)
 
-include(find_dependencies.cmake)
+include(cmake_scripts/find_dependencies.cmake)
 
 if(WIN32 AND NOT MINGW)
-	set(CMAKE_CXX_FLAGS "/DTHR_NOTIFY_SEPARATE /DNOMINMAX /EHsc" CACHE STRING " " FORCE)
+	set(CMAKE_CXX_FLAGS "/DTHR_NOTIFY_SEPARATE /DNOMINMAX /EHsc /MP" CACHE STRING " " FORCE)
 elseif(WIN32)
 	set(CMAKE_CXX_FLAGS "-DTHR_NOTIFY_SEPARATE -ftemplate-backtrace-limit=0 -Wno-int-in-bool-context -Wno-attributes" CACHE STRING " " FORCE)
 else()
@@ -95,20 +97,30 @@ set(fdtd_modes src/fdtd_modes/default_fdtd.cpp
 			   src/fdtd_modes/oblique_biphase.cpp
 			   src/fdtd_modes/oblique_rec.cpp
 			   src/fdtd_modes/single_particle.cpp)
+			   
+file(GLOB_RECURSE headers src/include/*.h)
+file(GLOB_RECURSE shaders resources/glsl/*.glsl)
+file(GLOB_RECURSE tests tests/*.lua)
+
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src/include PREFIX includes FILES ${headers})
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/resources/glsl PREFIX shaders FILES ${shaders})
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/tests PREFIX tests FILES ${tests})
 
 file(WRITE REVISION ${CPACK_PACKAGE_VERSION_MAJOR} "." ${CPACK_PACKAGE_VERSION_MINOR} "." ${CPACK_PACKAGE_VERSION_PATCH} )
 				
 add_executable(Aether_CLI ${base_term} ${extra_sources} ${fd_solver}
 					  ${fdfd_core} ${fdtd_core} ${fdtd_modes} ${lua_src}
 					  ${math_src} ${multilayers_src}
-					  ${sensor_src} ${selene_src} ${source_src} ${structure_src})
+					  ${sensor_src} ${selene_src} ${source_src} ${structure_src}
+					  ${headers} ${shaders} ${tests})
 
-if(GUI)						  
+if(GUI)
 	add_executable(Aether_GUI WIN32 ${base_gui} ${gui_src} ${gl_tools_src}  ${gl3w}
-						  ${extra_sources} ${fd_solver} ${fdfd_core} ${fdtd_core}
-						  ${fdtd_modes} ${lua_src}
-						  ${math_src} ${multilayers_src} ${sensor_src}
-						  ${selene_src} ${source_src} ${structure_src})
+									${extra_sources} ${fd_solver} ${fdfd_core} ${fdtd_core}
+									${fdtd_modes} ${lua_src}
+									${math_src} ${multilayers_src} ${sensor_src}
+									${selene_src} ${source_src} ${structure_src}
+									${headers} ${shaders} ${tests})
 						  
 	target_compile_definitions(Aether_GUI PUBLIC -DUNICODE)
 	target_compile_definitions(Aether_GUI PUBLIC -D_UNICODE)
@@ -125,12 +137,12 @@ if(GUI)
 	endif()
 endif()
 	
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${base_gui} ${gui_src} ${gl_tools_src}  ${gl3w}
-													${extra_sources} ${fd_solver} ${fdfd_core} ${fdtd_core}
-													${fdtd_modes} ${lua_src}
-													${math_src} ${multilayers_src} ${sensor_src}
-													${selene_src} ${source_src} ${structure_src})
-
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src PREFIX src FILES ${base_gui} ${gui_src} ${gl_tools_src}  ${gl3w}
+																   ${extra_sources} ${fd_solver} ${fdfd_core} ${fdtd_core}
+																   ${fdtd_modes} ${lua_src}
+																   ${math_src} ${multilayers_src} ${sensor_src}
+																   ${selene_src} ${source_src} ${structure_src})
+																	   
 if(OLD_ITERATOR)
 	add_definitions(-DLINUX_ITERATOR_TWEAK)
 endif()
@@ -227,6 +239,12 @@ if(GUI)
 	endif()
 endif()
 
+##########################
+#   IDE setup and tests
+##########################
+
+include(cmake_scripts/IDE_setup.cmake)
+include(cmake_scripts/unit_tests.cmake)
 
 ###################
 #   Installation

@@ -1,6 +1,6 @@
 set base_path $pwd
-set sources_path ${base_path}/sources
-set build_path ${base_path}/builds
+set sources_path ${base_path}/libs_vs22/sources
+set build_path ${base_path}/libs_vs22/builds
 
 mkdir ${sources_path}
 mkdir ${build_path}
@@ -111,7 +111,7 @@ if(!(Test-Path fftw.zip))
 	Invoke-WebRequest -URI https://fftw.org/pub/fftw/fftw-3.3.5-dll64.zip -OutFile fftw.zip
 	Expand-Archive -Force ./fftw.zip
 }
-cd fftw
+cd ${build_path}/fftw
 lib /def:libfftw3-3.def
 
 
