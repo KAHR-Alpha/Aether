@@ -28,6 +28,7 @@ enum class IRF_Type
 {
     FRESNEL,
     FRESNEL_SCATT,
+    FRESNEL_ABG,
     GRATING,
     LAMBERT,
     MULTILAYER,
@@ -77,6 +78,10 @@ class IRF
         std::string tra_fname;
         
         double scatt_ref;
+        
+        // Scattering models
+        
+        double scatt_A,scatt_B,scatt_g;
                 
         // Grating
         
@@ -154,6 +159,7 @@ class IRF
         void set_type(IRF_Type type);
         void set_type_grating(std::string ref_fname,std::string tra_fname);
         void set_type_fresnel();
+        void set_type_fresnel_ABg(double A,double B,double g);
         void set_type_multilayer();
         void set_type_scatt_abs(double ref);
         void set_type_snell_file(std::string fname);
