@@ -39,6 +39,10 @@ limitations under the License.*/
     #include <quenching.h>
 #endif
 
+int gen_absorbing_material(lua_State* L);
+int gen_const_material(lua_State* L);
+int gen_complex_material(lua_State* L);
+
 extern const Imdouble Im;
 extern std::ofstream plog;
 

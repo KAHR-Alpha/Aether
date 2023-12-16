@@ -16,7 +16,7 @@ limitations under the License.*/
 #define MATERIAL_H
 
 #include <dielec_models.h>
-#include <lua_base.h>
+//#include <lua_base.h>
 #include <math_approx.h>
 
 #include <filesystem>
@@ -91,10 +91,6 @@ class Material
         void set_const_eps(double eps);
         void set_const_n(double n);
 };
-
-int gen_absorbing_material(lua_State *L);
-int gen_const_material(lua_State *L);
-int gen_complex_material(lua_State *L);
 
 Imdouble effmodel_bruggeman(Imdouble eps_1,Imdouble eps_2,
                             double weight_1,double weight_2);
