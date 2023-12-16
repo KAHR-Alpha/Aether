@@ -54,29 +54,8 @@ set(CMAKE_INSTALL_PREFIX ${INSTALL_PATH} CACHE STRING "Install path prefix, prep
 ####################
 
 # Sources
-
-set(base_term src/base.cpp)
-set(base_gui src/gui_base.cpp)
-
-set(extra_sources src/berreman_strat.cpp
-				src/bitmap.cpp
-				src/chpin.cpp
-				src/data_hdl.cpp
-				src/dielec_models.cpp
-				src/fd_base.cpp
-				src/filehdl.cpp
-				src/index_utils.cpp
-				src/mie.cpp
-				src/mini_svg.cpp
-				src/optical_fibers.cpp
-				src/planar_wgd.cpp
-				src/script_utils.cpp
-				src/thread_utils.cpp)
 			
 file(GLOB_RECURSE fd_solver src/fd_solver/*.cpp)
-file(GLOB_RECURSE gl_tools_src src/GL_tools/*.cpp src/GL_tools/*.c)
-file(GLOB_RECURSE gl3w src/GL_tools/gl3w.c)
-file(GLOB_RECURSE gui_src src/GUI/*.cpp)
 
 file(GLOB_RECURSE headers src/include/*.h)
 file(GLOB_RECURSE shaders resources/glsl/*.glsl)
@@ -88,13 +67,12 @@ source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/tests PREFIX tests FILES ${tests})
 
 file(WRITE REVISION ${CPACK_PACKAGE_VERSION_MAJOR} "." ${CPACK_PACKAGE_VERSION_MINOR} "." ${CPACK_PACKAGE_VERSION_PATCH} )
 				
-add_executable(Aether_CLI ${base_term} ${extra_sources} ${fd_solver}
-					  ${headers} ${shaders} ${tests})
+# add_executable(Aether_CLI ${base_term} ${extra_sources} ${fd_solver}
+					  # ${headers} ${shaders} ${tests})
 					  
 add_subdirectory(src/fdfd)
 add_subdirectory(src/fdtd_core)
 add_subdirectory(src/fdtd_modes)
-add_subdirectory(src/GUI)
 add_subdirectory(src/lua_interface)
 add_subdirectory(src/math_tools)
 add_subdirectory(src/multilayers)
@@ -105,7 +83,28 @@ add_subdirectory(src/structure)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-add_library(Aether_core STATIC ${extra_sources} ${headers})
+##################
+#   Aether Core
+##################
+
+set(core_sources src/fd_solver/fd_solver.cpp
+				 src/berreman_strat.cpp
+				 src/bitmap.cpp
+				 src/chpin.cpp
+				 src/data_hdl.cpp
+				 src/dielec_models.cpp
+				 src/fd_base.cpp
+				 src/filehdl.cpp
+				 src/index_utils.cpp
+				 src/material.cpp
+				 src/mie.cpp
+				 src/mini_svg.cpp
+				 src/optical_fibers.cpp
+				 src/planar_wgd.cpp
+				 src/script_utils.cpp
+				 src/thread_utils.cpp)
+
+add_library(Aether_core STATIC ${core_sources})
 
 set(core_libraries fdfd
 				   fdtd_core
@@ -120,19 +119,26 @@ set(core_libraries fdfd
 add_dependencies(Aether_core ${core_libraries})
 target_link_libraries(Aether_core ${core_libraries})
 
+set_target_properties(Aether_core PROPERTIES FOLDER "Aether")
+
+##########
+#   CLI
+##########
+
+add_executable(Aether_CLI src/base.cpp)
+
 add_dependencies(Aether_CLI Aether_core)
 target_link_libraries(Aether_CLI Aether_core)
 
-set_target_properties(Aether_core Aether_CLI PROPERTIES FOLDER "Aether")
+set_target_properties(Aether_CLI PROPERTIES FOLDER "Aether")
 
 if(GUI)
-	add_executable(Aether_GUI WIN32 ${base_gui} ${gui_src} ${gl_tools_src}  ${gl3w}
-									${extra_sources} ${fd_solver}
-									
-									${headers} ${shaders} ${tests})
+	add_subdirectory(src/GL_tools)
+	add_subdirectory(src/GUI)
+	
+	add_executable(Aether_GUI WIN32 src/gui_base.cpp ${shaders} ${tests})
 						  
-	add_dependencies(Aether_GUI maths_library fdtd_core lua_interface)
-	target_link_libraries(Aether_GUI maths_library fdtd_core lua_interface)
+	target_link_libraries(Aether_GUI Aether_core gui_applets gui_fdtd gui_fitters gui_materials gui_multilayers gui_selene gui_teaching)
 
 	target_compile_definitions(Aether_GUI PUBLIC -DUNICODE)
 	target_compile_definitions(Aether_GUI PUBLIC -D_UNICODE)

@@ -602,6 +602,9 @@ namespace GUI
     }
 }
 
+int gen_const_material(lua_State* L);
+int gen_complex_material(lua_State* L);
+
 void FDTD_Frame::load(wxFileName const &fname_)
 {
     std::filesystem::path fname=fname_.GetFullPath().ToStdString();

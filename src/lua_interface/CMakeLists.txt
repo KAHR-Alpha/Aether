@@ -6,7 +6,9 @@ set(lua_src lua_fd.cpp
 			lua_selene_element.cpp
 			lua_selene_light.cpp
 			lua_selene_target.cpp
-			lua_structure.cpp)
+			lua_structure.cpp
+			../lua_base.cpp
+			../lua_interface.cpp)
 			 
 set(lua_headers ${CMAKE_SOURCE_DIR}/src/include/lua_base.h
                 ${CMAKE_SOURCE_DIR}/src/include/lua_fd.h
