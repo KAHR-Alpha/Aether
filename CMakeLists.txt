@@ -70,11 +70,11 @@ file(WRITE REVISION ${CPACK_PACKAGE_VERSION_MAJOR} "." ${CPACK_PACKAGE_VERSION_M
 # add_executable(Aether_CLI ${base_term} ${extra_sources} ${fd_solver}
 					  # ${headers} ${shaders} ${tests})
 					  
+add_subdirectory(src/common)
 add_subdirectory(src/fdfd)
 add_subdirectory(src/fdtd_core)
 add_subdirectory(src/fdtd_modes)
 add_subdirectory(src/lua_interface)
-add_subdirectory(src/math_tools)
 add_subdirectory(src/multilayers)
 add_subdirectory(src/Selene)
 add_subdirectory(src/sensors)
@@ -89,30 +89,24 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 set(core_sources src/fd_solver/fd_solver.cpp
 				 src/berreman_strat.cpp
-				 src/bitmap.cpp
 				 src/chpin.cpp
-				 src/data_hdl.cpp
 				 src/dielec_models.cpp
 				 src/fd_base.cpp
-				 src/filehdl.cpp
 				 src/index_utils.cpp
 				 src/material.cpp
 				 src/mie.cpp
-				 src/mini_svg.cpp
 				 src/optical_fibers.cpp
-				 src/planar_wgd.cpp
-				 src/script_utils.cpp
-				 src/thread_utils.cpp)
+				 src/planar_wgd.cpp)
 
 add_library(Aether_core STATIC ${core_sources})
 
-set(core_libraries fdfd
+set(core_libraries common_lib
+				   fdfd
 				   fdtd_core
 				   fdtd_modes
 				   fdtd_sensors
 				   fdtd_sources
 				   lua_interface
-				   maths_library
 				   multilayers
 				   structures)
 

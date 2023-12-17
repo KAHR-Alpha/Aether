@@ -15,4 +15,4 @@ add_library(selene_core STATIC ${selene_src} ${selene_headers})
 target_include_directories(selene_core PUBLIC ${CMAKE_SOURCE_DIR}/src/include/selene)
 target_include_directories(selene_core PUBLIC ${CMAKE_SOURCE_DIR}/src/include/)
 
-target_link_libraries(selene_core maths_library)
+target_link_libraries(selene_core common_lib)

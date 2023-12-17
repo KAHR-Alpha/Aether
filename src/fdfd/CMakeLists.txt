@@ -9,5 +9,4 @@ add_library(fdfd STATIC ${fdfd_sources} ${fdfd_headers})
 
 target_include_directories(fdfd PUBLIC ${CMAKE_SOURCE_DIR}/src/include/)
 
-add_dependencies(fdfd maths_library lua_interface)
-target_link_libraries(fdfd maths_library lua_interface)
+target_link_libraries(fdfd common_lib lua_interface)

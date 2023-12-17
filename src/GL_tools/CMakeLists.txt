@@ -11,5 +11,4 @@ target_include_directories(gl_tools PUBLIC ../include)
 target_include_directories(gl_tools PUBLIC ../include/gl3w)
 target_include_directories(gl_tools PUBLIC ${FREETYPE_INCLUDE_DIRS})
 
-add_dependencies(gl_tools maths_library)
-target_link_libraries(gl_tools maths_library)
+target_link_libraries(gl_tools common_lib)

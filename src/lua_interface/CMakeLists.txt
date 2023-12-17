@@ -23,4 +23,4 @@ add_library(lua_interface STATIC ${lua_src} ${lua_headers})
 target_include_directories(lua_interface PUBLIC ${CMAKE_SOURCE_DIR}/src/include/)
 target_include_directories(lua_interface PUBLIC ${LUA_INCLUDE_DIR})
 
-target_link_libraries(lua_interface maths_library fdtd_core selene_core)
+target_link_libraries(lua_interface common_lib fdtd_core selene_core)

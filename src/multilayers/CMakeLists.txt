@@ -10,4 +10,4 @@ add_library(multilayers STATIC ${mltly_sources} ${mltly_headers})
 
 target_include_directories(multilayers PUBLIC ${CMAKE_SOURCE_DIR}/src/include/)
 
-target_link_libraries(multilayers maths_library)
+target_link_libraries(multilayers common_lib)

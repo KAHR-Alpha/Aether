@@ -23,6 +23,6 @@ add_library(fdtd_core STATIC ${fdtd_core_src} ${fdtd_core_headers})
 target_include_directories(fdtd_core PUBLIC ${CMAKE_SOURCE_DIR}/src/include/fdtd)
 target_include_directories(fdtd_core PUBLIC ${CMAKE_SOURCE_DIR}/src/include/)
 
-target_link_libraries(fdtd_core maths_library)
+target_link_libraries(fdtd_core common_lib)
 
 set_target_properties(fdtd_core PROPERTIES FOLDER "FDTD")

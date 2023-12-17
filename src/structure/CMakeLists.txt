@@ -7,5 +7,4 @@ add_library(structures STATIC ${struct_sources} ${struct_headers})
 
 target_include_directories(structures PUBLIC ${CMAKE_SOURCE_DIR}/src/include/)
 
-add_dependencies(structures maths_library lua_interface)
-target_link_libraries(structures maths_library lua_interface)
+target_link_libraries(structures common_lib lua_interface)
