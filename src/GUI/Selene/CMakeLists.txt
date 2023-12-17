@@ -9,12 +9,12 @@ set(gui_selene_src gui_selene.cpp
                    gui_selene_sensor.cpp
                    gui_selene_source.cpp)
 
-set(gui_selene_hdr ../../include/GUI/gui_selene.h
-				   ../../include/GUI/gui_selene_gl.h
-				   ../../include/GUI/gui_selene_sensor.h)
+set(gui_selene_hdr gui_selene.h
+				   gui_selene_gl.h
+				   gui_selene_sensor.h)
 
 add_library(gui_selene STATIC ${gui_selene_src} ${gui_selene_hdr})
+target_include_directories(gui_selene PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(gui_selene gui_common gui_materials gui_multilayers)
 
-target_include_directories(gui_selene PUBLIC ../../include/GUI)
-
-target_link_libraries(gui_selene gui_common)
+set_target_properties(gui_selene PROPERTIES FOLDER "GUI")

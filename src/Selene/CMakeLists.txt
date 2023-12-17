@@ -7,12 +7,10 @@ set(selene_src sel_analysis.cpp
 			   sel_obj_volume.cpp
 			   selene.cpp)
 			 
-set(selene_headers ${CMAKE_SOURCE_DIR}/src/include/selene/selene.h
-                   ${CMAKE_SOURCE_DIR}/src/include/selene/selene_mesh.h)
+set(selene_headers selene.h
+                   selene_mesh.h)
 
 add_library(selene_core STATIC ${selene_src} ${selene_headers})
-
-target_include_directories(selene_core PUBLIC ${CMAKE_SOURCE_DIR}/src/include/selene)
-target_include_directories(selene_core PUBLIC ${CMAKE_SOURCE_DIR}/src/include/)
-
+target_include_directories(selene_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(selene_core PRIVATE ${CMAKE_SOURCE_DIR}/src/include)
 target_link_libraries(selene_core common_lib)

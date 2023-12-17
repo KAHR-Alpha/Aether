@@ -6,12 +6,12 @@ set(gui_fdtd_src gui_fdtd.cpp
                  gui_fdtd_structdesign_panels.cpp
                  gui_fieldblock_explr.cpp)
 
-set(gui_fdtd_hdr ../../include/GUI/gui_fdtd.h
-				 ../../include/GUI/gui_fdtd_structdesign.h
-				 ../../include/GUI/gui_fieldblock_explr.h)
+set(gui_fdtd_hdr gui_fdtd.h
+				 gui_fdtd_structdesign.h
+				 gui_fieldblock_explr.h)
 
 add_library(gui_fdtd STATIC ${gui_fdtd_src} ${gui_fdtd_hdr})
+target_link_libraries(gui_fdtd gui_common gui_materials)
+target_include_directories(gui_fdtd PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(gui_fdtd gui_common)
-
-target_include_directories(gui_fdtd PUBLIC ../../include/GUI)
+set_target_properties(gui_fdtd PROPERTIES FOLDER "GUI")
