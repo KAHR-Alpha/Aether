@@ -13,4 +13,4 @@ set(selene_headers selene.h
 add_library(selene_core STATIC ${selene_src} ${selene_headers})
 target_include_directories(selene_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(selene_core PRIVATE ${CMAKE_SOURCE_DIR}/src/include)
-target_link_libraries(selene_core common_lib)
+target_link_libraries(selene_core common_lib multilayers)

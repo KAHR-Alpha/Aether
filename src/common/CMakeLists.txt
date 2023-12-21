@@ -56,3 +56,7 @@ add_library(common_lib STATIC ${common_src} ${common_hdr})
 target_include_directories(common_lib PUBLIC ${CMAKE_SOURCE_DIR}/src/common)
 target_include_directories(common_lib PUBLIC ${EIGEN3_INCLUDE_DIR})
 target_include_directories(common_lib PUBLIC ${PNG_PNG_INCLUDE_DIR})
+
+if(WIN32)
+	target_link_libraries(common_lib userenv)
+endif()

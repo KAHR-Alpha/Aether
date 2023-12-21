@@ -71,9 +71,10 @@ file(WRITE REVISION ${CPACK_PACKAGE_VERSION_MAJOR} "." ${CPACK_PACKAGE_VERSION_M
 					  # ${headers} ${shaders} ${tests})
 					  
 add_subdirectory(src/common)
-add_subdirectory(src/fdfd)
-add_subdirectory(src/FDTD)
-add_subdirectory(src/lua_interface)
+add_subdirectory(src/common_optics)
+add_subdirectory(src/finite_differences)
+add_subdirectory(src/lua)
+add_subdirectory(src/Materials)
 add_subdirectory(src/multilayers)
 add_subdirectory(src/Selene)
 add_subdirectory(src/structure)
@@ -84,26 +85,18 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 #   Aether Core
 ##################
 
-set(core_sources src/fd_solver/fd_solver.cpp
-				 src/berreman_strat.cpp
-				 src/chpin.cpp
-				 src/dielec_models.cpp
-				 src/fd_base.cpp
-				 src/index_utils.cpp
-				 src/material.cpp
-				 src/mie.cpp
-				 src/optical_fibers.cpp
-				 src/planar_wgd.cpp)
-
-add_library(Aether_core STATIC ${core_sources})
+add_library(Aether_core STATIC src/core.cpp)
 
 set(core_libraries common_lib
+				   common_optics
+				   fd_core
 				   fdfd
 				   fdtd_core
 				   fdtd_modes
 				   fdtd_sensors
 				   fdtd_sources
 				   lua_interface
+				   materials
 				   multilayers
 				   structures)
 

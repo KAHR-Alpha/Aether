@@ -1,10 +1,9 @@
-set(struct_sources structure.cpp
+set(struct_sources lua_structure.cpp
+				   structure.cpp
 				   structure_primitives.cpp)
 				   
-set(struct_headers ${CMAKE_SOURCE_DIR}/src/include/structure.h)
+set(struct_headers lua_structure.h structure.h)
 
 add_library(structures STATIC ${struct_sources} ${struct_headers})
-
-target_include_directories(structures PUBLIC ${CMAKE_SOURCE_DIR}/src/include/)
-
-target_link_libraries(structures common_lib lua_interface)
+target_include_directories(structures PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(structures common_lib lua_core)
