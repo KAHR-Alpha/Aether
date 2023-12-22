@@ -19,12 +19,15 @@ limitations under the License.*/
 #include <data_hdl.h>
 #include <fdtd_core.h>
 #include <index_utils.h>
-#include <lua_fd.h>
+#include <lua_fdfd.h>
+#include <lua_fdtd.h>
 #include <lua_interface.h>
 #include <lua_material.h>
 #include <lua_multilayers.h>
 #include <lua_optim.h>
 #include <lua_selene.h>
+#include <lua_sensors.h>
+#include <lua_sources.h>
 #include <lua_structure.h>
 #include <mathUT.h>
 
@@ -39,14 +42,27 @@ limitations under the License.*/
     #include <quenching.h>
 #endif
 
+int gen_absorbing_material(lua_State* L);
+int gen_const_material(lua_State* L);
+int gen_complex_material(lua_State* L);
+
 extern const Imdouble Im;
 extern std::ofstream plog;
+
+static bool test_failure=false;
 
 using std::cos;
 using std::sin;
 using std::exp;
 using std::pow;
 using std::abs;
+
+int lua_fail_test(lua_State *L)
+{
+    test_failure=true;
+    
+    return 0;
+}
 
 int set_concurrent_computations(lua_State *L)
 {
@@ -139,7 +155,7 @@ int mode_choice(lua_State *L)
 #ifndef GUI_ON
     int main(int n_args,char **argv)
 #else
-    void mode_lua()
+    int mode_lua()
 #endif
 {
     PathManager::initialize();
@@ -228,6 +244,8 @@ int mode_choice(lua_State *L)
     
     lua_register(L,"nearest_integer",nearest_integer);
     lua_register(L,"trapz",lua_tools::lua_adaptive_trapeze_integral);
+    
+    lua_register(L,"fail_test",lua_fail_test);
         
     //###############
     
@@ -382,5 +400,10 @@ int mode_choice(lua_State *L)
     
     lua_close(L);
     
-    mreg.process();
+//    mreg.process();
+    
+    std::cout<<"test_failure: "<<test_failure<<std::endl;
+    
+    if(test_failure) return 1;
+    else return 0;
 }

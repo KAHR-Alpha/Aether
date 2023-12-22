@@ -13,6 +13,8 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include <filehdl.h>
+#include <lua_sensors.h>
+#include <lua_sources.h>
 #include <lua_structure.h>
 #include <string_tools.h>
 
@@ -601,6 +603,9 @@ namespace GUI
         return 0;
     }
 }
+
+int gen_const_material(lua_State* L);
+int gen_complex_material(lua_State* L);
 
 void FDTD_Frame::load(wxFileName const &fname_)
 {

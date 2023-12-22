@@ -37,6 +37,9 @@ IRF::IRF(IRF const &irf)
      ref_fname(irf.ref_fname),
      tra_fname(irf.tra_fname),
      scatt_ref(irf.scatt_ref),
+     scatt_A(irf.scatt_A),
+     scatt_B(irf.scatt_B),
+     scatt_g(irf.scatt_g),
      grat_Nth(irf.grat_Nth),
      grat_Nphi(irf.grat_Nphi),
      grat_No(irf.grat_No),
@@ -628,6 +631,10 @@ void IRF::operator = (IRF const &irf)
     
     scatt_ref=irf.scatt_ref;
     
+    scatt_A=irf.scatt_A;
+    scatt_B=irf.scatt_B;
+    scatt_g=irf.scatt_g;
+    
     grat_Nth=irf.grat_Nth;
     grat_Nphi=irf.grat_Nphi;
     grat_No=irf.grat_No;
@@ -832,6 +839,15 @@ void IRF::set_type_grating(std::string ref_fname,std::string tra_fname)
 void IRF::set_type_fresnel()
 {
     type=IRF_Type::FRESNEL;
+}
+
+void IRF::set_type_fresnel_ABg(double A,double B,double g)
+{
+    type=IRF_Type::FRESNEL_ABG;
+    
+    scatt_A=A;
+    scatt_B=B;
+    scatt_g=g;
 }
 
 void IRF::set_type_multilayer()

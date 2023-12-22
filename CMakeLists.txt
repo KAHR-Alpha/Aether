@@ -6,10 +6,12 @@ message(${CMAKE_GENERATOR})
 message(${CMAKE_CXX_COMPILER_ID})
 
 function(Dll_Install library_name)
+	message("Marking " ${library_name} " for install")
 	cmake_path(GET library_name EXTENSION ext)
-	if(${ext} STREQUAL "dll")
+	if(ext STREQUAL ".dll")
 		install(FILES ${library_name} DESTINATION .)
 	endif()
+	message(Done)
 endfunction()
 
 set(CPACK_PACKAGE_VERSION_MAJOR 0)
@@ -21,7 +23,7 @@ set_property(CACHE TASK PROPERTY STRINGS "Build CLI" "Build CLI+GUI")
 
 set(GUI 0)
 
-if(${TASK} STREQUAL "Build CLI+GUI")
+if(TASK STREQUAL "Build CLI+GUI")
 	set(GUI 1)
 endif()
 
@@ -35,10 +37,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel." FORCE)
 
-include(find_dependencies.cmake)
+include(cmake_scripts/find_dependencies.cmake)
 
 if(WIN32 AND NOT MINGW)
-	set(CMAKE_CXX_FLAGS "/DTHR_NOTIFY_SEPARATE /DNOMINMAX /EHsc" CACHE STRING " " FORCE)
+	set(CMAKE_CXX_FLAGS "/DTHR_NOTIFY_SEPARATE /DNOMINMAX /EHsc /MP" CACHE STRING " " FORCE)
 elseif(WIN32)
 	set(CMAKE_CXX_FLAGS "-DTHR_NOTIFY_SEPARATE -ftemplate-backtrace-limit=0 -Wno-int-in-bool-context -Wno-attributes" CACHE STRING " " FORCE)
 else()
@@ -52,64 +54,76 @@ set(CMAKE_INSTALL_PREFIX ${INSTALL_PATH} CACHE STRING "Install path prefix, prep
 ####################
 
 # Sources
-
-set(base_term src/base.cpp)
-set(base_gui src/gui_base.cpp)
-
-set(extra_sources src/berreman_strat.cpp
-				src/bitmap.cpp
-				src/chpin.cpp
-				src/data_hdl.cpp
-				src/dielec_models.cpp
-				src/fd_base.cpp
-				src/filehdl.cpp
-				src/index_utils.cpp
-				src/lua_base.cpp
-				src/lua_interface.cpp
-				src/material.cpp
-				src/mie.cpp
-				src/mini_svg.cpp
-				src/optical_fibers.cpp
-				src/planar_wgd.cpp
-				src/script_utils.cpp
-				src/thread_utils.cpp)
 			
 file(GLOB_RECURSE fd_solver src/fd_solver/*.cpp)
-file(GLOB_RECURSE fdfd_core src/fdfd/*.cpp)
-file(GLOB_RECURSE fdtd_core src/fdtd_core/*.cpp)
-# file(GLOB_RECURSE fdtd_modes src/fdtd_modes/*.cpp)
-file(GLOB_RECURSE gl_tools_src src/GL_tools/*.cpp src/GL_tools/*.c)
-file(GLOB_RECURSE gl3w src/GL_tools/gl3w.c)
-file(GLOB_RECURSE gui_src src/GUI/*.cpp)
-file(GLOB_RECURSE lua_src src/lua_interface/*.cpp)
-file(GLOB_RECURSE math_src src/math_tools/*.cpp)
-file(GLOB_RECURSE multilayers_src src/multilayers/*.cpp)
-# file(GLOB_RECURSE rcwa_src src/rcwa/*.cpp)
-file(GLOB_RECURSE sensor_src src/sensors/*.cpp)
-file(GLOB_RECURSE selene_src src/Selene/*.cpp)
-file(GLOB_RECURSE source_src src/sources/*.cpp)
-file(GLOB_RECURSE structure_src src/structure/*.cpp)
 
-set(fdtd_modes src/fdtd_modes/default_fdtd.cpp
-			   src/fdtd_modes/normal_incidence.cpp
-			   src/fdtd_modes/oblique_biphase.cpp
-			   src/fdtd_modes/oblique_rec.cpp
-			   src/fdtd_modes/single_particle.cpp)
+file(GLOB_RECURSE headers src/include/*.h)
+file(GLOB_RECURSE shaders resources/glsl/*.glsl)
+file(GLOB_RECURSE tests tests/*.lua)
+
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src/include PREFIX includes FILES ${headers})
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/resources/glsl PREFIX shaders FILES ${shaders})
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/tests PREFIX tests FILES ${tests})
 
 file(WRITE REVISION ${CPACK_PACKAGE_VERSION_MAJOR} "." ${CPACK_PACKAGE_VERSION_MINOR} "." ${CPACK_PACKAGE_VERSION_PATCH} )
 				
-add_executable(Aether_CLI ${base_term} ${extra_sources} ${fd_solver}
-					  ${fdfd_core} ${fdtd_core} ${fdtd_modes} ${lua_src}
-					  ${math_src} ${multilayers_src}
-					  ${sensor_src} ${selene_src} ${source_src} ${structure_src})
+# add_executable(Aether_CLI ${base_term} ${extra_sources} ${fd_solver}
+					  # ${headers} ${shaders} ${tests})
+					  
+add_subdirectory(src/common)
+add_subdirectory(src/common_optics)
+add_subdirectory(src/finite_differences)
+add_subdirectory(src/lua)
+add_subdirectory(src/Materials)
+add_subdirectory(src/multilayers)
+add_subdirectory(src/Selene)
+add_subdirectory(src/structure)
 
-if(GUI)						  
-	add_executable(Aether_GUI WIN32 ${base_gui} ${gui_src} ${gl_tools_src}  ${gl3w}
-						  ${extra_sources} ${fd_solver} ${fdfd_core} ${fdtd_core}
-						  ${fdtd_modes} ${lua_src}
-						  ${math_src} ${multilayers_src} ${sensor_src}
-						  ${selene_src} ${source_src} ${structure_src})
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
+##################
+#   Aether Core
+##################
+
+add_library(Aether_core STATIC src/core.cpp)
+
+set(core_libraries common_lib
+				   common_optics
+				   fd_core
+				   fdfd
+				   fdtd_core
+				   fdtd_modes
+				   fdtd_sensors
+				   fdtd_sources
+				   lua_interface
+				   materials
+				   multilayers
+				   structures)
+
+add_dependencies(Aether_core ${core_libraries})
+target_link_libraries(Aether_core ${core_libraries})
+
+set_target_properties(Aether_core PROPERTIES FOLDER "Aether")
+
+##########
+#   CLI
+##########
+
+add_executable(Aether_CLI src/base.cpp)
+
+add_dependencies(Aether_CLI Aether_core)
+target_link_libraries(Aether_CLI Aether_core)
+
+set_target_properties(Aether_CLI PROPERTIES FOLDER "Aether")
+
+if(GUI)
+	add_subdirectory(src/GL_tools)
+	add_subdirectory(src/GUI)
+	
+	add_executable(Aether_GUI WIN32 src/gui_base.cpp ${shaders} ${tests})
 						  
+	target_link_libraries(Aether_GUI Aether_core gui_applets gui_fdtd gui_fitters gui_materials gui_multilayers gui_selene gui_teaching)
+
 	target_compile_definitions(Aether_GUI PUBLIC -DUNICODE)
 	target_compile_definitions(Aether_GUI PUBLIC -D_UNICODE)
 	
@@ -123,14 +137,13 @@ if(GUI)
 	if(NOT WIN32)
 		target_compile_definitions(Aether_GUI PUBLIC -DGTK_RMV_RESIZE -DWX30_RESTRICT)
 	endif()
+	
+	set_target_properties(Aether_GUI PROPERTIES FOLDER "Aether")
 endif()
 	
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR} FILES ${base_gui} ${gui_src} ${gl_tools_src}  ${gl3w}
-													${extra_sources} ${fd_solver} ${fdfd_core} ${fdtd_core}
-													${fdtd_modes} ${lua_src}
-													${math_src} ${multilayers_src} ${sensor_src}
-													${selene_src} ${source_src} ${structure_src})
-
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src PREFIX src FILES ${base_gui} ${gui_src} ${gl_tools_src}  ${gl3w}
+																   ${extra_sources} ${fd_solver})
+																	   
 if(OLD_ITERATOR)
 	add_definitions(-DLINUX_ITERATOR_TWEAK)
 endif()
@@ -153,12 +166,11 @@ include_directories(src/include)
 include_directories(src/include/fdtd)
 include_directories(src/include/gl3w)
 include_directories(src/include/GUI)
-include_directories(src/include/math_tools)
 include_directories(src/include/selene)
 include_directories(${LUA_INCLUDE_DIR})
-include_directories(${EIGEN3_INCLUDE_DIR})
+# include_directories(${EIGEN3_INCLUDE_DIR})
 include_directories(${FFTW_INCLUDES})
-include_directories(${PNG_PNG_INCLUDE_DIR})
+# include_directories(${PNG_PNG_INCLUDE_DIR})
 
 if(GUI)
 	target_include_directories(Aether_GUI PUBLIC ${FREETYPE_INCLUDE_DIRS})
@@ -227,6 +239,12 @@ if(GUI)
 	endif()
 endif()
 
+##########################
+#   IDE setup and tests
+##########################
+
+include(cmake_scripts/IDE_setup.cmake)
+include(cmake_scripts/unit_tests.cmake)
 
 ###################
 #   Installation

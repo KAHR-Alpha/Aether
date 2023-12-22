@@ -1,10 +1,9 @@
 set base_path $pwd
-set sources_path ${base_path}/sources
-set build_path ${base_path}/builds
+set sources_path ${base_path}/libs_mingw/sources
+set build_path ${base_path}/libs_mingw/builds
 
 mkdir ${sources_path}
 mkdir ${build_path}
-
 
 ############
 #   eigen
@@ -115,6 +114,7 @@ cd wxWidgets-3.2.2.1
 cmake -B "cmake_build" -G "MinGW Makefiles"  -DCMAKE_INSTALL_PREFIX="${build_path}/wxWidgets" -DCMAKE_BUILD_TYPE=Release
 cmake --build "cmake_build" --config Release --parallel 8
 cmake --install "cmake_build"
-Copy-Item -Force -Path "${build_path}/wxWidgets/lib/gcc_x64_dll/mswu/wx/setup.h" -Destination "${build_path}/wxWidgets/include/wx"
 
 cd ${base_path}
+
+Copy-Item -Force -Path "${build_path}/wxWidgets/lib/gcc_x64_dll/mswu/wx/setup.h" -Destination "${build_path}/wxWidgets/include/wx/setup.h"
