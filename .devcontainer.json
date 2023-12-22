@@ -1,0 +1,21 @@
+{
+	"build": {
+		"dockerfile": "Dockerfile"
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-vscode.cmake-tools",
+				"ms-azuretools.vscode-docker"
+			],
+			"settings": {
+				"cmake.buildDirectory": "${workspaceFolder}/../build",
+				"cmake.configureArgs": [
+					"-DFFTW_LIB=\"/lib/x86_64-linux-gnu/libfftw3.so\"",
+					"-DFFTW_INCLUDES=\"/usr/include/\""
+				]
+			}
+		}
+	}
+}
+  
