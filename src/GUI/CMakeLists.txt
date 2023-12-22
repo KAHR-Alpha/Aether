@@ -35,3 +35,5 @@ else()
 endif()
 
 target_link_libraries(gui_common Aether_core gl_tools)
+
+set_target_properties(gui_common PROPERTIES FOLDER "GUI")

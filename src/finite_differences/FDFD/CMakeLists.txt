@@ -10,3 +10,5 @@ set(fdfd_headers fdfd.h lua_fdfd.h)
 add_library(fdfd STATIC ${fdfd_sources} ${fdfd_headers})
 target_include_directories(fdfd PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(fdfd fd_core)
+
+set_target_properties(fdfd PROPERTIES FOLDER "Finite Differences")

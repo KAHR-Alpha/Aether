@@ -13,6 +13,8 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include <filehdl.h>
+#include <lua_sensors.h>
+#include <lua_sources.h>
 #include <lua_structure.h>
 #include <string_tools.h>
 

@@ -20,7 +20,7 @@ limitations under the License.*/
 #include <gui_panels_list.h>
 #include <gl_utils.h>
 #include <gui_gl_fd.h>
-#include <lua_fd.h>
+#include <lua_fdtd.h>
 #include <mathUT.h>
 
 #include <wx/treectrl.h>
