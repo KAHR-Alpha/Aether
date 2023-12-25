@@ -151,6 +151,17 @@ void FD_Mode::set_discretization_x(double Dx_) { Dx=Dx_; }
 void FD_Mode::set_discretization_y(double Dy_) { Dy=Dy_; }
 void FD_Mode::set_discretization_z(double Dz_) { Dz=Dz_; }
 
+
+void FD_Mode::set_material(int mat_index,Material const &material)
+{
+    if(mat_index<0) return;
+    else if(mat_index>=static_cast<int>(materials.size()))
+        materials.resize(mat_index+1);
+    
+    materials[mat_index]=material;
+}
+
+
 void FD_Mode::set_material(int mat_index,std::filesystem::path const &mat_file)
 {
     #ifdef OLDMAT
@@ -488,18 +499,30 @@ int FD_mode_get_nz(lua_State *L)
 
 int FD_mode_set_material(lua_State *L)
 {
-    FD_Mode **pp_fd=reinterpret_cast<FD_Mode**>(lua_touserdata(L,1));
+    FD_Mode *p_fd=lua_get_metapointer<FD_Mode>(L,1);
     
     int mat_index=lua_tointeger(L,2);
-    std::string mat_file=lua_tostring(L,3);
     
-    lua_getglobal(L,"lua_caller_path");
-    std::filesystem::path *caller_path=reinterpret_cast<std::filesystem::path*>(lua_touserdata(L,-1));
-    std::filesystem::path mat_path=PathManager::locate_file(mat_file,*caller_path);
-    
-    std::cout<<"Setting the material "<<mat_index<<" to "<<mat_path<<std::endl;
-    
-    (*pp_fd)->set_material(mat_index,mat_path);
+    if(lua_isstring(L,3))
+    {
+        std::string mat_file=lua_tostring(L,3);
+        
+        lua_getglobal(L,"lua_caller_path");
+        std::filesystem::path *caller_path=reinterpret_cast<std::filesystem::path*>(lua_touserdata(L,-1));
+        std::filesystem::path mat_path=PathManager::locate_file(mat_file,*caller_path);
+        
+        std::cout<<"Setting the material "<<mat_index<<" to "<<mat_path<<std::endl;
+        
+        p_fd->set_material(mat_index,mat_path);
+    }
+    else
+    {
+        Material *material=lua_get_metapointer<Material>(L,3);
+        
+        std::cout<<"Setting the material "<<mat_index<<" to "<<material->name<<std::endl;
+        
+        p_fd->set_material(mat_index,*material);
+    }
     
     return 1;
 }
