@@ -292,57 +292,6 @@ T* lua_get_metapointer(lua_State *L,int index)
     return *(reinterpret_cast<T**>(lua_touserdata(L,index)));
 }
 
-//#########################
-//   Lua_memory_register
-//#########################
-
-template<typename T>
-void void_cast_delete(void *p)
-{
-    delete reinterpret_cast<T*>(p);
-}
-
-class Lua_memory_register
-{
-    public:
-        std::vector<void*> data_holder;
-        std::vector<void (*)(void*)> data_delete;
-        
-        Lua_memory_register() {}
-        
-        ~Lua_memory_register()
-        {
-            for(unsigned int i=0;i<data_holder.size();i++)
-                (*data_delete[i])(data_holder[i]);
-        }
-        
-        template<typename T>
-        void add_userdata(T *data)
-        {
-            data_holder.push_back(reinterpret_cast<void*>(data));
-            data_delete.push_back(&void_cast_delete<T>);
-        }
-        
-        template<typename T>
-        void forget_data(T *data)
-        {
-            void *v_data=reinterpret_cast<void *>(data);
-            
-            unsigned int i=0;
-            
-            for(i=0;i<data_holder.size();i++)
-            {
-                if(data_holder[i]==v_data) break;
-            }
-            
-            std::vector<void*>::const_iterator it1=i;
-            std::vector<void (*)(void*)>::const_iterator it2=i;
-            
-            data_holder.erase(it1);
-            data_delete.erase(it2);
-        }
-};
-
 //###############
 //   base_mode
 //###############

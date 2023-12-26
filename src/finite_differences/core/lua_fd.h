@@ -119,6 +119,7 @@ class FD_Mode: public base_mode
         void set_discretization_y(double Dy);
         void set_discretization_z(double Dz);
         
+        void set_material(int mat_index,Material const &material);
         void set_material(int mat_index,std::filesystem::path const &mat_file);
         void set_padding(int pad_xm,int pad_xp,int pad_ym,int pad_yp,int pad_zm,int pad_zp);
         
@@ -140,7 +141,7 @@ class FD_Mode: public base_mode
         
         //##########
         
-        virtual void process();
+        virtual void process() override;
 };
 
 int FD_mode_disable_fields(lua_State *L);

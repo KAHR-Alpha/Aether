@@ -590,6 +590,14 @@ int FDTD_Frame_lua_mode(lua_State *L)
 
 namespace GUI
 {
+    int fdtd_compute(lua_State *L)
+    {
+        // Ignoring the command in GUI mode
+        
+        return 0;
+    }
+    
+    
     int fdtd_set_material(lua_State *L)
     {
         GUI::FDTD_Mode *p_mode=dynamic_cast<GUI::FDTD_Mode*>(lua_get_metapointer<::FDTD_Mode>(L,1));
@@ -650,6 +658,7 @@ void FDTD_Frame::load(wxFileName const &fname_)
     lua_register(L,"nearest_integer",nearest_integer);
     
     FDTD_Mode_create_metatable(L);
+    metatable_add_func(L,"compute",&GUI::fdtd_compute);       // Override of the FDTD Mode computation (nothing to do in it)
     metatable_add_func(L,"material",&GUI::fdtd_set_material); // Override of the FDTD Mode Loading
     
     Source_generator_create_metatable(L);
@@ -1058,6 +1067,8 @@ void FDTD_Frame::save(wxFileName const &fname)
     
     for(unsigned int i=0;i<p.sources.size();i++)
         file<<"fdtd:register_source(source_"<<i<<")\n";
+    
+    file<<"\nfdtd:compute()";
 }
 
 void FDTD_Frame::subevt_menu_load()

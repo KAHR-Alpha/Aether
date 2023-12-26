@@ -32,7 +32,7 @@ class Selene_Mode: public base_mode
         void add_light(Sel::Light *light);
         bool interruption_type() { return true; }
         void optimize(OptimEngine *engine);
-        void process();
+        void process() override;
         void render();
         void set_N_rays_disp(int Nr_disp);
         void set_N_rays_total(int Nr_tot);

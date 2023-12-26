@@ -44,7 +44,7 @@ class FDFD_Mode: public FD_Mode
         
         //##########
         
-        void process();
+        void process() override;
 };
 
 class FDMS_Mode: public FD_Mode
@@ -61,11 +61,12 @@ class FDMS_Mode: public FD_Mode
         void set_spectrum(double lambda_min,double lambda_max,double Nl);
         void set_target(double lambda,double nr,double ni);
         
-        void process();
+        void process() override;
 };
 
 void mode_fdfd(FDFD_Mode const &fdtd_mode);
 
+int FDFD_mode_compute(lua_State *L);
 int FDFD_mode_set_azimuth(lua_State *L);
 int FDFD_mode_set_incidence(lua_State *L);
 int FDFD_mode_output_diffraction(lua_State *L);

@@ -22,6 +22,14 @@ If this criterion is never met, the simulation will only end after \lin{Nt\_max}
 fdtd:auto_tsteps(100000,500,400e-9,1000e-9,1e-5,200,"nnb")
 \end{lstlisting}
 
+\subsection[compute]{\lfc{compute}()}
+
+Runs the FDTD simulation at the current state, that is with all the parameters set so far. Any following changes to the parameters will be ignored.
+\begin{lstlisting}
+fdtd:compute()
+\end{lstlisting}
+
+
 \subsection[Dx]{\lfc{Dx}(\lft{dx})}
 
 Sets the $x$ discretization to \lft{dx}.
@@ -235,6 +243,8 @@ fdtd:pml_zp(25,25,1,0.2)
 fdtd:material(0,const_material(1))
 fdtd:material(1,const_material(1.5))
 fdtd:material(2,"mat_lib/Au_1m_5m_Vial.lua")
+
+fdtd:compute()
 \end{lstlisting}
 
 \section{Oblique incidence FDTD using the Aminian and Rahmat-Samii method} 
@@ -275,17 +285,21 @@ In this mode, only the \lfc{pml\_zm} and \lfc{pml\_zp} functions are available. 
 \subsection{Real script example}
 
 \begin{lstlisting}
+structure=Structure("structures_priv/hexa_cones_s150_h300_inv.lua")
+
 fobl=MODE("fdtd_oblique_ARS")
 fobl:prefix("fobl_");
 fobl:polarization("TE");
 fobl:kx_fixed_lambda(3,425e-9,10,60)
-fobl:structure("structures_priv/hexa_cones_s150_h300_inv.lua");
+fobl:structure(structure);
 fobl:N_tsteps(100000);
 fobl:spectrum(3000,400e-9,450e-9);
 fobl:pml_zp(25,25,0.7,0.2)
 fobl:pml_zm(25,25,1,0.2);
 fobl:material(0,"mat_lib/Ind181.lua")
 fobl:material(1,"mat_lib/Fspace.lua")
+
+fobl:compute()
 \end{lstlisting}
 
 \section{Single particles}
@@ -307,11 +321,13 @@ This function is used to specify an auxiliary structure for the simulation. This
 \subsection{Real script example}
 
 \begin{lstlisting}
+structure=Structure("structures/donut_cavity_aux.lua")
+
 fdonut=MODE("fdtd_single_particle")
 fdonut:prefix(prefix);
 fdonut:polarization("TE");
-fdonut:structure("structures/donut_cavity.lua");
-fdonut:structure_aux("structures/donut_cavity_aux.lua");
+fdonut:structure(structure);
+fdonut:structure_aux();
 fdonut:auto_tsteps(100000,500,400e-9,1000e-9,1e-5,200);
 fdonut:spectrum(3001,400e-9,1000e-9);
 fdonut:pml_xp(25,25,1,0.2);
@@ -324,6 +340,8 @@ fdonut:material(0,"mat_lib/Fspace.lua")
 fdonut:material(1,"mat_lib/Glass150.lua")
 fdonut:material(2,const_material(index))
 fdonut:material(3,"mat_lib/V_Au_400_1000_PCRC2.lua")
+
+fdonut:compute()
 \end{lstlisting}
 
 

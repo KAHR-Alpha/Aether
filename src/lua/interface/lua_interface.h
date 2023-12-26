@@ -34,7 +34,7 @@ class Dielec_pwgd_mode: public base_mode
         
         Dielec_pwgd_mode();
         
-        void process();
+        void process() override;
 };
 
 int dielec_pwgd_mode_set_guide_index(lua_State *L);
@@ -57,7 +57,7 @@ class Index_fit_mode: public base_mode
         
         Index_fit_mode();
         
-        void process();
+        void process() override;
 };
 
 int index_fit_mode_set_file(lua_State *L);
@@ -79,7 +79,7 @@ class Mie_mode: public base_mode
         std::vector<int> extract_type,extract_Nl;
         std::vector<double> extract_lmin,extract_lmax;
         std::vector<std::string> extract_fname;
-        void process();
+        void process() override;
 };
 
 template<int type>
@@ -175,60 +175,5 @@ class Sleep_mode: public base_mode
         }
 };
 
-#ifdef PRIV_MODE
-class Testlab_mode: public base_mode
-{
-    public:
-        void process();
-};
-#endif
-
-//####################
-//####################
-
-#include <thread_utils.h>
-
-class mode_register: public ThreadsPool
-{
-    public:
-        std::vector<base_mode*> mdv;
-        
-        void reg(base_mode *mode)
-        {
-            if(Nthr>1)
-            {
-                if(mode->interruption_type())
-                {
-                    if(mdv.size()>0) run_m(&base_mode::process,mdv.back());
-                    
-                    join_threads();
-                    mode->process();
-                }
-                else
-                {
-                    if(mdv.size()>0) run_m(&base_mode::process,mdv.back());
-                }
-                
-                mdv.push_back(mode);
-            }
-            else
-            {
-                if(mdv.size()>0) mdv.back()->process();
-                
-                mdv.push_back(mode);
-            }
-        }
-        
-        void process()
-        {
-            if(Nthr>1)
-            {
-                if(mdv.size()>0) run_m(&base_mode::process,mdv.back());
-                
-                join_threads();
-            }
-            else if(mdv.size()>0) mdv.back()->process();
-        }
-};
 
 #endif // LUA_INTERFACE_H

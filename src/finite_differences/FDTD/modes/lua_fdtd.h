@@ -108,6 +108,7 @@ void mode_fdtd_lab(FDTD_Mode const &fdtd_mode,
                    ProgTimeDisp *dsp=nullptr);
                    
 void FDTD_Mode_create_metatable(lua_State *L);
+int FDTD_mode_compute(lua_State *L);
 int FDTD_mode_register_sensor(lua_State *L);
 int FDTD_mode_register_source(lua_State *L);
 int FDTD_mode_set_auto_tsteps(lua_State *L);
