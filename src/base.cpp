@@ -64,18 +64,6 @@ int lua_fail_test(lua_State *L)
     return 0;
 }
 
-int set_concurrent_computations(lua_State *L)
-{
-    lua_getglobal(L,"mode_register");
-    mode_register *mrg=reinterpret_cast<mode_register*>(lua_touserdata(L,-1));
-    
-    int N=lua_tointeger(L,1);
-    
-    mrg->resize_pool(N);
-    
-    return 1;
-}
-
 int set_rng_seed(lua_State *L)
 {
     seedp(lua_tointeger(L,1));
@@ -86,10 +74,6 @@ int set_rng_seed(lua_State *L)
 int mode_choice(lua_State *L)
 {
     std::string mode=lua_tostring(L,1);
-//    std::cout<<mode<<std::endl;
-    
-    lua_getglobal(L,"mode_register");
-    mode_register *mrg=reinterpret_cast<mode_register*>(lua_touserdata(L,-1));
     
     base_mode *p_mode=nullptr;
     
@@ -146,8 +130,6 @@ int mode_choice(lua_State *L)
         std::cout<<"Press Enter to continue..."<<std::endl;
         std::cin.get();
     }
-    
-    if(p_mode!=nullptr) mrg->reg(p_mode);
     
     return 1;
 }
@@ -214,24 +196,14 @@ int mode_choice(lua_State *L)
     
     script_fname_path=script_fname_path.parent_path();
     
-    mode_register mreg;
-    Lua_memory_register lua_mem_reg;
-    
     lua_State *L=luaL_newstate();
     luaL_openlibs(L);
-    
-    lua_pushlightuserdata(L,reinterpret_cast<void*>(&mreg));
-    lua_setglobal(L,"mode_register");
-    
-    lua_pushlightuserdata(L,reinterpret_cast<void*>(&lua_mem_reg));
-    lua_setglobal(L,"lua_mem_register");
     
     lua_pushlightuserdata(L,reinterpret_cast<void*>(&script_fname_path));
     lua_setglobal(L,"lua_caller_path");
     
     lua_register(L,"MODE",mode_choice);
     lua_register(L,"complex_material",gen_complex_material);
-    lua_register(L,"concurrent_computations",set_concurrent_computations);
     lua_register(L,"const_material",gen_const_material);
     lua_register(L,"create_sensor",create_sensor);
     lua_register(L,"create_source",create_source);
@@ -255,6 +227,7 @@ int mode_choice(lua_State *L)
     create_obj_metatable(L,"metatable_fdfd");
     
     metatable_add_func(L,"azimuth",FDFD_mode_set_azimuth);
+    metatable_add_func(L,"compute",FDFD_mode_compute);
     metatable_add_func(L,"incidence",FDFD_mode_set_incidence);
     metatable_add_func(L,"material",FD_mode_set_material);
     lua_wrapper<1,FDFD_Mode,int,int,int,int,int,int>::bind(L,"padding",&FDFD_Mode::set_padding);
@@ -399,8 +372,6 @@ int mode_choice(lua_State *L)
     }
     
     lua_close(L);
-    
-//    mreg.process();
     
     std::cout<<"test_failure: "<<test_failure<<std::endl;
     

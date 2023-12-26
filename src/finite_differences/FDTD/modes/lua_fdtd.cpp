@@ -364,6 +364,7 @@ void FDTD_Mode_create_metatable(lua_State *L)
     create_obj_metatable(L,"metatable_fdtd");
     
     metatable_add_func(L,"auto_tsteps",FDTD_mode_set_auto_tsteps);
+    metatable_add_func(L,"compute",FDTD_mode_compute);
     metatable_add_func(L,"display_step",FDTD_mode_set_display_step);
     lua_wrapper<1,FDTD_Mode,double>::bind(L,"Dx",&FDTD_Mode::set_discretization_x);
     lua_wrapper<2,FDTD_Mode,double>::bind(L,"Dxyz",&FDTD_Mode::set_discretization);
@@ -406,6 +407,15 @@ void FDTD_Mode_create_metatable(lua_State *L)
     metatable_add_func(L,"register_sensor",FDTD_mode_register_sensor);
     metatable_add_func(L,"register_source",FDTD_mode_register_source);
     metatable_add_func(L,"spectrum",FDTD_mode_set_spectrum);
+}
+
+int FDTD_mode_compute(lua_State *L)
+{
+    FDTD_Mode *p_fdtd=lua_get_metapointer<FDTD_Mode>(L,1);
+    
+    p_fdtd->process();
+    
+    return 0;
 }
 
 int FDTD_mode_register_sensor(lua_State *L)

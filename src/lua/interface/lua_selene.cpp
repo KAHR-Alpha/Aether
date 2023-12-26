@@ -436,15 +436,7 @@ namespace LuaUI
     // IRF
     int create_selene_IRF(lua_State *L)
     {
-        Lua_memory_register *mem_reg=nullptr;
-        int lmem_reg=lua_getglobal(L,"lua_mem_register");
-        
-        if(lmem_reg==LUA_TLIGHTUSERDATA)
-            mem_reg=reinterpret_cast<Lua_memory_register*>(lua_touserdata(L,-1));
-        
-        Sel::IRF *p_irf=lua_allocate_metapointer<Sel::IRF>(L,"metatable_selene_irf");
-        
-        if(lmem_reg==LUA_TLIGHTUSERDATA) mem_reg->add_userdata(p_irf);
+        lua_allocate_metapointer<Sel::IRF>(L,"metatable_selene_irf");
         
         return 1;
     }

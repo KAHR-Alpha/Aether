@@ -66,6 +66,7 @@ class FDMS_Mode: public FD_Mode
 
 void mode_fdfd(FDFD_Mode const &fdtd_mode);
 
+int FDFD_mode_compute(lua_State *L);
 int FDFD_mode_set_azimuth(lua_State *L);
 int FDFD_mode_set_incidence(lua_State *L);
 int FDFD_mode_output_diffraction(lua_State *L);

@@ -71,6 +71,7 @@ namespace GUI
             }
     };
     
+    int fdtd_compute(lua_State *L);
     int fdtd_set_material(lua_State *L);
 }
 

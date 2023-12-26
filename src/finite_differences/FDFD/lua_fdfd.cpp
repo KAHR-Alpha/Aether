@@ -58,6 +58,15 @@ void FDFD_Mode::set_spectrum(double lambda_min_,double lambda_max_,int Nl_)
     Nl=Nl_;
 }
 
+int FDFD_mode_compute(lua_State *L)
+{
+    FDFD_Mode *p_fdfd=lua_get_metapointer<FDFD_Mode>(L,1);
+    
+    p_fdfd->process();
+    
+    return 0;
+}
+
 int FDFD_mode_set_azimuth(lua_State *L)
 {
     FDFD_Mode **pp_fdfd=reinterpret_cast<FDFD_Mode**>(lua_touserdata(L,1));
