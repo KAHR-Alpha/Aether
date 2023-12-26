@@ -16,5 +16,6 @@ add_library(fdtd_sensors STATIC ${sensors_src} ${sensors_headers})
 target_include_directories(fdtd_sensors PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(fdtd_sensors PUBLIC ${FFTW_INCLUDES})
 target_link_libraries(fdtd_sensors fdtd_core lua_core multilayers)
+target_link_libraries(fdtd_sensors ${FFTW_LIB})
 
 set_target_properties(fdtd_sensors PROPERTIES FOLDER "Finite Differences")
