@@ -144,7 +144,12 @@ void MovieSensor::deep_feed(FDTD const &fdtd)
             image.degra(i,j,tmp_x,0,1.0);
         }}
         
-        image.write(name+"_"+std::to_string(step/skip)+"_Ex.png");
+        std::filesystem::path pEx=directory/(name+"_"+std::to_string(step/skip)+"_Ex.png");
+        std::filesystem::path pEy=directory/(name+"_"+std::to_string(step/skip)+"_Ey.png");
+        std::filesystem::path pEz=directory/(name+"_"+std::to_string(step/skip)+"_Ez.png");
+        std::filesystem::path pE=directory/(name+"_"+std::to_string(step/skip)+"_E.png");
+        
+        image.write(pEx.generic_string());
         
         for(i=0;i<span1;i++){ for(j=0;j<span2;j++)
         {
@@ -152,7 +157,7 @@ void MovieSensor::deep_feed(FDTD const &fdtd)
             image.degra(i,j,tmp_y,0,1.0);
         }}
         
-        image.write(name+"_"+std::to_string(step/skip)+"_Ey.png");
+        image.write(pEy.generic_string());
         
         for(i=0;i<span1;i++){ for(j=0;j<span2;j++)
         {
@@ -160,7 +165,7 @@ void MovieSensor::deep_feed(FDTD const &fdtd)
             image.degra(i,j,tmp_z,0,1.0);
         }}
         
-        image.write(name+"_"+std::to_string(step/skip)+"_Ez.png");
+        image.write(pEz.generic_string());
         
         for(i=0;i<span1;i++){ for(j=0;j<span2;j++)
         {
@@ -175,6 +180,6 @@ void MovieSensor::deep_feed(FDTD const &fdtd)
         }}
         
         
-        image.write(name+"_"+std::to_string(step/skip)+"_E.png");
+        image.write(pE.generic_string());
     }
 }

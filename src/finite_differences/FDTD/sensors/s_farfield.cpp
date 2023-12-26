@@ -61,7 +61,7 @@ void FarFieldSensor::treat()
     std::string fname=name;
     fname.append("_farfield");
     
-    std::ofstream file(fname,std::ios::out|std::ios::trunc);
+    std::ofstream file(directory/fname,std::ios::out|std::ios::trunc);
     
     std::vector<Imdouble> precomp_x(x2-x1),precomp_y(y2-y1);
     

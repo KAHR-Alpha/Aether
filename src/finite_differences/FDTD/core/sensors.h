@@ -27,11 +27,26 @@ class Source;
 //######################
 //   Sensor_generator
 //######################
+        
+enum class Sensor_type
+{
+    BOX_POYNTING=0,
+    BOX_SPECTRAL_POYNTING,
+    DIFF_ORDERS,
+    FARFIELD,
+    FIELDBLOCK,
+    FIELDMAP,
+    FIELDMAP2,
+    FIELDPOINT,
+    MOVIE,
+    PLANAR_SPECTRAL_POYNTING,
+    UNKNOWN
+};
 
 class Sensor_generator
 {
     public:
-        int type;
+        Sensor_type type;
         std::string name;
         
         int x1,x2,y1,y2,z1,z2;
@@ -50,20 +65,6 @@ class Sensor_generator
         bool disable_xm,disable_xp,
              disable_ym,disable_yp,
              disable_zm,disable_zp;
-        
-        enum
-        {
-            BOX_POYNTING=0,
-            BOX_SPECTRAL_POYNTING,
-            DIFF_ORDERS,
-            FARFIELD,
-            FIELDBLOCK,
-            FIELDMAP,
-            FIELDMAP2,
-            FIELDPOINT,
-            MOVIE,
-            PLANAR_SPECTRAL_POYNTING
-        };
         
         Sensor_generator();
         Sensor_generator(Sensor_generator const &sens);

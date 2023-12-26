@@ -203,13 +203,13 @@ void FDTD_Frame::append_tree_sensor(wxTreeItemId const &ID,Sensor_generator &gen
     wxString tmp_str_x,tmp_str_y,tmp_str_z;
     wxTreeItemId tmp_ID;
     
-         if(generator.type==Sensor_generator::BOX_POYNTING) sensor_type="Poynting Box";
-    else if(generator.type==Sensor_generator::BOX_SPECTRAL_POYNTING) sensor_type="Spectral Poynting Box";
-    else if(generator.type==Sensor_generator::DIFF_ORDERS) sensor_type="Diffraction orders";
-    else if(generator.type==Sensor_generator::FIELDBLOCK) sensor_type="FieldBlock";
-    else if(generator.type==Sensor_generator::FIELDMAP) sensor_type="FieldMap";
-    else if(generator.type==Sensor_generator::FIELDPOINT) sensor_type="FieldPoint";
-    else if(generator.type==Sensor_generator::PLANAR_SPECTRAL_POYNTING) sensor_type="Spectral Poynting Plane";
+         if(generator.type==Sensor_type::BOX_POYNTING) sensor_type="Poynting Box";
+    else if(generator.type==Sensor_type::BOX_SPECTRAL_POYNTING) sensor_type="Spectral Poynting Box";
+    else if(generator.type==Sensor_type::DIFF_ORDERS) sensor_type="Diffraction orders";
+    else if(generator.type==Sensor_type::FIELDBLOCK) sensor_type="FieldBlock";
+    else if(generator.type==Sensor_type::FIELDMAP) sensor_type="FieldMap";
+    else if(generator.type==Sensor_type::FIELDPOINT) sensor_type="FieldPoint";
+    else if(generator.type==Sensor_type::PLANAR_SPECTRAL_POYNTING) sensor_type="Spectral Poynting Plane";
     
     wxTreeItemId sensor_ID=tree->AppendItem(ID,sensor_type);
     
@@ -232,9 +232,9 @@ void FDTD_Frame::append_tree_sensor(wxTreeItemId const &ID,Sensor_generator &gen
     tree->AppendItem(tmp_ID,tmp_str_y);
     tree->AppendItem(tmp_ID,tmp_str_z);
     
-    if(generator.type==Sensor_generator::BOX_SPECTRAL_POYNTING ||
-       generator.type==Sensor_generator::DIFF_ORDERS ||
-       generator.type==Sensor_generator::PLANAR_SPECTRAL_POYNTING )
+    if(generator.type==Sensor_type::BOX_SPECTRAL_POYNTING ||
+       generator.type==Sensor_type::DIFF_ORDERS ||
+       generator.type==Sensor_type::PLANAR_SPECTRAL_POYNTING )
     {
         tmp_ID=tree->AppendItem(sensor_ID,"Spectrum");
         
@@ -253,9 +253,9 @@ void FDTD_Frame::append_tree_sensor(wxTreeItemId const &ID,Sensor_generator &gen
         tree->AppendItem(sensor_ID,tmp_str);
     }
     
-    if(generator.type==Sensor_generator::FIELDMAP ||
-       generator.type==Sensor_generator::DIFF_ORDERS ||
-       generator.type==Sensor_generator::PLANAR_SPECTRAL_POYNTING)
+    if(generator.type==Sensor_type::FIELDMAP ||
+       generator.type==Sensor_type::DIFF_ORDERS ||
+       generator.type==Sensor_type::PLANAR_SPECTRAL_POYNTING)
     {
         tmp_str="Orientation: ";
         
@@ -1004,10 +1004,7 @@ void FDTD_Frame::save(wxFileName const &fname)
         std::string s_name="sensor_"+std::to_string(i);
         
         file<<s_name<<"=create_sensor(\"";
-             if(gen.type==Sensor_generator::BOX_SPECTRAL_POYNTING) file<<"box_spectral_poynting";
-        else if(gen.type==Sensor_generator::FIELDBLOCK) file<<"fieldblock";
-        else if(gen.type==Sensor_generator::FIELDMAP) file<<"fieldmap";
-        else if(gen.type==Sensor_generator::PLANAR_SPECTRAL_POYNTING) file<<"planar_spectral_poynting";
+        file<<from_sensor_type(gen.type);
         file<<"\")\n";
         
         file<<s_name<<":name(\""<<gen.name<<"\")\n";
@@ -1030,7 +1027,7 @@ void FDTD_Frame::save(wxFileName const &fname)
         if(gen.disable_zm) file<<s_name<<":disable(\"-Z\")\n";
         if(gen.disable_zp) file<<s_name<<":disable(\"Z\")\n";
         
-        if(gen.type==Sensor_generator::FIELDMAP || gen.type==Sensor_generator::FIELDBLOCK)
+        if(gen.type==Sensor_type::FIELDMAP || gen.type==Sensor_type::FIELDBLOCK)
             file<<s_name<<":wavelength("<<gen.lambda_min<<")\n";
         else file<<s_name<<":spectrum("<<gen.lambda_min<<","<<gen.lambda_max<<","<<gen.Nl<<")\n";
         file<<"\n";;

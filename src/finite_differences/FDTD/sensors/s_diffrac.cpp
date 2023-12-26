@@ -71,7 +71,7 @@ void DiffSensor::treat()
     
     chk_var(fname);
     
-    std::ofstream file(fname,std::ios::out|std::ios::trunc);
+    std::ofstream file(directory/fname,std::ios::out|std::ios::trunc);
     
     int pmin_sp=std::numeric_limits<int>::max();
     int pmax_sp=std::numeric_limits<int>::min();
