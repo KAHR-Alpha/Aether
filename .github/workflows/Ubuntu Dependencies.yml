@@ -88,10 +88,10 @@ jobs:
           path: builds/zlib
           key: ${{ runner.os }}-cache-key-zlib
           
-      - run: wget https://zlib.net/zlib-1.2.13.tar.gz
-      - run: tar -xzf zlib-1.2.13.tar.gz
+      - run: wget https://zlib.net/zlib-1.3.tar.gz
+      - run: tar -xzf zlib-1.3.tar.gz
       - run: |
-          cd zlib-1.2.13
+          cd zlib-1.3
           cmake -B ${{github.workspace}}/build -DCMAKE_INSTALL_PREFIX=${{github.workspace}}/builds/zlib -DCMAKE_BUILD_TYPE=Release
           cd ${{github.workspace}}/build
           make
