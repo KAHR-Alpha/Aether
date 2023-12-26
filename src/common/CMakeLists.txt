@@ -61,4 +61,4 @@ if(WIN32)
 	target_link_libraries(common_lib userenv)
 endif()
 
-target_link_libraries(common_lib PUBLIC ${PNG_LIBRARY_RELEASE})
+target_link_libraries(common_lib ${PNG_LIBRARY_RELEASE})
