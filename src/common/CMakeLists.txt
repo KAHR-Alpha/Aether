@@ -60,3 +60,5 @@ target_include_directories(common_lib PUBLIC ${PNG_PNG_INCLUDE_DIR})
 if(WIN32)
 	target_link_libraries(common_lib userenv)
 endif()
+
+target_link_libraries(common_lib PUBLIC ${PNG_LIBRARY_RELEASE})
