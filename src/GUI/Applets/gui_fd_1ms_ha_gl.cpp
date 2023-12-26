@@ -21,13 +21,13 @@ limitations under the License.*/
 
 extern std::ofstream plog;
 
-#ifndef WX30_RESTRICT
+/*#ifndef WX30_RESTRICT
 HAMS_GL::HAMS_GL(wxWindow *parent,wxGLAttributes const &attrib)
     :wxGLCanvas(parent,attrib,wxID_ANY),
-#else
+#else*/
 HAMS_GL::HAMS_GL(wxWindow *parent)
     :wxGLCanvas(parent,wxID_ANY,NULL),
-#endif
+//#endif
      busy(false), target_mode(false), zoom_mode(false),
      pad_xm(2), pad_xp(2),
      pad_ym(2), pad_yp(2),

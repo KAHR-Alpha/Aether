@@ -174,11 +174,11 @@ class HAMS_GL: public wxGLCanvas
         GLuint target_vao,prog_target,prog_target_outline;
         std::vector<MSTarget> targets;
         
-        #ifndef WX30_RESTRICT
+/*        #ifndef WX30_RESTRICT
         HAMS_GL(wxWindow *parent,wxGLAttributes const &attrib);
-        #else
+        #else*/
         HAMS_GL(wxWindow *parent);
-        #endif
+//        #endif
         ~HAMS_GL();
         
         void add_target(double nr,double ni);

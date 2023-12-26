@@ -665,13 +665,13 @@ HAPSolverFrame::HAPSolverFrame(wxString const &title)
     
     target_tools_panel->SetSizer(target_tools_sizer);
     
-    #ifndef WX30_RESTRICT
+/*    #ifndef WX30_RESTRICT
     wxGLAttributes attrib;
     attrib.PlatformDefaults().MinRGBA(8,8,8,8).DoubleBuffer().Depth(24).EndList();
     target_graph=new HAMS_GL(target_panel,attrib);
-    #else
+    #else*/
     target_graph=new HAMS_GL(target_panel);
-    #endif
+//    #endif
     
     exposure_slider=new wxSlider(target_exposure_panel,wxID_ANY,0,-400,400,wxDefaultPosition,wxDefaultSize,wxSL_VERTICAL);
     auto_exposure_btn=new wxToggleButton(target_exposure_panel,wxID_ANY,"",wxDefaultPosition,wxDefaultSize,wxBU_EXACTFIT);
