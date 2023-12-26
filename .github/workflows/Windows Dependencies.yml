@@ -68,17 +68,17 @@ jobs:
           path: builds/zlib
           key: ${{ runner.os }}-cache-key-zlib
       
-      - run: Invoke-WebRequest -URI https://zlib.net/zlib1213.zip -OutFile sources.zip
+      - run: Invoke-WebRequest -URI https://zlib.net/zlib13.zip -OutFile sources.zip
       - run: Expand-Archive ./sources.zip
       
       - run: cmake -B "${{github.workspace}}/cmake_build" -DCMAKE_INSTALL_PREFIX="${{github.workspace}}/builds/zlib" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
-        working-directory: sources/zlib-1.2.13
+        working-directory: sources/zlib-1.3
         
       - run: cmake --build "${{github.workspace}}/cmake_build" --config ${{env.BUILD_TYPE}}
-        working-directory: sources/zlib-1.2.13
+        working-directory: sources/zlib-1.3
         
       - run: cmake --install "${{github.workspace}}/cmake_build"
-        working-directory: sources/zlib-1.2.13
+        working-directory: sources/zlib-1.3
         
   build_libpng:
     runs-on: windows-latest
@@ -120,13 +120,13 @@ jobs:
       - run: Expand-Archive ./sources.zip
       
       - run: cmake -B "${{github.workspace}}/cmake_build" -DCMAKE_INSTALL_PREFIX="${{github.workspace}}/builds/freetype" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
-        working-directory: sources/freetype-2.13.1
+        working-directory: sources/freetype-2.13.2
         
       - run: cmake --build "${{github.workspace}}/cmake_build" --config ${{env.BUILD_TYPE}}
-        working-directory: sources/freetype-2.13.1
+        working-directory: sources/freetype-2.13.2
         
       - run: cmake --install "${{github.workspace}}/cmake_build"
-        working-directory: sources/freetype-2.13.1
+        working-directory: sources/freetype-2.13.2
           
   get_fftw:
     runs-on: windows-latest
