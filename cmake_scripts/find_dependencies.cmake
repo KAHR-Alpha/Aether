@@ -6,6 +6,7 @@
 set(EIGEN3_INCLUDE_DIR CACHE PATH "")
 
 if(EIGEN3_INCLUDE_DIR STREQUAL "")
+	unset(EIGEN3_INCLUDE_DIR CACHE)
 	find_package(Eigen3 REQUIRED)
 endif()
 
@@ -18,7 +19,11 @@ set(FFTW_INCLUDES CACHE PATH "")
 set(FFTW_LIB CACHE PATH "")
 
 if(FFTW_INCLUDES STREQUAL "" OR FFTW_LIB STREQUAL "")
-	find_package(FFTW3)
+	unset(FFTW_INCLUDES CACHE)
+	unset(FFTW_LIB CACHE)
+	find_path(FFTW_INCLUDES fftw3.h /usr/lib /usr/local/include libs libs/fftw64)
+	find_library(FFTW_LIB NAMES fftw3-3 fftw3 PATHS /usr/lib /usr/lib/x86_64-linux-gnu /usr/local/lib libs libs/fftw64)
+	# find_package(FFTW3)
 endif()
 
 
@@ -30,6 +35,8 @@ set(LUA_INCLUDE_DIR CACHE PATH "")
 set(LUA_LIBRARIES CACHE PATH "")
 
 if(LUA_INCLUDE_DIR STREQUAL "" OR LUA_LIBRARIES STREQUAL "")
+	unset(LUA_INCLUDE_DIR CACHE)
+	unset(LUA_LIBRARIES CACHE)
 	find_package(Lua)
 endif()
 
@@ -42,6 +49,8 @@ set(PNG_PNG_INCLUDE_DIR CACHE PATH "")
 set(PNG_LIBRARY_RELEASE CACHE PATH "")
 
 if(PNG_PNG_INCLUDE_DIR STREQUAL "" OR PNG_LIBRARY_RELEASE STREQUAL "")
+	unset(PNG_PNG_INCLUDE_DIR CACHE)
+	unset(PNG_LIBRARY_RELEASE CACHE)
 	find_package(PNG)
 endif()
 
@@ -53,6 +62,7 @@ endif()
 set(ZLIB_LIBRARY_RELEASE CACHE PATH "")
 
 if(ZLIB_LIBRARY_RELEASE STREQUAL "")
+	unset(ZLIB_LIBRARY_RELEASE CACHE)
 	find_package(ZLIB)
 endif()
 	
@@ -75,6 +85,8 @@ set(WXWIDGETS_ADV CACHE PATH "")
 
 if(GUI)
 	if(FREETYPE_INCLUDE_DIRS STREQUAL "" OR FREETYPE_LIBRARIES STREQUAL "")
+		unset(FREETYPE_INCLUDE_DIRS CACHE)
+		unset(FREETYPE_LIBRARIES CACHE)
 		find_package(Freetype)
 	endif()
 	
@@ -94,7 +106,13 @@ if(GUI)
 		endif()
 	else()
 		message("Looking for wxWidgets")
+		unset(WXWIDGETS_INCLUDES CACHE)
+		unset(WXWIDGETS_BASE CACHE)
+		unset(WXWIDGETS_CORE CACHE)
+		unset(WXWIDGETS_GL CACHE)
+		unset(WXWIDGETS_ADV CACHE)
 		find_package(wxWidgets REQUIRED gl core base adv)
 		message("Found wxWidgets " ${wxWidgets_FOUND})
+		include(${wxWidgets_USE_FILE})
 	endif()
 endif()

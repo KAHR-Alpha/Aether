@@ -27,12 +27,7 @@ target_include_directories(gui_common PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(gui_common PUBLIC ../include)
 target_include_directories(gui_common PUBLIC ${FREETYPE_INCLUDE_DIRS})
 
-if(WIN32)
-	target_include_directories(gui_common PUBLIC ${WXWIDGETS_INCLUDES})
-else()
-	message("wx use file: " ${wxWidgets_USE_FILE})
-	include(${wxWidgets_USE_FILE})
-endif()
+target_include_directories(gui_common PUBLIC ${WXWIDGETS_INCLUDES})
 
 target_link_libraries(gui_common Aether_core gl_tools)
 
