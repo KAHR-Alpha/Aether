@@ -34,23 +34,8 @@ int create_sensor(lua_State *L)
     lua_setmetatable(L,-2);
     
     Sensor_generator &sens=**p_sens;
+    sens.type=to_sensor_type(type);
     
-         if(type=="box_poynting") sens.type=Sensor_generator::BOX_POYNTING;
-    else if(type=="box_spectral_poynting") sens.type=Sensor_generator::BOX_SPECTRAL_POYNTING;
-    else if(type=="diff_orders") sens.type=Sensor_generator::DIFF_ORDERS;
-    else if(type=="farfield") sens.type=Sensor_generator::FARFIELD;
-    else if(type=="fieldblock") sens.type=Sensor_generator::FIELDBLOCK;
-    else if(type=="fieldmap") sens.type=Sensor_generator::FIELDMAP;
-    else if(type=="fieldmap2") sens.type=Sensor_generator::FIELDMAP2;
-    else if(type=="fieldpoint") sens.type=Sensor_generator::FIELDPOINT;
-    else if(type=="movie") sens.type=Sensor_generator::MOVIE;
-    else if(type=="planar_spectral_poynting") sens.type=Sensor_generator::PLANAR_SPECTRAL_POYNTING;
-    else
-    {
-        std::cout<<"Unknown sensor type: "<<type<<std::endl;
-        std::cout<<"Press Enter to continue..."<<std::endl;
-        std::cin.get();
-    }
     return 1;
 }
 
@@ -136,4 +121,44 @@ void Sensor_generator_create_metatable(lua_State *L)
     
     metatable_add_func(L,"location_grid",sensor_set_location);
     metatable_add_func(L,"location",sensor_set_location_real);
+}
+
+Sensor_type to_sensor_type(std::string const &type)
+{
+         if(type=="box_poynting")  return Sensor_type::BOX_POYNTING;
+    else if(type=="box_spectral_poynting") return Sensor_type::BOX_SPECTRAL_POYNTING;
+    else if(type=="diff_orders") return Sensor_type::DIFF_ORDERS;
+    else if(type=="farfield") return Sensor_type::FARFIELD;
+    else if(type=="fieldblock") return Sensor_type::FIELDBLOCK;
+    else if(type=="fieldmap") return Sensor_type::FIELDMAP;
+    else if(type=="fieldmap2") return Sensor_type::FIELDMAP2;
+    else if(type=="fieldpoint") return Sensor_type::FIELDPOINT;
+    else if(type=="movie") return Sensor_type::MOVIE;
+    else if(type=="planar_spectral_poynting") return Sensor_type::PLANAR_SPECTRAL_POYNTING;
+    else
+    {
+        std::cout<<"Unknown sensor type: "<<type<<std::endl;
+        std::cout<<"Press Enter to continue..."<<std::endl;
+        std::cin.get();
+        
+        return Sensor_type::UNKNOWN;
+    }
+}
+
+std::string from_sensor_type(Sensor_type type)
+{
+    if(type==Sensor_type::BOX_POYNTING) return "box_poynting";
+    else if(type==Sensor_type::BOX_SPECTRAL_POYNTING) return "box_spectral_poynting";
+    else if(type==Sensor_type::DIFF_ORDERS) return "diff_orders";
+    else if(type==Sensor_type::FARFIELD) return "farfield";
+    else if(type==Sensor_type::FIELDBLOCK) return "fieldblock";
+    else if(type==Sensor_type::FIELDMAP) return "fieldmap";
+    else if(type==Sensor_type::FIELDMAP2) return "fieldmap2";
+    else if(type==Sensor_type::FIELDPOINT) return "fieldpoint";
+    else if(type==Sensor_type::MOVIE) return "movie";
+    else if(type==Sensor_type::PLANAR_SPECTRAL_POYNTING) return "planar_spectral_poynting";
+    else
+    {
+        return "unknown";
+    }
 }

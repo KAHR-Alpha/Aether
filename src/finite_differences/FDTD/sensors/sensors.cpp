@@ -25,7 +25,7 @@ extern std::ofstream plog;
 //######################
 
 Sensor_generator::Sensor_generator()
-    :type(Sensor_generator::BOX_SPECTRAL_POYNTING), name("sensor"),
+    :type(Sensor_type::BOX_SPECTRAL_POYNTING), name("sensor"),
      x1(0), x2(0),
      y1(0), y2(0),
      z1(0), z2(0),
@@ -316,7 +316,7 @@ Sensor* generate_fdtd_sensor(Sensor_generator const &gen,FDTD const &fdtd)
 {
     Sensor *sens_out=0;
     
-    if(gen.type==Sensor_generator::BOX_POYNTING)
+    if(gen.type==Sensor_type::BOX_POYNTING)
     {
         sens_out=new Box_Poynting(gen.x1,gen.x2,
                                   gen.y1,gen.y2,
@@ -324,7 +324,7 @@ Sensor* generate_fdtd_sensor(Sensor_generator const &gen,FDTD const &fdtd)
         
         sens_out->set_spectrum(gen.Nl,gen.lambda_min,gen.lambda_max);
     }
-    else if(gen.type==Sensor_generator::BOX_SPECTRAL_POYNTING)
+    else if(gen.type==Sensor_type::BOX_SPECTRAL_POYNTING)
     {
         sens_out=new Box_Spect_Poynting(gen.x1,gen.x2,
                                         gen.y1,gen.y2,
@@ -339,7 +339,7 @@ Sensor* generate_fdtd_sensor(Sensor_generator const &gen,FDTD const &fdtd)
         
         sens_out->set_spectrum(gen.Nl,gen.lambda_min,gen.lambda_max);
     }
-    else if(gen.type==Sensor_generator::DIFF_ORDERS)
+    else if(gen.type==Sensor_type::DIFF_ORDERS)
     {
         sens_out=new DiffSensor(gen.orientation,
                                 gen.x1,gen.x2,
@@ -348,7 +348,7 @@ Sensor* generate_fdtd_sensor(Sensor_generator const &gen,FDTD const &fdtd)
         
         sens_out->set_spectrum(gen.Nl,gen.lambda_min,gen.lambda_max);
     }
-    else if(gen.type==Sensor_generator::FARFIELD)
+    else if(gen.type==Sensor_type::FARFIELD)
     {
         sens_out=new FarFieldSensor(gen.x1,gen.x2,
                                     gen.y1,gen.y2,
@@ -357,7 +357,7 @@ Sensor* generate_fdtd_sensor(Sensor_generator const &gen,FDTD const &fdtd)
         
         sens_out->set_spectrum(gen.Nl,gen.lambda_min,gen.lambda_max);
     }
-    else if(gen.type==Sensor_generator::FIELDBLOCK)
+    else if(gen.type==Sensor_type::FIELDBLOCK)
     {
         sens_out=new FieldBlock(gen.x1,gen.x2,
                                 gen.y1,gen.y2,
@@ -365,7 +365,7 @@ Sensor* generate_fdtd_sensor(Sensor_generator const &gen,FDTD const &fdtd)
                                 
         sens_out->set_spectrum(gen.lambda_min);
     }
-    else if(gen.type==Sensor_generator::FIELDMAP)
+    else if(gen.type==Sensor_type::FIELDMAP)
     {
         sens_out=new FieldMap(gen.orientation,
                               gen.x1,gen.x2,
@@ -374,7 +374,7 @@ Sensor* generate_fdtd_sensor(Sensor_generator const &gen,FDTD const &fdtd)
         
         sens_out->set_spectrum(gen.lambda_min);
     }
-    else if(gen.type==Sensor_generator::FIELDMAP2)
+    else if(gen.type==Sensor_type::FIELDMAP2)
     {
         sens_out=new FieldMap2(gen.orientation,
                               gen.x1,gen.x2,
@@ -383,13 +383,13 @@ Sensor* generate_fdtd_sensor(Sensor_generator const &gen,FDTD const &fdtd)
         
         sens_out->set_spectrum(gen.Nl,gen.lambda_min,gen.lambda_max);
     }
-    else if(gen.type==Sensor_generator::FIELDPOINT)
+    else if(gen.type==Sensor_type::FIELDPOINT)
     {
         sens_out=new FieldPoint(gen.x1,gen.y1,gen.z1);
         
         sens_out->set_spectrum(gen.lambda_min);
     }
-    else if(gen.type==Sensor_generator::MOVIE)
+    else if(gen.type==Sensor_type::MOVIE)
     {
         sens_out=new MovieSensor(gen.orientation,
                                  gen.x1,gen.x2,
@@ -397,7 +397,7 @@ Sensor* generate_fdtd_sensor(Sensor_generator const &gen,FDTD const &fdtd)
                                  gen.z1,gen.z2,
                                  gen.skip);
     }
-    else if(gen.type==Sensor_generator::PLANAR_SPECTRAL_POYNTING)
+    else if(gen.type==Sensor_type::PLANAR_SPECTRAL_POYNTING)
     {
         sens_out=new Spect_Poynting(gen.orientation,
                                     gen.x1,gen.x2,

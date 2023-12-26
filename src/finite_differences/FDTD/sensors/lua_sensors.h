@@ -16,6 +16,7 @@ limitations under the License.*/
 #define LUA_SENSORS_H
 
 #include <lua_base.h>
+#include <sensors.h>
 
 //####################
 //      Sensors
@@ -28,5 +29,8 @@ int sensor_set_location_real(lua_State *L);
 //int sensor_set_arbitrary_spectrum(lua_State *L);
 
 void Sensor_generator_create_metatable(lua_State *L);
+
+std::string from_sensor_type(Sensor_type type);
+Sensor_type to_sensor_type(std::string const &type);
 
 #endif

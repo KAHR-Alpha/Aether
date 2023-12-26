@@ -38,11 +38,11 @@ Sensor_Gen_Dialog::Sensor_Gen_Dialog(Sensor_generator *generator_)
     type_ctrl->Append("FieldBlock");
     type_ctrl->Append("FieldMap");
     
-         if(type==Sensor_generator::BOX_SPECTRAL_POYNTING) type_ctrl->SetSelection(0);
-    else if(type==Sensor_generator::PLANAR_SPECTRAL_POYNTING) type_ctrl->SetSelection(1);
-    else if(type==Sensor_generator::DIFF_ORDERS) type_ctrl->SetSelection(2);
-    else if(type==Sensor_generator::FIELDBLOCK) type_ctrl->SetSelection(3);
-    else if(type==Sensor_generator::FIELDMAP) type_ctrl->SetSelection(4);
+         if(type==Sensor_type::BOX_SPECTRAL_POYNTING) type_ctrl->SetSelection(0);
+    else if(type==Sensor_type::PLANAR_SPECTRAL_POYNTING) type_ctrl->SetSelection(1);
+    else if(type==Sensor_type::DIFF_ORDERS) type_ctrl->SetSelection(2);
+    else if(type==Sensor_type::FIELDBLOCK) type_ctrl->SetSelection(3);
+    else if(type==Sensor_type::FIELDMAP) type_ctrl->SetSelection(4);
     
     type_ctrl->Bind(wxEVT_CHOICE,&Sensor_Gen_Dialog::evt_type,this);
     
@@ -185,11 +185,11 @@ void Sensor_Gen_Dialog::evt_type(wxCommandEvent &event)
 {
     int selection=type_ctrl->GetSelection();
     
-    if(selection==0) type=Sensor_generator::BOX_SPECTRAL_POYNTING;
-    else if(selection==1) type=Sensor_generator::PLANAR_SPECTRAL_POYNTING;
-    else if(selection==2) type=Sensor_generator::DIFF_ORDERS;
-    else if(selection==3) type=Sensor_generator::FIELDBLOCK;
-    else if(selection==4) type=Sensor_generator::FIELDMAP;
+         if(selection==0) type=Sensor_type::BOX_SPECTRAL_POYNTING;
+    else if(selection==1) type=Sensor_type::PLANAR_SPECTRAL_POYNTING;
+    else if(selection==2) type=Sensor_type::DIFF_ORDERS;
+    else if(selection==3) type=Sensor_type::FIELDBLOCK;
+    else if(selection==4) type=Sensor_type::FIELDMAP;
     
     refresh_layout();
     
@@ -200,9 +200,9 @@ bool Sensor_Gen_Dialog::is_planar()
 {
     bool plane=true;
     
-    if(type==Sensor_generator::BOX_POYNTING ||
-       type==Sensor_generator::BOX_SPECTRAL_POYNTING ||
-       type==Sensor_generator::FIELDBLOCK) plane=false;
+    if(type==Sensor_type::BOX_POYNTING ||
+       type==Sensor_type::BOX_SPECTRAL_POYNTING ||
+       type==Sensor_type::FIELDBLOCK) plane=false;
     
     return plane;
 }
@@ -222,8 +222,8 @@ void Sensor_Gen_Dialog::refresh_layout()
         else if(orientation==4 || orientation==5) z2_ctrl->Disable();
     }
     
-    if(type==Sensor_generator::FIELDBLOCK ||
-       type==Sensor_generator::FIELDMAP) spectrum_ctrl->set_monochromatic();
+    if(type==Sensor_type::FIELDBLOCK ||
+       type==Sensor_type::FIELDMAP) spectrum_ctrl->set_monochromatic();
     else spectrum_ctrl->set_polychromatic();
 }
 
@@ -256,7 +256,7 @@ void Sensor_Gen_Dialog::save()
     }
     
     disable_xm=disable_xp=disable_ym=disable_yp=disable_zm=disable_zp=false;
-    if(type==Sensor_generator::BOX_POYNTING || type==Sensor_generator::BOX_SPECTRAL_POYNTING)
+    if(type==Sensor_type::BOX_POYNTING || type==Sensor_type::BOX_SPECTRAL_POYNTING)
     {
         bool *disable_X[6]={&disable_xm,&disable_xp,&disable_ym,&disable_yp,&disable_zm,&disable_zp};
         

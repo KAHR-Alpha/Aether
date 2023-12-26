@@ -4,6 +4,11 @@ Todo:
 - Tangent vectors managements for Selene
 - Implement the Lambertian, Guassian and ABg scattering models ( see "What scattering models are available in OpticStudio?" )
 
+0.11.1
+- Fixed materials loading in CLI FDTD
+- Fixed the use of the output directory for sensors in GUI FDTD
+- Fixed sensors saving as the wrong type in GUI FDTD
+
 0.11
 - Added an optimization system to Selene
 
