@@ -214,8 +214,11 @@ class Structure
         lua_State *L;
         std::filesystem::path script;
         
-        std::vector<double> parameter_value;
-        std::vector<std::string> parameter_name;
+        std::vector<double> user_parameter_value,
+                            script_parameter_value;
+        
+        std::vector<std::string> user_parameter_name,
+                                 script_parameter_name;
         
         std::vector<Structure_OP*> operations;
         

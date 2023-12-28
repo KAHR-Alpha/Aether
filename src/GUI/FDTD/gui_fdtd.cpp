@@ -935,8 +935,8 @@ void FDTD_Frame::save(wxFileName const &fname)
     structure_path=to_relative_file(p.structure->script,save_path);
     
     file<<"structure=Structure(\""<<structure_path.generic_string()<<"\")\n";
-    for(std::size_t i=0;i<p.structure->parameter_name.size();i++)
-        file<<"structure:parameter(\""<<p.structure->parameter_name[i]<<"\","<<p.structure->parameter_value[i]<<")\n";
+    for(std::size_t i=0;i<p.structure->user_parameter_name.size();i++)
+        file<<"structure:parameter(\""<<p.structure->user_parameter_name[i]<<"\","<<p.structure->user_parameter_value[i]<<")\n";
     file<<"\n";
     
          if(type==FDTD_Mode::FDTD_CUSTOM) file<<"fdtd=MODE(\"fdtd\")\n";

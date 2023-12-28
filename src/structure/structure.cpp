@@ -97,6 +97,8 @@ void Structure::finalize()
     for(std::size_t i=0;i<operations.size();i++)
         delete operations[i];
     
+    script_parameter_name.clear();
+    script_parameter_value.clear();
     operations.clear();
     
     if(script.empty()) return;

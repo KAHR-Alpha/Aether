@@ -404,7 +404,8 @@ void PathManager::retrieve_executable_path()
     char buffer[10000];
     
     #ifdef _WIN32
-    GetModuleFileNameA(NULL,buffer,buffer_size);
+    HMODULE handle=GetModuleHandleA(NULL);
+    GetModuleFileNameA(handle,buffer,buffer_size);
     
     executable_path=buffer;
     #endif

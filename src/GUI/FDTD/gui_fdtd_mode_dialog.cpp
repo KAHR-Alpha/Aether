@@ -605,6 +605,12 @@ void FDTD_Mode_Dialog::evt_load_structure(wxCommandEvent &event)
     
     new_structure=true;
     
+    std::filesystem::path struct_path=structure->get_value();
+    struct_path=std::filesystem::absolute(struct_path);
+    
+    Structure loader(struct_path);
+    loader.finalize();
+    
     event.Skip();
 }
 

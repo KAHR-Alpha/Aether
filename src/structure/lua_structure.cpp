@@ -268,13 +268,13 @@ int structure_set_parameter(lua_State *L)
     double parameter_value=lua_tonumber(L,3);
     
     bool found=false;
-    std::size_t k=vector_locate(found,p_struct->parameter_name,parameter_name);
+    std::size_t k=vector_locate(found,p_struct->user_parameter_name,parameter_name);
     
-    if(found) p_struct->parameter_value[k]=parameter_value;
+    if(found) p_struct->user_parameter_value[k]=parameter_value;
     else
     {
-        p_struct->parameter_name.push_back(parameter_name);
-        p_struct->parameter_value.push_back(parameter_value);
+        p_struct->user_parameter_name.push_back(parameter_name);
+        p_struct->user_parameter_value.push_back(parameter_value);
     }
     
     return 0;
@@ -601,9 +601,23 @@ int structure_declare_parameter(lua_State *L)
     Structure *p_struct=get_structure_pointer(L);
     
     bool found=false;
-    std::size_t k=vector_locate(found,p_struct->parameter_name,parameter_name);
     
-    if(found) lua_pushnumber(L,p_struct->parameter_value[k]);
+    // Locating in the script parameters
+    
+    std::size_t k=vector_locate(found,p_struct->script_parameter_name,parameter_name);
+    
+    if(found) p_struct->script_parameter_value[k]=parameter_default_value;
+    else
+    {
+        p_struct->script_parameter_name.push_back(parameter_name);
+        p_struct->script_parameter_value.push_back(parameter_default_value);
+    }
+    
+    // Locating in the input parameters
+    
+    k=vector_locate(found,p_struct->user_parameter_name,parameter_name);
+    
+    if(found) lua_pushnumber(L,p_struct->user_parameter_value[k]);
     else lua_pushnumber(L,parameter_default_value);
     
     lua_setglobal(L,parameter_name.c_str());
