@@ -513,7 +513,7 @@ void FDTD_Mode_Dialog::FDTD_Mode_Dialog_Materials(wxNotebook *book,int target_pa
 
 void FDTD_Mode_Dialog::FDTD_Mode_Dialog_Structure(wxNotebook *book,int target_panel)
 {
-    wxPanel *structure_panel=new wxPanel(book);
+    structure_panel=new wxScrolledWindow(book);
     wxBoxSizer *structure_sizer=new wxBoxSizer(wxVERTICAL);
     
     // - Script
@@ -537,19 +537,57 @@ void FDTD_Mode_Dialog::FDTD_Mode_Dialog_Structure(wxNotebook *book,int target_pa
     
     // - Discretization
     
+    wxBoxSizer *bottom_sizer=new wxBoxSizer(wxHORIZONTAL);
+    
     wxStaticBoxSizer *structure_discr_sizer=new wxStaticBoxSizer(wxVERTICAL,structure_panel,"Discretization");
-    dx_ctrl=new NamedTextCtrl<double>(structure_discr_sizer->GetStaticBox(),"Dx: ",data->Dx);
-    dy_ctrl=new NamedTextCtrl<double>(structure_discr_sizer->GetStaticBox(),"Dy: ",data->Dy);
-    dz_ctrl=new NamedTextCtrl<double>(structure_discr_sizer->GetStaticBox(),"Dz: ",data->Dz);
+    dx_ctrl=new LengthSelector(structure_discr_sizer->GetStaticBox(),"Dx: ",data->Dx);
+    dy_ctrl=new LengthSelector(structure_discr_sizer->GetStaticBox(),"Dy: ",data->Dy);
+    dz_ctrl=new LengthSelector(structure_discr_sizer->GetStaticBox(),"Dz: ",data->Dz);
+    
+    dx_ctrl->Bind(EVT_LENGTH_SELECTOR,&FDTD_Mode_Dialog::evt_structure_parameter,this);
+    dy_ctrl->Bind(EVT_LENGTH_SELECTOR,&FDTD_Mode_Dialog::evt_structure_parameter,this);
+    dz_ctrl->Bind(EVT_LENGTH_SELECTOR,&FDTD_Mode_Dialog::evt_structure_parameter,this);
     
     structure_discr_sizer->Add(dx_ctrl,wxSizerFlags().Expand());
     structure_discr_sizer->Add(dy_ctrl,wxSizerFlags().Expand());
     structure_discr_sizer->Add(dz_ctrl,wxSizerFlags().Expand());
     
-    structure_sizer->Add(structure_discr_sizer);
+    bottom_sizer->Add(structure_discr_sizer);
+    
+    // - Parameters
+    
+    parameters_panel=new wxPanel(structure_panel);
+    parameters_sizer=new wxStaticBoxSizer(wxVERTICAL,parameters_panel,"Parameters");
+    
+    if(data->structure->script.empty())
+    {
+        parameters_panel->Hide();
+    }
+    else
+    {
+        data->structure->finalize();
+        parameter_names=data->structure->parameter_name;
+        
+        for(std::size_t i=0;i<data->structure->parameter_name.size();i++)
+        {
+            NamedTextCtrl<double> *param=new NamedTextCtrl(parameters_sizer->GetStaticBox(),
+                                                           data->structure->parameter_name[i]+" : ",
+                                                           data->structure->parameter_value[i]);
+            param->Bind(EVT_NAMEDTXTCTRL,&FDTD_Mode_Dialog::evt_structure_parameter,this);
+            
+            parameters.push_back(param);
+            parameters_sizer->Add(param,wxSizerFlags().Expand());
+        }
+    }
+    
+    parameters_panel->SetSizer(parameters_sizer);
+    bottom_sizer->Add(parameters_panel);
+    
+    structure_sizer->Add(bottom_sizer);
     
     structure_panel->SetSizer(structure_sizer);
     book->AddPage(structure_panel,"Structure");
+    
     
     if(target_panel==1) book->SetSelection(N_panels); N_panels++;
 }
@@ -608,8 +646,41 @@ void FDTD_Mode_Dialog::evt_load_structure(wxCommandEvent &event)
     std::filesystem::path struct_path=structure->get_value();
     struct_path=std::filesystem::absolute(struct_path);
     
+    // Cleanup
+    
+    for(NamedTextCtrl<double> *param : parameters)
+        param->Destroy();
+    
+    parameters.clear();
+    
+    // Loading the new parameters
+    
     Structure loader(struct_path);
     loader.finalize();
+    
+    parameter_names=loader.parameter_name;
+    
+    for(std::size_t i=0;i<loader.parameter_name.size();i++)
+    {
+        NamedTextCtrl<double> *param=new NamedTextCtrl(parameters_sizer->GetStaticBox(),
+                                                       loader.parameter_name[i]+" : ",
+                                                       loader.parameter_value[i]);
+        param->Bind(EVT_NAMEDTXTCTRL,&FDTD_Mode_Dialog::evt_structure_parameter,this);
+        
+        parameters.push_back(param);
+        parameters_sizer->Add(param,wxSizerFlags().Expand());
+    }
+    
+    if(loader.parameter_name.empty())
+    {
+        parameters_panel->Hide();
+    }
+    else
+    {
+        parameters_panel->Show();
+    }
+    
+    structure_panel->FitInside();
     
     event.Skip();
 }
@@ -622,6 +693,13 @@ void FDTD_Mode_Dialog::evt_material_change(wxCommandEvent &event)
     
     event.Skip();
 }
+
+
+void FDTD_Mode_Dialog::evt_structure_parameter(wxCommandEvent &event)
+{
+    new_structure=true;
+}
+
 
 void FDTD_Mode_Dialog::evt_ok(wxCommandEvent &event)
 {
@@ -673,16 +751,14 @@ void FDTD_Mode_Dialog::evt_ok(wxCommandEvent &event)
     // Structure
     data->structure->script=structure->get_value();
     data->structure->script=std::filesystem::absolute(data->structure->script);
-    
-    if(data->Dx!=dx_ctrl->get_value() ||
-       data->Dy!=dy_ctrl->get_value() ||
-       data->Dz!=dz_ctrl->get_value() )
-    {
-        data->Dx=dx_ctrl->get_value();
-        data->Dy=dy_ctrl->get_value();
-        data->Dz=dz_ctrl->get_value();
         
-        new_structure=true;
+    data->structure->parameter_name.clear();
+    data->structure->parameter_value.clear();
+    
+    for(std::size_t i=0;i<parameters.size();i++)
+    {
+        data->structure->parameter_name.push_back(parameter_names[i]);
+        data->structure->parameter_value.push_back(parameters[i]->get_value());
     }
     
     // Materials

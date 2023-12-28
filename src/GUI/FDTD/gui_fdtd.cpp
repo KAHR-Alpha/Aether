@@ -774,9 +774,24 @@ void FDTD_Frame::reconstruct_tree()
     if(!fdtd_parameters.structure->script.empty())
         tree->AppendItem(structure_ID,fdtd_parameters.structure->script.generic_string());
     else tree->AppendItem(structure_ID,"None");
-    tree->AppendItem(structure_ID,"Dx="+add_unit(fdtd_parameters.Dx));
-    tree->AppendItem(structure_ID,"Dy="+add_unit(fdtd_parameters.Dy));
-    tree->AppendItem(structure_ID,"Dz="+add_unit(fdtd_parameters.Dz));
+    tree->AppendItem(structure_ID,"Dx= "+add_unit(fdtd_parameters.Dx));
+    tree->AppendItem(structure_ID,"Dy= "+add_unit(fdtd_parameters.Dy));
+    tree->AppendItem(structure_ID,"Dz= "+add_unit(fdtd_parameters.Dz));
+    
+    if(!fdtd_parameters.structure->parameter_name.empty())
+    {
+        wxTreeItemId tmp=tree->AppendItem(structure_ID,"Parameters");
+        
+        for(std::size_t i=0;i<fdtd_parameters.structure->parameter_name.size();i++)
+        {
+            std::stringstream strm;
+            
+            strm<<fdtd_parameters.structure->parameter_name[i]<<"= ";
+            strm<<fdtd_parameters.structure->parameter_value[i];
+            
+            tree->AppendItem(tmp,strm.str());
+        }
+    }
     
     // Incidence
     
@@ -935,8 +950,8 @@ void FDTD_Frame::save(wxFileName const &fname)
     structure_path=to_relative_file(p.structure->script,save_path);
     
     file<<"structure=Structure(\""<<structure_path.generic_string()<<"\")\n";
-    for(std::size_t i=0;i<p.structure->user_parameter_name.size();i++)
-        file<<"structure:parameter(\""<<p.structure->user_parameter_name[i]<<"\","<<p.structure->user_parameter_value[i]<<")\n";
+    for(std::size_t i=0;i<p.structure->parameter_name.size();i++)
+        file<<"structure:parameter(\""<<p.structure->parameter_name[i]<<"\","<<p.structure->parameter_value[i]<<")\n";
     file<<"\n";
     
          if(type==FDTD_Mode::FDTD_CUSTOM) file<<"fdtd=MODE(\"fdtd\")\n";
