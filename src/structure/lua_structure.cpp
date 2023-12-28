@@ -601,7 +601,20 @@ int structure_declare_parameter(lua_State *L)
     Structure *p_struct=get_structure_pointer(L);
     
     bool found=false;
+    
+    // Locating in the script parameters
+    
     std::size_t k=vector_locate(found,p_struct->parameter_name,parameter_name);
+    
+    if(!found)
+    {
+        p_struct->parameter_name.push_back(parameter_name);
+        p_struct->parameter_value.push_back(parameter_default_value);
+    }
+    
+    // Locating in the input parameters
+    
+    k=vector_locate(found,p_struct->parameter_name,parameter_name);
     
     if(found) lua_pushnumber(L,p_struct->parameter_value[k]);
     else lua_pushnumber(L,parameter_default_value);

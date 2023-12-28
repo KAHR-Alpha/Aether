@@ -774,9 +774,24 @@ void FDTD_Frame::reconstruct_tree()
     if(!fdtd_parameters.structure->script.empty())
         tree->AppendItem(structure_ID,fdtd_parameters.structure->script.generic_string());
     else tree->AppendItem(structure_ID,"None");
-    tree->AppendItem(structure_ID,"Dx="+add_unit(fdtd_parameters.Dx));
-    tree->AppendItem(structure_ID,"Dy="+add_unit(fdtd_parameters.Dy));
-    tree->AppendItem(structure_ID,"Dz="+add_unit(fdtd_parameters.Dz));
+    tree->AppendItem(structure_ID,"Dx= "+add_unit(fdtd_parameters.Dx));
+    tree->AppendItem(structure_ID,"Dy= "+add_unit(fdtd_parameters.Dy));
+    tree->AppendItem(structure_ID,"Dz= "+add_unit(fdtd_parameters.Dz));
+    
+    if(!fdtd_parameters.structure->parameter_name.empty())
+    {
+        wxTreeItemId tmp=tree->AppendItem(structure_ID,"Parameters");
+        
+        for(std::size_t i=0;i<fdtd_parameters.structure->parameter_name.size();i++)
+        {
+            std::stringstream strm;
+            
+            strm<<fdtd_parameters.structure->parameter_name[i]<<"= ";
+            strm<<fdtd_parameters.structure->parameter_value[i];
+            
+            tree->AppendItem(tmp,strm.str());
+        }
+    }
     
     // Incidence
     

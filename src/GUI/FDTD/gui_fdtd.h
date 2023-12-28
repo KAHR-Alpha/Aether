@@ -96,9 +96,14 @@ class FDTD_Mode_Dialog: public wxDialog
         NamedTextCtrl<int> *Nt_points;
         
         // Structure
+        wxScrolledWindow *structure_panel;
         NamedTextCtrl<std::string> *structure;
         wxButton *structure_edit_btn;
-        NamedTextCtrl<double> *dx_ctrl,*dy_ctrl,*dz_ctrl;
+        LengthSelector *dx_ctrl,*dy_ctrl,*dz_ctrl;
+        wxPanel *parameters_panel;
+        wxStaticBoxSizer *parameters_sizer;
+        std::vector<NamedTextCtrl<double>*> parameters;
+        std::vector<std::string> parameter_names;
         
         // Incidence
         wxChoice *polarization;
@@ -129,6 +134,7 @@ class FDTD_Mode_Dialog: public wxDialog
         void evt_edit_structure(wxCommandEvent &event);
         void evt_load_structure(wxCommandEvent &event);
         void evt_material_change(wxCommandEvent &event);
+        void evt_structure_parameter(wxCommandEvent &event);
         void evt_ok(wxCommandEvent &event);
         void evt_output_directory(wxCommandEvent &event);
         void evt_time(wxCommandEvent &event);
