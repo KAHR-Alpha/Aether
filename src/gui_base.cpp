@@ -141,7 +141,7 @@ bool Aether::OnInit()
 //    SppFrame *mfr=new SppFrame("Aether");
 //    MieTool *mfr=new MieTool("Aether");
 //    HAPSolverFrame *mfr=new HAPSolverFrame("Aether");
-//    EMGeometry_Frame *mfr=new EMGeometry_Frame("Aether");
+    EMGeometry_Frame *mfr=new EMGeometry_Frame("Aether");
 //    SamplesFrame *mfr=new SamplesFrame("Aether");
     SelGUI::SeleneFrame *mfr=new SelGUI::SeleneFrame("Aether");
 //    SelGUI::RayCounterFrame *mfr=new SelGUI::RayCounterFrame("Aether");

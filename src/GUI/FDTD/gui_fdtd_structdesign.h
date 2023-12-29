@@ -177,6 +177,13 @@ class EMGeometry_Frame: public BaseFrame
         double lx,ly,lz;
         SymLib lib;
         
+        std::vector<std::string> input_name;
+        std::vector<double> input_value;
+        
+        // 
+        
+        // GUI Controls
+        
         wxScrolledWindow *ctrl_panel;
         
         NamedTextCtrl<double> *lx_ctrl,*ly_ctrl,*lz_ctrl;

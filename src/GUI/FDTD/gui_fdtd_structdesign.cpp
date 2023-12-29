@@ -562,6 +562,18 @@ int lua_set_full(lua_State *L)
     return 0;
 }
 
+int lua_register_parameter(lua_State *L)
+{
+    lua_getglobal(L,"bound_class");
+    
+    EMGeometry_Frame *frame=static_cast<EMGeometry_Frame*>(lua_touserdata(L,-1));
+    
+    frame->input_name.push_back(lua_tostring(L,1));
+    frame->input_value.push_back(lua_tonumber(L,2));
+    
+    return 0;
+}
+
 template<class T>
 int lua_add_command(lua_State *L)
 {
@@ -581,6 +593,9 @@ int lua_add_command(lua_State *L)
 void EMGeometry_Frame::load_project(wxFileName const &fname)
 {
     // Cleaning
+    
+    input_name.clear();
+    input_value.clear();
     
     op->clear();
     
@@ -648,7 +663,7 @@ void EMGeometry_Frame::load_project(wxFileName const &fname)
 //    lua_register(L,"add_vect_block",lop_add_vect_block);
 //    lua_register(L,"add_vect_tri",lop_add_vect_tri);
 //    lua_register(L,"coat",lop_coat);
-//    lua_register(L,"declare_parameter",declare_parameter_cli);
+    lua_register(L,"declare_parameter",lua_register_parameter);
 //    lua_register(L,"erode",lop_erode);
 //    lua_register(L,"flip",lop_flip);
 //    lua_register(L,"loop",lop_loop_modifier);
