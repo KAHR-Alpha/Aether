@@ -107,6 +107,13 @@ void SymLib::add(std::string const &var,SymNode *node,bool persistent_)
 
 double SymLib::evaluate(std::string const &var)
 {
+    bool known_special=false;
+    double special_val=evaluate_specials(known_special,var);
+    
+    if(known_special) return special_val;
+    
+    // Lib variables
+    
     std::list<SymNode*> backtrace;
     
     for(unsigned int i=0;i<keys.size();i++)
@@ -124,6 +131,13 @@ double SymLib::evaluate(std::string const &var)
 
 double SymLib::evaluate(std::string const &var,std::list<SymNode*> &backtrace)
 {
+    bool known_special=false;
+    double special_val=evaluate_specials(known_special,var);
+    
+    if(known_special) return special_val;
+    
+    // Lib variables
+    
     for(unsigned int i=0;i<keys.size();i++)
     {
         if(var==keys[i])
@@ -136,6 +150,20 @@ double SymLib::evaluate(std::string const &var,std::list<SymNode*> &backtrace)
     
     return 0;
 }
+
+
+double SymLib::evaluate_specials(bool &known,std::string const &var)
+{
+    if(var=="pi")
+    {
+        known=true;
+        return Pi;
+    }
+    
+    known=false;
+    return 0;
+}
+
 
 void SymLib::forget(SymNode *node,bool force)
 {
@@ -173,7 +201,7 @@ void SymLib::forget(SymNode *node,bool force)
 //###############
 
 SymNode::SymNode(SymLib *lib_)
-    :sign(1), type(SYM_EXPR),
+    :sign(1), type(SymType::EXPR),
      val(0), var(""),
      base_expression(""),
      lib(lib_)
@@ -181,7 +209,7 @@ SymNode::SymNode(SymLib *lib_)
 }
 
 SymNode::SymNode(std::string const &frm,SymLib *lib_)
-    :sign(1), type(SYM_EXPR),
+    :sign(1), type(SymType::EXPR),
      val(0), var(""),
      base_expression(frm),
      lib(lib_)
@@ -200,13 +228,13 @@ SymNode::SymNode(std::string const &frm,SymLib *lib_)
     }
 }
 
-SymNode::SymNode(std::string const &frm,int type_)
+SymNode::SymNode(std::string const &frm,SymType type_)
     :sign(1), type(type_),
      val(0), var(""),
      base_expression(frm),
      lib(nullptr)
 {
-    parse_single(frm);
+    parse_block(frm);
 }
 
 SymNode::~SymNode()
@@ -218,7 +246,7 @@ SymNode::~SymNode()
 void SymNode::clean()
 {
     sign=1;
-    type=SYM_EXPR;
+    type=SymType::EXPR;
     val=0;
     var="";
     
@@ -234,13 +262,13 @@ void SymNode::clean()
 
 double SymNode::evaluate()
 {
-         if(type==SYM_NUM) return val;
-    else if(type==SYM_VAR)
+         if(type==SymType::NUM) return val;
+    else if(type==SymType::VAR)
     {
         if(lib!=nullptr)
             return sign*lib->evaluate(var);
     }
-    else if(type==SYM_EXPR)
+    else if(type==SymType::EXPR)
     {
         int i;
         
@@ -255,7 +283,7 @@ double SymNode::evaluate()
         
         for(i=0;i<N_op;i++)
         {
-                 if(op_arr[i]==SYM_POW)
+                 if(op_arr[i]==SymOp::POW)
             {
                 eval_blocks[i+1]=std::pow(eval_blocks[i],eval_blocks[i+1]);
                 eval_flags[i]=true;
@@ -264,7 +292,7 @@ double SymNode::evaluate()
         
         for(i=0;i<N_op;i++)
         {
-                 if(op_arr[i]==SYM_MULT)
+                 if(op_arr[i]==SymOp::MULT)
             {
                 int p=i+1;
                 while(eval_flags[p]) p++;
@@ -272,7 +300,7 @@ double SymNode::evaluate()
                 eval_blocks[p]=eval_blocks[i]*eval_blocks[p];
                 eval_flags[i]=true;
             }
-            else if(op_arr[i]==SYM_DIV)
+            else if(op_arr[i]==SymOp::DIV)
             {
                 int p=i+1;
                 while(eval_flags[p]) p++;
@@ -284,14 +312,14 @@ double SymNode::evaluate()
         
         for(i=0;i<N_op;i++)
         {
-                 if(op_arr[i]==SYM_ADD)
+                 if(op_arr[i]==SymOp::ADD)
             {
                 int p=i+1;
                 while(eval_flags[p]) p++;
                 
                 eval_blocks[p]=eval_blocks[i]+eval_blocks[p];
             }
-            else if(op_arr[i]==SYM_SUBS)
+            else if(op_arr[i]==SymOp::SUBS)
             {
                 int p=i+1;
                 while(eval_flags[p]) p++;
@@ -318,13 +346,13 @@ double SymNode::evaluate(std::list<SymNode*> &backtrace)
             return 0;
         }
     
-         if(type==SYM_NUM) return val;
-    else if(type==SYM_VAR)
+         if(type==SymType::NUM) return val;
+    else if(type==SymType::VAR)
     {
         if(lib!=nullptr)
             return sign*lib->evaluate(var,backtrace);
     }
-    else if(type==SYM_EXPR)
+    else if(type==SymType::EXPR)
     {
         int i;
         
@@ -339,7 +367,7 @@ double SymNode::evaluate(std::list<SymNode*> &backtrace)
         
         for(i=0;i<N_op;i++)
         {
-                 if(op_arr[i]==SYM_POW)
+                 if(op_arr[i]==SymOp::POW)
             {
                 eval_blocks[i+1]=std::pow(eval_blocks[i],eval_blocks[i+1]);
                 eval_flags[i]=true;
@@ -348,7 +376,7 @@ double SymNode::evaluate(std::list<SymNode*> &backtrace)
         
         for(i=0;i<N_op;i++)
         {
-                 if(op_arr[i]==SYM_MULT)
+                 if(op_arr[i]==SymOp::MULT)
             {
                 int p=i+1;
                 while(eval_flags[p]) p++;
@@ -356,7 +384,7 @@ double SymNode::evaluate(std::list<SymNode*> &backtrace)
                 eval_blocks[p]=eval_blocks[i]*eval_blocks[p];
                 eval_flags[i]=true;
             }
-            else if(op_arr[i]==SYM_DIV)
+            else if(op_arr[i]==SymOp::DIV)
             {
                 int p=i+1;
                 while(eval_flags[p]) p++;
@@ -368,14 +396,14 @@ double SymNode::evaluate(std::list<SymNode*> &backtrace)
         
         for(i=0;i<N_op;i++)
         {
-                 if(op_arr[i]==SYM_ADD)
+                 if(op_arr[i]==SymOp::ADD)
             {
                 int p=i+1;
                 while(eval_flags[p]) p++;
                 
                 eval_blocks[p]=eval_blocks[i]+eval_blocks[p];
             }
-            else if(op_arr[i]==SYM_SUBS)
+            else if(op_arr[i]==SymOp::SUBS)
             {
                 int p=i+1;
                 while(eval_flags[p]) p++;
@@ -398,11 +426,12 @@ void SymNode::parse(std::string const &frm)
     
     int N=frm.size();
     
-    std::vector<int> block_start,block_end,block_type;
+    std::vector<int> block_start, block_end;
+    std::vector<SymType> block_type;
     
     int p=0;
     int curr_block=0;
-    int curr_type=SYM_NUM;
+    SymType curr_type=SymType::NUM;
     
     block_start.push_back(p);
     
@@ -415,11 +444,11 @@ void SymNode::parse(std::string const &frm)
             //Checking for sign
             if(is_add(frm[p])) p++;
             
-                 if(is_numeric(frm[p])) curr_type=SYM_NUM;
-            else if(frm[p]=='(') curr_type=SYM_EXPR;
-            else curr_type=SYM_VAR;
+                 if(is_numeric(frm[p])) curr_type=SymType::NUM;
+            else if(frm[p]=='(') curr_type=SymType::EXPR;
+            else curr_type=SymType::VAR;
             
-            if(curr_type==SYM_EXPR) //Jumping to closing ')'
+            if(curr_type==SymType::EXPR) //Jumping to closing ')'
             {
                 int p_counter=1;
                 
@@ -438,18 +467,18 @@ void SymNode::parse(std::string const &frm)
         if(is_operator(frm[p]))
         {
             //Taking potential exponents into account
-            if(curr_type==SYM_NUM && (frm[p-1]=='e' || frm[p-1]=='E')) p++;
+            if(curr_type==SymType::NUM && (frm[p-1]=='e' || frm[p-1]=='E')) p++;
             else
             {
                 block_end.push_back(p-1);
                 block_start.push_back(p+1);
                 
-                     if(frm[p]=='+') op_arr.push_back(SYM_ADD);
-                else if(frm[p]=='-') op_arr.push_back(SYM_SUBS);
-                else if(frm[p]=='*') op_arr.push_back(SYM_MULT);
-                else if(frm[p]=='^') op_arr.push_back(SYM_POW);
-                else if(frm[p]=='/') op_arr.push_back(SYM_DIV);
-                else op_arr.push_back(SYM_ADD);
+                     if(frm[p]=='+') op_arr.push_back(SymOp::ADD);
+                else if(frm[p]=='-') op_arr.push_back(SymOp::SUBS);
+                else if(frm[p]=='*') op_arr.push_back(SymOp::MULT);
+                else if(frm[p]=='^') op_arr.push_back(SymOp::POW);
+                else if(frm[p]=='/') op_arr.push_back(SymOp::DIV);
+                else op_arr.push_back(SymOp::ADD);
                 
                 curr_block++;
             }
@@ -476,13 +505,13 @@ void SymNode::parse(std::string const &frm)
     }
 }
 
-void SymNode::parse_single(std::string const &frm)
+void SymNode::parse_block(std::string const &frm)
 {
-         if(type==SYM_NUM)
+         if(type==SymType::NUM)
     {
         val=std::stod(frm);
     }
-    else if(type==SYM_EXPR)
+    else if(type==SymType::EXPR)
     {
         int N=frm.size();
         
@@ -494,7 +523,7 @@ void SymNode::parse_single(std::string const &frm)
         }
         else parse(frm.substr(1,N-2));
     }
-    else if(type==SYM_VAR)
+    else if(type==SymType::VAR)
     {
         if(frm[0]=='-')
         {
@@ -507,8 +536,8 @@ void SymNode::parse_single(std::string const &frm)
 
 bool SymNode::requires_one(std::string const &var_)
 {
-         if(type==SYM_VAR && var==var_) return true;
-    else if(type==SYM_EXPR)
+         if(type==SymType::VAR && var==var_) return true;
+    else if(type==SymType::EXPR)
     {
         for(unsigned int i=0;i<nodes_arr.size();i++)
             if(nodes_arr[i]->requires_one(var_)) return true;
