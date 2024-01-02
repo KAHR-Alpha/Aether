@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2024 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -12,6 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
+#include <enum_tools.h>
 #include <math_sym.h>
 
 bool is_add(char c)
@@ -268,7 +269,7 @@ double SymNode::evaluate()
         if(lib!=nullptr)
             return sign*lib->evaluate(var);
     }
-    else if(type==SymType::EXPR)
+    else if(type==AnyOf(SymType::EXPR,SymType::FUNC))
     {
         int i;
         
@@ -328,7 +329,22 @@ double SymNode::evaluate()
             }
         }
         
-        return sign*eval_blocks[N_blocks-1];
+        double expr_val=sign*eval_blocks[N_blocks-1];
+
+        if(type==SymType::EXPR) return expr_val;
+        else
+        {
+            switch(func_type)
+            {
+                case SymFunc::ACOS: return std::acos(expr_val);
+                case SymFunc::ASIN: return std::asin(expr_val);
+                case SymFunc::ATAN: return std::atan(expr_val);
+                case SymFunc::COS: return std::cos(expr_val);
+                case SymFunc::EXP: return std::exp(expr_val);
+                case SymFunc::SIN: return std::sin(expr_val);
+                case SymFunc::TAN: return std::tan(expr_val);
+            }
+        }
     }
     
     return 0;
@@ -352,7 +368,7 @@ double SymNode::evaluate(std::list<SymNode*> &backtrace)
         if(lib!=nullptr)
             return sign*lib->evaluate(var,backtrace);
     }
-    else if(type==SymType::EXPR)
+    else if(type==AnyOf(SymType::EXPR,SymType::FUNC))
     {
         int i;
         
@@ -412,7 +428,22 @@ double SymNode::evaluate(std::list<SymNode*> &backtrace)
             }
         }
         
-        return sign*eval_blocks[N_blocks-1];
+        double expr_val=sign*eval_blocks[N_blocks-1];
+
+        if(type==SymType::EXPR) return expr_val;
+        else
+        {
+            switch(func_type)
+            {
+                case SymFunc::ACOS: return std::acos(expr_val);
+                case SymFunc::ASIN: return std::asin(expr_val);
+                case SymFunc::ATAN: return std::atan(expr_val);
+                case SymFunc::COS: return std::cos(expr_val);
+                case SymFunc::EXP: return std::exp(expr_val);
+                case SymFunc::SIN: return std::sin(expr_val);
+                case SymFunc::TAN: return std::tan(expr_val);
+            }
+        }
     }
     
     return 0;
@@ -441,14 +472,52 @@ void SymNode::parse(std::string const &frm)
         
         if(p==block_start[curr_block])
         {
+            int func_offset=0;
+
             //Checking for sign
             if(is_add(frm[p])) p++;
             
                  if(is_numeric(frm[p])) curr_type=SymType::NUM;
             else if(frm[p]=='(') curr_type=SymType::EXPR;
-            else curr_type=SymType::VAR;
+            else
+            {
+                for(int p2=p+1;p2<N;p2++)
+                {
+                    if(frm[p2]=='(')
+                    {
+                        curr_type=SymType::FUNC;
+                        func_offset=p2-p;
+                        break;
+                    }
+                    else if(is_operator(frm[p2]))
+                    {
+                        break;
+                    }
+                }
+
+                if(curr_type!=SymType::FUNC)
+                {
+                    curr_type = SymType::VAR;
+                }
+            }
+
+            if(curr_type==SymType::FUNC) // Figuring out the function
+            {
+                std::string func_str=frm.substr(p,func_offset);
+
+                     if(func_str=="acos") func_type=SymFunc::ACOS;
+                else if(func_str=="asin") func_type=SymFunc::ASIN;
+                else if(func_str=="atan") func_type=SymFunc::ATAN;
+                else if(func_str=="exp") func_type=SymFunc::EXP;
+                else if(func_str=="cos") func_type=SymFunc::COS;
+                else if(func_str=="sin") func_type=SymFunc::SIN;
+                else if(func_str=="tan") func_type=SymFunc::TAN;
+
+                p=p+func_offset; // Jumping to opening '('
+                block_start[block_start.size()-1]=p;
+            }
             
-            if(curr_type==SymType::EXPR) //Jumping to closing ')'
+            if(curr_type==AnyOf(SymType::EXPR,SymType::FUNC)) //Jumping to closing ')'
             {
                 int p_counter=1;
                 
@@ -511,7 +580,7 @@ void SymNode::parse_block(std::string const &frm)
     {
         val=std::stod(frm);
     }
-    else if(type==SymType::EXPR)
+    else if(type==AnyOf(SymType::EXPR,SymType::FUNC))
     {
         int N=frm.size();
         

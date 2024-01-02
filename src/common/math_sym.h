@@ -37,6 +37,17 @@ enum class SymOp
     SUBS
 };
 
+enum class SymFunc
+{
+    ACOS,
+    ASIN,
+    ATAN,
+    COS,
+    EXP,
+    SIN,
+    TAN
+};
+
 class SymLib
 {
     private:
@@ -59,6 +70,8 @@ class SymNode
     private:
         int sign;
         SymType type;
+        SymFunc func_type;
+
         double val;
         std::string var;
         

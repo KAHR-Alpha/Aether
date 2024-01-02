@@ -55,9 +55,24 @@ bool sub_expressions()
     SymNode x("x=1",&lib);
     SymNode y("y=2",&lib);
     SymNode z("z=5",&lib);
-        
-    x.set_expression("x=0.5*(y+z)*(y/z)+(z-y)/2.0-4.0");
+    
+    x.set_expression("x=(0)");
+    if(!near(x.evaluate(),0))
+    {
+        std::cout<<"Basic subexpression failure\n";
+        return false;
+    }
+    std::cout<<"Basic subexpression validated\n";
+    
+    x.set_expression("x=(0)+(1)+(2)");
+    if(!near(x.evaluate(),3))
+    {
+        std::cout<<"Extended subexpression failure\n";
+        return false;
+    }
+    std::cout<<"Extended subexpression validated\n";
 
+    x.set_expression("x=0.5*(y+z)*(y/z)+(z-y)/2.0-4.0");
     if(!near(x.evaluate(),-1.1))
     {
         std::cout<<"Composition failure\n";
@@ -96,6 +111,7 @@ bool trigonometric_functions()
 
     // Cosine
 
+    double val=x.evaluate();
 
 
     return true;
