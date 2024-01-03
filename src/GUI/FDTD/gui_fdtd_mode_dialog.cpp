@@ -751,7 +751,11 @@ void FDTD_Mode_Dialog::evt_ok(wxCommandEvent &event)
     // Structure
     data->structure->script=structure->get_value();
     data->structure->script=std::filesystem::absolute(data->structure->script);
-        
+    
+    data->Dx=dx_ctrl->get_length();
+    data->Dy=dy_ctrl->get_length();
+    data->Dz=dz_ctrl->get_length();
+
     data->structure->parameter_name.clear();
     data->structure->parameter_value.clear();
     
