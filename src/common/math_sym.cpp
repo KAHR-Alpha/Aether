@@ -229,8 +229,10 @@ SymNode::SymNode(std::string const &frm,SymLib *lib_)
     }
 }
 
-SymNode::SymNode(std::string const &frm,SymType type_)
-    :sign(1), type(type_),
+SymNode::SymNode(std::string const &frm,
+                 SymType type_,
+                 SymFunc func_)
+    :sign(1), type(type_), func_type(func_),
      val(0), var(""),
      base_expression(frm),
      lib(nullptr)
@@ -459,6 +461,7 @@ void SymNode::parse(std::string const &frm)
     
     std::vector<int> block_start, block_end;
     std::vector<SymType> block_type;
+    std::vector<SymFunc> block_func;
     
     int p=0;
     int curr_block=0;
@@ -473,6 +476,7 @@ void SymNode::parse(std::string const &frm)
         if(p==block_start[curr_block])
         {
             int func_offset=0;
+            SymFunc curr_func=SymFunc::ID;
 
             //Checking for sign
             if(is_add(frm[p])) p++;
@@ -505,13 +509,13 @@ void SymNode::parse(std::string const &frm)
             {
                 std::string func_str=frm.substr(p,func_offset);
 
-                     if(func_str=="acos") func_type=SymFunc::ACOS;
-                else if(func_str=="asin") func_type=SymFunc::ASIN;
-                else if(func_str=="atan") func_type=SymFunc::ATAN;
-                else if(func_str=="exp") func_type=SymFunc::EXP;
-                else if(func_str=="cos") func_type=SymFunc::COS;
-                else if(func_str=="sin") func_type=SymFunc::SIN;
-                else if(func_str=="tan") func_type=SymFunc::TAN;
+                     if(func_str=="acos") curr_func=SymFunc::ACOS;
+                else if(func_str=="asin") curr_func=SymFunc::ASIN;
+                else if(func_str=="atan") curr_func=SymFunc::ATAN;
+                else if(func_str=="exp") curr_func=SymFunc::EXP;
+                else if(func_str=="cos") curr_func=SymFunc::COS;
+                else if(func_str=="sin") curr_func=SymFunc::SIN;
+                else if(func_str=="tan") curr_func=SymFunc::TAN;
 
                 p=p+func_offset; // Jumping to opening '('
                 block_start[block_start.size()-1]=p;
@@ -531,6 +535,7 @@ void SymNode::parse(std::string const &frm)
             }
             
             block_type.push_back(curr_type);
+            block_func.push_back(curr_func);
         }
         
         if(is_operator(frm[p]))
@@ -569,7 +574,7 @@ void SymNode::parse(std::string const &frm)
     for(i=0;i<N_blocks;i++)
     {
         std::string sub_frm=frm.substr(block_start[i],block_end[i]-block_start[i]+1);
-        nodes_arr[i]=new SymNode(sub_frm,block_type[i]);
+        nodes_arr[i]=new SymNode(sub_frm,block_type[i],block_func[i]);
         nodes_arr[i]->set_lib(lib);
     }
 }

@@ -101,18 +101,187 @@ bool special_values()
     return true;
 }
 
-bool trigonometric_functions()
+bool functions()
 {
-    SymNode x("x=0");
-
-    // Sine
-
-    x.set_expression("x=cos(0)");
+    SymLib lib;
+    SymNode x("x=0",&lib);
 
     // Cosine
 
-    double val=x.evaluate();
+    int N=20;
 
+    for(int i=0;i<N;i++)
+    {
+        double ang=2.0*Pi*i/(N-1.0);
+
+        x.set_expression("x=cos("+std::to_string(ang)+")");
+        if(!near(x.evaluate(),std::cos(ang)))
+        {
+            std::cout<<"Cos failed\n";
+            return false;
+        }
+    }
+    std::cout<<"Cos validated\n";
+
+    // Sine
+
+    for(int i=0;i<N;i++)
+    {
+        double ang=2.0*Pi*i/(N-1.0);
+
+        x.set_expression("x=sin("+std::to_string(ang)+")");
+        if(!near(x.evaluate(),std::sin(ang)))
+        {
+            std::cout<<"Sin failed\n";
+            return false;
+        }
+    }
+    std::cout<<"Sin validated\n";
+
+    // Cos² + sin²
+
+    for(int i=0;i<N;i++)
+    {
+        std::string ang=std::to_string(2.0*Pi*i/(N-1.0));
+
+        x.set_expression("x=cos("+ang+")^2+sin("+ang+")^2");
+        if(!near(x.evaluate(),1.0))
+        {
+            std::cout<<"Cos^2+sin^2 failed\n";
+            return false;
+        }
+    }
+    std::cout<<"Cos^2+sin^2 validated\n";
+
+    // Cos² + sin²
+
+    for(int i=0;i<N;i++)
+    {
+        std::string ang=std::to_string(2.0*Pi*i/(N-1.0));
+
+        x.set_expression("x=cos(cos("+ang+"))");
+        if(!near(x.evaluate(),std::cos(std::cos(std::stod(ang)))))
+        {
+            std::cout<<"Cos(cos) failed\n";
+            return false;
+        }
+    }
+    std::cout<<"Cos(cos) validated\n";
+
+    // Cos Pi/2.0
+
+    x.set_expression("x=cos(pi/2.0)");
+    if(!near(x.evaluate(),0))
+    {
+        std::cout<<"Cos(pi/2.0) failed\n";
+        return false;
+    }
+    std::cout<<"Cos(pi/2.0) validated\n";
+
+    // Cos Pi
+
+    x.set_expression("x=cos(pi)");
+    if(!near(x.evaluate(),-1.0))
+    {
+        std::cout<<"Cos(pi) failed\n";
+        return false;
+    }
+    std::cout<<"Cos(pi) validated\n";
+
+    // Sin Pi/2.0
+
+    x.set_expression("x=sin(pi/2.0)");
+    if(!near(x.evaluate(),1.0))
+    {
+        std::cout<<"Sin(pi/2.0) failed\n";
+        return false;
+    }
+    std::cout<<"Sin(pi/2.0) validated\n";
+
+    // Sin Pi
+
+    x.set_expression("x=sin(pi)");
+    if(!near(x.evaluate(),0))
+    {
+        std::cout<<"Sin(pi) failed\n";
+        return false;
+    }
+    std::cout<<"Sin(pi) validated\n";
+
+    // Tan
+
+    for(int i=0;i<N;i++)
+    {
+        std::string ang_str=std::to_string(2.0*Pi*i/(N-1.0));
+
+        x.set_expression("x=tan("+ang_str+")");
+        if(!near(x.evaluate(),std::tan(std::stod(ang_str))))
+        {
+            std::cout<<"Tan failed\n";
+            return false;
+        }
+    }
+    std::cout<<"Tan validated\n";
+
+    // Acos
+
+    for(int i=0;i<N;i++)
+    {
+        std::string val_str=std::to_string(-1.0+i*2.0/(N-1.0));
+
+        x.set_expression("x=acos("+val_str+")");
+        if(!near(x.evaluate(),std::acos(std::stod(val_str))))
+        {
+            std::cout<<"Acos failed\n";
+            return false;
+        }
+    }
+    std::cout<<"Acos validated\n";
+
+    // Asin
+
+    for(int i=0;i<N;i++)
+    {
+        std::string val_str=std::to_string(-1.0+i*2.0/(N-1.0));
+
+        x.set_expression("x=asin("+val_str+")");
+        if(!near(x.evaluate(),std::asin(std::stod(val_str))))
+        {
+            std::cout<<"Asin failed\n";
+            return false;
+        }
+    }
+    std::cout<<"Asin validated\n";
+
+    // Atan
+
+    for(int i=0;i<N;i++)
+    {
+        std::string val_str=std::to_string(-1.0+i*2.0/(N-1.0));
+
+        x.set_expression("x=atan("+val_str+")");
+        if(!near(x.evaluate(),std::atan(std::stod(val_str))))
+        {
+            std::cout<<"Atan failed\n";
+            return false;
+        }
+    }
+    std::cout<<"Atan validated\n";
+
+    // Exp
+
+    for(int i=0;i<N;i++)
+    {
+        std::string val_str=std::to_string(-3.0+i*6.0/(N-1.0));
+
+        x.set_expression("x=exp("+val_str+")");
+        if(!near(x.evaluate(),std::exp(std::stod(val_str))))
+        {
+            std::cout<<"Exp failed\n";
+            return false;
+        }
+    }
+    std::cout<<"Exp validated\n";
 
     return true;
 }
@@ -122,5 +291,5 @@ int symbolic_math(int argc,char *argv[])
     return !(   basic_operations()
              && sub_expressions()
              && special_values()
-             && trigonometric_functions());
+             && functions());
 }

@@ -44,6 +44,7 @@ enum class SymFunc
     ATAN,
     COS,
     EXP,
+    ID,
     SIN,
     TAN
 };
@@ -85,7 +86,9 @@ class SymNode
         std::vector<bool> eval_flags;
         std::vector<double> eval_blocks;
         
-        SymNode(std::string const &frm,SymType type);
+        SymNode(std::string const &frm,
+                SymType type,
+                SymFunc func);
         
         void clean();
         void parse(std::string const &frm);
