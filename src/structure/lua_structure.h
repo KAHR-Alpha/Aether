@@ -17,6 +17,8 @@ limitations under the License.*/
 
 #include <lua_base.h>
 
+#include <filesystem>
+
 namespace LuaUI
 {
 int allocate_structure(lua_State *L);
@@ -57,5 +59,7 @@ int gen_simple_substrate(lua_State *L);
 [[deprecated]]
 int gen_slab(lua_State *L);
 }
+
+std::string ageom_to_lua(std::filesystem::path const &script);
 
 #endif // LUA_STRUCTURE_H_INCLUDED
