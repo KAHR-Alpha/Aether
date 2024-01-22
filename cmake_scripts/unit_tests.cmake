@@ -34,6 +34,7 @@ create_test_sourcelist(Tests
 					   
 add_executable(UnitTests UnitTests.cpp ${cpp_tests} ${test_scripts})
 target_link_libraries(UnitTests lua_interface)
+target_link_libraries(UnitTests ${LUA_LIBRARIES})
 
 foreach(test ${test_names})
 	add_test(NAME ${test} COMMAND UnitTests ${test})
