@@ -71,11 +71,15 @@ int ageom_converter(int argc,char *argv[])
 
 	std::string cmp_str=ageom_to_lua(fname);
 
-	std::cout<<cmp_str<<std::endl;
-	std::cout<<output.str()<<std::endl;
 	if(cmp_str==output.str())
 	{
 		return 0;
 	}
-	else return 1;
+	else
+	{
+		std::cout<<"Error, unequal strings:\n";
+		std::cout<<cmp_str<<"\n";
+		std::cout<<output.str()<<"\n";
+		return 1;
+	}
 }

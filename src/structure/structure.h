@@ -206,33 +206,40 @@ class Add_Vect_Tri: public Add_Vect_Block
 class Structure
 {
     public:
-        int default_material;
-        double lx,ly,lz;
-        bool flip_x,flip_y,flip_z;
-        int periodic_x,periodic_y,periodic_z;
-        
-        lua_State *L;
-        std::filesystem::path script;
-        
         std::vector<double> parameter_value;
         std::vector<std::string> parameter_name;
         
-        std::vector<Structure_OP*> operations;
-        
         Structure();
-        Structure(std::filesystem::path const &script);
+        Structure(std::filesystem::path const &script_path);
         ~Structure();
         
         void add_operation(Structure_OP *operation);
         void discretize(Grid3<unsigned int> &matgrid,
                         int Nx,int Ny,int Nz,double Dx,double Dy,double Dz);
         void finalize();
+        double get_lz() const;
+        std::filesystem::path const& get_script_path() const;
         int index(double x,double y,double z);
         int index(double x,double y,double z,int restrict_level);
         void print(std::filesystem::path const &path_,double Dx,double Dy,double Dz);
-        void set_parameter(std::string const &parameter,double value);
+        void set_default_material(int mat);
+        void set_flip(int x,int y,int z);
+        void set_loop(int x,int y,int z);
+        void set_script(std::filesystem::path const &script_path);
         void retrieve_nominal_size(double &lx,double &ly,double &lz) const;
         void voxelize(double Dx,double Dy,double Dz);
+
+    private:
+        int default_material;
+        double lx,ly,lz;
+        bool flip_x,flip_y,flip_z;
+        bool periodic_x,periodic_y,periodic_z;
+
+        lua_State *L;
+        std::string script_content;
+        std::filesystem::path script_path;
+        
+        std::vector<Structure_OP*> operations;
 };
 
 #endif // STRUCTURE_H_INCLUDED

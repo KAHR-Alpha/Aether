@@ -631,7 +631,7 @@ int structure_default_material(lua_State *L)
     int index=lua_tointeger(L,1);
     std::cout<<"Filling with index "<<index<<std::endl;
     
-    p_struct->default_material=index;
+    p_struct->set_default_material(index);
     
     return 0;
 }
@@ -640,15 +640,9 @@ int structure_set_flip(lua_State *L)
 {
     Structure *p_struct=get_structure_pointer(L);
     
-    if(lua_tointeger(L,1)!=0) p_struct->flip_x=true;
-    else p_struct->flip_x=false;
-    if(lua_tointeger(L,2)!=0) p_struct->flip_y=true;
-    else p_struct->flip_y=false;
-    if(lua_tointeger(L,3)!=0) p_struct->flip_z=true;
-    else p_struct->flip_z=false;
-    
-    std::cout<<"Changing the flip modifiers to "
-             <<p_struct->flip_x<<" "<<p_struct->flip_y<<" "<<p_struct->flip_z<<std::endl;
+    p_struct->set_flip(lua_tointeger(L,1),
+                       lua_tointeger(L,2),
+                       lua_tointeger(L,3));
     
     return 0;
 }
@@ -657,15 +651,9 @@ int structure_set_loop(lua_State *L)
 {
     Structure *p_struct=get_structure_pointer(L);
     
-    if(lua_tointeger(L,1)!=0) p_struct->periodic_x=1;
-    else p_struct->periodic_x=0;
-    if(lua_tointeger(L,2)!=0) p_struct->periodic_y=1;
-    else p_struct->periodic_y=0;
-    if(lua_tointeger(L,3)!=0) p_struct->periodic_z=1;
-    else p_struct->periodic_z=0;
-    
-    std::cout<<"Changing the periodic modifiers to "
-             <<p_struct->periodic_x<<" "<<p_struct->periodic_y<<" "<<p_struct->periodic_z<<std::endl;
+    p_struct->set_loop(lua_tointeger(L,1),
+                       lua_tointeger(L,2),
+                       lua_tointeger(L,3));
     
     return 0;
 }

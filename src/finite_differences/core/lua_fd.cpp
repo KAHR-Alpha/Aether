@@ -590,7 +590,7 @@ int FD_mode_set_structure(lua_State *L)
     
     (*pp_fd)->set_structure(p_structure);
     
-    std::cout<<"Setting the structure to "<<p_structure->script<<std::endl;
+    std::cout<<"Setting the structure to "<<p_structure->get_script_path()<<std::endl;
     
     return 1;
 }
