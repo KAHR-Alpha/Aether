@@ -326,11 +326,20 @@ void Structure::set_loop(int x,int y,int z)
 }
 
 
-void Structure::set_script(std::filesystem::path const &script_path)
+void Structure::set_script(std::filesystem::path const &script_path_)
 {
+    script_path=script_path_;
+
     std::ifstream file(script_path,std::ios::in|std::ios::binary);
 
-    std::getline(file,script_content,'\0');
+    if(script_path.extension()==".ageom")
+    {
+        script_content=ageom_to_lua(script_path);
+    }
+    else
+    {
+        std::getline(file,script_content,'\0');
+    }
 }
 
 
