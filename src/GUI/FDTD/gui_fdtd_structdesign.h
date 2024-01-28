@@ -187,7 +187,6 @@ class EMGeometry_Frame: public BaseFrame
         
         wxScrolledWindow *ctrl_panel;
         
-        //NamedTextCtrl<double> *lx_ctrl,*ly_ctrl,*lz_ctrl;
         NamedSymCtrl *lx_ctrl,*ly_ctrl,*lz_ctrl;
         wxStaticBoxSizer *geom_top_sizer;
         

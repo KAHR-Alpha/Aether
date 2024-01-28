@@ -523,9 +523,9 @@ void EMGeometry_Frame::save_project(wxFileName const &fname)
 {
     std::ofstream file(fname.GetFullPath().ToStdString(),std::ios::out|std::ios::trunc);
     
-    file<<"lx="<<lx.evaluate()<<std::endl;
-    file<<"ly="<<ly.evaluate()<<std::endl;
-    file<<"lz="<<lz.evaluate()<<std::endl<<std::endl;
+    file<<"lx(\""<<lx.get_expression()<<"\")\n";
+    file<<"ly(\""<<ly.get_expression()<<"\")\n";
+    file<<"lz(\""<<lz.get_expression()<<"\")\n\n";
     
     file<<"default_material("<<def_mat_ctrl->get_value()<<")"<<std::endl<<std::endl;
     

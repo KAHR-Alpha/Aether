@@ -100,12 +100,12 @@ std::string GOP_Block::get_lua()
     std::stringstream strm;
     
     strm<<"add_block(";
-    strm<<x1->get_value()<<",";
-    strm<<x2->get_value()<<",";
-    strm<<y1->get_value()<<",";
-    strm<<y2->get_value()<<",";
-    strm<<z1->get_value()<<",";
-    strm<<z2->get_value()<<",";
+    strm<<"\""<<x1->get_text()<<"\",";
+    strm<<"\""<<x2->get_text()<<"\",";
+    strm<<"\""<<y1->get_text()<<"\",";
+    strm<<"\""<<y2->get_text()<<"\",";
+    strm<<"\""<<z1->get_text()<<"\",";
+    strm<<"\""<<z2->get_text()<<"\",";
     strm<<mat->get_value_integer()<<")";
     
     return strm.str();
@@ -244,13 +244,13 @@ std::string GOP_Cone::get_lua()
     std::stringstream strm;
     
     strm<<"add_cone(";
-    strm<<Ox->get_value()<<",";
-    strm<<Oy->get_value()<<",";
-    strm<<Oz->get_value()<<",";
-    strm<<Hx->get_value()<<",";
-    strm<<Hy->get_value()<<",";
-    strm<<Hz->get_value()<<",";
-    strm<<radius->get_value()<<",";
+    strm<<"\""<<Ox->get_text()<<"\",";
+    strm<<"\""<<Oy->get_text()<<"\",";
+    strm<<"\""<<Oz->get_text()<<"\",";
+    strm<<"\""<<Hx->get_text()<<"\",";
+    strm<<"\""<<Hy->get_text()<<"\",";
+    strm<<"\""<<Hz->get_text()<<"\",";
+    strm<<"\""<<radius->get_text()<<"\",";
     strm<<mat->get_value_integer()<<")";
     
     return strm.str();
@@ -409,13 +409,13 @@ std::string GOP_Cylinder::get_lua()
     std::stringstream strm;
     
     strm<<"add_cylinder(";
-    strm<<Ox->get_value()<<",";
-    strm<<Oy->get_value()<<",";
-    strm<<Oz->get_value()<<",";
-    strm<<Hx->get_value()<<",";
-    strm<<Hy->get_value()<<",";
-    strm<<Hz->get_value()<<",";
-    strm<<radius->get_value()<<",";
+    strm<<"\""<<Ox->get_text()<<"\",";
+    strm<<"\""<<Oy->get_text()<<"\",";
+    strm<<"\""<<Oz->get_text()<<"\",";
+    strm<<"\""<<Hx->get_text()<<"\",";
+    strm<<"\""<<Hy->get_text()<<"\",";
+    strm<<"\""<<Hz->get_text()<<"\",";
+    strm<<"\""<<radius->get_text()<<"\",";
     strm<<mat->get_value_integer()<<")";
     
     return strm.str();
@@ -565,7 +565,7 @@ std::string GOP_Layer::get_lua()
     else if(dir==1) strm<<"\"Y\"";
     else if(dir==2) strm<<"\"Z\"";
     
-    strm<<","<<h1->get_value()<<","<<h2->get_value()<<","<<mat->get_value_integer()<<")";
+    strm<<",\""<<h1->get_text()<<"\",\""<<h2->get_text()<<"\","<<mat->get_value_integer()<<")";
     
     return strm.str();
 }
@@ -714,10 +714,10 @@ std::string GOP_Sphere::get_lua()
     std::stringstream strm;
     
     strm<<"add_sphere(";
-    strm<<Ox->get_value()<<",";
-    strm<<Oy->get_value()<<",";
-    strm<<Oz->get_value()<<",";
-    strm<<radius->get_value()<<",";
+    strm<<"\""<<Ox->get_text()<<"\",";
+    strm<<"\""<<Oy->get_text()<<"\",";
+    strm<<"\""<<Oz->get_text()<<"\",";
+    strm<<"\""<<radius->get_text()<<"\",";
     strm<<mat->get_value_integer()<<")";
     
     return strm.str();
