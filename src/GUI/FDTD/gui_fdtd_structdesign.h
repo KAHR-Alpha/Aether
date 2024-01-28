@@ -59,12 +59,11 @@ class GeomOP_Panel: public PanelsListBase
         Vector3 A,B,C,O,color;
         EMGeometry_GL *engine;
         Basic_VAO *vao;
-        SymLib lib;
         
         wxButton *color_btn;
         wxToggleButton *wires_btn,*hide_btn;
         
-        GeomOP_Panel(wxWindow *parent,EMGeometry_GL *engine);
+        GeomOP_Panel(wxWindow *parent,SymLib *lib,EMGeometry_GL *engine);
         ~GeomOP_Panel();
         
         void add_solid_switch();
@@ -79,6 +78,8 @@ class GeomOP_Panel: public PanelsListBase
         void vao_color_event(wxCommandEvent &event);
         void vao_hide_event(wxCommandEvent &event);
         void vao_wires_event(wxCommandEvent &event);
+        void update_geometry();
+        virtual void update_vao() {};
         virtual void update_world(double lx,double ly,double lz);
 };
 
@@ -88,15 +89,15 @@ class GOP_Block: public GeomOP_Panel
         NamedSymCtrl *x1,*x2,*y1,*y2,*z1,*z2;
         NamedSymCtrl *mat;
         
-        GOP_Block(wxWindow *parent,EMGeometry_GL *engine);
+        GOP_Block(wxWindow *parent,SymLib *lib,EMGeometry_GL *engine);
         
         void collapse();
+        void evt_geometry(wxCommandEvent &event);
         void expand();
         std::string get_lua();
         int get_material();
         void set(std::vector<std::string> const &args);
-        void update_vao(wxCommandEvent &event);
-        void update_vao_sub();
+        void update_vao() override;
 };
 
 class GOP_Cone: public GeomOP_Panel
@@ -105,15 +106,15 @@ class GOP_Cone: public GeomOP_Panel
         NamedSymCtrl *Ox,*Oy,*Oz,*Hx,*Hy,*Hz,*radius;
         NamedSymCtrl *mat;
         
-        GOP_Cone(wxWindow *parent,EMGeometry_GL *engine);
+        GOP_Cone(wxWindow *parent,SymLib *lib,EMGeometry_GL *engine);
         
         void collapse();
+        void evt_geometry(wxCommandEvent &event);
         void expand();
         std::string get_lua();
         int get_material();
         void set(std::vector<std::string> const &args);
-        void update_vao(wxCommandEvent &event);
-        void update_vao_sub();
+        void update_vao() override;
 };
 
 class GOP_Cylinder: public GeomOP_Panel
@@ -122,15 +123,15 @@ class GOP_Cylinder: public GeomOP_Panel
         NamedSymCtrl *Ox,*Oy,*Oz,*Hx,*Hy,*Hz,*radius;
         NamedSymCtrl *mat;
         
-        GOP_Cylinder(wxWindow *parent,EMGeometry_GL *engine);
+        GOP_Cylinder(wxWindow *parent,SymLib *lib,EMGeometry_GL *engine);
         
         void collapse();
+        void evt_geometry(wxCommandEvent &event);
         void expand();
         std::string get_lua();
         int get_material();
         void set(std::vector<std::string> const &args);
-        void update_vao(wxCommandEvent &event);
-        void update_vao_sub();
+        void update_vao() override;
 };
 
 class GOP_Layer: public GeomOP_Panel
@@ -142,16 +143,16 @@ class GOP_Layer: public GeomOP_Panel
         NamedSymCtrl *h1,*h2;
         NamedSymCtrl *mat;
         
-        GOP_Layer(wxWindow *parent,EMGeometry_GL *engine);
+        GOP_Layer(wxWindow *parent,SymLib *lib,EMGeometry_GL *engine);
         
         void collapse();
+        void evt_geometry(wxCommandEvent &event);
         void expand();
         std::string get_lua();
         int get_material();
         void set(std::vector<std::string> const &args);
         void update_world(double lx,double ly,double lz);
-        void update_vao(wxCommandEvent &event);
-        void update_vao_ext();
+        void update_vao() override;
 };
 
 class GOP_Sphere: public GeomOP_Panel
@@ -160,21 +161,21 @@ class GOP_Sphere: public GeomOP_Panel
         NamedSymCtrl *Ox,*Oy,*Oz,*radius;
         NamedSymCtrl *mat;
         
-        GOP_Sphere(wxWindow *parent,EMGeometry_GL *engine);
+        GOP_Sphere(wxWindow *parent,SymLib *lib,EMGeometry_GL *engine);
         
         void collapse();
+        void evt_geometry(wxCommandEvent &event);
         void expand();
         std::string get_lua();
         int get_material();
         void set(std::vector<std::string> const &args);
-        void update_vao(wxCommandEvent &event);
-        void update_vao_sub();
+        void update_vao() override;
 };
 
 class EMGeometry_Frame: public BaseFrame
 {
     public:
-        double lx,ly,lz;
+        SymNode lx,ly,lz;
         SymLib lib;
         
         std::vector<std::string> input_name;
@@ -186,8 +187,8 @@ class EMGeometry_Frame: public BaseFrame
         
         wxScrolledWindow *ctrl_panel;
         
-        NamedTextCtrl<double> *lx_ctrl,*ly_ctrl,*lz_ctrl;
-//        NamedTextCtrl<int> *Nx_ctrl,*Ny_ctrl,*Nz_ctrl;
+        //NamedTextCtrl<double> *lx_ctrl,*ly_ctrl,*lz_ctrl;
+        NamedSymCtrl *lx_ctrl,*ly_ctrl,*lz_ctrl;
         wxStaticBoxSizer *geom_top_sizer;
         
         NamedTextCtrl<int> *def_mat_ctrl;
@@ -203,9 +204,11 @@ class EMGeometry_Frame: public BaseFrame
         template<class T>
         void add_command(std::vector<std::string> const &args)
         {
-            T *panel=op->add_panel<T>(gl);
+            T *panel=op->add_panel<T>(&lib,gl);
             
-            panel->update_world(lx,ly,lz);
+            panel->update_world(lx.evaluate(),
+                                ly.evaluate(),
+                                lz.evaluate());
             panel->set(args);
             
             ctrl_panel->FitInside();

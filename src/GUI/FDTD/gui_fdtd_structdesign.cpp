@@ -173,7 +173,7 @@ void EMGeometry_GL::update_grid(double lx_,double ly_,double lz_)
 
 // GeomOP_Panel
 
-GeomOP_Panel::GeomOP_Panel(wxWindow *parent,EMGeometry_GL *engine_)
+GeomOP_Panel::GeomOP_Panel(wxWindow *parent,SymLib *lib,EMGeometry_GL *engine_)
     :PanelsListBase(parent),
      A(1.0,0,0), B(0,1.0,0), C(0,0,1.0), O(0,0,0), color(1.0,1.0,1.0),
      engine(engine_),
@@ -278,6 +278,13 @@ void GeomOP_Panel::vao_color_event(wxCommandEvent &event)
 void GeomOP_Panel::vao_hide_event(wxCommandEvent &event) { update_vao_display(); hide_btn->Refresh(); event.Skip(); }
 void GeomOP_Panel::vao_wires_event(wxCommandEvent &event) { update_vao_display(); wires_btn->Refresh(); event.Skip(); }
 
+
+void GeomOP_Panel::update_geometry()
+{
+    update_vao();
+}
+
+
 void GeomOP_Panel::update_world(double lx_,double ly_,double lz_)
 {
     lx=lx_;
@@ -299,8 +306,14 @@ enum
 
 EMGeometry_Frame::EMGeometry_Frame(wxString const &title,wxFileName const &fname)
     :BaseFrame(title),
-     lx(300e-9), ly(300e-9), lz(300e-9)
+     lx("300e-9",&lib),
+     ly("300e-9",&lib),
+     lz("300e-9",&lib)
 {
+    lib.add("lx",&lx,true);
+    lib.add("ly",&ly,true);
+    lib.add("lz",&lz,true);
+
     wxBoxSizer *top_sizer=new wxBoxSizer(wxVERTICAL);
     
     wxSplitterWindow *splitter=new wxSplitterWindow(this);
@@ -318,9 +331,15 @@ EMGeometry_Frame::EMGeometry_Frame(wxString const &title,wxFileName const &fname
     
     wxStaticBoxSizer *window_sizer=new wxStaticBoxSizer(wxVERTICAL,ctrl_panel,"Computational Window");
     
-    lx_ctrl=new NamedTextCtrl<double>(window_sizer->GetStaticBox(),"lx: ",lx);
-    ly_ctrl=new NamedTextCtrl<double>(window_sizer->GetStaticBox(),"ly: ",ly);
-    lz_ctrl=new NamedTextCtrl<double>(window_sizer->GetStaticBox(),"lz: ",lz);
+    lx_ctrl=new NamedSymCtrl(window_sizer->GetStaticBox(),"lx: ",&lx);
+    lx_ctrl->Bind(EVT_NAMEDTXTCTRL,&EMGeometry_Frame::evt_update_grid,this);
+
+    ly_ctrl=new NamedSymCtrl(window_sizer->GetStaticBox(),"ly: ",&ly);
+    ly_ctrl->Bind(EVT_NAMEDTXTCTRL,&EMGeometry_Frame::evt_update_grid,this);
+
+    lz_ctrl=new NamedSymCtrl(window_sizer->GetStaticBox(),"lz: ",&lz);
+    lz_ctrl->Bind(EVT_NAMEDTXTCTRL,&EMGeometry_Frame::evt_update_grid,this);
+
     
     window_sizer->Add(lx_ctrl,wxSizerFlags().Expand());
     window_sizer->Add(ly_ctrl,wxSizerFlags().Expand());
@@ -397,9 +416,6 @@ EMGeometry_Frame::EMGeometry_Frame(wxString const &title,wxFileName const &fname
     
     add_op_btn->Bind(wxEVT_BUTTON,&EMGeometry_Frame::evt_add_operation,this);
     autocolor_btn->Bind(wxEVT_BUTTON,&EMGeometry_Frame::evt_autocolor,this);
-    lx_ctrl->Bind(EVT_NAMEDTXTCTRL,&EMGeometry_Frame::evt_update_grid,this);
-    ly_ctrl->Bind(EVT_NAMEDTXTCTRL,&EMGeometry_Frame::evt_update_grid,this);
-    lz_ctrl->Bind(EVT_NAMEDTXTCTRL,&EMGeometry_Frame::evt_update_grid,this);
     
     Bind(wxEVT_MENU,&EMGeometry_Frame::evt_menu,this);
     Bind(EVT_PLIST_REMOVE,&EMGeometry_Frame::evt_remove_operation,this);
@@ -457,14 +473,16 @@ void EMGeometry_Frame::evt_add_operation(wxCommandEvent &event)
     
     chk_var(selection);
     
-         if(selection==0 || selection==4) panel=op->add_panel<GOP_Block>(gl);
-    else if(selection==1) panel=op->add_panel<GOP_Cone>(gl);
-    else if(selection==2) panel=op->add_panel<GOP_Cylinder>(gl);
-    else if(selection==3) panel=op->add_panel<GOP_Layer>(gl);
-    else if(selection==5) panel=op->add_panel<GOP_Sphere>(gl);
-    else panel=op->add_panel<GeomOP_Panel>(gl);
+         if(selection==0 || selection==4) panel=op->add_panel<GOP_Block>(&lib,gl);
+    else if(selection==1) panel=op->add_panel<GOP_Cone>(&lib,gl);
+    else if(selection==2) panel=op->add_panel<GOP_Cylinder>(&lib,gl);
+    else if(selection==3) panel=op->add_panel<GOP_Layer>(&lib,gl);
+    else if(selection==5) panel=op->add_panel<GOP_Sphere>(&lib,gl);
+    else panel=op->add_panel<GeomOP_Panel>(&lib,gl);
     
-    panel->update_world(lx,ly,lz);
+    panel->update_world(lx.evaluate(),
+                        ly.evaluate(),
+                        lz.evaluate());
     
     ctrl_panel->FitInside();
     Layout();
@@ -505,9 +523,9 @@ void EMGeometry_Frame::save_project(wxFileName const &fname)
 {
     std::ofstream file(fname.GetFullPath().ToStdString(),std::ios::out|std::ios::trunc);
     
-    file<<"lx="<<lx<<std::endl;
-    file<<"ly="<<ly<<std::endl;
-    file<<"lz="<<lz<<std::endl<<std::endl;
+    file<<"lx="<<lx.evaluate()<<std::endl;
+    file<<"ly="<<ly.evaluate()<<std::endl;
+    file<<"lz="<<lz.evaluate()<<std::endl<<std::endl;
     
     file<<"default_material("<<def_mat_ctrl->get_value()<<")"<<std::endl<<std::endl;
     
@@ -543,13 +561,24 @@ void EMGeometry_Frame::evt_remove_operation(wxCommandEvent &event)
 
 void EMGeometry_Frame::evt_update_grid(wxCommandEvent &event)
 {
-    lx=lx_ctrl->get_value();
-    ly=ly_ctrl->get_value();
-    lz=lz_ctrl->get_value();
+    lx.set_expression(lx_ctrl->get_text());
+    ly.set_expression(ly_ctrl->get_text());
+    lz.set_expression(lz_ctrl->get_text());
     
     update_grid();
+
+    for(std::size_t i=0;i<op->get_size();i++)
+    {
+        op->get_panel(i)->update_geometry();
+    }
     
     event.Skip();
+}
+
+EMGeometry_Frame* get_frame(lua_State *L)
+{
+    lua_getglobal(L,"bound_class");
+    return static_cast<EMGeometry_Frame*>(lua_touserdata(L,-1));
 }
 
 int lua_set_full(lua_State *L)
@@ -561,6 +590,34 @@ int lua_set_full(lua_State *L)
     
     return 0;
 }
+
+
+int lua_set_lx(lua_State *L)
+{
+    EMGeometry_Frame *frame=get_frame(L);
+    frame->lx_ctrl->set_expression(lua_tostring(L,1));
+    
+    return 0;
+}
+
+
+int lua_set_ly(lua_State *L)
+{
+    EMGeometry_Frame *frame=get_frame(L);
+    frame->ly_ctrl->set_expression(lua_tostring(L,1));
+    
+    return 0;
+}
+
+
+int lua_set_lz(lua_State *L)
+{
+    EMGeometry_Frame *frame=get_frame(L);
+    frame->lz_ctrl->set_expression(lua_tostring(L,1));
+    
+    return 0;
+}
+
 
 int lua_register_parameter(lua_State *L)
 {
@@ -670,6 +727,9 @@ void EMGeometry_Frame::load_project(wxFileName const &fname)
 //    lua_register(L,"loop_modifier",lop_loop_modifier);
 //    lua_register(L,"random_packing",random_packing);
     lua_register(L,"default_material",lua_set_full);
+    lua_register(L,"lx",lua_set_lx);
+    lua_register(L,"ly",lua_set_ly);
+    lua_register(L,"lz",lua_set_lz);
     
     /*lua_register(L,"nearest_integer",nearest_integer);*/
     
@@ -687,20 +747,12 @@ void EMGeometry_Frame::load_project(wxFileName const &fname)
     }
     
     lua_pcall(L, 0, 0, 0);
-    
-    lua_getglobal(L,"lx");
-    lua_getglobal(L,"ly");
-    lua_getglobal(L,"lz");
-    
-    lx=lua_tonumber(L,1);
-    ly=lua_tonumber(L,2);
-    lz=lua_tonumber(L,3);
-    
+
     lua_close(L);
     
-    lx_ctrl->set_value(lx);
-    ly_ctrl->set_value(ly);
-    lz_ctrl->set_value(lz);
+    lx.set_expression(lx_ctrl->get_text());
+    ly.set_expression(ly_ctrl->get_text());
+    lz.set_expression(lz_ctrl->get_text());
     
 //    lua_lst.apply_operations(Nx,Ny,Nz,Dx,Dy,Dz,matgrid);
     update_grid();
@@ -723,6 +775,8 @@ void EMGeometry_Frame::update_grid()
                         lz_ctrl->get_value());
         
         for(unsigned int i=0;i<op->get_size();i++)
-            op->get_panel(i)->update_world(lx,ly,lz);
+            op->get_panel(i)->update_world(lx.evaluate(),
+                                           ly.evaluate(),
+                                           lz.evaluate());
     }
 }

@@ -14,8 +14,8 @@ limitations under the License.*/
 
 #include <gui_fdtd_structdesign.h>
 
-GOP_Block::GOP_Block(wxWindow *parent,EMGeometry_GL *engine)
-    :GeomOP_Panel(parent,engine)
+GOP_Block::GOP_Block(wxWindow *parent,SymLib *lib,EMGeometry_GL *engine)
+    :GeomOP_Panel(parent,lib,engine)
 {
     wxStaticText *title=new wxStaticText(this,wxID_ANY,"Block");
     
@@ -32,16 +32,9 @@ GOP_Block::GOP_Block(wxWindow *parent,EMGeometry_GL *engine)
     
     mat=new NamedSymCtrl(this,"Mat: ",0.0);
     
-    lib.add("x1",x1->get_node(),true);
-    lib.add("x2",x2->get_node(),true);
-    lib.add("y1",y1->get_node(),true);
-    lib.add("y2",y2->get_node(),true);
-    lib.add("z1",z1->get_node(),true);
-    lib.add("z2",z2->get_node(),true);
-    
-    x1->set_lib(&lib); x2->set_lib(&lib);
-    y1->set_lib(&lib); y2->set_lib(&lib);
-    z1->set_lib(&lib); z2->set_lib(&lib);
+    x1->set_lib(lib); x2->set_lib(lib);
+    y1->set_lib(lib); y2->set_lib(lib);
+    z1->set_lib(lib); z2->set_lib(lib);
     
     sizer->Add(x1,wxSizerFlags().Expand());
     sizer->Add(x2,wxSizerFlags().Expand());
@@ -55,13 +48,14 @@ GOP_Block::GOP_Block(wxWindow *parent,EMGeometry_GL *engine)
     vao=engine->request_vao();
     vao->set_mesh("block",0);
     
-    x1->Bind(EVT_NAMEDTXTCTRL,&GOP_Block::update_vao,this);
-    x2->Bind(EVT_NAMEDTXTCTRL,&GOP_Block::update_vao,this);
-    y1->Bind(EVT_NAMEDTXTCTRL,&GOP_Block::update_vao,this);
-    y2->Bind(EVT_NAMEDTXTCTRL,&GOP_Block::update_vao,this);
-    z1->Bind(EVT_NAMEDTXTCTRL,&GOP_Block::update_vao,this);
-    z2->Bind(EVT_NAMEDTXTCTRL,&GOP_Block::update_vao,this);
+    x1->Bind(EVT_NAMEDTXTCTRL,&GOP_Block::evt_geometry,this);
+    x2->Bind(EVT_NAMEDTXTCTRL,&GOP_Block::evt_geometry,this);
+    y1->Bind(EVT_NAMEDTXTCTRL,&GOP_Block::evt_geometry,this);
+    y2->Bind(EVT_NAMEDTXTCTRL,&GOP_Block::evt_geometry,this);
+    z1->Bind(EVT_NAMEDTXTCTRL,&GOP_Block::evt_geometry,this);
+    z2->Bind(EVT_NAMEDTXTCTRL,&GOP_Block::evt_geometry,this);
 }
+
 
 void GOP_Block::collapse()
 {
@@ -77,6 +71,15 @@ void GOP_Block::collapse()
     Layout();
 }
 
+
+void GOP_Block::evt_geometry(wxCommandEvent &event)
+{
+    update_vao();
+
+    event.Skip();
+}
+
+
 void GOP_Block::expand()
 {
     x1->show();
@@ -90,6 +93,8 @@ void GOP_Block::expand()
     
     Layout();
 }
+
+
 std::string GOP_Block::get_lua()
 {
     std::stringstream strm;
@@ -106,7 +111,9 @@ std::string GOP_Block::get_lua()
     return strm.str();
 }
 
+
 int GOP_Block::get_material() { return mat->get_value_integer(); }
+
 
 void GOP_Block::set(std::vector<std::string> const &args)
 {
@@ -115,17 +122,11 @@ void GOP_Block::set(std::vector<std::string> const &args)
     z1->set_expression(args[4]); z2->set_expression(args[5]);
     mat->set_expression(args[6]);
     
-    update_vao_sub();
+    update_vao();
 }
 
-void GOP_Block::update_vao(wxCommandEvent &event)
-{
-    update_vao_sub();
-    
-    event.Skip();
-}
 
-void GOP_Block::update_vao_sub()
+void GOP_Block::update_vao()
 {
     double dx1=x1->get_value();
     double dx2=x2->get_value();
@@ -146,8 +147,8 @@ void GOP_Block::update_vao_sub()
 //   GOP_Cone
 //###############
 
-GOP_Cone::GOP_Cone(wxWindow *parent,EMGeometry_GL *engine)
-    :GeomOP_Panel(parent,engine)
+GOP_Cone::GOP_Cone(wxWindow *parent,SymLib *lib,EMGeometry_GL *engine)
+    :GeomOP_Panel(parent,lib,engine)
 {
     wxStaticText *title=new wxStaticText(this,wxID_ANY,"Cone");
     
@@ -165,17 +166,9 @@ GOP_Cone::GOP_Cone(wxWindow *parent,EMGeometry_GL *engine)
     
     mat=new NamedSymCtrl(this,"Mat: ",0.0);
     
-    lib.add("Ox",Ox->get_node(),true);
-    lib.add("Oy",Oy->get_node(),true);
-    lib.add("Oz",Oz->get_node(),true);
-    lib.add("Hx",Hx->get_node(),true);
-    lib.add("Hy",Hy->get_node(),true);
-    lib.add("Hz",Hz->get_node(),true);
-    lib.add("Radius",radius->get_node(),true);
-    
-    Ox->set_lib(&lib); Oy->set_lib(&lib); Oz->set_lib(&lib);
-    Hx->set_lib(&lib); Hy->set_lib(&lib); Hz->set_lib(&lib);
-    radius->set_lib(&lib);    
+    Ox->set_lib(lib); Oy->set_lib(lib); Oz->set_lib(lib);
+    Hx->set_lib(lib); Hy->set_lib(lib); Hz->set_lib(lib);
+    radius->set_lib(lib);
     
     sizer->Add(Ox,wxSizerFlags().Expand());
     sizer->Add(Oy,wxSizerFlags().Expand());
@@ -192,16 +185,17 @@ GOP_Cone::GOP_Cone(wxWindow *parent,EMGeometry_GL *engine)
     vao=engine->request_vao();
     vao->set_mesh("cone",36);
     
-    Ox->Bind(EVT_NAMEDTXTCTRL,&GOP_Cone::update_vao,this);
-    Oy->Bind(EVT_NAMEDTXTCTRL,&GOP_Cone::update_vao,this);
-    Oz->Bind(EVT_NAMEDTXTCTRL,&GOP_Cone::update_vao,this);
+    Ox->Bind(EVT_NAMEDTXTCTRL,&GOP_Cone::evt_geometry,this);
+    Oy->Bind(EVT_NAMEDTXTCTRL,&GOP_Cone::evt_geometry,this);
+    Oz->Bind(EVT_NAMEDTXTCTRL,&GOP_Cone::evt_geometry,this);
     
-    Hx->Bind(EVT_NAMEDTXTCTRL,&GOP_Cone::update_vao,this);
-    Hy->Bind(EVT_NAMEDTXTCTRL,&GOP_Cone::update_vao,this);
-    Hz->Bind(EVT_NAMEDTXTCTRL,&GOP_Cone::update_vao,this);
+    Hx->Bind(EVT_NAMEDTXTCTRL,&GOP_Cone::evt_geometry,this);
+    Hy->Bind(EVT_NAMEDTXTCTRL,&GOP_Cone::evt_geometry,this);
+    Hz->Bind(EVT_NAMEDTXTCTRL,&GOP_Cone::evt_geometry,this);
     
-    radius->Bind(EVT_NAMEDTXTCTRL,&GOP_Cone::update_vao,this);
+    radius->Bind(EVT_NAMEDTXTCTRL,&GOP_Cone::evt_geometry,this);
 }
+
 
 void GOP_Cone::collapse()
 {
@@ -219,6 +213,15 @@ void GOP_Cone::collapse()
     Layout();
 }
 
+
+void GOP_Cone::evt_geometry(wxCommandEvent &event)
+{
+    update_vao();
+
+    event.Skip();
+}
+
+
 void GOP_Cone::expand()
 {
     Ox->show();
@@ -234,6 +237,7 @@ void GOP_Cone::expand()
     
     Layout();
 }
+
 
 std::string GOP_Cone::get_lua()
 {
@@ -252,7 +256,9 @@ std::string GOP_Cone::get_lua()
     return strm.str();
 }
 
+
 int GOP_Cone::get_material() { return mat->get_value_integer(); }
+
 
 void GOP_Cone::set(std::vector<std::string> const &args)
 {
@@ -268,17 +274,11 @@ void GOP_Cone::set(std::vector<std::string> const &args)
     
     mat->set_expression(args[7]);
     
-    update_vao_sub();
+    update_vao();
 }
 
-void GOP_Cone::update_vao(wxCommandEvent &event)
-{
-    update_vao_sub();
-    
-    event.Skip();
-}
 
-void GOP_Cone::update_vao_sub()
+void GOP_Cone::update_vao()
 {
     O=Vector3(Ox->get_value(),
               Oy->get_value(),
@@ -312,8 +312,8 @@ void GOP_Cone::update_vao_sub()
 //    GOP_Cylinder
 //####################
 
-GOP_Cylinder::GOP_Cylinder(wxWindow *parent,EMGeometry_GL *engine)
-    :GeomOP_Panel(parent,engine)
+GOP_Cylinder::GOP_Cylinder(wxWindow *parent,SymLib *lib,EMGeometry_GL *engine)
+    :GeomOP_Panel(parent,lib,engine)
 {
     wxStaticText *title=new wxStaticText(this,wxID_ANY,"Cylinder");
     
@@ -331,17 +331,9 @@ GOP_Cylinder::GOP_Cylinder(wxWindow *parent,EMGeometry_GL *engine)
     
     mat=new NamedSymCtrl(this,"Mat: ",0.0);
     
-    lib.add("Ox",Ox->get_node(),true);
-    lib.add("Oy",Oy->get_node(),true);
-    lib.add("Oz",Oz->get_node(),true);
-    lib.add("Hx",Hx->get_node(),true);
-    lib.add("Hy",Hy->get_node(),true);
-    lib.add("Hz",Hz->get_node(),true);
-    lib.add("Radius",radius->get_node(),true);
-    
-    Ox->set_lib(&lib); Oy->set_lib(&lib); Oz->set_lib(&lib);
-    Hx->set_lib(&lib); Hy->set_lib(&lib); Hz->set_lib(&lib);
-    radius->set_lib(&lib);
+    Ox->set_lib(lib); Oy->set_lib(lib); Oz->set_lib(lib);
+    Hx->set_lib(lib); Hy->set_lib(lib); Hz->set_lib(lib);
+    radius->set_lib(lib);
     
     sizer->Add(Ox,wxSizerFlags().Expand());
     sizer->Add(Oy,wxSizerFlags().Expand());
@@ -358,16 +350,17 @@ GOP_Cylinder::GOP_Cylinder(wxWindow *parent,EMGeometry_GL *engine)
     vao=engine->request_vao();
     vao->set_mesh("cylinder",36);
     
-    Ox->Bind(EVT_NAMEDTXTCTRL,&GOP_Cylinder::update_vao,this);
-    Oy->Bind(EVT_NAMEDTXTCTRL,&GOP_Cylinder::update_vao,this);
-    Oz->Bind(EVT_NAMEDTXTCTRL,&GOP_Cylinder::update_vao,this);
+    Ox->Bind(EVT_NAMEDTXTCTRL,&GOP_Cylinder::evt_geometry,this);
+    Oy->Bind(EVT_NAMEDTXTCTRL,&GOP_Cylinder::evt_geometry,this);
+    Oz->Bind(EVT_NAMEDTXTCTRL,&GOP_Cylinder::evt_geometry,this);
     
-    Hx->Bind(EVT_NAMEDTXTCTRL,&GOP_Cylinder::update_vao,this);
-    Hy->Bind(EVT_NAMEDTXTCTRL,&GOP_Cylinder::update_vao,this);
-    Hz->Bind(EVT_NAMEDTXTCTRL,&GOP_Cylinder::update_vao,this);
+    Hx->Bind(EVT_NAMEDTXTCTRL,&GOP_Cylinder::evt_geometry,this);
+    Hy->Bind(EVT_NAMEDTXTCTRL,&GOP_Cylinder::evt_geometry,this);
+    Hz->Bind(EVT_NAMEDTXTCTRL,&GOP_Cylinder::evt_geometry,this);
     
-    radius->Bind(EVT_NAMEDTXTCTRL,&GOP_Cylinder::update_vao,this);
+    radius->Bind(EVT_NAMEDTXTCTRL,&GOP_Cylinder::evt_geometry,this);
 }
+
 
 void GOP_Cylinder::collapse()
 {
@@ -385,6 +378,15 @@ void GOP_Cylinder::collapse()
     Layout();
 }
 
+
+void GOP_Cylinder::evt_geometry(wxCommandEvent &event)
+{
+    update_vao();
+
+    event.Skip();
+}
+
+
 void GOP_Cylinder::expand()
 {
     Ox->show();
@@ -400,6 +402,7 @@ void GOP_Cylinder::expand()
     
     Layout();
 }
+
 
 std::string GOP_Cylinder::get_lua()
 {
@@ -418,7 +421,9 @@ std::string GOP_Cylinder::get_lua()
     return strm.str();
 }
 
+
 int GOP_Cylinder::get_material() { return mat->get_value_integer(); }
+
 
 void GOP_Cylinder::set(std::vector<std::string> const &args)
 {
@@ -434,17 +439,11 @@ void GOP_Cylinder::set(std::vector<std::string> const &args)
     
     mat->set_expression(args[7]);
     
-    update_vao_sub();
+    update_vao();
 }
 
-void GOP_Cylinder::update_vao(wxCommandEvent &event)
-{
-    update_vao_sub();
-    
-    event.Skip();
-}
 
-void GOP_Cylinder::update_vao_sub()
+void GOP_Cylinder::update_vao()
 {
     O=Vector3(Ox->get_value(),
               Oy->get_value(),
@@ -478,8 +477,8 @@ void GOP_Cylinder::update_vao_sub()
 //  GOP_Layer
 //###############
 
-GOP_Layer::GOP_Layer(wxWindow *parent,EMGeometry_GL *engine)
-    :GeomOP_Panel(parent,engine)
+GOP_Layer::GOP_Layer(wxWindow *parent,SymLib *lib,EMGeometry_GL *engine)
+    :GeomOP_Panel(parent,lib,engine)
 {
     wxStaticText *title=new wxStaticText(this,wxID_ANY,"Layer");
     
@@ -502,10 +501,7 @@ GOP_Layer::GOP_Layer(wxWindow *parent,EMGeometry_GL *engine)
     
     mat=new NamedSymCtrl(this,"Mat: ",0.0);
     
-    lib.add("h1",h1->get_node(),true);
-    lib.add("h2",h2->get_node(),true);
-    
-    h1->set_lib(&lib); h2->set_lib(&lib);
+    h1->set_lib(lib); h2->set_lib(lib);
     
     sizer->Add(choice_sizer,wxSizerFlags().Expand());
     
@@ -517,10 +513,11 @@ GOP_Layer::GOP_Layer(wxWindow *parent,EMGeometry_GL *engine)
     vao=engine->request_vao();
     vao->set_mesh("block",0);
     
-    orientation->Bind(wxEVT_CHOICE,&GOP_Layer::update_vao,this);
-    h1->Bind(EVT_NAMEDTXTCTRL,&GOP_Layer::update_vao,this);
-    h2->Bind(EVT_NAMEDTXTCTRL,&GOP_Layer::update_vao,this);
+    orientation->Bind(wxEVT_CHOICE,&GOP_Layer::evt_geometry,this);
+    h1->Bind(EVT_NAMEDTXTCTRL,&GOP_Layer::evt_geometry,this);
+    h2->Bind(EVT_NAMEDTXTCTRL,&GOP_Layer::evt_geometry,this);
 }
+
 
 void GOP_Layer::collapse()
 {
@@ -534,6 +531,15 @@ void GOP_Layer::collapse()
     Layout();
 }
 
+
+void GOP_Layer::evt_geometry(wxCommandEvent &event)
+{
+    update_vao();
+
+    event.Skip();
+}
+
+
 void GOP_Layer::expand()
 {
     orient_txt->Show();
@@ -545,6 +551,7 @@ void GOP_Layer::expand()
     
     Layout();
 }
+
 
 std::string GOP_Layer::get_lua()
 {
@@ -563,7 +570,9 @@ std::string GOP_Layer::get_lua()
     return strm.str();
 }
 
+
 int GOP_Layer::get_material() { return mat->get_value_integer(); }
+
 
 void GOP_Layer::set(std::vector<std::string> const &args)
 {
@@ -579,24 +588,19 @@ void GOP_Layer::set(std::vector<std::string> const &args)
     
     mat->set_expression(args[3]);
     
-    update_vao_ext();
+    update_vao();
 }
+
 
 void GOP_Layer::update_world(double lx_,double ly_,double lz_)
 {
     GeomOP_Panel::update_world(lx_,ly_,lz_);
     
-    update_vao_ext();
+    update_vao();
 }
 
-void GOP_Layer::update_vao(wxCommandEvent &event)
-{
-    update_vao_ext();
-    
-    event.Skip();
-}
 
-void GOP_Layer::update_vao_ext()
+void GOP_Layer::update_vao()
 {
     int dir=orientation->GetSelection();
     
@@ -632,8 +636,8 @@ void GOP_Layer::update_vao_ext()
 //   GOP_Sphere
 //###############
 
-GOP_Sphere::GOP_Sphere(wxWindow *parent,EMGeometry_GL *engine)
-    :GeomOP_Panel(parent,engine)
+GOP_Sphere::GOP_Sphere(wxWindow *parent,SymLib *lib,EMGeometry_GL *engine)
+    :GeomOP_Panel(parent,lib,engine)
 {
     wxStaticText *title=new wxStaticText(this,wxID_ANY,"Sphere");
     
@@ -647,15 +651,10 @@ GOP_Sphere::GOP_Sphere(wxWindow *parent,EMGeometry_GL *engine)
     
     mat=new NamedSymCtrl(this,"Mat: ",0.0);
     
-    lib.add("Ox",Ox->get_node(),true);
-    lib.add("Oy",Oy->get_node(),true);
-    lib.add("Oz",Oz->get_node(),true);
-    lib.add("Radius",radius->get_node(),true);
-    
-    Ox->set_lib(&lib);
-    Oy->set_lib(&lib);
-    Oz->set_lib(&lib);
-    radius->set_lib(&lib);
+    Ox->set_lib(lib);
+    Oy->set_lib(lib);
+    Oz->set_lib(lib);
+    radius->set_lib(lib);
     
     sizer->Add(Ox,wxSizerFlags().Expand());
     sizer->Add(Oy,wxSizerFlags().Expand());
@@ -668,12 +667,13 @@ GOP_Sphere::GOP_Sphere(wxWindow *parent,EMGeometry_GL *engine)
     vao=engine->request_vao();
     vao->set_mesh("sphere",9);
     
-    Ox->Bind(EVT_NAMEDTXTCTRL,&GOP_Sphere::update_vao,this);
-    Oy->Bind(EVT_NAMEDTXTCTRL,&GOP_Sphere::update_vao,this);
-    Oz->Bind(EVT_NAMEDTXTCTRL,&GOP_Sphere::update_vao,this);
+    Ox->Bind(EVT_NAMEDTXTCTRL,&GOP_Sphere::evt_geometry,this);
+    Oy->Bind(EVT_NAMEDTXTCTRL,&GOP_Sphere::evt_geometry,this);
+    Oz->Bind(EVT_NAMEDTXTCTRL,&GOP_Sphere::evt_geometry,this);
     
-    radius->Bind(EVT_NAMEDTXTCTRL,&GOP_Sphere::update_vao,this);
+    radius->Bind(EVT_NAMEDTXTCTRL,&GOP_Sphere::evt_geometry,this);
 }
+
 
 void GOP_Sphere::collapse()
 {
@@ -687,6 +687,15 @@ void GOP_Sphere::collapse()
     Layout();
 }
 
+
+void GOP_Sphere::evt_geometry(wxCommandEvent &event)
+{
+    update_vao();
+
+    event.Skip();
+}
+
+
 void GOP_Sphere::expand()
 {
     Ox->show();
@@ -698,6 +707,7 @@ void GOP_Sphere::expand()
     
     Layout();
 }
+
 
 std::string GOP_Sphere::get_lua()
 {
@@ -713,7 +723,9 @@ std::string GOP_Sphere::get_lua()
     return strm.str();
 }
 
+
 int GOP_Sphere::get_material() { return mat->get_value_integer(); }
+
 
 void GOP_Sphere::set(std::vector<std::string> const &args)
 {
@@ -725,17 +737,11 @@ void GOP_Sphere::set(std::vector<std::string> const &args)
     
     mat->set_expression(args[4]);
     
-    update_vao_sub();
+    update_vao();
 }
 
-void GOP_Sphere::update_vao(wxCommandEvent &event)
-{
-    update_vao_sub();
-    
-    event.Skip();
-}
 
-void GOP_Sphere::update_vao_sub()
+void GOP_Sphere::update_vao()
 {
     double r=radius->get_value();
     
