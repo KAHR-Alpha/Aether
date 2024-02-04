@@ -178,8 +178,9 @@ class EMGeometry_Frame: public BaseFrame
         SymNode lx,ly,lz;
         SymLib lib;
         
-        std::vector<std::string> input_name;
-        std::vector<double> input_value;
+        std::vector<std::string> input_keys;
+        std::vector<std::string> input_values;
+        std::vector<SymNode*> inputs;
         
         // 
         
@@ -222,11 +223,13 @@ class EMGeometry_Frame: public BaseFrame
         void autocolor();
         void evt_add_operation(wxCommandEvent &event);
         void evt_autocolor(wxCommandEvent &event);
+        void evt_inputs(wxCommandEvent &event);
         void evt_menu(wxCommandEvent &event);
         void evt_operation_down(wxCommandEvent &event);
         void evt_operation_up(wxCommandEvent &event);
         void evt_remove_operation(wxCommandEvent &event);
         void evt_update_grid(wxCommandEvent &event);
+        void evt_variables(wxCommandEvent &event);
         void load_project(wxFileName const &fname);
         void save_project(wxFileName const &fname);
         void refit();

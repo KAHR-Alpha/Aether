@@ -14,6 +14,7 @@ limitations under the License.*/
 
 #include <filehdl.h>
 #include <gui_fdtd_structdesign.h>
+#include <gui_fdtd_structdesign_variables.h>
 #include <gui_rsc.h>
 #include <lua_base.h>
 
@@ -326,6 +327,16 @@ EMGeometry_Frame::EMGeometry_Frame(wxString const &title,wxFileName const &fname
     
     wxBoxSizer *ctrl_sizer=new wxBoxSizer(wxVERTICAL);
     ctrl_panel->SetSizer(ctrl_sizer);
+
+    // - Variables
+
+    wxButton *inputs_btn=new wxButton(ctrl_panel,wxID_ANY,"Input Parameters");
+    inputs_btn->Bind(wxEVT_BUTTON,&EMGeometry_Frame::evt_inputs,this);
+    ctrl_sizer->Add(inputs_btn,wxSizerFlags().Expand());
+
+    wxButton *variables_btn=new wxButton(ctrl_panel,wxID_ANY,"Variables");
+    variables_btn->Bind(wxEVT_BUTTON,&EMGeometry_Frame::evt_variables,this);
+    ctrl_sizer->Add(variables_btn,wxSizerFlags().Expand());
     
     // - Window size
     
@@ -502,6 +513,32 @@ void EMGeometry_Frame::evt_autocolor(wxCommandEvent &event)
     event.Skip();
 }
 
+
+void EMGeometry_Frame::evt_inputs(wxCommandEvent &event)
+{
+    for(SymNode *node : inputs)
+    {
+        delete node;
+    }
+    inputs.clear();
+
+    VariablesDialog dialog(input_keys,input_values);
+
+    inputs.resize(input_keys.size());
+
+    for(std::size_t i=0;i<inputs.size();i++)
+    {
+        inputs[i]=new SymNode(input_values[i],&lib);
+        lib.add(input_keys[i],inputs[i]);
+    }
+
+    for(std::size_t i=0;i<op->get_size();i++)
+    {
+        op->get_panel(i)->update_geometry();
+    }
+}
+
+
 void EMGeometry_Frame::evt_menu(wxCommandEvent &event)
 {
     int ID=event.GetId();
@@ -575,6 +612,13 @@ void EMGeometry_Frame::evt_update_grid(wxCommandEvent &event)
     event.Skip();
 }
 
+
+void EMGeometry_Frame::evt_variables(wxCommandEvent &event)
+{
+
+}
+
+
 EMGeometry_Frame* get_frame(lua_State *L)
 {
     lua_getglobal(L,"bound_class");
@@ -625,8 +669,8 @@ int lua_register_parameter(lua_State *L)
     
     EMGeometry_Frame *frame=static_cast<EMGeometry_Frame*>(lua_touserdata(L,-1));
     
-    frame->input_name.push_back(lua_tostring(L,1));
-    frame->input_value.push_back(lua_tonumber(L,2));
+    frame->input_keys.push_back(lua_tostring(L,1));
+    frame->input_values.push_back(std::to_string(lua_tonumber(L,2)));
     
     return 0;
 }
@@ -651,8 +695,8 @@ void EMGeometry_Frame::load_project(wxFileName const &fname)
 {
     // Cleaning
     
-    input_name.clear();
-    input_value.clear();
+    input_keys.clear();
+    input_values.clear();
     
     op->clear();
     

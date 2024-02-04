@@ -4,10 +4,12 @@ set(gui_fdtd_src gui_fdtd.cpp
                  gui_fdtd_mode_dialog.cpp
                  gui_fdtd_structdesign.cpp
                  gui_fdtd_structdesign_panels.cpp
+                 gui_fdtd_structdesign_variables.cpp
                  gui_fieldblock_explr.cpp)
 
 set(gui_fdtd_hdr gui_fdtd.h
 				 gui_fdtd_structdesign.h
+				 gui_fdtd_structdesign_variables.h
 				 gui_fieldblock_explr.h)
 
 add_library(gui_fdtd STATIC ${gui_fdtd_src} ${gui_fdtd_hdr})

@@ -166,6 +166,28 @@ double SymLib::evaluate_specials(bool &known,std::string const &var)
 }
 
 
+void SymLib::forget(std::string const &key,bool force)
+{
+    int pos=-1;
+    
+    for(unsigned int i=0;i<nodes.size();i++)
+    {
+        if(keys[i]==key)
+        {
+            pos=i;
+            break;
+        }
+    }
+    
+    if(pos<0) return;
+    if(!force && persistent[pos]) return;
+    
+    keys.erase(keys.begin()+pos);
+    nodes.erase(nodes.begin()+pos);
+    persistent.erase(persistent.begin()+pos);
+}
+
+
 void SymLib::forget(SymNode *node,bool force)
 {
     int pos=-1;
