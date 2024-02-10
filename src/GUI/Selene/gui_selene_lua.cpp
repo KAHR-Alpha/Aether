@@ -344,7 +344,14 @@ void save_optimization_targets(std::ofstream &file,
         if(found)
         {
             file<<prefix<<"=Selene_target()\n";
-            file<<prefix<<":goal(\""<<LuaUI::to_lua(targets[i].goal)<<"\")\n";
+            
+            file<<prefix<<":goal(\""<<LuaUI::to_lua(targets[i].goal)<<"\"";
+            if(targets[i].goal==Sel::OptimGoal::TARGET_HIT_COUNT)
+            {
+                file<<","<<targets[i].target_value;
+            }
+            file<<")\n";
+            
             file<<prefix<<":sensor("<<frames_ID[j]<<")\n";
             file<<prefix<<":weight("<<targets[i].weight<<")\n\n";
             

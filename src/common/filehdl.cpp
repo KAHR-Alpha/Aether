@@ -116,6 +116,12 @@ void AsciiDataLoader::initialize(std::string const &fname,double limit)
             {
                 Nl=0;
                 data_start=file.tellg();
+                
+                if(file.eof())
+                {
+                    file_ok=false;
+                    return;
+                }
             }
             else Nl++;
         }
@@ -171,6 +177,12 @@ void AsciiDataLoader::initialize(std::string const &fname,double limit)
 
 void AsciiDataLoader::load_full(std::vector<std::vector<double>> &data_holder)
 {
+    if(!file_ok)
+    {
+        data_holder.clear();
+        return;
+    }
+    
     std::vector<std::string> strings_holder;
     
     file.seekg(data_start);
@@ -218,6 +230,12 @@ void AsciiDataLoader::load_full(std::vector<std::vector<double>> &data_holder)
 
 void AsciiDataLoader::load_seq(std::vector<double> &data)
 {
+    if(!file_ok)
+    {
+        data.clear();
+        return;
+    }
+    
     if(buffer_position==Nl_buffer) fill_buffer();
     
     data.resize(buffer.size());

@@ -44,6 +44,7 @@ OptimTargetPanel::OptimTargetPanel(wxWindow *parent,std::vector<std::string> con
     panel_sizer->Add(new wxStaticText(panel,wxID_ANY," Goal: "),wxSizerFlags().Align(wxALIGN_CENTER_VERTICAL));
     
     goal=new wxChoice(panel,wxID_ANY);
+    goal->Append("Maximize hit count");
     goal->Append("Minimize spatial dispersion");
     goal->Append("Minimize angular dispersion");
     goal->SetSelection(0);
@@ -92,11 +93,14 @@ OptimizationDialog::OptimizationDialog(std::vector<Sel::OptimTarget> &targets_,
         
         switch(target.goal)
         {
-            case Sel::OptimGoal::MINIMIZE_SPATIAL_SPREAD:
+            case Sel::OptimGoal::MAXIMIZE_HIT_COUNT:
                 panel->goal->SetSelection(0);
                 break;
-            case Sel::OptimGoal::MINIMIZE_ANGULAR_SPREAD:
+            case Sel::OptimGoal::MINIMIZE_SPATIAL_SPREAD:
                 panel->goal->SetSelection(1);
+                break;
+            case Sel::OptimGoal::MINIMIZE_ANGULAR_SPREAD:
+                panel->goal->SetSelection(2);
                 break;
         }
         
@@ -141,9 +145,12 @@ void OptimizationDialog::evt_close(wxCloseEvent &event)
         switch(treatment)
         {
             case 0:
-                targets[i].goal=Sel::OptimGoal::MINIMIZE_SPATIAL_SPREAD;
+                targets[i].goal=Sel::OptimGoal::MAXIMIZE_HIT_COUNT;
                 break;
             case 1:
+                targets[i].goal=Sel::OptimGoal::MINIMIZE_SPATIAL_SPREAD;
+                break;
+            case 2:
                 targets[i].goal=Sel::OptimGoal::MINIMIZE_ANGULAR_SPREAD;
                 break;
         }
@@ -171,8 +178,14 @@ void SeleneFrame::optimization_trace()
     
     optim_engine.clear_targets();
     
-    for(OptimTarget &target : optimization_targets)
+    for(Sel::OptimTarget &target : optimization_targets)
+    {
+        target.sensor->sens_ray_obj_intersection=true;
+        target.sensor->sens_ray_obj_direction=true;
+        target.sensor->sens_ray_obj_face=true;
+
         optim_engine.add_target(&target);
+    }
     
     while(optimization_running)
     {

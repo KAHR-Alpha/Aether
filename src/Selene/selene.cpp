@@ -185,13 +185,23 @@ double OptimTarget::evaluate() const
     RayCounter counter;
     counter.set_sensor(sensor);
     
-    if(goal==OptimGoal::MINIMIZE_SPATIAL_SPREAD)
+    if(counter.empty_sensor) return 1e300;
+    
+    if(goal==OptimGoal::MAXIMIZE_HIT_COUNT)
     {
-        score+=counter.compute_spatial_spread();
+        score=-counter.compute_hit_count();
     }
-    else
+    else if(goal==OptimGoal::MINIMIZE_ANGULAR_SPREAD)
     {
-        score+=counter.compute_angular_spread();
+        score=counter.compute_angular_spread();
+    }
+    else if(goal==OptimGoal::MINIMIZE_SPATIAL_SPREAD)
+    {
+        score=counter.compute_spatial_spread();
+    }
+    else if(goal==OptimGoal::TARGET_HIT_COUNT)
+    {
+        score=std::abs(counter.compute_hit_count()-target_value);
     }
     
     return score*weight;

@@ -669,6 +669,7 @@ class RayCounter
         double lambda_min,lambda_max;
         
         // Data
+        bool empty_sensor;
         AsciiDataLoader loader;
         std::filesystem::path sensor_fname;
         
@@ -701,6 +702,7 @@ class RayCounter
         RayCounter();
         
         double compute_angular_spread();
+        double compute_hit_count();
         double compute_spatial_spread();
         void set_sensor(Sel::Object *object);
         void set_sensor(std::filesystem::path const &sensor_file);
@@ -715,8 +717,10 @@ class RayCounter
 
 enum class OptimGoal
 {
+    MAXIMIZE_HIT_COUNT,
     MINIMIZE_ANGULAR_SPREAD,
-    MINIMIZE_SPATIAL_SPREAD
+    MINIMIZE_SPATIAL_SPREAD,
+    TARGET_HIT_COUNT
 };
 
 
@@ -725,6 +729,7 @@ class OptimTarget: public ::OptimTarget
     public:
         Sel::Object *sensor;
         OptimGoal goal;
+        double target_value;
         
         double evaluate() const override;
 };

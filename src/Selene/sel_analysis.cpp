@@ -23,6 +23,7 @@ RayCounter::RayCounter()
      N_faces(0),
      computation_type(RC_COUNTING),
      spectral_mode(SP_FULL),
+     empty_sensor(false),
      has_lambda(false),
      has_source(false),
      has_path(false),
@@ -72,6 +73,13 @@ double RayCounter::compute_angular_spread()
     return std::sqrt(x_stddev)+std::sqrt(y_stddev)+std::sqrt(z_stddev);
 }
 
+
+double RayCounter::compute_hit_count()
+{
+    return obj_inter.size();
+}
+
+
 double RayCounter::compute_spatial_spread()
 {
     double x_avg=0,
@@ -114,6 +122,12 @@ double RayCounter::compute_spatial_spread()
 
 void RayCounter::initialize()
 {
+    if(loader.file_ok==false)
+    {
+        empty_sensor=true;
+        return;
+    }
+    
     // Power unit
     
     std::string sensor_values=loader.header[1];
@@ -275,7 +289,6 @@ void RayCounter::set_sensor(Sel::Object *object_)
 {
     object=object_;
     sensor_fname=object->get_sensor_file_path();
-    
     loader.initialize(sensor_fname.generic_string());
     
     initialize();
