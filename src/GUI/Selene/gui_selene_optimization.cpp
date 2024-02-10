@@ -47,15 +47,33 @@ OptimTargetPanel::OptimTargetPanel(wxWindow *parent,std::vector<std::string> con
     goal->Append("Maximize hit count");
     goal->Append("Minimize spatial dispersion");
     goal->Append("Minimize angular dispersion");
+    goal->Append("Target hit count");
     goal->SetSelection(0);
+    
+    goal->Bind(wxEVT_CHOICE,&OptimTargetPanel::evt_goal,this);
     
     panel_sizer->Add(goal);
     
-    weight=new NamedTextCtrl<double>(panel," Weight: ",1.0);
+    target_value=new NamedTextCtrl<double>(panel," Target: ",0);
+    target_value->Hide();
+    panel_sizer->Add(target_value);
     
+    weight=new NamedTextCtrl<double>(panel," Weight: ",1.0);
     panel_sizer->Add(weight);
     
     sizer->Add(panel);
+}
+
+
+void OptimTargetPanel::evt_goal(wxCommandEvent &event)
+{
+    if(goal->GetSelection()==3)
+    {
+        target_value->Show();
+    }
+    else target_value->Hide();
+    
+    Layout();
 }
 
 
@@ -102,6 +120,15 @@ OptimizationDialog::OptimizationDialog(std::vector<Sel::OptimTarget> &targets_,
             case Sel::OptimGoal::MINIMIZE_ANGULAR_SPREAD:
                 panel->goal->SetSelection(2);
                 break;
+            case Sel::OptimGoal::TARGET_HIT_COUNT:
+                panel->goal->SetSelection(3);
+                break;
+        }
+        
+        if(target.goal==Sel::OptimGoal::TARGET_HIT_COUNT)
+        {
+            panel->target_value->Show();
+            panel->target_value->set_value(target.target_value);
         }
         
         panel->weight->set_value(target.weight);
@@ -153,8 +180,12 @@ void OptimizationDialog::evt_close(wxCloseEvent &event)
             case 2:
                 targets[i].goal=Sel::OptimGoal::MINIMIZE_ANGULAR_SPREAD;
                 break;
+            case 3:
+                targets[i].goal=Sel::OptimGoal::TARGET_HIT_COUNT;
+                break;
         }
         
+        targets[i].target_value=panel->target_value->get_value();
         targets[i].weight=panel->weight->get_value();
     }
     

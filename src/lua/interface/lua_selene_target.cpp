@@ -100,7 +100,7 @@ namespace LuaUI
      {
          if(str==to_lua(Sel::OptimGoal::MAXIMIZE_HIT_COUNT))
          {
-             return Sel::OptimGoal::MINIMIZE_ANGULAR_SPREAD;
+             return Sel::OptimGoal::MAXIMIZE_HIT_COUNT;
          }
          else if(str==to_lua(Sel::OptimGoal::MINIMIZE_ANGULAR_SPREAD))
          {
