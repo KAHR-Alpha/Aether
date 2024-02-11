@@ -27,6 +27,24 @@ extern std::ofstream plog;
 
 namespace SelGUI
 {
+//########################
+//   Ray Bounces Dialog
+//########################
+
+RayBouncesDialog::RayBouncesDialog(int max_ray_bounces)
+    :wxDialog(nullptr,wxID_ANY,"Choose a value",wxGetApp().default_dialog_origin())
+{
+    wxBoxSizer *sizer=new wxBoxSizer(wxVERTICAL);
+    
+    ray_bounces=new NamedTextCtrl<int>(this,"Max number of ray bounces: ",max_ray_bounces);
+    
+    sizer->Add(ray_bounces,wxSizerFlags().Expand().Border(wxALL,3));
+    
+    SetSizerAndFit(sizer);
+    
+    ShowModal();
+}
+
 
 //#################
 //   SeleneFrame
@@ -44,12 +62,14 @@ enum
     MENU_REF_IND,
     MENU_IRF,
     MENU_OPTIMIZE,
-    MENU_OPTIMIZATION_TARGETS
+    MENU_OPTIMIZATION_TARGETS,
+    MENU_BOUNCES
 };
 
 SeleneFrame::SeleneFrame(wxString const &title)
     :BaseFrame(title),
      item_count(0),
+     max_ray_bounces(200),
      optimize(false),
      optimization_running(false),
      pause_optimization(false),
@@ -175,6 +195,7 @@ SeleneFrame::SeleneFrame(wxString const &title)
     wxMenu *file_menu=new wxMenu();
     wxMenu *materials_menu=new wxMenu();
     wxMenu *optimization_menu=new wxMenu();
+    wxMenu *parameters_menu=new wxMenu();
     
     file_menu->Append(MENU_NEW,"New");
     file_menu->AppendSeparator();
@@ -190,9 +211,12 @@ SeleneFrame::SeleneFrame(wxString const &title)
     optimize_ctrl=optimization_menu->AppendCheckItem(MENU_OPTIMIZE,"Enable");
     optimization_menu->Append(MENU_OPTIMIZATION_TARGETS,"Target");
     
+    parameters_menu->Append(MENU_BOUNCES,"Max ray bounces");
+    
     menu_bar->Append(file_menu,"File");
     menu_bar->Append(materials_menu,"Materials");
     menu_bar->Append(optimization_menu,"Optimization");
+    menu_bar->Append(parameters_menu,"Parameters");
     
     append_help_menu(menu_bar);
     
@@ -755,6 +779,13 @@ void SeleneFrame::evt_menu(wxCommandEvent &event)
                 }
             }
             break;
+        case MENU_BOUNCES: 
+            {
+                RayBouncesDialog dialog(max_ray_bounces);
+                
+                max_ray_bounces=std::max(2,dialog.ray_bounces->get_value());
+            }
+            break;
         case MENU_DELETE: evt_popup_menu(event); break;
         case MENU_PROPERTIES: evt_popup_menu(event); break;
     }
@@ -971,6 +1002,7 @@ void SeleneFrame::evt_trace(wxCommandEvent &event)
             }
             
             selene.set_output_directory(output_directory_std);
+            selene.set_max_ray_bounces(max_ray_bounces);
             
             selene.render(nr_disp->get_value(),
                           nr_tot->get_value());

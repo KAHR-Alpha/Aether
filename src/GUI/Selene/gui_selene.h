@@ -545,6 +545,18 @@ class OptimizationDialog: public wxDialog
         void evt_delete_target(wxCommandEvent &event);
 };
 
+//#################
+//   Ray bounces
+//#################
+
+class RayBouncesDialog: public wxDialog
+{
+    public:
+        NamedTextCtrl<int> *ray_bounces;
+        
+        RayBouncesDialog(int max_ray_bounces);
+};
+
 //################
 //   Main Frame
 //################
@@ -555,6 +567,7 @@ class SeleneFrame: public BaseFrame
 {
     public:
         int item_count;
+        int max_ray_bounces;
         int focus_ID;
         
         wxScrolledWindow *ctrl_panel;
@@ -659,6 +672,7 @@ int lua_allocate_selene_light(lua_State *L);
 
 int lua_selene_add_light(lua_State *L);
 int lua_selene_add_object(lua_State *L);
+int lua_selene_max_ray_bounces(lua_State *L);
 int lua_selene_set_N_rays_disp(lua_State *L);
 int lua_selene_set_N_rays_total(lua_State *L);
 int lua_selene_optimize(lua_State *L);

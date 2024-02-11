@@ -217,6 +217,7 @@ Selene::Selene()
     :Nobj(0),
      Nlight(0),
      render_number(0),
+     Nr_bounces(200),
      Nr_disp(1000),
      Nr_tot(10000),
      fetch_family(0),
@@ -360,7 +361,7 @@ void Selene::render()
     // Objects initialization
     
     for(i=0;i<Nobj;i++)
-        obj_arr[i]->bootstrap(output_directory,ray_power);
+        obj_arr[i]->bootstrap(output_directory,ray_power,Nr_bounces);
     
     // Rendering
     
@@ -545,6 +546,7 @@ void Selene::reset_fetcher()
     fetched_source=0;
 }
 
+void Selene::set_max_ray_bounces(int N) { Nr_bounces=N; }
 void Selene::set_N_rays_disp(int Nr_disp_) { Nr_disp=Nr_disp_; }
 void Selene::set_N_rays_total(int Nr_tot_) { Nr_tot=Nr_tot_; }
 

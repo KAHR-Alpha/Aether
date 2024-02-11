@@ -239,6 +239,7 @@ void SeleneFrame::optimization_trace()
         }
         
         selene.set_output_directory(output_directory_std);
+        selene.set_max_ray_bounces(max_ray_bounces);
         
         selene.render(nr_disp->get_value(),
                       nr_tot->get_value());
