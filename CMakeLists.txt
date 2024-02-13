@@ -15,7 +15,7 @@ function(Dll_Install library_name)
 endfunction()
 
 set(CPACK_PACKAGE_VERSION_MAJOR 0)
-set(CPACK_PACKAGE_VERSION_MINOR 12)
+set(CPACK_PACKAGE_VERSION_MINOR 13)
 set(CPACK_PACKAGE_VERSION_PATCH 0)
 
 set(TASK "Build CLI" CACHE STRING "What to do")
