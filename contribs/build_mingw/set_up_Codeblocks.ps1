@@ -2,8 +2,8 @@ set base_path $pwd
 set sources_path ${base_path}/libs_mingw/sources
 set build_path ${base_path}/libs_mingw/builds
 
-Remove-Item -Recurse ./cmake_build
-cmake -B "cmake_build" -G "CodeBlocks - MinGW Makefiles" `
+# Remove-Item -Recurse ./cmake_build
+cmake -B "cmake_build_CB" -G "CodeBlocks - MinGW Makefiles" `
 	-DIDE_SETUP=ON `
 	-DTASK="Build CLI+GUI" `
 	-DINSTALL_PATH="${build_path}/Aether" `
@@ -22,8 +22,8 @@ cmake -B "cmake_build" -G "CodeBlocks - MinGW Makefiles" `
 	-DWXWIDGETS_ADV="${build_path}/wxWidgets/lib/gcc_x64_dll/wxmsw32u_adv_gcc_custom.dll" `
 	-DWXWIDGETS_GL="${build_path}/wxWidgets/lib/gcc_x64_dll/wxmsw32u_gl_gcc_custom.dll"
 
-$cbp = Get-Content -Path "cmake_build/Aether.cbp" -Raw
+$cbp = Get-Content -Path "cmake_build_CB/Aether.cbp" -Raw
 
 $cbp = $cbp.Replace("mingw32-make.exe","mingw32-make.exe -j 8")
 
-Set-Content -Path "cmake_build/Aether.cbp" -Value $cbp
+Set-Content -Path "cmake_build_CB/Aether.cbp" -Value $cbp

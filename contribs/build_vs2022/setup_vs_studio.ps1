@@ -6,7 +6,7 @@ set wxWidgets_ROOT_DIR "${build_path}/wxWidgets"
 
 # Remove-Item -Recurse ./cmake_build
 
-cmake -B "cmake_build" -G "Visual Studio 17 2022" `
+cmake -B "cmake_build_VS" -G "Visual Studio 17 2022" `
 	-DIDE_SETUP=ON `
 	-DTASK="Build CLI+GUI" `
 	-DINSTALL_PATH="${build_path}/Aether" `

@@ -35,12 +35,12 @@ cmake --install "cmake_build"
 ###########
 
 cd ${sources_path}
-if(!(Test-Path zlib13.zip))
+if(!(Test-Path zlib131.zip))
 {
-	Invoke-WebRequest -URI https://zlib.net/zlib13.zip -OutFile zlib13.zip
-	Expand-Archive -Force ./zlib13.zip
+	Invoke-WebRequest -URI https://zlib.net/zlib131.zip -OutFile zlib131.zip
+	Expand-Archive -Force ./zlib131.zip
 }
-cd zlib13/zlib-1.3
+cd zlib131/zlib-1.3.1
 cmake -B "cmake_build" -G "Visual Studio 17 2022" -DCMAKE_INSTALL_PREFIX="${build_path}/zlib" -DCMAKE_BUILD_TYPE=Release
 cmake --build "cmake_build" --config Release --parallel 8
 cmake --install "cmake_build"
@@ -56,7 +56,7 @@ if(!(Test-Path libpng.zip))
 	Invoke-WebRequest -UserAgent "Wget" -URI https://sourceforge.net/projects/libpng/files/latest/download -OutFile libpng.zip
 	Expand-Archive -Force ./libpng.zip
 }
-cd libpng/lpng1639
+cd libpng/lpng1642
 cmake -B "cmake_build" -G "Visual Studio 17 2022" -DCMAKE_INSTALL_PREFIX="${build_path}/libpng" -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="${build_path}/zlib"
 cmake --build "cmake_build" --config Release --parallel 8
 cmake --install "cmake_build"

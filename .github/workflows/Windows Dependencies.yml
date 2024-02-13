@@ -68,17 +68,17 @@ jobs:
           path: builds/zlib
           key: ${{ runner.os }}-cache-key-zlib
       
-      - run: Invoke-WebRequest -URI https://zlib.net/zlib13.zip -OutFile sources.zip
+      - run: Invoke-WebRequest -URI https://zlib.net/zlib131.zip -OutFile sources.zip
       - run: Expand-Archive ./sources.zip
       
       - run: cmake -B "${{github.workspace}}/cmake_build" -DCMAKE_INSTALL_PREFIX="${{github.workspace}}/builds/zlib" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
-        working-directory: sources/zlib-1.3
+        working-directory: sources/zlib-1.3.1
         
       - run: cmake --build "${{github.workspace}}/cmake_build" --config ${{env.BUILD_TYPE}}
-        working-directory: sources/zlib-1.3
+        working-directory: sources/zlib-1.3.1
         
       - run: cmake --install "${{github.workspace}}/cmake_build"
-        working-directory: sources/zlib-1.3
+        working-directory: sources/zlib-1.3.1
         
   build_libpng:
     runs-on: windows-latest
@@ -100,13 +100,13 @@ jobs:
       - run: Expand-Archive ./sources.zip
       
       - run: cmake -B "${{github.workspace}}/cmake_build" -DCMAKE_INSTALL_PREFIX="${{github.workspace}}/builds/libpng" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_PREFIX_PATH="${{github.workspace}}/builds/zlib" -DPNG_SHARED=OFF -DPNG_STATIC=ON
-        working-directory: sources/lpng1639
+        working-directory: sources/lpng1642
         
       - run: cmake --build "${{github.workspace}}/cmake_build" --config ${{env.BUILD_TYPE}}
-        working-directory: sources/lpng1639
+        working-directory: sources/lpng1642
         
       - run: cmake --install "${{github.workspace}}/cmake_build"
-        working-directory: sources/lpng1639
+        working-directory: sources/lpng1642
         
   build_freetype:
     runs-on: windows-latest
