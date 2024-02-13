@@ -109,6 +109,16 @@ int lua_selene_add_object(lua_State *L)
     return 0;
 }
 
+int lua_selene_max_ray_bounces(lua_State *L)
+{
+    SeleneFrame *frame=lua_get_metapointer<SeleneFrame>(L,1);
+    
+    frame->max_ray_bounces=lua_tointeger(L,2);
+    
+    return 0;
+}
+
+
 int lua_selene_set_N_rays_disp(lua_State *L)
 {
     SeleneFrame *frame=lua_get_metapointer<SeleneFrame>(L,1);
@@ -117,6 +127,7 @@ int lua_selene_set_N_rays_disp(lua_State *L)
     
     return 0;
 }
+
 
 int lua_selene_set_N_rays_total(lua_State *L)
 {
@@ -254,6 +265,7 @@ void SeleneFrame::load_project(wxFileName const &fname_)
     
     metatable_add_func(L,"add_object",&SelGUI::lua_selene_add_object);
     metatable_add_func(L,"add_light",&SelGUI::lua_selene_add_light);
+    metatable_add_func(L,"max_ray_bounces",&SelGUI::lua_selene_max_ray_bounces);
     metatable_add_func(L,"N_rays_disp",&SelGUI::lua_selene_set_N_rays_disp);
     metatable_add_func(L,"N_rays_total",&SelGUI::lua_selene_set_N_rays_total);
     metatable_add_func(L,"optimize",&SelGUI::lua_selene_optimize);
@@ -344,7 +356,14 @@ void save_optimization_targets(std::ofstream &file,
         if(found)
         {
             file<<prefix<<"=Selene_target()\n";
-            file<<prefix<<":goal(\""<<LuaUI::to_lua(targets[i].goal)<<"\")\n";
+            
+            file<<prefix<<":goal(\""<<LuaUI::to_lua(targets[i].goal)<<"\"";
+            if(targets[i].goal==Sel::OptimGoal::TARGET_HIT_COUNT)
+            {
+                file<<","<<targets[i].target_value;
+            }
+            file<<")\n";
+            
             file<<prefix<<":sensor("<<frames_ID[j]<<")\n";
             file<<prefix<<":weight("<<targets[i].weight<<")\n\n";
             
@@ -931,6 +950,7 @@ void SeleneFrame::save_project(wxFileName const &fname_)
     file<<"-- Simulation properties\n\n";
     
     file<<"selene=MODE(\"selene\")\n\n";
+    file<<"selene:max_ray_bounces("<<max_ray_bounces<<")\n";
     file<<"selene:N_rays_total("<<nr_tot->get_value()<<")\n";
     file<<"selene:N_rays_disp("<<nr_disp->get_value()<<")\n\n";
     file<<"selene:output_directory(\""<<output_directory_std.generic_string()<<"\")\n";

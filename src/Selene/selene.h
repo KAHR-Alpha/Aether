@@ -352,6 +352,7 @@ class Object: public Frame
         enum Boolean_Type{EXCLUDE,INTERSECT,UNION};
         
         int obj_ID;
+        int max_ray_generation;
         
         // Boundary Box
         
@@ -367,7 +368,7 @@ class Object: public Frame
         ~Object();
         
         void build_variables_map();
-        void bootstrap(std::filesystem::path const &output_directory,double ray_power);   // switch
+        void bootstrap(std::filesystem::path const &output_directory,double ray_power,int max_ray_bounces);   // switch
         void cleanup();
         void compute_boundaries();
         bool contains(double x,double y,double z);
@@ -669,6 +670,7 @@ class RayCounter
         double lambda_min,lambda_max;
         
         // Data
+        bool empty_sensor;
         AsciiDataLoader loader;
         std::filesystem::path sensor_fname;
         
@@ -701,6 +703,7 @@ class RayCounter
         RayCounter();
         
         double compute_angular_spread();
+        double compute_hit_count();
         double compute_spatial_spread();
         void set_sensor(Sel::Object *object);
         void set_sensor(std::filesystem::path const &sensor_file);
@@ -715,8 +718,10 @@ class RayCounter
 
 enum class OptimGoal
 {
+    MAXIMIZE_HIT_COUNT,
     MINIMIZE_ANGULAR_SPREAD,
-    MINIMIZE_SPATIAL_SPREAD
+    MINIMIZE_SPATIAL_SPREAD,
+    TARGET_HIT_COUNT
 };
 
 
@@ -725,6 +730,7 @@ class OptimTarget: public ::OptimTarget
     public:
         Sel::Object *sensor;
         OptimGoal goal;
+        double target_value;
         
         double evaluate() const override;
 };
@@ -744,6 +750,7 @@ class Selene
         
         std::vector<RayInter> intersection_buffer;
         
+        unsigned int Nr_bounces;
         unsigned int Nr_disp;
         unsigned int Nr_tot;
         unsigned int Nr_cast;
@@ -778,6 +785,7 @@ class Selene
         void render(int Nr_disp,int Nr_tot);
         void request_raytrace(RayPath &ray_path);
         void reset_fetcher();
+        void set_max_ray_bounces(int Nr_bounces);
         void set_N_rays_disp(int Nr_disp);
         void set_N_rays_total(int Nr_tot);
         void set_output_directory(std::filesystem::path const &output_directory);

@@ -42,6 +42,11 @@ namespace LuaUI
         
         sel_target->goal=to_goal(lua_tostring(L,2));
         
+        if(sel_target->goal==Sel::OptimGoal::TARGET_HIT_COUNT)
+        {
+            sel_target->target_value=lua_tointeger(L,3);
+        }
+        
         return 0;
     }
     
@@ -74,11 +79,17 @@ namespace LuaUI
     {
         switch(goal)
         {
+            case Sel::OptimGoal::MAXIMIZE_HIT_COUNT:
+                return "maximize_hit_count";
+                
             case Sel::OptimGoal::MINIMIZE_ANGULAR_SPREAD:
                 return "minimize_angular_spread";
                 
             case Sel::OptimGoal::MINIMIZE_SPATIAL_SPREAD:
                 return "minimize_spatial_spread";
+                
+            case Sel::OptimGoal::TARGET_HIT_COUNT:
+                return "target_hit_count";
         }
         
         return "";
@@ -87,13 +98,21 @@ namespace LuaUI
     
      Sel::OptimGoal to_goal(std::string const &str)
      {
-         if(str==to_lua(Sel::OptimGoal::MINIMIZE_ANGULAR_SPREAD))
+         if(str==to_lua(Sel::OptimGoal::MAXIMIZE_HIT_COUNT))
+         {
+             return Sel::OptimGoal::MAXIMIZE_HIT_COUNT;
+         }
+         else if(str==to_lua(Sel::OptimGoal::MINIMIZE_ANGULAR_SPREAD))
          {
              return Sel::OptimGoal::MINIMIZE_ANGULAR_SPREAD;
          }
          else if(str==to_lua(Sel::OptimGoal::MINIMIZE_SPATIAL_SPREAD))
          {
              return Sel::OptimGoal::MINIMIZE_SPATIAL_SPREAD;
+         }
+         else if(str==to_lua(Sel::OptimGoal::TARGET_HIT_COUNT))
+         {
+             return Sel::OptimGoal::TARGET_HIT_COUNT;
          }
          
          return Sel::OptimGoal::MINIMIZE_SPATIAL_SPREAD;

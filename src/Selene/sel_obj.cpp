@@ -86,6 +86,7 @@ void Frame::consolidate_position()
 
 Object::Object()
     :obj_ID(-1),
+     max_ray_generation(200),
      bxm(0), bxp(0),
      bym(0), byp(0),
      bzm(0), bzp(0),
@@ -172,7 +173,8 @@ void Object::build_variables_map()
     variables_map["spheroid_cut_factor"]=&spd_cut;
 }
 
-void Object::bootstrap(std::filesystem::path const &output_directory,double ray_power)
+
+void Object::bootstrap(std::filesystem::path const &output_directory,double ray_power,int max_ray_bounces)
 {
 //    std::cout<<"boot "<<this<<std::endl;
 //    
@@ -273,7 +275,10 @@ void Object::bootstrap(std::filesystem::path const &output_directory,double ray_
         if(sens_ray_obj_polar) sb_obj_polar.resize(sb_Nmax);
         if(sens_ray_obj_face) sb_face.resize(sb_Nmax);
     }
+    
+    max_ray_generation=max_ray_bounces;
 }
+
 
 void Object::cleanup()
 {
@@ -779,7 +784,7 @@ void Object::process_intersection(RayPath &path)
         ray.start=next_start;
     }
     
-    if(abs_ray==true || ray.generation>=200)
+    if(abs_ray==true || ray.generation>=max_ray_generation)
     {
         path.complete=true;
         return;
