@@ -26,9 +26,15 @@ extern std::ofstream plog;
 //  EMGeometry_GL
 //###############
 
-EMGeometry_GL::EMGeometry_GL(wxWindow *parent)
+EMGeometry_GL::EMGeometry_GL(wxWindow *parent,
+                             double lx_,
+                             double ly_,
+                             double lz_)
     :GL_3D_Base(parent),
-     lx(1.0), ly(1.0), lz(1.0),scale(1.0)
+     lx(lx_),
+     ly(ly_),
+     lz(lz_),
+     scale(1.0/var_max(lx,ly,lz))
 {
 }
 
@@ -321,7 +327,10 @@ EMGeometry_Frame::EMGeometry_Frame(wxString const &title,wxFileName const &fname
     
     
     ctrl_panel=new wxScrolledWindow(splitter);
-    gl=new EMGeometry_GL(splitter);
+    gl=new EMGeometry_GL(splitter,
+                         lx.evaluate(),
+                         ly.evaluate(),
+                         lz.evaluate());
     
     // Controls Panel
     
@@ -532,10 +541,8 @@ void EMGeometry_Frame::evt_inputs(wxCommandEvent &event)
         lib.add(input_keys[i],inputs[i]);
     }
 
-    for(std::size_t i=0;i<op->get_size();i++)
-    {
-        op->get_panel(i)->update_geometry();
-    }
+    
+    update_geometry();
 }
 
 
@@ -602,12 +609,7 @@ void EMGeometry_Frame::evt_update_grid(wxCommandEvent &event)
     ly.set_expression(ly_ctrl->get_text());
     lz.set_expression(lz_ctrl->get_text());
     
-    update_grid();
-
-    for(std::size_t i=0;i<op->get_size();i++)
-    {
-        op->get_panel(i)->update_geometry();
-    }
+    update_geometry();
     
     event.Skip();
 }
@@ -810,13 +812,25 @@ void EMGeometry_Frame::refit()
     ctrl_panel->Layout();
 }
 
+
+void EMGeometry_Frame::update_geometry()
+{
+    update_grid();
+
+    for(std::size_t i=0;i<op->get_size();i++)
+    {
+        op->get_panel(i)->update_geometry();
+    }
+}
+
+
 void EMGeometry_Frame::update_grid()
 {
     if(gl->gl_ok)
     {
-        gl->update_grid(lx_ctrl->get_value(),
-                        ly_ctrl->get_value(),
-                        lz_ctrl->get_value());
+        gl->update_grid(lx.evaluate(),
+                        ly.evaluate(),
+                        lz.evaluate());
         
         for(unsigned int i=0;i<op->get_size();i++)
             op->get_panel(i)->update_world(lx.evaluate(),

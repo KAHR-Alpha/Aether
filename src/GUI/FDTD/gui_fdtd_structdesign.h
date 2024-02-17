@@ -41,7 +41,10 @@ class EMGeometry_GL: public GL_3D_Base
         Glite::LineGrid_VAO *gxd,*gxu,*gyd,*gyu,*gzd,*gzu;
         std::vector<Basic_VAO*> vao;
         
-        EMGeometry_GL(wxWindow *parent);
+        EMGeometry_GL(wxWindow *parent,
+                      double lx,
+                      double ly,
+                      double lz);
         
         void forget_all_vaos();
         void forget_vao(Basic_VAO *vao);
@@ -234,6 +237,7 @@ class EMGeometry_Frame: public BaseFrame
         void save_project(wxFileName const &fname);
         void refit();
         void evt_refit(wxCommandEvent &event);
+        void update_geometry();
         void update_grid();
 };
 
