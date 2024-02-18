@@ -353,6 +353,7 @@ int mode_choice(lua_State *L)
     LuaUI::Selene_create_base_metatable(L);
     LuaUI::Selene_create_light_metatable(L);
     LuaUI::Selene_create_object_metatable(L);
+    LuaUI::selene_create_raycounter_metatable(L);
     LuaUI::selene_create_target_metatable(L);
     
     //#########################

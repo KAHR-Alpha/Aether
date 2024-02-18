@@ -146,6 +146,13 @@ namespace LuaUI
     int selene_mode_render(lua_State *L);
     int selene_mode_set_N_rays_disp(lua_State *L);
     int selene_mode_set_N_rays_total(lua_State *L);
+
+    // Analysis
+
+    int create_selene_raycounter(lua_State *L);
+    void selene_create_raycounter_metatable(lua_State *L);
+    int selene_raycounter_set_sensor(lua_State *L);
+    int selene_raycounter_get_hit_count(lua_State *L);
 }
 
 #endif // LUA_SELENE_H_INCLUDED

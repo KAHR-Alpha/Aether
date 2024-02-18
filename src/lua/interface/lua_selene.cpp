@@ -508,6 +508,7 @@ namespace LuaUI
         lua_register(L,"Selene_IRF",&LuaUI::create_selene_IRF);
         lua_register(L,"Selene_light",&LuaUI::create_selene_light);
         lua_register(L,"Selene_target",&LuaUI::create_selene_target);
+        lua_register(L,"Selene_raycounter",&LuaUI::create_selene_raycounter);
     }
     
     void Selene_create_base_metatable(lua_State *L)

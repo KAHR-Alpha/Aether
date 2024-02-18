@@ -2,6 +2,7 @@ set(lua_src lua_interface.cpp
 			lua_multilayers.cpp
 			lua_optim.cpp
 			lua_selene.cpp
+			lua_selene_analysis.cpp
 			lua_selene_element.cpp
 			lua_selene_light.cpp
 			lua_selene_target.cpp)
