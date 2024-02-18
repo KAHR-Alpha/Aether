@@ -337,15 +337,11 @@ EMGeometry_Frame::EMGeometry_Frame(wxString const &title)
     wxBoxSizer *ctrl_sizer=new wxBoxSizer(wxVERTICAL);
     ctrl_panel->SetSizer(ctrl_sizer);
 
-    // - Variables
+    // - Inputs
 
     wxButton *inputs_btn=new wxButton(ctrl_panel,wxID_ANY,"Input Parameters");
     inputs_btn->Bind(wxEVT_BUTTON,&EMGeometry_Frame::evt_inputs,this);
     ctrl_sizer->Add(inputs_btn,wxSizerFlags().Expand());
-
-    wxButton *variables_btn=new wxButton(ctrl_panel,wxID_ANY,"Variables");
-    variables_btn->Bind(wxEVT_BUTTON,&EMGeometry_Frame::evt_variables,this);
-    ctrl_sizer->Add(variables_btn,wxSizerFlags().Expand());
     
     // - Window size
     
@@ -360,12 +356,17 @@ EMGeometry_Frame::EMGeometry_Frame(wxString const &title)
     lz_ctrl=new NamedSymCtrl(window_sizer->GetStaticBox(),"lz: ",&lz);
     lz_ctrl->Bind(EVT_NAMEDTXTCTRL,&EMGeometry_Frame::evt_update_grid,this);
 
-    
     window_sizer->Add(lx_ctrl,wxSizerFlags().Expand());
     window_sizer->Add(ly_ctrl,wxSizerFlags().Expand());
     window_sizer->Add(lz_ctrl,wxSizerFlags().Expand());
     
     ctrl_sizer->Add(window_sizer,wxSizerFlags().Expand());
+    
+    // - Variables
+    
+    wxButton *variables_btn=new wxButton(ctrl_panel,wxID_ANY,"Variables");
+    variables_btn->Bind(wxEVT_BUTTON,&EMGeometry_Frame::evt_variables,this);
+    ctrl_sizer->Add(variables_btn,wxSizerFlags().Expand());
     
     // - Base material
     
@@ -534,6 +535,30 @@ void EMGeometry_Frame::evt_add_operation(wxCommandEvent &event)
     event.Skip();
 }
 
+void EMGeometry_Frame::edit_variables(std::vector<std::string> &keys,
+                                      std::vector<std::string> &values,
+                                      std::vector<SymNode*> &nodes,
+                                      std::string const &title)
+{
+    for(SymNode *node : nodes)
+    {
+        delete node;
+    }
+    nodes.clear();
+
+    VariablesDialog dialog(keys, values, title);
+
+    nodes.resize(keys.size());
+
+    for(std::size_t i=0;i<nodes.size();i++)
+    {
+        nodes[i]=new SymNode(values[i],&lib);
+        lib.add(keys[i],nodes[i]);
+    }
+    
+    update_geometry();
+}
+
 void EMGeometry_Frame::evt_autocolor(wxCommandEvent &event)
 {
     autocolor();
@@ -544,23 +569,10 @@ void EMGeometry_Frame::evt_autocolor(wxCommandEvent &event)
 
 void EMGeometry_Frame::evt_inputs(wxCommandEvent &event)
 {
-    for(SymNode *node : inputs)
-    {
-        delete node;
-    }
-    inputs.clear();
-
-    VariablesDialog dialog(input_keys,input_values);
-
-    inputs.resize(input_keys.size());
-
-    for(std::size_t i=0;i<inputs.size();i++)
-    {
-        inputs[i]=new SymNode(input_values[i],&lib);
-        lib.add(input_keys[i],inputs[i]);
-    }
-    
-    update_geometry();
+    edit_variables(input_keys,
+                   input_values,
+                   inputs,
+                   "Define your inputs");
 }
 
 
@@ -585,9 +597,23 @@ void EMGeometry_Frame::save_project(wxFileName const &fname)
 {
     std::ofstream file(fname.GetFullPath().ToStdString(),std::ios::out|std::ios::trunc);
     
+    for(std::size_t i=0; i<input_keys.size(); i++)
+    {
+        file<<"declare_parameter(\""<<input_keys[i]<<"\","
+                                    <<inputs[i]->evaluate()<<")\n";
+    }
+    if(!input_keys.empty()) file<<"\n";
+    
     file<<"lx(\""<<lx.get_expression()<<"\")\n";
     file<<"ly(\""<<ly.get_expression()<<"\")\n";
     file<<"lz(\""<<lz.get_expression()<<"\")\n\n";
+    
+    for(std::size_t i=0; i<variables_keys.size(); i++)
+    {
+        file<<"set(\""<<variables_keys[i]<<"\","
+                <<"\""<<variables_values[i]<<"\")\n";
+    }
+    if(!variables_keys.empty()) file<<"\n";
     
     file<<"default_material("<<def_mat_ctrl->get_value()<<")"<<std::endl<<std::endl;
     
@@ -635,7 +661,10 @@ void EMGeometry_Frame::evt_update_grid(wxCommandEvent &event)
 
 void EMGeometry_Frame::evt_variables(wxCommandEvent &event)
 {
-
+    edit_variables(variables_keys,
+                   variables_values,
+                   variables,
+                   "Define your variables");
 }
 
 
@@ -683,6 +712,17 @@ int lua_set_lz(lua_State *L)
 }
 
 
+int lua_set_variable(lua_State *L)
+{
+    EMGeometry_Frame *frame=get_frame(L);
+    
+    frame->variables_keys.push_back(lua_tostring(L,1));
+    frame->variables_values.push_back(lua_tostring(L,2));
+    
+    return 0;
+}
+
+
 int lua_register_parameter(lua_State *L)
 {
     lua_getglobal(L,"bound_class");
@@ -690,10 +730,11 @@ int lua_register_parameter(lua_State *L)
     EMGeometry_Frame *frame=static_cast<EMGeometry_Frame*>(lua_touserdata(L,-1));
     
     frame->input_keys.push_back(lua_tostring(L,1));
-    frame->input_values.push_back(std::to_string(lua_tonumber(L,2)));
+    frame->input_values.push_back(lua_tostring(L,2));
     
     return 0;
 }
+
 
 template<class T>
 int lua_add_command(lua_State *L)
@@ -711,12 +752,42 @@ int lua_add_command(lua_State *L)
     return 0;
 }
 
+
+void clear(std::vector<std::string> &keys,
+           std::vector<std::string> &values,
+           std::vector<SymNode*> &nodes)
+{
+    keys.clear();
+    values.clear();
+    
+    for(SymNode *node : nodes)
+        delete node;
+    
+    nodes.clear();
+}
+
+
+void update_library(SymLib &lib,
+                    std::vector<SymNode*> &nodes,
+                    std::vector<std::string> const &keys,
+                    std::vector<std::string> const &values)
+{
+    nodes.resize(keys.size());
+
+    for(std::size_t i=0;i<nodes.size();i++)
+    {
+        nodes[i]=new SymNode(values[i], &lib);
+        lib.add(keys[i], nodes[i]);
+    }
+}
+
+
 void EMGeometry_Frame::load_project(wxFileName const &fname)
 {
     // Cleaning
     
-    input_keys.clear();
-    input_values.clear();
+    clear(input_keys, input_values, inputs);
+    clear(variables_keys, variables_values, variables);
     
     op->clear();
     
@@ -794,6 +865,7 @@ void EMGeometry_Frame::load_project(wxFileName const &fname)
     lua_register(L,"lx",lua_set_lx);
     lua_register(L,"ly",lua_set_ly);
     lua_register(L,"lz",lua_set_lz);
+    lua_register(L,"set",lua_set_variable);
     
     /*lua_register(L,"nearest_integer",nearest_integer);*/
     
@@ -818,8 +890,17 @@ void EMGeometry_Frame::load_project(wxFileName const &fname)
     ly.set_expression(ly_ctrl->get_text());
     lz.set_expression(lz_ctrl->get_text());
     
-//    lua_lst.apply_operations(Nx,Ny,Nz,Dx,Dy,Dz,matgrid);
-    update_grid();
+    update_library(lib,
+                   inputs,
+                   input_keys,
+                   input_values);
+    
+    update_library(lib,
+                   variables,
+                   variables_keys,
+                   variables_values);
+    
+    update_geometry();
     
     autocolor();
 }

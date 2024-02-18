@@ -193,11 +193,17 @@ class EMGeometry_Frame: public BaseFrame
         SymNode lx,ly,lz;
         SymLib lib;
         
+        // Inputs
+        
         std::vector<std::string> input_keys;
         std::vector<std::string> input_values;
         std::vector<SymNode*> inputs;
         
-        // 
+        // Variables
+        
+        std::vector<std::string> variables_keys;
+        std::vector<std::string> variables_values;
+        std::vector<SymNode*> variables;
         
         // GUI Controls
         
@@ -236,6 +242,10 @@ class EMGeometry_Frame: public BaseFrame
         }
         
         void autocolor();
+        void edit_variables(std::vector<std::string> &keys,
+                            std::vector<std::string> &values,
+                            std::vector<SymNode*> &nodes,
+                            std::string const &title);
         void evt_add_operation(wxCommandEvent &event);
         void evt_autocolor(wxCommandEvent &event);
         void evt_inputs(wxCommandEvent &event);

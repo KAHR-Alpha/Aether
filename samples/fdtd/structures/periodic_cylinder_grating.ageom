@@ -1,0 +1,15 @@
+declare_parameter("px",1e-07)
+declare_parameter("py",1e-07)
+declare_parameter("rad",2.5e-08)
+declare_parameter("height",5e-08)
+declare_parameter("padding",1e-07)
+lx("px")
+ly("py")
+lz("2*padding+height")
+
+set("cx","lx/2")
+set("cy","ly/2")
+default_material(0)
+
+add_layer("Z","0","padding",1)
+add_cylinder("cx","cy","padding","0","0","height","rad",2)

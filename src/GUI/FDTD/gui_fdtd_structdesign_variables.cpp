@@ -39,9 +39,10 @@ VariablesPanel::VariablesPanel(wxWindow *parent,
 //#####################
 
 VariablesDialog::VariablesDialog(std::vector<std::string> &names_,
-                                 std::vector<std::string> &expressions_)
+                                 std::vector<std::string> &expressions_,
+                                 std::string const &title)
     :wxDialog(nullptr,wxID_ANY,
-              "Variables",
+              title,
               wxGetApp().default_dialog_origin(),
               wxGetApp().default_dialog_size()),
      names(names_),

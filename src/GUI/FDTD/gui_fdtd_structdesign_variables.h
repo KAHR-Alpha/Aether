@@ -39,7 +39,8 @@ class VariablesDialog : public wxDialog
         PanelsList<VariablesPanel> *variables;
 
         VariablesDialog(std::vector<std::string> &names,
-                        std::vector<std::string> &expressions);
+                        std::vector<std::string> &expressions,
+                        std::string const &title);
         
         void evt_add_variable(wxCommandEvent &event);
         void evt_close(wxCloseEvent &event);
