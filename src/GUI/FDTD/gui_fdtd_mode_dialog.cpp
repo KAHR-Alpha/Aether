@@ -520,7 +520,7 @@ void FDTD_Mode_Dialog::FDTD_Mode_Dialog_Structure(wxNotebook *book,int target_pa
     
     wxStaticBoxSizer *structure_script_sizer=new wxStaticBoxSizer(wxHORIZONTAL,structure_panel,"Script");
     
-    structure=new NamedTextCtrl<std::string>(structure_script_sizer->GetStaticBox(),"File: ",data->structure->script.generic_string());
+    structure=new NamedTextCtrl<std::string>(structure_script_sizer->GetStaticBox(),"File: ",data->structure->get_script_path().generic_string());
     wxButton *structure_load_btn=new wxButton(structure_panel,wxID_ANY,"Load");
     structure_edit_btn=new wxButton(structure_panel,wxID_ANY,"Edit");
     structure_edit_btn->Disable();
@@ -559,7 +559,7 @@ void FDTD_Mode_Dialog::FDTD_Mode_Dialog_Structure(wxNotebook *book,int target_pa
     parameters_panel=new wxPanel(structure_panel);
     parameters_sizer=new wxStaticBoxSizer(wxVERTICAL,parameters_panel,"Parameters");
     
-    if(data->structure->script.empty())
+    if(data->structure->get_script_path().empty())
     {
         parameters_panel->Hide();
     }
@@ -749,8 +749,8 @@ void FDTD_Mode_Dialog::evt_ok(wxCommandEvent &event)
     }
     
     // Structure
-    data->structure->script=structure->get_value();
-    data->structure->script=std::filesystem::absolute(data->structure->script);
+    std::filesystem::path script_path=structure->get_value();
+    data->structure->set_script(std::filesystem::absolute(script_path));
     
     data->Dx=dx_ctrl->get_length();
     data->Dy=dy_ctrl->get_length();

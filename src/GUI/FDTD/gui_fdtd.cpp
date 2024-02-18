@@ -395,7 +395,7 @@ void FDTD_Frame::evt_popup_menu(wxCommandEvent &event)
             update_gl_pmls();
             gl->reset_pml_display();
         }
-        else if(!fdtd_parameters.structure->script.empty())
+        else if(!fdtd_parameters.structure->get_script_path().empty())
         {
             fdtd_parameters.finalize_thight();
             update_gl_pmls();
@@ -771,8 +771,8 @@ void FDTD_Frame::reconstruct_tree()
     // Structure
     
     structure_ID=tree->AppendItem(root_ID,"Structure");
-    if(!fdtd_parameters.structure->script.empty())
-        tree->AppendItem(structure_ID,fdtd_parameters.structure->script.generic_string());
+    if(!fdtd_parameters.structure->get_script_path().empty())
+        tree->AppendItem(structure_ID,fdtd_parameters.structure->get_script_path().generic_string());
     else tree->AppendItem(structure_ID,"None");
     tree->AppendItem(structure_ID,"Dx= "+add_unit(fdtd_parameters.Dx));
     tree->AppendItem(structure_ID,"Dy= "+add_unit(fdtd_parameters.Dy));
@@ -947,7 +947,7 @@ void FDTD_Frame::save(wxFileName const &fname)
     int type=p.type;
     
     std::filesystem::path structure_path;
-    structure_path=to_relative_file(p.structure->script,save_path);
+    structure_path=to_relative_file(p.structure->get_script_path(),save_path);
     
     file<<"structure=Structure(\""<<structure_path.generic_string()<<"\")\n";
     for(std::size_t i=0;i<p.structure->parameter_name.size();i++)

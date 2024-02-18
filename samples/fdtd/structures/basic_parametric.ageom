@@ -1,0 +1,9 @@
+declare_parameter("px",200e-9)
+declare_parameter("py",300e-9)
+declare_parameter("pz",400e-9)
+
+lx("px")
+ly("py")
+lz("pz")
+
+default_material(0)

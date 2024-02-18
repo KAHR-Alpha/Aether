@@ -60,7 +60,7 @@ int Add_Coating::index(double x,double y,double z)
     
     int i=0;
     Vector3 disp=O;
-    double lz=parent->lz;
+    double lz=parent->get_lz();
     
     bool support=false;
     

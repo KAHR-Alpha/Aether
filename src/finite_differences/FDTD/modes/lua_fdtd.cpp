@@ -664,7 +664,7 @@ int fblock_treat_mode_apply_stencil(lua_State *L)
     Fblock_treat_mode &fb=*(*pp_fb);
     
     fb.apply_stencil=true;
-    fb.stencil.script=lua_tostring(L,2);
+    fb.stencil.set_script(lua_tostring(L,2));
     fb.stencil_index=lua_tointeger(L,3);
     fb.stencil_output=lua_tostring(L,4);
     

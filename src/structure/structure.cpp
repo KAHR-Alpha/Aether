@@ -47,20 +47,33 @@ int Structure_OP::index(double x,double y,double z)
 
 Structure::Structure()
     :default_material(0),
-     lx(300e-9), ly(300e-9), lz(300e-9),
-     flip_x(false), flip_y(false), flip_z(false),
-     periodic_x(0), periodic_y(0), periodic_z(0),
-     L(nullptr), script("")
+     lx(300e-9),
+     ly(300e-9),
+     lz(300e-9),
+     flip_x(false),
+     flip_y(false),
+     flip_z(false),
+     periodic_x(false),
+     periodic_y(false),
+     periodic_z(false),
+     L(nullptr)
 {
 }
 
-Structure::Structure(std::filesystem::path const &script_)
+Structure::Structure(std::filesystem::path const &script_path_)
     :default_material(0),
-     lx(300e-9), ly(300e-9), lz(300e-9),
-     flip_x(false), flip_y(false), flip_z(false),
-     periodic_x(0), periodic_y(0), periodic_z(0),
-     L(nullptr), script(script_)
+     lx(300e-9),
+     ly(300e-9),
+     lz(300e-9),
+     flip_x(false),
+     flip_y(false),
+     flip_z(false),
+     periodic_x(false),
+     periodic_y(false),
+     periodic_z(false),
+     L(nullptr), script_path(script_path_)
 {
+    set_script(script_path_);
 }
 
 Structure::~Structure()
@@ -90,6 +103,19 @@ void Structure::discretize(Grid3<unsigned int> &matgrid,
     }
 }
 
+
+double Structure::get_lz() const
+{
+    return lz;
+}
+
+
+std::filesystem::path const& Structure::get_script_path() const
+{
+    return script_path;
+}
+
+
 void Structure::finalize()
 {
     if(L!=nullptr) lua_close(L);
@@ -99,9 +125,7 @@ void Structure::finalize()
     
     operations.clear();
     
-    if(script.empty()) return;
-    
-    std::string full_script=script.generic_string();
+    if(script_content.empty()) return;
     
     L=luaL_newstate();
     luaL_openlibs(L);
@@ -109,7 +133,7 @@ void Structure::finalize()
     lua_pushlightuserdata(L,reinterpret_cast<void*>(this));
     lua_setglobal(L,"lua_calling_class");
     
-    std::filesystem::path caller_path=script;
+    std::filesystem::path caller_path=script_path;
     caller_path.remove_filename();
     
     lua_pushlightuserdata(L,reinterpret_cast<void*>(&caller_path));
@@ -140,13 +164,13 @@ void Structure::finalize()
     lua_register(L,"nearest_integer",nearest_integer);
     lua_register(L,"trapz",lua_tools::lua_adaptive_trapeze_integral);
     
-    int load_err = luaL_loadfile(L,full_script.c_str());
+    int load_err = luaL_loadstring(L,script_content.c_str());
     
     if(load_err!=LUA_OK)
     {
-             if(load_err==LUA_ERRFILE) std::cout<<"Lua file error with "<<full_script<<std::endl;
-        else if(load_err==LUA_ERRSYNTAX) std::cout<<"Lua syntax error with "<<full_script<<std::endl;
-        else std::cout<<"Lua error with "<<full_script<<std::endl;
+             if(load_err==LUA_ERRFILE) std::cout<<"Lua file error with "<<script_path<<std::endl;
+        else if(load_err==LUA_ERRSYNTAX) std::cout<<"Lua syntax error with "<<script_path<<std::endl;
+        else std::cout<<"Lua error with "<<script_path<<std::endl;
         std::cin.get();
         return;
     }
@@ -268,6 +292,56 @@ void Structure::print(std::filesystem::path const &path,double Dx,double Dy,doub
     tbmp_z.G2degra(stmp_z,(path / "grid/ga_z.png").generic_string());
     tbmp_z.G2BW(stmp_z,(path / "grid/ga_z_bw.png").generic_string());
 }
+
+
+void Structure::set_default_material(int mat)
+{
+    default_material=mat;
+}
+
+
+void Structure::set_flip(int x,int y,int z)
+{
+    flip_x=(x!=0);
+    flip_y=(y!=0);
+    flip_z=(z!=0);
+
+    std::cout<<"Changing the flip modifiers to "
+             <<flip_x<<" "
+             <<flip_y<<" "
+             <<flip_z<<"\n";
+}
+
+
+void Structure::set_loop(int x,int y,int z)
+{
+    periodic_x=(x!=0);
+    periodic_y=(y!=0);
+    periodic_z=(z!=0);
+
+    std::cout<<"Changing the periodic modifiers to "
+             <<periodic_x<<" "
+             <<periodic_y<<" "
+             <<periodic_z<<"\n";
+}
+
+
+void Structure::set_script(std::filesystem::path const &script_path_)
+{
+    script_path=script_path_;
+
+    std::ifstream file(script_path,std::ios::in|std::ios::binary);
+
+    if(script_path.extension()==".ageom")
+    {
+        script_content=ageom_to_lua(script_path);
+    }
+    else
+    {
+        std::getline(file,script_content,'\0');
+    }
+}
+
 
 void Structure::retrieve_nominal_size(double &lx_,double &ly_,double &lz_) const
 {

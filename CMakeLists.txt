@@ -15,7 +15,7 @@ function(Dll_Install library_name)
 endfunction()
 
 set(CPACK_PACKAGE_VERSION_MAJOR 0)
-set(CPACK_PACKAGE_VERSION_MINOR 13)
+set(CPACK_PACKAGE_VERSION_MINOR 14)
 set(CPACK_PACKAGE_VERSION_PATCH 0)
 
 set(TASK "Build CLI" CACHE STRING "What to do")
@@ -59,11 +59,9 @@ file(GLOB_RECURSE fd_solver src/fd_solver/*.cpp)
 
 file(GLOB_RECURSE headers src/include/*.h)
 file(GLOB_RECURSE shaders resources/glsl/*.glsl)
-file(GLOB_RECURSE tests tests/*.lua)
 
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/src/include PREFIX includes FILES ${headers})
 source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/resources/glsl PREFIX shaders FILES ${shaders})
-source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/tests PREFIX tests FILES ${tests})
 
 file(WRITE REVISION ${CPACK_PACKAGE_VERSION_MAJOR} "." ${CPACK_PACKAGE_VERSION_MINOR} "." ${CPACK_PACKAGE_VERSION_PATCH} )
 				
@@ -120,7 +118,7 @@ if(GUI)
 	add_subdirectory(src/GL_tools)
 	add_subdirectory(src/GUI)
 	
-	add_executable(Aether_GUI WIN32 src/gui_base.cpp ${shaders} ${tests})
+	add_executable(Aether_GUI WIN32 src/gui_base.cpp ${shaders})
 						  
 	target_link_libraries(Aether_GUI Aether_core gui_applets gui_fdtd gui_fitters gui_materials gui_multilayers gui_selene gui_teaching)
 

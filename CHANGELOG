@@ -4,11 +4,14 @@ Todo:
 - Tangent vectors managements for Selene
 - Implement the Lambertian, Guassian and ABg scattering models ( see "What scattering models are available in OpticStudio?" )
 
+0.14
+- The FDTD structure designer can use parameters and variables
+
 0.13
 - Selene can optimize against target hit counts
 
 0.12
-- The FDTD GUI can now load structures that have parameters
+- The FDTD GUI can load structures that have parameters
 
 0.11.1
 - Fixed materials loading in CLI FDTD

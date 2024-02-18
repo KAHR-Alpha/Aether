@@ -1,4 +1,5 @@
-set(struct_sources lua_structure.cpp
+set(struct_sources ageom_converter.cpp
+				   lua_structure.cpp
 				   structure.cpp
 				   structure_primitives.cpp)
 				   

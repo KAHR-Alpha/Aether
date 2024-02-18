@@ -20,25 +20,40 @@ limitations under the License.*/
 
 class SymNode;
 
-enum
+enum class SymType
 {
-    SYM_FUNC,
-    SYM_NUM,
-    SYM_EXPR,
-    SYM_VAR
+    FUNC,
+    NUM,
+    EXPR,
+    VAR
 };
 
-enum
+enum class SymOp
 {
-    SYM_ADD,
-    SYM_DIV,
-    SYM_MULT,
-    SYM_POW,
-    SYM_SUBS
+    ADD,
+    DIV,
+    MULT,
+    POW,
+    SUBS
+};
+
+enum class SymFunc
+{
+    ACOS,
+    ASIN,
+    ATAN,
+    COS,
+    EXP,
+    ID,
+    SIN,
+    TAN
 };
 
 class SymLib
 {
+    private:
+        double evaluate_specials(bool &known,std::string const &var);
+        
     public:
         std::vector<std::string> keys;
         std::vector<SymNode*> nodes;
@@ -54,7 +69,10 @@ class SymLib
 class SymNode
 {
     private:
-        int sign,type;
+        int sign;
+        SymType type;
+        SymFunc func_type;
+
         double val;
         std::string var;
         
@@ -62,17 +80,19 @@ class SymNode
         
         SymLib *lib;
         
-        std::vector<int> op_arr;
+        std::vector<SymOp> op_arr;
         std::vector<SymNode*> nodes_arr;
         
         std::vector<bool> eval_flags;
         std::vector<double> eval_blocks;
         
-        SymNode(std::string const &frm,int type);
+        SymNode(std::string const &frm,
+                SymType type,
+                SymFunc func);
         
         void clean();
         void parse(std::string const &frm);
-        void parse_single(std::string const &frm);
+        void parse_block(std::string const &frm);
         
     public:
         SymNode(SymLib *lib=nullptr);
