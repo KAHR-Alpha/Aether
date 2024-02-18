@@ -19,6 +19,7 @@ limitations under the License.*/
 
 #include <gl_utils.h>
 #include <gui.h>
+#include <gui_enum_choice.h>
 #include <gui_gl_fd.h>
 #include <gui_panels_list.h>
 #include <gui_vector3ctrl.h>
@@ -177,6 +178,17 @@ class GOP_Sphere: public GeomOP_Panel
 
 class EMGeometry_Frame: public BaseFrame
 {
+    private:
+        enum class OPtype
+        {
+            BLOCK,
+            CONE,
+            CYLINDER,
+            LAYER,
+            MESH,
+            SPHERE
+        };
+
     public:
         SymNode lx,ly,lz;
         SymLib lib;
@@ -195,13 +207,13 @@ class EMGeometry_Frame: public BaseFrame
         wxStaticBoxSizer *geom_top_sizer;
         
         NamedTextCtrl<int> *def_mat_ctrl;
-        wxChoice *op_add_choice;
+        EnumChoice<OPtype> *op_add_choice;
         
         EMGeometry_GL *gl;
         
         PanelsList<GeomOP_Panel> *op;
         
-        EMGeometry_Frame(wxString const &title,wxFileName const &fname=wxFileName{});
+        EMGeometry_Frame(wxString const &title);
         ~EMGeometry_Frame();
         
         template<class T>

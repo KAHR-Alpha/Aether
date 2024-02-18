@@ -15,6 +15,7 @@ set(gui_common_src gui_gl_fd.cpp
 
 set(gui_common_headers aether.h
 					   gui.h
+					   gui_enum_choice.h
 					   gui_gl_fd.h
 					   gui_gl_graph.h
 					   gui_graph.h

@@ -311,7 +311,7 @@ enum
     MENU_EXIT
 };
 
-EMGeometry_Frame::EMGeometry_Frame(wxString const &title,wxFileName const &fname)
+EMGeometry_Frame::EMGeometry_Frame(wxString const &title)
     :BaseFrame(title),
      lx("300e-9",&lib),
      ly("300e-9",&lib),
@@ -382,8 +382,15 @@ EMGeometry_Frame::EMGeometry_Frame(wxString const &title,wxFileName const &fname
     
     wxString choices[]={"Block","Cone","Cylinder","Layer","Mesh","Sphere"};
     
-    op_add_choice=new wxChoice(ctrl_panel,wxID_ANY,wxDefaultPosition,wxDefaultSize,6,choices);
-    op_add_choice->SetSelection(0);
+    op_add_choice=new EnumChoice<OPtype>(ctrl_panel, wxID_ANY);
+    op_add_choice->append("Block",    OPtype::BLOCK);
+    op_add_choice->append("Cone",     OPtype::CONE);
+    op_add_choice->append("Cylinder", OPtype::CYLINDER);
+    op_add_choice->append("Layer",    OPtype::LAYER);
+    op_add_choice->append("Mesh",     OPtype::MESH);
+    op_add_choice->append("Sphere",   OPtype::SPHERE);
+    op_add_choice->set_selection(OPtype::BLOCK);
+
     wxButton *add_op_btn=new wxButton(ctrl_panel,wxID_ANY,"Add Operation");
     wxButton *autocolor_btn=new wxButton(ctrl_panel,wxID_ANY,"AC",wxDefaultPosition,wxDefaultSize,wxBU_EXACTFIT);
     
@@ -406,11 +413,6 @@ EMGeometry_Frame::EMGeometry_Frame(wxString const &title,wxFileName const &fname
     
     SetSizer(top_sizer);
     
-//    if(fname.IsOk())
-//    {
-//        load_project(fname);
-//    }
-//    
     ctrl_panel->SetScrollRate(50,50);
     ctrl_panel->Layout();
     ctrl_panel->FitInside();
@@ -487,18 +489,35 @@ void EMGeometry_Frame::autocolor()
 
 void EMGeometry_Frame::evt_add_operation(wxCommandEvent &event)
 {
-    int selection=op_add_choice->GetSelection();
-        
     GeomOP_Panel *panel=nullptr;
     
-    chk_var(selection);
-    
-         if(selection==0 || selection==4) panel=op->add_panel<GOP_Block>(&lib,gl);
-    else if(selection==1) panel=op->add_panel<GOP_Cone>(&lib,gl);
-    else if(selection==2) panel=op->add_panel<GOP_Cylinder>(&lib,gl);
-    else if(selection==3) panel=op->add_panel<GOP_Layer>(&lib,gl);
-    else if(selection==5) panel=op->add_panel<GOP_Sphere>(&lib,gl);
-    else panel=op->add_panel<GeomOP_Panel>(&lib,gl);
+    switch(op_add_choice->get_selection())
+    {
+        case OPtype::MESH:
+            [[fallthrough]];
+        case OPtype::BLOCK:
+            panel=op->add_panel<GOP_Block>(&lib,gl);
+            break;
+
+        case OPtype::CONE:
+            panel=op->add_panel<GOP_Cone>(&lib,gl);
+            break;
+
+        case OPtype::CYLINDER:
+            panel=op->add_panel<GOP_Cylinder>(&lib,gl);
+            break;
+
+        case OPtype::LAYER:
+            panel=op->add_panel<GOP_Layer>(&lib,gl);
+            break;
+
+        case OPtype::SPHERE:
+            panel=op->add_panel<GOP_Sphere>(&lib,gl);
+            break;
+
+        default:
+            panel=op->add_panel<GeomOP_Panel>(&lib,gl);
+    }
     
     panel->update_world(lx.evaluate(),
                         ly.evaluate(),
@@ -540,7 +559,6 @@ void EMGeometry_Frame::evt_inputs(wxCommandEvent &event)
         inputs[i]=new SymNode(input_values[i],&lib);
         lib.add(input_keys[i],inputs[i]);
     }
-
     
     update_geometry();
 }
