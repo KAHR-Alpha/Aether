@@ -34,6 +34,7 @@ class Selene_Mode: public base_mode
         void optimize(OptimEngine *engine);
         void process() override;
         void render();
+        void set_max_ray_bounces(int max_ray_bounces);
         void set_N_rays_disp(int Nr_disp);
         void set_N_rays_total(int Nr_tot);
         void set_output_directory(std::string const &output_directory);
@@ -72,6 +73,8 @@ namespace LuaUI
     int selene_object_set_default_irf(lua_State *L);
     int selene_object_set_default_out_irf(lua_State *L);
     int selene_object_set_default_out_mat(lua_State *L);
+    
+    int selene_object_set_conic_parameters(lua_State *L);
     
     // - Faces
     
@@ -144,6 +147,7 @@ namespace LuaUI
     int selene_mode_optimize(lua_State *L);
     int selene_mode_output_directory(lua_State *L);
     int selene_mode_render(lua_State *L);
+    int selene_mode_set_max_ray_bounces(lua_State *L);
     int selene_mode_set_N_rays_disp(lua_State *L);
     int selene_mode_set_N_rays_total(lua_State *L);
 

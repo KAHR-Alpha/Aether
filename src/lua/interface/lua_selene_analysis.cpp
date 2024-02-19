@@ -18,8 +18,8 @@ namespace LuaUI
 {
     int create_selene_raycounter(lua_State *L)
     {
-        Sel::RayCounter *target=new Sel::RayCounter();
-        lua_set_metapointer<Sel::RayCounter>(L,"metatable_selene_raycounter",target);
+        Sel::RayCounter *counter=new Sel::RayCounter();
+        lua_set_metapointer<Sel::RayCounter>(L,"metatable_selene_raycounter",counter);
 
         return 1;
     }
@@ -27,7 +27,7 @@ namespace LuaUI
 
     void selene_create_raycounter_metatable(lua_State *L)
     {
-        create_obj_metatable(L,"metatable_selen_raycounter");
+        create_obj_metatable(L,"metatable_selene_raycounter");
 
         metatable_add_func(L,"angular_spread",&LuaUI::selene_raycounter_get_angular_spread);
         metatable_add_func(L,"hit_count",&LuaUI::selene_raycounter_get_hit_count);
