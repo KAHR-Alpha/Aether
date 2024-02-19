@@ -153,6 +153,8 @@ namespace LuaUI
     void selene_create_raycounter_metatable(lua_State *L);
     int selene_raycounter_set_sensor(lua_State *L);
     int selene_raycounter_get_hit_count(lua_State *L);
+    int selene_raycounter_get_angular_spread(lua_State *L);
+    int selene_raycounter_get_spatial_spread(lua_State *L);
 }
 
 #endif // LUA_SELENE_H_INCLUDED

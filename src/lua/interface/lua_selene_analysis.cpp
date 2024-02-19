@@ -29,7 +29,9 @@ namespace LuaUI
     {
         create_obj_metatable(L,"metatable_selen_raycounter");
 
+        metatable_add_func(L,"angular_spread",&LuaUI::selene_raycounter_get_angular_spread);
         metatable_add_func(L,"hit_count",&LuaUI::selene_raycounter_get_hit_count);
+        metatable_add_func(L,"spatial_spread",&LuaUI::selene_raycounter_get_spatial_spread);
         metatable_add_func(L,"sensor",&LuaUI::selene_raycounter_set_sensor);
     }
 
@@ -40,6 +42,28 @@ namespace LuaUI
 
         int hit_count=counter->compute_hit_count();
         lua_pushinteger(L,hit_count);
+
+        return 1;
+    }
+
+
+    int selene_raycounter_get_angular_spread(lua_State *L)
+    {
+        Sel::RayCounter *counter=lua_get_metapointer<Sel::RayCounter>(L,1);
+
+        double spread=counter->compute_angular_spread();
+        lua_pushnumber(L,spread);
+
+        return 1;
+    }
+
+
+    int selene_raycounter_get_spatial_spread(lua_State *L)
+    {
+        Sel::RayCounter *counter=lua_get_metapointer<Sel::RayCounter>(L,1);
+
+        double spread=counter->compute_spatial_spread();
+        lua_pushnumber(L,spread);
 
         return 1;
     }
