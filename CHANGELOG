@@ -6,6 +6,7 @@ Todo:
 
 0.14
 - The FDTD structure designer can use parameters and variables
+- Basic Lua bindings to the analysis tools
 
 0.13
 - Selene can optimize against target hit counts
