@@ -7,6 +7,7 @@ cmake -B "cmake_build_CB" -G "CodeBlocks - MinGW Makefiles" `
 	-DIDE_SETUP=ON `
 	-DTASK="Build CLI+GUI" `
 	-DINSTALL_PATH="${build_path}/Aether" `
+	-DDEVTESTS=1 `
 	-DCMAKE_BUILD_TYPE=Release `
 	-DFFTW_INCLUDES="${build_path}/fftw" `
 	-DFFTW_LIB="${build_path}/fftw/libfftw3-3.dll" `

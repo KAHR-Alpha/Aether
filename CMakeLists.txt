@@ -242,7 +242,10 @@ endif()
 ##########################
 
 include(cmake_scripts/IDE_setup.cmake)
-include(cmake_scripts/unit_tests.cmake)
+
+if(DEVTESTS)
+	include(cmake_scripts/unit_tests.cmake)
+endif()
 
 ###################
 #   Installation
