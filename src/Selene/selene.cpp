@@ -346,14 +346,15 @@ void Selene::render()
     for(i=0;i<Nlight;i++) total_power+=light_arr[i]->get_power();
     
     ray_power=total_power/Nr_tot;
-    Nr_tot=0;
+    
+    int run_Nr_tot=0;
     
     light_N_rays.resize(Nlight);
     light_Nr_disp.resize(Nlight);
     for(i=0;i<Nlight;i++)
     {
-        light_N_rays[i]=std::floor(light_arr[i]->get_power()/ray_power)+1;
-        Nr_tot+=light_N_rays[i];
+        light_N_rays[i]=std::max(static_cast<int>(light_arr[i]->get_power()/ray_power),1);
+        run_Nr_tot+=light_N_rays[i];
         
         light_Nr_disp[i]=std::floor(Nr_disp*light_arr[i]->get_power()/total_power);
     }
@@ -374,7 +375,7 @@ void Selene::render()
     ray_path=request_job();
     Nr_cast++;
     
-    while(ray_path.complete==false && Nr_cast<=Nr_tot)
+    while(ray_path.complete==false && Nr_cast<=run_Nr_tot)
     {
         request_raytrace(ray_path);
         
@@ -427,7 +428,7 @@ void Selene::render()
     file.open(output_directory / ("selene_render_"+std::to_string(render_number)),
               std::ios::out|std::ios::trunc);
               
-    file<<"total_rays("<<Nr_tot<<")\n\n";
+    file<<"total_rays("<<run_Nr_tot<<")\n\n";
     
     for(int i=0;i<Nlight;i++)
         file<<"source_power("<<std::to_string(i)<<","<<std::to_string(light_arr[i]->power)<<")\n";
@@ -441,7 +442,7 @@ void Selene::render()
     
     render_number++;
     chk_var(trace_calls);
-    
+        
     timer.toc();
     
     chk_var(timer()/trace_calls);

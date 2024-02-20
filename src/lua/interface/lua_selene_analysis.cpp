@@ -42,7 +42,7 @@ namespace LuaUI
 
         int hit_count=counter->compute_hit_count();
         lua_pushinteger(L,hit_count);
-
+        
         return 1;
     }
 
