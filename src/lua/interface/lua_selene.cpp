@@ -110,6 +110,7 @@ void Selene_Mode::optimize(OptimEngine *engine)
 }
 
 void Selene_Mode::render() { selene.render(); rendered=true; }
+void Selene_Mode::set_max_ray_bounces(int max_ray_bounces) { selene.set_max_ray_bounces(max_ray_bounces); }
 void Selene_Mode::set_N_rays_disp(int Nr_disp) { selene.set_N_rays_disp(Nr_disp); }
 void Selene_Mode::set_N_rays_total(int Nr_tot) { selene.set_N_rays_total(Nr_tot); }
 void Selene_Mode::set_output_directory(std::string const &output_directory) { selene.set_output_directory(output_directory); }
@@ -508,6 +509,7 @@ namespace LuaUI
         lua_register(L,"Selene_IRF",&LuaUI::create_selene_IRF);
         lua_register(L,"Selene_light",&LuaUI::create_selene_light);
         lua_register(L,"Selene_target",&LuaUI::create_selene_target);
+        lua_register(L,"Selene_raycounter",&LuaUI::create_selene_raycounter);
     }
     
     void Selene_create_base_metatable(lua_State *L)
@@ -516,6 +518,7 @@ namespace LuaUI
         
         metatable_add_func(L,"add_object",&LuaUI::selene_mode_add_object);
         metatable_add_func(L,"add_light",&LuaUI::selene_mode_add_light);
+        metatable_add_func(L,"max_ray_bounces",&LuaUI::selene_mode_set_max_ray_bounces);
         metatable_add_func(L,"N_rays_disp",&LuaUI::selene_mode_set_N_rays_disp);
         metatable_add_func(L,"N_rays_total",&LuaUI::selene_mode_set_N_rays_total);
         metatable_add_func(L,"optimize",&LuaUI::selene_mode_optimize);
@@ -622,7 +625,7 @@ namespace LuaUI
         metatable_add_func(L,"faces_group_up_mat",&LuaUI::selene_object_set_faces_group_up_mat);
         metatable_add_func(L,"faces_group_up_tangent",&LuaUI::selene_object_set_faces_group_up_tangent);
         
-        //
+        // - General
         
         metatable_add_func(L,"location",&LuaUI::selene_frame_set_displacement);
         metatable_add_func(L,"name",&LuaUI::selene_frame_set_name);
@@ -635,6 +638,12 @@ namespace LuaUI
         metatable_add_func(L,"rotation_frame",&LuaUI::selene_frame_set_rotation_frame);
         metatable_add_func(L,"sensor",&LuaUI::selene_object_set_sensor);
         metatable_add_func(L,"translation_frame",&LuaUI::selene_frame_set_translation_frame);
+        
+        // - Geometry
+        
+        metatable_add_func(L,"conic_section_parameters",&LuaUI::selene_object_set_conic_parameters);
+        
+        // IRF
         
         create_obj_metatable(L,"metatable_selene_irf");
         
@@ -684,6 +693,17 @@ namespace LuaUI
         
         return 0;
     }
+    
+    
+    int selene_mode_set_max_ray_bounces(lua_State *L)
+    {
+        Selene_Mode *p_mode=lua_get_metapointer<Selene_Mode>(L,1);
+        
+        p_mode->set_max_ray_bounces(lua_tointeger(L,2));
+        
+        return 0;
+    }
+    
     
     int selene_mode_set_N_rays_disp(lua_State *L)
     {

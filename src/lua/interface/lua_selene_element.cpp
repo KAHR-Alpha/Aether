@@ -204,6 +204,22 @@ namespace LuaUI
         return 1;
     }
     
+    
+    int selene_object_set_conic_parameters(lua_State *L)
+    {
+        Sel::Object *p_object=get_object_cast_metapointer(L);
+        
+        p_object->conic_R=lua_tonumber(L,2);
+        p_object->conic_K=lua_tonumber(L,3);
+        p_object->conic_in_radius=lua_tonumber(L,4);
+        p_object->conic_out_radius=lua_tonumber(L,5);
+        
+        p_object->set_conic_section();
+        
+        return 0;
+    }
+    
+    
     int selene_object_set_default_in_irf(lua_State *L)
     {
         Sel::Object *p_object=get_object_cast_metapointer(L);
