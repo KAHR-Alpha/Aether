@@ -22,10 +22,10 @@ limitations under the License.*/
 #include <math_optim.h>
 #include <phys_tools.h>
 #include <selene_mesh.h>
+#include <selene_rays.h>
 
 namespace Sel
 {
-
 enum
 {
     FRAME,
@@ -69,58 +69,6 @@ enum
     SPECTRUM_MONO,
     SPECTRUM_POLY,
     SPECTRUM_POLYMONO
-};
-
-class SelRay
-{
-    public:
-        unsigned int source_ID,family,generation;
-        double age;
-        double lambda;
-        double phase;
-        Imdouble n_ind;
-        
-        Vector3 start,dir,inv_dir,pol,prev_start;
-        
-        SelRay();
-        SelRay(SelRay const &ray);
-        
-        void operator = (SelRay const &ray);
-        
-        void set_dir(Vector3 const &dir);
-        void set_pol(Vector3 const &pol);
-        void set_start(Vector3 const &start);
-};
-
-class RayInter
-{
-    public:
-//        bool does_intersect;
-        double obj_x,obj_y,obj_z,t;
-        int face,object;
-        
-        RayInter();
-        RayInter(RayInter const &inter);
-        
-        void operator = (RayInter const &inter);
-        bool operator < (RayInter const &inter);
-        void reset();
-};
-
-class RayPath
-{
-    public:
-        bool complete;
-        bool does_intersect;
-        int face_last_intersect,obj_last_intersection_f;
-        
-        SelRay ray;
-        RayInter intersection;
-        
-        RayPath();
-        RayPath(RayPath const &path);
-        
-        void operator = (RayPath const &path);
 };
 
 class Frame
