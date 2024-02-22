@@ -101,16 +101,16 @@ void Object::set_conic_section()
     NFc=1;
     F_arr.resize(NFc);
     
-    bxm=-0.1*conic_R;
+    bbox.xm=-0.1*conic_R;
     
-    if(conic_K>-1) bxp=conic_R/(1.0+conic_K);
-    else bxp=conic_invert(conic_out_radius,conic_R,conic_K);
+    if(conic_K>-1) bbox.xp=conic_R/(1.0+conic_K);
+    else bbox.xp=conic_invert(conic_out_radius,conic_R,conic_K);
       
-    bym=-conic_out_radius;
-    byp=+conic_out_radius;
+    bbox.ym=-conic_out_radius;
+    bbox.yp=+conic_out_radius;
     
-    bzm=-conic_out_radius;
-    bzp=+conic_out_radius;
+    bbox.zm=-conic_out_radius;
+    bbox.zp=+conic_out_radius;
 }
 
 //void Object::xyz_to_uv_parabola(double &u,double &v,int face_,double x,double y,double z)
@@ -168,14 +168,14 @@ void Object::set_disk()
     NFc=1;
     F_arr.resize(NFc);
     
-    bxm=-0.05*dsk_r;
-    bxp=+0.05*dsk_r;
+    bbox.xm=-0.05*dsk_r;
+    bbox.xp=+0.05*dsk_r;
     
-    bym=-1.1*dsk_r;
-    byp=+1.1*dsk_r;
+    bbox.ym=-1.1*dsk_r;
+    bbox.yp=+1.1*dsk_r;
     
-    bzm=-1.1*dsk_r;
-    bzp=+1.1*dsk_r;
+    bbox.zm=-1.1*dsk_r;
+    bbox.zp=+1.1*dsk_r;
 }
 
 void Object::set_disk(double radius_,double in_radius_)
@@ -260,16 +260,16 @@ void Object::set_parabola()
     NFc=1;
     F_arr.resize(NFc);
     
-    bxm=-0.1*pr_length;
-    bxp=1.01*pr_length;
+    bbox.xm=-0.1*pr_length;
+    bbox.xp=1.01*pr_length;
     
     double out_radius=std::sqrt(4.0*pr_f*pr_length)*1.01;
     
-    bym=-out_radius;
-    byp=+out_radius;
+    bbox.ym=-out_radius;
+    bbox.yp=+out_radius;
     
-    bzm=-out_radius;
-    bzp=+out_radius;
+    bbox.zm=-out_radius;
+    bbox.zp=+out_radius;
 }
 
 void Object::set_parabola(double focal_length_,double in_radius_,double length_)
@@ -370,14 +370,14 @@ void Object::set_rectangle()
     
     double span=std::max(box_ly,box_lz);
     
-    bxm=-0.05*span;
-    bxp=+0.05*span;
+    bbox.xm=-0.05*span;
+    bbox.xp=+0.05*span;
     
-    bym=-1.1*box_ly/2.0;
-    byp=+1.1*box_ly/2.0;
+    bbox.ym=-1.1*box_ly/2.0;
+    bbox.yp=+1.1*box_ly/2.0;
     
-    bzm=-1.1*box_lz/2.0;
-    bzp=+1.1*box_lz/2.0;
+    bbox.zm=-1.1*box_lz/2.0;
+    bbox.zp=+1.1*box_lz/2.0;
 }
 
 void Object::set_rectangle(double ly_,double lz_)
@@ -449,14 +449,14 @@ void Object::set_spherical_patch()
     NFc=1;
     F_arr.resize(NFc);
     
-    bxm=-1.1*sph_r;
-    bxp=+1.1*sph_r;
+    bbox.xm=-1.1*sph_r;
+    bbox.xp=+1.1*sph_r;
     
-    bym=-1.1*sph_r;
-    byp=+1.1*sph_r;
+    bbox.ym=-1.1*sph_r;
+    bbox.yp=+1.1*sph_r;
     
-    bzm=-1.1*sph_r;
-    bzp=+1.1*sph_r;
+    bbox.zm=-1.1*sph_r;
+    bbox.zp=+1.1*sph_r;
     
     face_name_arr.resize(NFc);
     face_name_arr[0]="Sphere";

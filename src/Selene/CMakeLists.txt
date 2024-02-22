@@ -6,11 +6,13 @@ set(selene_src sel_analysis.cpp
 			   sel_obj_surface.cpp
 			   sel_obj_volume.cpp
 			   selene.cpp
-			   selene_rays.cpp)
+			   selene_rays.cpp
+			   primitives/sel_obj_box.cpp)
 			 
 set(selene_headers selene.h
                    selene_mesh.h
-                   selene_rays.h)
+                   selene_rays.h
+                   selene_primitives.h)
 
 add_library(selene_core STATIC ${selene_src} ${selene_headers})
 target_include_directories(selene_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

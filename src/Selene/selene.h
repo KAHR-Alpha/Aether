@@ -22,6 +22,7 @@ limitations under the License.*/
 #include <math_optim.h>
 #include <phys_tools.h>
 #include <selene_mesh.h>
+#include <selene_primitives.h>
 #include <selene_rays.h>
 
 namespace Sel
@@ -302,11 +303,7 @@ class Object: public Frame
         int obj_ID;
         int max_ray_generation;
         
-        // Boundary Box
-        
-        double bxm,bxp;
-        double bym,byp;
-        double bzm,bzp;
+        BoundingBox bbox;
         
         int NFc;
         std::vector<Sel::SelFace> F_arr;
@@ -378,7 +375,7 @@ class Object: public Frame
         
         Vector3 box_anchor(int anchor);
         std::string box_anchor_name(int anchor);
-        void intersect_box(SelRay const &ray,std::vector<RayInter> &interlist,int face_last_intersect,bool first_forward);
+        void intersect_box(std::vector<RayInter> &interlist, SelRay const &ray, int obj_ID, int face_last_intersect,bool first_forward);
         Vector3 normal_box(RayInter const &inter);
         Vector3 tangent_box(RayInter const &inter,Vector3 const &normal,bool up);
         void xyz_to_uv_box(double &u,double &v,int face,double x,double y,double z);

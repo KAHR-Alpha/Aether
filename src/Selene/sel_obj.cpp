@@ -87,9 +87,6 @@ void Frame::consolidate_position()
 Object::Object()
     :obj_ID(-1),
      max_ray_generation(200),
-     bxm(0), bxp(0),
-     bym(0), byp(0),
-     bzm(0), bzp(0),
      NFc(0),
      box_lx(0.1), box_ly(0.1), box_lz(0.1),
      cone_r(1e-2), cone_l(4e-2), cone_cut(1.0),
@@ -240,9 +237,9 @@ void Object::bootstrap(std::filesystem::path const &output_directory,double ray_
                <<local_x.x<<" "<<local_x.y<<" "<<local_x.z<<" "
                <<local_y.x<<" "<<local_y.y<<" "<<local_y.z<<" "
                <<local_z.x<<" "<<local_z.y<<" "<<local_z.z<<" "
-               <<bxm<<" "<<bxp<<" "
-               <<bym<<" "<<byp<<" "
-               <<bzm<<" "<<bzp<<" "
+               <<bbox.xm<<" "<<bbox.xp<<" "
+               <<bbox.ym<<" "<<bbox.yp<<" "
+               <<bbox.zm<<" "<<bbox.zp<<" "
                <<ray_power<<"\n";
         
         if(sens_wavelength) { sb_Nmax+=sizeof(double); sb_file<<"wavelength "; }
@@ -299,44 +296,44 @@ void Object::compute_boundaries()
         double x1=std::min(ls_cyl_pos.x,ls_c1.x-ls_r1);
         double x2=std::max(ls_cyl_pos.x+ls_cyl_h,ls_c2.x-ls_r2);
         
-        bxm=1.1*x1;
-        bxp=1.1*x2;
+        bbox.xm=1.1*x1;
+        bbox.xp=1.1*x2;
         
-        bym=-1.1*ls_r_max;
-        byp=+1.1*ls_r_max;
+        bbox.ym=-1.1*ls_r_max;
+        bbox.yp=+1.1*ls_r_max;
         
-        bzm=-1.1*ls_r_max;
-        bzp=+1.1*ls_r_max;
+        bbox.zm=-1.1*ls_r_max;
+        bbox.zp=+1.1*ls_r_max;
     }
     else if(type==OBJ_MESH)
     {
         if(V_arr.size()==0)
         {
-            bxm=bxp=0;
-            bym=byp=0;
-            bzm=bzp=0;
+            bbox.xm=bbox.xp=0;
+            bbox.ym=bbox.yp=0;
+            bbox.zm=bbox.zp=0;
             
             return;
         }
                 
-        bxm=bxp=V_arr[0].loc.x;
-        bym=byp=V_arr[0].loc.y;
-        bzm=bzp=V_arr[0].loc.z;
+        bbox.xm=bbox.xp=V_arr[0].loc.x;
+        bbox.ym=bbox.yp=V_arr[0].loc.y;
+        bbox.zm=bbox.zp=V_arr[0].loc.z;
         
         for(std::size_t i=0;i<V_arr.size();i++)
         {
-            bxm=std::min(bxm,V_arr[i].loc.x);
-            bym=std::min(bym,V_arr[i].loc.y);
-            bzm=std::min(bzm,V_arr[i].loc.z);
+            bbox.xm=std::min(bbox.xm,V_arr[i].loc.x);
+            bbox.ym=std::min(bbox.ym,V_arr[i].loc.y);
+            bbox.zm=std::min(bbox.zm,V_arr[i].loc.z);
             
-            bxp=std::max(bxp,V_arr[i].loc.x);
-            byp=std::max(byp,V_arr[i].loc.y);
-            bzp=std::max(bzp,V_arr[i].loc.z);
+            bbox.xp=std::max(bbox.xp,V_arr[i].loc.x);
+            bbox.yp=std::max(bbox.yp,V_arr[i].loc.y);
+            bbox.zp=std::max(bbox.zp,V_arr[i].loc.z);
         }
         
-        double spanx=bxp-bxm;
-        double spany=byp-bym;
-        double spanz=bzp-bzm;
+        double spanx=bbox.xp-bbox.xm;
+        double spany=bbox.yp-bbox.ym;
+        double spanz=bbox.zp-bbox.zm;
         
         double span_max=var_max(spanx,spany,spanz);
         
@@ -344,15 +341,15 @@ void Object::compute_boundaries()
         spany=std::max(spany,0.1*span_max);
         spanz=std::max(spanz,0.1*span_max);
         
-        bxm-=0.05*spanx; bxp+=0.05*spanx;
-        bym-=0.05*spany; byp+=0.05*spany;
-        bzm-=0.05*spanz; bzp+=0.05*spanz;
+        bbox.xm-=0.05*spanx; bbox.xp+=0.05*spanx;
+        bbox.ym-=0.05*spany; bbox.yp+=0.05*spany;
+        bbox.zm-=0.05*spanz; bbox.zp+=0.05*spanz;
         
         if(NFc>12)
         {
             has_octree=true;
             octree.clear_tree();
-            octree.set_params(8,bxm,bxp,bym,byp,bzm,bzp);
+            octree.set_params(8,bbox.xm,bbox.xp,bbox.ym,bbox.yp,bbox.zm,bbox.zp);
             octree.generate_tree(V_arr,F_arr);
         }
     }
@@ -618,7 +615,7 @@ void Object::intersect(SelRay const &base_ray,std::vector<RayInter> &interlist,i
             intersect_boolean(ray,interlist,face_last_intersect,first_forward);
             break;
         case OBJ_BOX:
-            intersect_box(ray,interlist,face_last_intersect,first_forward);
+            intersect_box(interlist, ray, obj_ID, face_last_intersect, first_forward);
             break;
         case OBJ_VOL_CONE:
             intersect_cone_volume(ray,interlist,face_last_intersect,first_forward);
@@ -657,10 +654,10 @@ bool Object::intersect_boundaries_box(SelRay const &ray)
 {
     if(type!=OBJ_BOOLEAN)
     {
-        double tmin=(bxm-ray.start.x)*ray.inv_dir.x;
-        double tmax=(bxp-ray.start.x)*ray.inv_dir.x;
-        double tymin=(bym-ray.start.y)*ray.inv_dir.y;
-        double tymax=(byp-ray.start.y)*ray.inv_dir.y;
+        double tmin=(bbox.xm-ray.start.x)*ray.inv_dir.x;
+        double tmax=(bbox.xp-ray.start.x)*ray.inv_dir.x;
+        double tymin=(bbox.ym-ray.start.y)*ray.inv_dir.y;
+        double tymax=(bbox.yp-ray.start.y)*ray.inv_dir.y;
         
         if(tmin>tmax) std::swap(tmin,tmax);
         if(tymin>tymax) std::swap(tymin,tymax);
@@ -669,8 +666,8 @@ bool Object::intersect_boundaries_box(SelRay const &ray)
         if(tymin>tmin) tmin=tymin;
         if(tymax<tmax) tmax=tymax;
         
-        double tzmin=(bzm-ray.start.z)*ray.inv_dir.z;
-        double tzmax=(bzp-ray.start.z)*ray.inv_dir.z;
+        double tzmin=(bbox.zm-ray.start.z)*ray.inv_dir.z;
+        double tzmax=(bbox.zp-ray.start.z)*ray.inv_dir.z;
         
         if(tzmin>tzmax) std::swap(tzmin,tzmax);
         if(tmin>tzmax || tzmin>tmax) return false;
