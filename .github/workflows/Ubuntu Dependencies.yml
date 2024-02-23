@@ -70,7 +70,7 @@ jobs:
       
       - run: tar -xzf fftw-3.3.10.tar.gz
               
-      - run: cmake -B "${{github.workspace}}/cmake_build" -DCMAKE_INSTALL_PREFIX="${{github.workspace}}/builds/fftw" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+      - run: cmake -B "${{github.workspace}}/cmake_build" -DCMAKE_INSTALL_PREFIX="${{github.workspace}}/builds/fftw" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}  -DBUILD_SHARED_LIBS=0
         working-directory: fftw-3.3.10
         
       - run: cmake --build "${{github.workspace}}/cmake_build" --config ${{env.BUILD_TYPE}}
