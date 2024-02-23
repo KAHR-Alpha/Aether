@@ -53,7 +53,7 @@ jobs:
         # retention-days: 1
         
     - name: Configure CMake
-      run: cmake -B "${{github.workspace}}/cmake_build" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DINSTALL_PATH="Aether_build" -DTASK="Build CLI+GUI" -DFFTW_INCLUDES="${{github.workspace}}/builds/fftw/include"  -DFFTW_LIB="${{github.workspace}}/builds/fftw/lib/libfftw3.so" -DCPACK_BINARY_7Z=ON  
+      run: cmake -B "${{github.workspace}}/cmake_build" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DINSTALL_PATH="Aether_build" -DTASK="Build CLI+GUI" -DFFTW_INCLUDES="${{github.workspace}}/builds/fftw/include"  -DFFTW_LIB="${{github.workspace}}/builds/fftw/lib/libfftw3.a" -DCPACK_BINARY_7Z=ON  
 
     - name: Build
       run: cmake --build "${{github.workspace}}/cmake_build" --config ${{env.BUILD_TYPE}} --parallel 8
