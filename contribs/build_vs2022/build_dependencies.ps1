@@ -56,7 +56,7 @@ if(!(Test-Path libpng.zip))
 	Invoke-WebRequest -UserAgent "Wget" -URI https://sourceforge.net/projects/libpng/files/latest/download -OutFile libpng.zip
 	Expand-Archive -Force ./libpng.zip
 }
-cd libpng/lpng1642
+cd libpng/lpng1643
 cmake -B "cmake_build" -G "Visual Studio 17 2022" -DCMAKE_INSTALL_PREFIX="${build_path}/libpng" -DCMAKE_PREFIX_PATH="${build_path}/zlib"
 cmake --build "cmake_build" --config Release --parallel 8
 cmake --install "cmake_build" --config Release
