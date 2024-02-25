@@ -48,8 +48,8 @@ void Object::set_disk()
 
 void Object::set_disk(double radius_,double in_radius_)
 {
-    disk.dsk_r=radius_;
-    disk.dsk_r_in=in_radius_;
+    disk.radius=radius_;
+    disk.in_radius=in_radius_;
     
     set_disk();
 }

@@ -784,14 +784,14 @@ DiskDialog::DiskDialog(Sel::Object *object_,
                        OptimEngine &optim_engine_)
     :ObjectDialog(object_,frames_,materials_,irfs_,optim_engine_)
 {
-    dsk_r=new LengthSelector(ctrl_panel,"Radius",object->disk.dsk_r,true);
-    dsk_r->handle_external_optimization(&object->disk.dsk_r,optim_engine);
+    dsk_r=new LengthSelector(ctrl_panel,"Radius",object->disk.radius,true);
+    dsk_r->handle_external_optimization(&object->disk.radius,optim_engine);
     dsk_r->Bind(EVT_LENGTH_SELECTOR,&ObjectDialog::evt_geometry,this);
     
     ctrl_sizer->Add(dsk_r,wxSizerFlags().Expand().Border(wxALL,1));
     
-    dsk_r_in=new LengthSelector(ctrl_panel,"In Radius",object->disk.dsk_r_in,true,"mm");
-    dsk_r_in->handle_external_optimization(&object->disk.dsk_r_in,optim_engine);
+    dsk_r_in=new LengthSelector(ctrl_panel,"In Radius",object->disk.in_radius,true,"mm");
+    dsk_r_in->handle_external_optimization(&object->disk.in_radius,optim_engine);
     dsk_r_in->Bind(EVT_LENGTH_SELECTOR,&ObjectDialog::evt_geometry,this);
     
     ctrl_sizer->Add(dsk_r_in,wxSizerFlags().Expand().Border(wxALL,1));
@@ -809,11 +809,11 @@ double DiskDialog::mesh(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr)
 
 void DiskDialog::save_object_geometry()
 {
-    object->disk.dsk_r=dsk_r->get_length();
-    object->disk.dsk_r_in=dsk_r_in->get_length();
+    object->disk.radius=dsk_r->get_length();
+    object->disk.in_radius=dsk_r_in->get_length();
     
-    register_optimization(dsk_r,&object->disk.dsk_r,optim_engine);
-    register_optimization(dsk_r_in,&object->disk.dsk_r_in,optim_engine);
+    register_optimization(dsk_r,&object->disk.radius,optim_engine);
+    register_optimization(dsk_r_in,&object->disk.in_radius,optim_engine);
     
     object->set_disk();
 }

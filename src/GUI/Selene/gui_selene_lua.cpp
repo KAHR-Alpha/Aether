@@ -489,7 +489,7 @@ void SeleneFrame::save_project(wxFileName const &fname_)
                     file<<"\"cylinder\","<<object->cylinder.length<<","<<object->cylinder.radius<<","<<object->cylinder.cut_factor;
                     break;
                 case Sel::OBJ_DISK:
-                    file<<"\"disk\","<<object->disk.dsk_r<<","<<object->disk.dsk_r_in;
+                    file<<"\"disk\","<<object->disk.radius<<","<<object->disk.in_radius;
                     break;
                 case Sel::OBJ_LENS:
                     file<<"\"lens\","<<object->ls_thickness<<","<<object->ls_r_max_nominal<<","<<object->ls_r1<<","<<object->ls_r2;

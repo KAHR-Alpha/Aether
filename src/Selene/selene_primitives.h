@@ -164,7 +164,7 @@ namespace Sel::Primitives
     class Disk
     {
         public:
-            double dsk_r,dsk_r_in;
+            double radius,in_radius;
 
             Disk(BoundingBox &bbox,
                  std::vector<Sel::SelFace> &F_arr,

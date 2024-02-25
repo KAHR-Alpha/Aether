@@ -146,8 +146,8 @@ void Object::build_variables_map()
     variables_map["cylinder_length"]=&cylinder.length;
     variables_map["cylinder_cut_factor"]=&cylinder.cut_factor;
     
-    variables_map["disk_radius"]=&disk.dsk_r;
-    variables_map["disk_internal_radius"]=&disk.dsk_r_in;
+    variables_map["disk_radius"]=&disk.radius;
+    variables_map["disk_internal_radius"]=&disk.in_radius;
     
     variables_map["lens_thickness"]=&ls_thickness;
     variables_map["lens_front_radius"]=&ls_r1;
@@ -217,7 +217,7 @@ void Object::bootstrap(std::filesystem::path const &output_directory,double ray_
             case OBJ_VOL_CYLINDER:
                 sb_file<<"cylinder "<<cylinder.length<<" "<<cylinder.radius<<" "<<cylinder.cut_factor; break;
             case OBJ_DISK:
-                sb_file<<"disk "<<disk.dsk_r<<" "<<disk.dsk_r_in; break;
+                sb_file<<"disk "<<disk.radius<<" "<<disk.in_radius; break;
             case OBJ_LENS:
                 sb_file<<"lens "<<ls_thickness<<" "<<ls_r_max_nominal<<" "<<ls_r1<<" "<<ls_r2; break;
             case OBJ_MESH:

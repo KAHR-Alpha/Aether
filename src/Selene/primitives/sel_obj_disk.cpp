@@ -31,7 +31,7 @@ namespace Sel::Primitives
                std::vector<Sel::SelFace> &F_arr_,
                std::vector<std::string> &face_name_arr_)
         :bbox(bbox_), F_arr(F_arr_), face_name_arr(face_name_arr_),
-         dsk_r(0.01), dsk_r_in(0)
+         radius(0.01), in_radius(0)
     {
     }
     
@@ -58,15 +58,15 @@ namespace Sel::Primitives
     {
         int NFc=1;
         F_arr.resize(NFc);
-
-        bbox.xm=-0.05*dsk_r;
-        bbox.xp=+0.05*dsk_r;
-
-        bbox.ym=-1.1*dsk_r;
-        bbox.yp=+1.1*dsk_r;
-
-        bbox.zm=-1.1*dsk_r;
-        bbox.zp=+1.1*dsk_r;
+        
+        bbox.xm=-0.05*radius;
+        bbox.xp=+0.05*radius;
+        
+        bbox.ym=-1.1*radius;
+        bbox.yp=+1.1*radius;
+        
+        bbox.zm=-1.1*radius;
+        bbox.zp=+1.1*radius;
         
         // Todo
         /*
@@ -84,18 +84,18 @@ namespace Sel::Primitives
     {
         std::array<double,1> hits;
         std::array<int,1> face_labels={0};
-
+        
         if(!ray_inter_plane_x(ray.start,ray.dir,0,hits[0])) hits[0]=-1;
         else
         {
             Vector3 P=ray.start+hits[0]*ray.dir;
-
+            
             double r2=P.y*P.y+P.z*P.z;
-
-            if(r2<dsk_r_in*dsk_r_in) hits[0]=-1;
-            else if(r2>dsk_r*dsk_r) hits[0]=-1;
+            
+            if(r2<in_radius*in_radius) hits[0]=-1;
+            else if(r2>radius*radius) hits[0]=-1;
         }
-
+        
         if(first_forward)
             push_first_forward(interlist,ray,obj_ID,hits,face_labels);
         else
@@ -123,9 +123,9 @@ namespace Sel::Primitives
     
     void Disk::xyz_to_uv(double &u,double &v,int face_,double x,double y,double z) const
     {
-        u=y/dsk_r;
-        v=z/dsk_r;
-
+        u=y/radius;
+        v=z/radius;
+        
         u=u/2.0+0.5;
         v=v/2.0+0.5;
     }
