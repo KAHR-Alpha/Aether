@@ -38,71 +38,25 @@ namespace Sel
 //   Disk
 //##########
 
-void Object::intersect_disk(SelRay const &ray,std::vector<RayInter> &interlist,int face_last_intersect,bool first_forward)
-{
-    std::array<double,1> hits;
-    std::array<int,1> face_labels={0};
-    
-    if(!ray_inter_plane_x(ray.start,ray.dir,0,hits[0])) hits[0]=-1;
-    else
-    {
-        Vector3 P=ray.start+hits[0]*ray.dir;
-        
-        double r2=P.y*P.y+P.z*P.z;
-        
-        if(r2<dsk_r_in*dsk_r_in) hits[0]=-1;
-        else if(r2>dsk_r*dsk_r) hits[0]=-1;
-    }
-    
-    if(first_forward)
-        push_first_forward(interlist,ray,obj_ID,hits,face_labels);
-    else
-        push_full_forward(interlist,ray,obj_ID,hits,face_labels);
-}
-
-Vector3 Object::normal_disk(RayInter const &inter)
-{
-    return -unit_vec_x;
-}
-
 void Object::set_disk()
 {
     type=OBJ_DISK;
     
-    NFc=1;
-    F_arr.resize(NFc);
-    
-    bbox.xm=-0.05*dsk_r;
-    bbox.xp=+0.05*dsk_r;
-    
-    bbox.ym=-1.1*dsk_r;
-    bbox.yp=+1.1*dsk_r;
-    
-    bbox.zm=-1.1*dsk_r;
-    bbox.zp=+1.1*dsk_r;
+    disk.finalize();
+    NFc=F_arr.size();
 }
 
 void Object::set_disk(double radius_,double in_radius_)
 {
-    dsk_r=radius_;
-    dsk_r_in=in_radius_;
+    disk.dsk_r=radius_;
+    disk.dsk_r_in=in_radius_;
     
     set_disk();
 }
 
-void Object::xyz_to_uv_disk(double &u,double &v,int face_,double x,double y,double z)
-{
-    u=y/dsk_r;
-    v=z/dsk_r;
-    
-    u=u/2.0+0.5;
-    v=v/2.0+0.5;
-}
 
-void Object::default_N_uv_disk(int &Nu,int &Nv,int face_)
-{
-    Nu=Nv=64;
-}
+
+
 
 //##############
 //   Parabola

@@ -395,18 +395,10 @@ class Object: public Frame
                 
         // Disk Type
         
-        double dsk_r,dsk_r_in;
+        Primitives::Disk disk;
         
         void set_disk();
         void set_disk(double radius,double in_radius);
-        
-//        Vector3 disk_anchor(int anchor);
-//        std::string disk_anchor_name(int anchor);
-        void intersect_disk(SelRay const &ray,std::vector<RayInter> &interlist,int face_last_intersect,bool first_forward);
-        Vector3 normal_disk(RayInter const &inter);
-        Vector3 tangent_disk(RayInter const &inter);
-        void xyz_to_uv_disk(double &u,double &v,int face,double x,double y,double z);
-        void default_N_uv_disk(int &Nu,int &Nv,int face);
         
         // Lens Functions
         

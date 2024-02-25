@@ -92,7 +92,7 @@ Object::Object()
      cone(bbox, F_arr, face_name_arr),
      conic(bbox, F_arr, face_name_arr),
      cylinder(bbox, F_arr, face_name_arr),
-     dsk_r(0.01), dsk_r_in(0),
+     disk(bbox, F_arr, face_name_arr),
      ls_thickness(0.01), ls_r1(0.3), ls_r2(-0.3), ls_r_max_nominal(0.1),
      scaled_mesh(false), scaling_factor(1.0), has_octree(false),
      pr_f(0.1), pr_in_radius(5e-3), pr_length(0.02),
@@ -146,8 +146,8 @@ void Object::build_variables_map()
     variables_map["cylinder_length"]=&cylinder.length;
     variables_map["cylinder_cut_factor"]=&cylinder.cut_factor;
     
-    variables_map["disk_radius"]=&dsk_r;
-    variables_map["disk_internal_radius"]=&dsk_r_in;
+    variables_map["disk_radius"]=&disk.dsk_r;
+    variables_map["disk_internal_radius"]=&disk.dsk_r_in;
     
     variables_map["lens_thickness"]=&ls_thickness;
     variables_map["lens_front_radius"]=&ls_r1;
@@ -217,7 +217,7 @@ void Object::bootstrap(std::filesystem::path const &output_directory,double ray_
             case OBJ_VOL_CYLINDER:
                 sb_file<<"cylinder "<<cylinder.length<<" "<<cylinder.radius<<" "<<cylinder.cut_factor; break;
             case OBJ_DISK:
-                sb_file<<"disk "<<dsk_r<<" "<<dsk_r_in; break;
+                sb_file<<"disk "<<disk.dsk_r<<" "<<disk.dsk_r_in; break;
             case OBJ_LENS:
                 sb_file<<"lens "<<ls_thickness<<" "<<ls_r_max_nominal<<" "<<ls_r1<<" "<<ls_r2; break;
             case OBJ_MESH:
@@ -381,7 +381,7 @@ void Object::default_N_uv(int &Nu,int &Nv,int face_)
         case OBJ_VOL_CONE: Nu=Nv=1; break;
         case OBJ_CONIC: conic.default_N_uv(Nu,Nv,face_); break;
         case OBJ_VOL_CYLINDER: cylinder.default_N_uv(Nu,Nv,face_); break;
-        case OBJ_DISK: default_N_uv_disk(Nu,Nv,face_); break;
+        case OBJ_DISK: disk.default_N_uv(Nu,Nv,face_); break;
         case OBJ_LENS: default_N_uv_lens(Nu,Nv,face_); break;
         case OBJ_PARABOLA: default_N_uv_parabola(Nu,Nv,face_); break;
         case OBJ_MESH: Nu=Nv=1; break;
@@ -627,7 +627,7 @@ void Object::intersect(SelRay const &base_ray,std::vector<RayInter> &interlist,i
             cylinder.intersect(interlist, ray, obj_ID, face_last_intersect, first_forward);
             break;
         case OBJ_DISK:
-            intersect_disk(ray,interlist,face_last_intersect,first_forward);
+            disk.intersect(interlist, ray, obj_ID, face_last_intersect, first_forward);
             break;
         case OBJ_LENS:
             intersect_lens(ray,interlist,face_last_intersect,first_forward);
@@ -1083,7 +1083,7 @@ void Object::xyz_to_uv(double &u,double &v,int face_,
         case OBJ_BOX: box.xyz_to_uv(u,v,face_,x,y,z); break;
         case OBJ_VOL_CONE: u=v=0; break;
         case OBJ_VOL_CYLINDER: cylinder.xyz_to_uv(u,v,face_,x,y,z); break;
-        case OBJ_DISK: xyz_to_uv_disk(u,v,face_,x,y,z); break;
+        case OBJ_DISK: disk.xyz_to_uv(u,v,face_,x,y,z); break;
         case OBJ_LENS: xyz_to_uv_lens(u,v,face_,x,y,z); break;
         case OBJ_PARABOLA: xyz_to_uv_parabola(u,v,face_,x,y,z); break;
         case OBJ_MESH: u=v=0; break;

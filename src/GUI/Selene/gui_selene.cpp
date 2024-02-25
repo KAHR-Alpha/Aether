@@ -1139,7 +1139,7 @@ void SeleneFrame::update_vao(SeleneVAO *vao,Sel::Frame *frame)
         }
         else if(object->type==Sel::OBJ_DISK)
         {
-            disk_mesh_wireframe(V_arr,F_arr,object->dsk_r,object->dsk_r_in);
+            disk_mesh_wireframe(V_arr,F_arr,object->disk.dsk_r,object->disk.dsk_r_in);
         }
         else if(object->type==Sel::OBJ_LENS)
         {

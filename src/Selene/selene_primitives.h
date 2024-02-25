@@ -160,6 +160,36 @@ namespace Sel::Primitives
             std::vector<Sel::SelFace> &F_arr;
             std::vector<std::string> &face_name_arr;
     };
+
+    class Disk
+    {
+        public:
+            double dsk_r,dsk_r_in;
+
+            Disk(BoundingBox &bbox,
+                 std::vector<Sel::SelFace> &F_arr,
+                 std::vector<std::string> &face_name_arr);
+
+            Vector3 anchor(int anchor) const;
+            std::string anchor_name(int anchor) const;
+            void default_N_uv(int &Nu, int &Nv, int face) const;
+            void finalize();
+            void intersect(std::vector<RayInter> &interlist, SelRay const &ray, int obj_ID, int face_last_intersect,bool first_forward) const;
+            Vector3 normal(RayInter const &inter) const;
+            void set_parameters(double lx,
+                                double ly,
+                                double lz);
+            Vector3 tangent(RayInter const &inter,
+                            Vector3 const &normal,
+                            bool up) const;
+            void xyz_to_uv(double &u, double &v, int face,
+                           double x, double y, double z) const;
+
+        private:
+            BoundingBox &bbox;
+            std::vector<Sel::SelFace> &F_arr;
+            std::vector<std::string> &face_name_arr;
+    };
 }
 
 #endif // SELENE_PRIMITIVES_H
