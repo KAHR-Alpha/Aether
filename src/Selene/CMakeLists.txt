@@ -8,7 +8,8 @@ set(selene_src sel_analysis.cpp
 			   selene.cpp
 			   selene_rays.cpp
 			   primitives/sel_obj_box.cpp
-			   primitives/sel_obj_cone.cpp)
+			   primitives/sel_obj_cone.cpp
+			   primitives/sel_obj_conic.cpp)
 			 
 set(selene_headers selene.h
                    selene_mesh.h

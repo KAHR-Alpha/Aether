@@ -1133,8 +1133,8 @@ void SeleneFrame::update_vao(SeleneVAO *vao,Sel::Frame *frame)
         else if(object->type==Sel::OBJ_CONIC)
         {
             conic_section_mesh_wireframe(V_arr,F_arr,128,
-                                         object->conic_R,object->conic_K,
-                                         object->conic_in_radius,object->conic_out_radius);
+                                         object->conic.conic_R,object->conic.conic_K,
+                                         object->conic.conic_in_radius,object->conic.conic_out_radius);
     
         }
         else if(object->type==Sel::OBJ_DISK)

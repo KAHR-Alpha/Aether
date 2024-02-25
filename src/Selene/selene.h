@@ -382,18 +382,9 @@ class Object: public Frame
                 
         // Conic Section Type
         
-        double conic_R,conic_K;
-        double conic_in_radius,conic_out_radius;
+        Primitives::Conic conic;
         
         void set_conic_section();
-        
-        Vector3 conic_section_anchor(int anchor);
-        std::string conic_section_anchor_name(int anchor);
-        void intersect_conic_section(SelRay const &ray,std::vector<RayInter> &interlist,int face_last_intersect,bool first_forward);
-        Vector3 normal_conic_section(RayInter const &inter);
-        Vector3 tangent_conic_section(RayInter const &inter);
-        void xyz_to_uv_conic_section(double &u,double &v,int face,double x,double y,double z);
-        void default_N_uv_conic_section(int &Nu,int &Nv,int face);
         
         // Cylinder Type
         

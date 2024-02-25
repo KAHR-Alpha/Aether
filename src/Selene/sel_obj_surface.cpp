@@ -22,113 +22,17 @@ extern const Vector3 unit_vec_z;
 
 namespace Sel
 {
-    
-//###################
-//   Conic Section
-//###################
+    //###################
+    //   Conic Section
+    //###################
 
-Vector3 Object::conic_section_anchor(int anchor)
-{
-    double x,y;
-    
-    switch(anchor)
+    void Object::set_conic_section()
     {
-        case 0: return Vector3(0);
-        case 1: return Vector3(conic_R,0,0);
-        case 2:
-            conic_near_focus(x,y,conic_R,conic_K);
-            return Vector3(x,y,0);
-        case 3:
-            conic_far_focus(x,y,conic_R,conic_K);
-            return Vector3(x,y,0);
-        default: return Vector3(0);
+        type = OBJ_CONIC;
+        
+        conic.finalize();
+        NFc = F_arr.size();
     }
-}
-
-std::string Object::conic_section_anchor_name(int anchor)
-{
-    switch(anchor)
-    {
-        case 0: return "Vertex";
-        case 1: return "Center";
-        case 2: return "F1";
-        case 3: return "F2";
-        default: return "Vertex";
-    }
-}
-
-void Object::intersect_conic_section(SelRay const &ray,std::vector<RayInter> &interlist,int face_last_intersect,bool first_forward)
-{
-    std::array<double,2> hits;
-    std::array<int,2> face_labels={0,0};
-    
-    ray_inter_conic_section_x(ray.start,ray.dir,
-                              conic_R,conic_K,conic_in_radius,conic_out_radius,
-                              hits[0],hits[1]);
-    
-    if(first_forward)
-        push_first_forward(interlist,ray,obj_ID,hits,face_labels);
-    else
-        push_full_forward(interlist,ray,obj_ID,hits,face_labels);
-}
-
-Vector3 Object::normal_conic_section(RayInter const &inter)
-{
-    Vector3 Fnorm;
-    
-    double x=inter.obj_x;
-    double y=inter.obj_y;
-    double z=inter.obj_z;
-//    double R2=y*y+z*z;
-    
-    Vector3 P(0,y,z);
-    P.normalize();
-    
-    double factor=(conic_R-(1+conic_K)*x)/std::sqrt(2*conic_R*x-(1+conic_K)*x*x);
-    
-    Fnorm(factor,-P.y,-P.z);
-    Fnorm.normalize();
-    
-    if(Fnorm.x>0) Fnorm=-Fnorm;
-    
-    return Fnorm;
-}
-
-void Object::set_conic_section()
-{
-    type=OBJ_CONIC;
-    
-    NFc=1;
-    F_arr.resize(NFc);
-    
-    bbox.xm=-0.1*conic_R;
-    
-    if(conic_K>-1) bbox.xp=conic_R/(1.0+conic_K);
-    else bbox.xp=conic_invert(conic_out_radius,conic_R,conic_K);
-      
-    bbox.ym=-conic_out_radius;
-    bbox.yp=+conic_out_radius;
-    
-    bbox.zm=-conic_out_radius;
-    bbox.zp=+conic_out_radius;
-}
-
-//void Object::xyz_to_uv_parabola(double &u,double &v,int face_,double x,double y,double z)
-//{
-//    double phi=std::atan2(z,y);
-//    double th=std::atan2(std::sqrt(y*y+z*z),x);
-//    
-//    u=th*std::cos(phi)/sph_cut_th;
-//    v=th*std::sin(phi)/sph_cut_th;
-//    
-//    u=u/2.0+0.5;
-//    v=v/2.0+0.5;
-//}
-
-void Object::default_N_uv_conic_section(int &Nu,int &Nv,int face_)
-{
-    Nu=Nv=64;
-}
 
 //##########
 //   Disk
