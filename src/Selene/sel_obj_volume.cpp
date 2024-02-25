@@ -199,127 +199,22 @@ void Object::set_boolean(Object *bool_obj_1_,Object *bool_obj_2_,Boolean_Type ty
 //   Cylinder
 //##############
 
-void Object::intersect_cylinder_volume(SelRay const &ray,std::vector<RayInter> &interlist,int face_last_intersect,bool first_forward)
-{
-    std::array<double,4> hits;
-    std::array<int,4> face_labels={0,1,2,2};
-    
-    double l2=cyl_l/2.0;
-    
-    if(!ray_inter_disk_x(ray.start,ray.dir,-l2,0,cyl_r,hits[0])) hits[0]=-1;
-    if(!ray_inter_disk_x(ray.start,ray.dir,+l2,0,cyl_r,hits[1])) hits[1]=-1;
-    if(!ray_inter_cylinder_x(ray.start,ray.dir,-l2,cyl_r,cyl_l,hits[2],hits[3]))
-    {
-        hits[2]=-1;
-        hits[3]=-1;
-    }
-    
-    if(first_forward)
-        push_first_forward(interlist,ray,obj_ID,hits,face_labels);
-    else
-        push_full_forward(interlist,ray,obj_ID,hits,face_labels);
-}
-
-Vector3 Object::normal_cylinder_volume(RayInter const &inter)
-{
-    Vector3 Fnorm;
-    
-         if(inter.face==0) Fnorm=-unit_vec_x;
-    else if(inter.face==1) Fnorm=+unit_vec_x;
-    else
-    {
-        Fnorm=Vector3(0,inter.obj_y,inter.obj_z);
-    }
-    
-    Fnorm.normalize();
-    return Fnorm;
-}
-
 void Object::set_cylinder_volume()
 {
     type=OBJ_VOL_CYLINDER;
     
-    NFc=4;
-    F_arr.resize(NFc);
-    
-    bbox.xm=-cyl_l/2.0;
-    bbox.xp=+cyl_l/2.0;
-    
-    bbox.ym=-cyl_r;
-    bbox.yp=+cyl_r;
-    
-    bbox.zm=-cyl_r;
-    bbox.zp=+cyl_r;
+    cylinder.finalize();
+    NFc = F_arr.size();
 }
 
-void Object::set_cylinder_volume(double length,double radius,double cut)
+
+void Object::set_cylinder_volume(double length, double radius, double cut)
 {
-    cyl_l=length;
-    cyl_r=radius;
-    cyl_cut=cut;
+    cylinder.set_parameters(length, radius, cut);
     
     set_cylinder_volume();
 }
 
-Vector3 Object::cylinder_anchor(int anchor)
-{
-    switch(anchor)
-    {
-        case 0: return Vector3(0);
-        case 1: return Vector3(-cyl_l/2.0,0,0);
-        case 2: return Vector3(+cyl_l/2.0,0,0);
-        default: return Vector3(0);
-    }
-}
-
-std::string Object::cylinder_anchor_name(int anchor)
-{
-    switch(anchor)
-    {
-        case 0: return "Center";
-        case 1: return "Face_XM";
-        case 2: return "Face_XP";
-        default: return "Center";
-    }
-}
-
-void Object::xyz_to_uv_cylinder_volume(double &u,double &v,int face_,double x,double y,double z)
-{
-    switch(face_)
-    {
-        case 0:
-            u=0.5+y/cyl_r/2.0; v=0.5+z/cyl_r/2.0;
-            break;
-        case 1:
-            u=0.5+y/cyl_r/2.0; v=0.5+z/cyl_r/2.0;
-            break;
-        case 2:
-            u=std::atan2(z,y)+Pi/2.0;
-            if(u<0) u+=2.0*Pi;
-            u/=2.0*Pi;
-            v=0.5+x/cyl_l;
-            break;
-    }
-}
-
-void Object::default_N_uv_cylinder_volume(int &Nu,int &Nv,int face_)
-{
-    double delta=std::max(cyl_l,2.0*cyl_r)/64;
-    
-    switch(face_)
-    {
-        case 0:
-            Nu=Nv=nearest_2np1(2.0*cyl_r/delta);
-            break;
-        case 1:
-            Nu=Nv=nearest_2np1(2.0*cyl_r/delta);
-            break;
-        case 2:
-            Nu=nearest_2np1(2.0*Pi*cyl_r/delta);
-            Nv=nearest_2np1(cyl_l/delta);
-            break;
-    }
-}
 
 //##########
 //   Lens

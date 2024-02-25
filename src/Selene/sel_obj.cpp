@@ -91,7 +91,7 @@ Object::Object()
      box(bbox, F_arr, face_name_arr),
      cone(bbox, F_arr, face_name_arr),
      conic(bbox, F_arr, face_name_arr),
-     cyl_r(1e-2), cyl_l(4e-2), cyl_cut(1.0),
+     cylinder(bbox, F_arr, face_name_arr),
      dsk_r(0.01), dsk_r_in(0),
      ls_thickness(0.01), ls_r1(0.3), ls_r2(-0.3), ls_r_max_nominal(0.1),
      scaled_mesh(false), scaling_factor(1.0), has_octree(false),
@@ -142,9 +142,9 @@ void Object::build_variables_map()
     variables_map["conic_internal_radius"]=&conic.in_radius;
     variables_map["conic_external_radius"]=&conic.out_radius;
     
-    variables_map["cylinder_radius"]=&cyl_r;
-    variables_map["cylinder_length"]=&cyl_l;
-    variables_map["cylinder_cut_factor"]=&cyl_cut;
+    variables_map["cylinder_radius"]=&cylinder.cyl_r;
+    variables_map["cylinder_length"]=&cylinder.cyl_l;
+    variables_map["cylinder_cut_factor"]=&cylinder.cyl_cut;
     
     variables_map["disk_radius"]=&dsk_r;
     variables_map["disk_internal_radius"]=&dsk_r_in;
@@ -215,7 +215,7 @@ void Object::bootstrap(std::filesystem::path const &output_directory,double ray_
             case OBJ_CONIC:
                 sb_file<<"conic_section "<<conic.R_factor<<" "<<conic.K_factor<<" "<<conic.in_radius<<" "<<conic.out_radius; break;
             case OBJ_VOL_CYLINDER:
-                sb_file<<"cylinder "<<cyl_l<<" "<<cyl_r<<" "<<cyl_cut; break;
+                sb_file<<"cylinder "<<cylinder.cyl_l<<" "<<cylinder.cyl_r<<" "<<cylinder.cyl_cut; break;
             case OBJ_DISK:
                 sb_file<<"disk "<<dsk_r<<" "<<dsk_r_in; break;
             case OBJ_LENS:
@@ -380,7 +380,7 @@ void Object::default_N_uv(int &Nu,int &Nv,int face_)
         case OBJ_BOX: box.default_N_uv(Nu,Nv,face_); break;
         case OBJ_VOL_CONE: Nu=Nv=1; break;
         case OBJ_CONIC: conic.default_N_uv(Nu,Nv,face_); break;
-        case OBJ_VOL_CYLINDER: default_N_uv_cylinder_volume(Nu,Nv,face_); break;
+        case OBJ_VOL_CYLINDER: cylinder.default_N_uv(Nu,Nv,face_); break;
         case OBJ_DISK: default_N_uv_disk(Nu,Nv,face_); break;
         case OBJ_LENS: default_N_uv_lens(Nu,Nv,face_); break;
         case OBJ_PARABOLA: default_N_uv_parabola(Nu,Nv,face_); break;
@@ -440,7 +440,7 @@ Vector3 Object::face_normal(RayInter const &inter)
         case OBJ_BOX: return box.normal(inter);
         case OBJ_VOL_CONE: return cone.normal(inter);
         case OBJ_CONIC: return conic.normal(inter);
-        case OBJ_VOL_CYLINDER: return normal_cylinder_volume(inter);
+        case OBJ_VOL_CYLINDER: return cylinder.normal(inter);
         case OBJ_DISK: return -unit_vec_x;
         case OBJ_LENS: return normal_lens(inter);
         case OBJ_PARABOLA: return normal_parabola(inter);
@@ -483,7 +483,7 @@ Vector3 Object::get_anchor(int anchor)
         case OBJ_LENS: return lens_anchor(anchor);
         case OBJ_PARABOLA: return parabola_anchor(anchor);
         case OBJ_VOL_CONE: return cone.anchor(anchor);
-        case OBJ_VOL_CYLINDER: return cylinder_anchor(anchor);
+        case OBJ_VOL_CYLINDER: return cylinder.anchor(anchor);
         case OBJ_SPHERE: return sphere_anchor(anchor);
         case OBJ_SPHERE_PATCH: return sphere_anchor(anchor);
         default: return Vector3(0);
@@ -515,7 +515,7 @@ std::string Object::get_anchor_name(int anchor)
         case OBJ_LENS: return lens_anchor_name(anchor);
         case OBJ_PARABOLA: return parabola_anchor_name(anchor);
         case OBJ_VOL_CONE: return cone.anchor_name(anchor);
-        case OBJ_VOL_CYLINDER: return cylinder_anchor_name(anchor);
+        case OBJ_VOL_CYLINDER: return cylinder.anchor_name(anchor);
         case OBJ_SPHERE: return sphere_anchor_name(anchor);
         case OBJ_SPHERE_PATCH: return sphere_anchor_name(anchor);
         default: return "Center";
@@ -551,7 +551,7 @@ std::string Object::get_anchor_script_name(int anchor)
             break;
         case OBJ_VOL_CYLINDER:
             prefix="SEL_OBJ_CYL_";
-            anchor_name=cylinder_anchor_name(anchor);
+            anchor_name=cylinder.anchor_name(anchor);
             break;
         case OBJ_SPHERE:
             prefix="SEL_OBJ_SPHERE_";
@@ -624,7 +624,7 @@ void Object::intersect(SelRay const &base_ray,std::vector<RayInter> &interlist,i
             conic.intersect(interlist, ray, obj_ID, face_last_intersect, first_forward);
             break;
         case OBJ_VOL_CYLINDER:
-            intersect_cylinder_volume(ray,interlist,face_last_intersect,first_forward);
+            cylinder.intersect(interlist, ray, obj_ID, face_last_intersect, first_forward);
             break;
         case OBJ_DISK:
             intersect_disk(ray,interlist,face_last_intersect,first_forward);
@@ -1082,7 +1082,7 @@ void Object::xyz_to_uv(double &u,double &v,int face_,
         case OBJ_BOOLEAN: u=v=0; break;
         case OBJ_BOX: box.xyz_to_uv(u,v,face_,x,y,z); break;
         case OBJ_VOL_CONE: u=v=0; break;
-        case OBJ_VOL_CYLINDER: xyz_to_uv_cylinder_volume(u,v,face_,x,y,z); break;
+        case OBJ_VOL_CYLINDER: cylinder.xyz_to_uv(u,v,face_,x,y,z); break;
         case OBJ_DISK: xyz_to_uv_disk(u,v,face_,x,y,z); break;
         case OBJ_LENS: xyz_to_uv_lens(u,v,face_,x,y,z); break;
         case OBJ_PARABOLA: xyz_to_uv_parabola(u,v,face_,x,y,z); break;

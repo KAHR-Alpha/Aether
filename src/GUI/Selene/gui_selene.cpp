@@ -1128,7 +1128,7 @@ void SeleneFrame::update_vao(SeleneVAO *vao,Sel::Frame *frame)
         }
         else if(object->type==Sel::OBJ_VOL_CYLINDER)
         {
-            cylinder_cut_mesh_wireframe(V_arr,F_arr,object->cyl_l,object->cyl_r,object->cyl_cut);
+            cylinder_cut_mesh_wireframe(V_arr,F_arr,object->cylinder.cyl_l,object->cylinder.cyl_r,object->cylinder.cyl_cut);
         }
         else if(object->type==Sel::OBJ_CONIC)
         {

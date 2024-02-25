@@ -388,19 +388,11 @@ class Object: public Frame
         
         // Cylinder Type
         
-        double cyl_r,cyl_l,cyl_cut;
+        Primitives::Cylinder cylinder;
         
         void set_cylinder_volume();
         void set_cylinder_volume(double length,double radius,double cut);
-        
-        Vector3 cylinder_anchor(int anchor);
-        std::string cylinder_anchor_name(int anchor);
-        void intersect_cylinder_volume(SelRay const &ray,std::vector<RayInter> &interlist,int face_last_intersect,bool first_forward);
-        Vector3 normal_cylinder_volume(RayInter const &inter);
-        Vector3 tangent_cylinder_volume(RayInter const &inter);
-        void xyz_to_uv_cylinder_volume(double &u,double &v,int face,double x,double y,double z);
-        void default_N_uv_cylinder_volume(int &Nu,int &Nv,int face);
-        
+                
         // Disk Type
         
         double dsk_r,dsk_r_in;
