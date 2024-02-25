@@ -142,9 +142,9 @@ void Object::build_variables_map()
     variables_map["conic_internal_radius"]=&conic.in_radius;
     variables_map["conic_external_radius"]=&conic.out_radius;
     
-    variables_map["cylinder_radius"]=&cylinder.cyl_r;
-    variables_map["cylinder_length"]=&cylinder.cyl_l;
-    variables_map["cylinder_cut_factor"]=&cylinder.cyl_cut;
+    variables_map["cylinder_radius"]=&cylinder.radius;
+    variables_map["cylinder_length"]=&cylinder.length;
+    variables_map["cylinder_cut_factor"]=&cylinder.cut_factor;
     
     variables_map["disk_radius"]=&dsk_r;
     variables_map["disk_internal_radius"]=&dsk_r_in;
@@ -215,7 +215,7 @@ void Object::bootstrap(std::filesystem::path const &output_directory,double ray_
             case OBJ_CONIC:
                 sb_file<<"conic_section "<<conic.R_factor<<" "<<conic.K_factor<<" "<<conic.in_radius<<" "<<conic.out_radius; break;
             case OBJ_VOL_CYLINDER:
-                sb_file<<"cylinder "<<cylinder.cyl_l<<" "<<cylinder.cyl_r<<" "<<cylinder.cyl_cut; break;
+                sb_file<<"cylinder "<<cylinder.length<<" "<<cylinder.radius<<" "<<cylinder.cut_factor; break;
             case OBJ_DISK:
                 sb_file<<"disk "<<dsk_r<<" "<<dsk_r_in; break;
             case OBJ_LENS:

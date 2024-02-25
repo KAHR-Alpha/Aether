@@ -31,7 +31,7 @@ namespace Sel::Primitives
                        std::vector<Sel::SelFace> &F_arr_,
                        std::vector<std::string> &face_name_arr_)
         :bbox(bbox_), F_arr(F_arr_), face_name_arr(face_name_arr_),
-         cyl_r(1e-2), cyl_l(4e-2), cyl_cut(1.0)
+         radius(1e-2), length(4e-2), cut_factor(1.0)
     {
     }
     
@@ -41,8 +41,8 @@ namespace Sel::Primitives
         switch(anchor)
         {
             case 0: return Vector3(0);
-            case 1: return Vector3(-cyl_l/2.0,0,0);
-            case 2: return Vector3(+cyl_l/2.0,0,0);
+            case 1: return Vector3(-length/2.0,0,0);
+            case 2: return Vector3(+length/2.0,0,0);
             default: return Vector3(0);
         }
     }
@@ -62,19 +62,19 @@ namespace Sel::Primitives
     
     void Cylinder::default_N_uv(int &Nu,int &Nv,int face_) const
     {
-        double delta=std::max(cyl_l,2.0*cyl_r)/64;
-
+        double delta=std::max(length,2.0*radius)/64;
+        
         switch(face_)
         {
             case 0:
-                Nu=Nv=nearest_2np1(2.0*cyl_r/delta);
+                Nu=Nv=nearest_2np1(2.0*radius/delta);
                 break;
             case 1:
-                Nu=Nv=nearest_2np1(2.0*cyl_r/delta);
+                Nu=Nv=nearest_2np1(2.0*radius/delta);
                 break;
             case 2:
-                Nu=nearest_2np1(2.0*Pi*cyl_r/delta);
-                Nv=nearest_2np1(cyl_l/delta);
+                Nu=nearest_2np1(2.0*Pi*radius/delta);
+                Nv=nearest_2np1(length/delta);
                 break;
         }
     }
@@ -84,15 +84,15 @@ namespace Sel::Primitives
     {
         int NFc=4;
         F_arr.resize(NFc);
-
-        bbox.xm=-cyl_l/2.0;
-        bbox.xp=+cyl_l/2.0;
-
-        bbox.ym=-cyl_r;
-        bbox.yp=+cyl_r;
-
-        bbox.zm=-cyl_r;
-        bbox.zp=+cyl_r;
+        
+        bbox.xm=-length/2.0;
+        bbox.xp=+length/2.0;
+        
+        bbox.ym=-radius;
+        bbox.yp=+radius;
+        
+        bbox.zm=-radius;
+        bbox.zp=+radius;
         
         // Todo
         /*face_name_arr.resize(NFc);
@@ -109,17 +109,17 @@ namespace Sel::Primitives
     {
         std::array<double,4> hits;
         std::array<int,4> face_labels={0,1,2,2};
-
-        double l2=cyl_l/2.0;
-
-        if(!ray_inter_disk_x(ray.start,ray.dir,-l2,0,cyl_r,hits[0])) hits[0]=-1;
-        if(!ray_inter_disk_x(ray.start,ray.dir,+l2,0,cyl_r,hits[1])) hits[1]=-1;
-        if(!ray_inter_cylinder_x(ray.start,ray.dir,-l2,cyl_r,cyl_l,hits[2],hits[3]))
+        
+        double l2=length/2.0;
+        
+        if(!ray_inter_disk_x(ray.start,ray.dir,-l2,0,radius,hits[0])) hits[0]=-1;
+        if(!ray_inter_disk_x(ray.start,ray.dir,+l2,0,radius,hits[1])) hits[1]=-1;
+        if(!ray_inter_cylinder_x(ray.start,ray.dir,-l2,radius,length,hits[2],hits[3]))
         {
             hits[2]=-1;
             hits[3]=-1;
         }
-
+        
         if(first_forward)
             push_first_forward(interlist,ray,obj_ID,hits,face_labels);
         else
@@ -130,14 +130,14 @@ namespace Sel::Primitives
     Vector3 Cylinder::normal(RayInter const &inter) const
     {
         Vector3 Fnorm;
-
+        
         if(inter.face==0) Fnorm=-unit_vec_x;
         else if(inter.face==1) Fnorm=+unit_vec_x;
         else
         {
             Fnorm=Vector3(0,inter.obj_y,inter.obj_z);
         }
-
+        
         Fnorm.normalize();
         return Fnorm;
     }
@@ -145,9 +145,9 @@ namespace Sel::Primitives
     
     void Cylinder::set_parameters(double length_, double radius_, double cut_)
     {
-        cyl_l = length_;
-        cyl_r = radius_;
-        cyl_cut = cut_;
+        length = length_;
+        radius = radius_;
+        cut_factor = cut_;
     }
     
     
@@ -162,16 +162,16 @@ namespace Sel::Primitives
         switch(face_)
         {
             case 0:
-                u=0.5+y/cyl_r/2.0; v=0.5+z/cyl_r/2.0;
+                u=0.5+y/radius/2.0; v=0.5+z/radius/2.0;
                 break;
             case 1:
-                u=0.5+y/cyl_r/2.0; v=0.5+z/cyl_r/2.0;
+                u=0.5+y/radius/2.0; v=0.5+z/radius/2.0;
                 break;
             case 2:
                 u=std::atan2(z,y)+Pi/2.0;
                 if(u<0) u+=2.0*Pi;
                 u/=2.0*Pi;
-                v=0.5+x/cyl_l;
+                v=0.5+x/length;
                 break;
         }
     }

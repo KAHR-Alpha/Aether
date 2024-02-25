@@ -136,7 +136,7 @@ namespace Sel::Primitives
     class Cylinder
     {
         public:
-            double cyl_r,cyl_l,cyl_cut;
+            double radius,length,cut_factor;
 
             Cylinder(BoundingBox &bbox,
                      std::vector<Sel::SelFace> &F_arr,

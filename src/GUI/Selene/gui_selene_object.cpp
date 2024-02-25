@@ -728,20 +728,20 @@ CylinderDialog::CylinderDialog(Sel::Object *object_,
                                OptimEngine &optim_engine_)
     :ObjectDialog(object_,frames_,materials_,irfs_,optim_engine_)
 {
-    cyl_r=new LengthSelector(ctrl_panel,"Radius",object->cylinder.cyl_r,true);
-    cyl_r->handle_external_optimization(&object->cylinder.cyl_r,optim_engine);
+    cyl_r=new LengthSelector(ctrl_panel,"Radius",object->cylinder.radius,true);
+    cyl_r->handle_external_optimization(&object->cylinder.radius,optim_engine);
     cyl_r->Bind(EVT_LENGTH_SELECTOR,&ObjectDialog::evt_geometry,this);
     
     ctrl_sizer->Add(cyl_r,wxSizerFlags().Expand().Border(wxALL,1));
     
-    cyl_l=new LengthSelector(ctrl_panel,"Length",object->cylinder.cyl_l,true);
-    cyl_l->handle_external_optimization(&object->cylinder.cyl_l,optim_engine);
+    cyl_l=new LengthSelector(ctrl_panel,"Length",object->cylinder.length,true);
+    cyl_l->handle_external_optimization(&object->cylinder.length,optim_engine);
     cyl_l->Bind(EVT_LENGTH_SELECTOR,&ObjectDialog::evt_geometry,this);
     
     ctrl_sizer->Add(cyl_l,wxSizerFlags().Expand().Border(wxALL,1));
     
-    cyl_cut=new NamedTextCtrl<double>(ctrl_panel,"Cut Factor",object->cylinder.cyl_cut,true);
-    cyl_cut->handle_external_optimization(&object->cylinder.cyl_cut,optim_engine);
+    cyl_cut=new NamedTextCtrl<double>(ctrl_panel,"Cut Factor",object->cylinder.cut_factor,true);
+    cyl_cut->handle_external_optimization(&object->cylinder.cut_factor,optim_engine);
     cyl_cut->Bind(EVT_NAMEDTXTCTRL,&ObjectDialog::evt_geometry,this);
     
     ctrl_sizer->Add(cyl_cut,wxSizerFlags().Expand().Border(wxALL,1));
@@ -762,13 +762,13 @@ double CylinderDialog::mesh(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr)
 
 void CylinderDialog::save_object_geometry()
 {
-    object->cylinder.cyl_l=cyl_l->get_length();
-    object->cylinder.cyl_r=cyl_r->get_length();
-    object->cylinder.cyl_cut=cyl_cut->get_value();
+    object->cylinder.length=cyl_l->get_length();
+    object->cylinder.radius=cyl_r->get_length();
+    object->cylinder.cut_factor=cyl_cut->get_value();
     
-    register_optimization(cyl_l,&object->cylinder.cyl_l,optim_engine);
-    register_optimization(cyl_r,&object->cylinder.cyl_r,optim_engine);
-    register_optimization(cyl_cut,&object->cylinder.cyl_cut,optim_engine);
+    register_optimization(cyl_l,&object->cylinder.length,optim_engine);
+    register_optimization(cyl_r,&object->cylinder.radius,optim_engine);
+    register_optimization(cyl_cut,&object->cylinder.cut_factor,optim_engine);
     
     object->set_cylinder_volume();
 }

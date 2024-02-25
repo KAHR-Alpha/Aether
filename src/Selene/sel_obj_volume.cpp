@@ -195,27 +195,27 @@ void Object::set_boolean(Object *bool_obj_1_,Object *bool_obj_2_,Boolean_Type ty
     }
     
     
-//##############
-//   Cylinder
-//##############
+    //##############
+    //   Cylinder
+    //##############
 
-void Object::set_cylinder_volume()
-{
-    type=OBJ_VOL_CYLINDER;
+    void Object::set_cylinder_volume()
+    {
+        type=OBJ_VOL_CYLINDER;
+        
+        cylinder.finalize();
+        NFc = F_arr.size();
+    }
     
-    cylinder.finalize();
-    NFc = F_arr.size();
-}
-
-
-void Object::set_cylinder_volume(double length, double radius, double cut)
-{
-    cylinder.set_parameters(length, radius, cut);
     
-    set_cylinder_volume();
-}
-
-
+    void Object::set_cylinder_volume(double length, double radius, double cut)
+    {
+        cylinder.set_parameters(length, radius, cut);
+        
+        set_cylinder_volume();
+    }
+    
+    
 //##########
 //   Lens
 //##########

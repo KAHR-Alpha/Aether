@@ -486,7 +486,7 @@ void SeleneFrame::save_project(wxFileName const &fname_)
                     file<<"\"conic_section\","<<object->conic.R_factor<<","<<object->conic.K_factor<<","<<object->conic.in_radius<<","<<object->conic.out_radius;
                     break;
                 case Sel::OBJ_VOL_CYLINDER:
-                    file<<"\"cylinder\","<<object->cylinder.cyl_l<<","<<object->cylinder.cyl_r<<","<<object->cylinder.cyl_cut;
+                    file<<"\"cylinder\","<<object->cylinder.length<<","<<object->cylinder.radius<<","<<object->cylinder.cut_factor;
                     break;
                 case Sel::OBJ_DISK:
                     file<<"\"disk\","<<object->dsk_r<<","<<object->dsk_r_in;
