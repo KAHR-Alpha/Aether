@@ -220,134 +220,21 @@ void Object::set_boolean(Object *bool_obj_1_,Object *bool_obj_2_,Boolean_Type ty
 //   Lens
 //##########
 
-void Object::intersect_lens(SelRay const &ray,std::vector<RayInter> &interlist,int face_last_intersect,bool first_forward)
-{
-    std::array<double,6> hits;
-    std::array<int,6> face_labels={0,0,1,1,2,2};
-    
-    RayInter inter_out;
-    
-    if(!ray_inter_coupola(ray.start,ray.dir,ls_c1,ls_N1,ls_r1,ls_cth_1,hits[0],hits[1]))
-    {
-        hits[0]=-1;
-        hits[1]=-1;
-    }
-    if(!ray_inter_coupola(ray.start,ray.dir,ls_c2,ls_N2,ls_r2,ls_cth_2,hits[2],hits[3]))
-    {
-        hits[2]=-1;
-        hits[3]=-1;
-    }
-    if(!ray_inter_cylinder(ray.start,ray.dir,ls_cyl_pos,ls_cyl_N,ls_r_max,ls_cyl_h,hits[4],hits[5]))
-    {
-        hits[4]=-1;
-        hits[5]=-1;
-    }
-    
-    if(first_forward)
-        push_first_forward(interlist,ray,obj_ID,hits,face_labels);
-    else
-        push_full_forward(interlist,ray,obj_ID,hits,face_labels);
-}
-
-Vector3 Object::normal_lens(RayInter const &inter)
-{
-    Vector3 Fnorm;
-    
-         if(inter.face==0)
-        Fnorm=+sgn(ls_r1)*(Vector3(inter.obj_x,inter.obj_y,inter.obj_z)-ls_c1);
-    else if(inter.face==1)
-        Fnorm=-sgn(ls_r2)*(Vector3(inter.obj_x,inter.obj_y,inter.obj_z)-ls_c2);
-    else
-    {
-        Fnorm=Vector3(inter.obj_x,inter.obj_y,inter.obj_z)-ls_cyl_pos;
-        Fnorm=Fnorm.transverse(ls_cyl_N);
-        
-        Fnorm=Vector3(0,inter.obj_y,inter.obj_z);
-    }
-    
-    Fnorm.normalize();
-    return Fnorm;
-}
-
 void Object::set_lens()
 {
     type=OBJ_LENS;
     
-    double A,B,th_1,th_2;
-    
-    lens_geometry(A,B,ls_r_max,th_1,th_2,
-                  ls_thickness,ls_r_max_nominal,ls_r1,ls_r2);
-    
-    ls_c1=Vector3(A,0,0);
-    ls_c2=Vector3(B,0,0);
-    
-    ls_cth_1=std::cos(th_1);
-    ls_cth_2=std::cos(th_2);
-    
-    if(ls_r1>=0) ls_N1=-unit_vec_x;
-    else ls_N1=unit_vec_x;
-    
-    if(ls_r2>=0) ls_N2=-unit_vec_x;
-    else ls_N2=unit_vec_x;
-    
-    double x1=A-ls_r1*ls_cth_1;
-    double x2=B-ls_r2*ls_cth_2;
-    
-    ls_cyl_pos=Vector3(x1,0,0);
-    ls_cyl_h=x2-x1;
-    ls_cyl_N=unit_vec_x;
-    
-    NFc=3;
-    F_arr.resize(NFc);
-    
-    compute_boundaries();
+    lens.finalize();
+    NFc = F_arr.size();
 }
 
 void Object::set_lens(double thickness,double r_max,double r1,double r2)
 {
-    ls_thickness=thickness;
-    ls_r1=r1;
-    ls_r2=r2;
-    ls_r_max_nominal=r_max;
+    lens.set_parameters(thickness, r_max, r1, r2);
     
     set_lens();
 }
 
-Vector3 Object::lens_anchor(int anchor)
-{
-    switch(anchor)
-    {
-        case 0: return Vector3(0);
-        case 1: return Vector3(-ls_thickness/1.0,0,0);
-        case 2: return Vector3(+ls_thickness/1.0,0,0);
-        default: return Vector3(0);
-    }
-}
-
-std::string Object::lens_anchor_name(int anchor)
-{
-    switch(anchor)
-    {
-        case 0: return "Center";
-        case 1: return "Front";
-        case 2: return "Rear";
-        case 3: return "F1";
-        case 4: return "F2";
-        case 5: return "P1";
-        case 6: return "P2";
-        default: return "Center";
-    }
-}
-
-void Object::xyz_to_uv_lens(double &u,double &v,int face_,double x,double y,double z)
-{
-    u=v=0;
-}
-
-void Object::default_N_uv_lens(int &Nu,int &Nv,int face_)
-{
-    Nu=Nv=1;
-}
 
 //##########
 //   Mesh

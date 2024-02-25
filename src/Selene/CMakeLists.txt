@@ -11,7 +11,8 @@ set(selene_src sel_analysis.cpp
 			   primitives/sel_obj_cone.cpp
 			   primitives/sel_obj_conic.cpp
 			   primitives/sel_obj_cylinder.cpp
-			   primitives/sel_obj_disk.cpp)
+			   primitives/sel_obj_disk.cpp
+			   primitives/sel_obj_lens.cpp)
 			 
 set(selene_headers selene.h
                    selene_mesh.h

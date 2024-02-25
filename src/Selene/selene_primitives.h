@@ -190,6 +190,44 @@ namespace Sel::Primitives
             std::vector<Sel::SelFace> &F_arr;
             std::vector<std::string> &face_name_arr;
     };
+
+    class Lens
+    {
+        public:
+            double ls_thickness,
+                   ls_r1,ls_r2,
+                   ls_cth_1,ls_cth_2,
+                   ls_cyl_h,ls_r_max,ls_r_max_nominal;
+        
+            Lens(BoundingBox &bbox,
+                 std::vector<Sel::SelFace> &F_arr,
+                 std::vector<std::string> &face_name_arr);
+                
+            Vector3 anchor(int anchor) const;
+            std::string anchor_name(int anchor) const;
+            void default_N_uv(int &Nu, int &Nv, int face) const;
+            void finalize();
+            void intersect(std::vector<RayInter> &interlist, SelRay const &ray, int obj_ID, int face_last_intersect,bool first_forward) const;
+            Vector3 normal(RayInter const &inter) const;
+            void set_parameters(double thickness,
+                                double r_max,
+                                double r1,
+                                double r2);
+            Vector3 tangent(RayInter const &inter,
+                            Vector3 const &normal,
+                            bool up) const;
+            void xyz_to_uv(double &u, double &v, int face,
+                           double x, double y, double z) const;
+                           
+        private:
+            Vector3 ls_c1,ls_c2,
+                    ls_N1,ls_N2,
+                    ls_cyl_pos,ls_cyl_N;
+
+            BoundingBox &bbox;
+            std::vector<Sel::SelFace> &F_arr;
+            std::vector<std::string> &face_name_arr;
+    };
 }
 
 #endif // SELENE_PRIMITIVES_H

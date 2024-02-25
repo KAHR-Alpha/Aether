@@ -402,25 +402,10 @@ class Object: public Frame
         
         // Lens Functions
         
-        double ls_thickness,
-               ls_r1,ls_r2,
-               ls_cth_1,ls_cth_2,
-               ls_cyl_h,ls_r_max,ls_r_max_nominal;
-        
-        Vector3 ls_c1,ls_c2,
-                ls_N1,ls_N2,
-                ls_cyl_pos,ls_cyl_N;
-                
+        Primitives::Lens lens;
+
         void set_lens();
         void set_lens(double thickness,double r_max,double r1,double r2);
-                
-        Vector3 lens_anchor(int anchor);
-        std::string lens_anchor_name(int anchor);
-        void intersect_lens(SelRay const &ray,std::vector<RayInter> &interlist,int face_last_intersect,bool first_forward);
-        Vector3 normal_lens(RayInter const &inter);
-        Vector3 tangent_lens(RayInter const &inter);
-        void xyz_to_uv_lens(double &u,double &v,int face,double x,double y,double z);
-        void default_N_uv_lens(int &Nu,int &Nv,int face);
         
         // Mesh Functions
         
