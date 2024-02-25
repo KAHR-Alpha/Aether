@@ -368,18 +368,10 @@ class Object: public Frame
         
         // Box Type
         
-        double box_lx,box_ly,box_lz;
+        Primitives::Box box;
         
         void set_box();
         void set_box(double lx,double lyh,double lz);
-        
-        Vector3 box_anchor(int anchor);
-        std::string box_anchor_name(int anchor);
-        void intersect_box(std::vector<RayInter> &interlist, SelRay const &ray, int obj_ID, int face_last_intersect,bool first_forward);
-        Vector3 normal_box(RayInter const &inter);
-        Vector3 tangent_box(RayInter const &inter,Vector3 const &normal,bool up);
-        void xyz_to_uv_box(double &u,double &v,int face,double x,double y,double z);
-        void default_N_uv_box(int &Nu,int &Nv,int face);
         
         // Cone Type
         

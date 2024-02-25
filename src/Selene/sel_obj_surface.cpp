@@ -312,7 +312,7 @@ void Object::intersect_rectangle(SelRay const &ray,std::vector<RayInter> &interl
     {
         Vector3 P=ray.start+hits[0]*ray.dir;
         
-        if(std::abs(P.y)>box_ly/2.0 || std::abs(P.z)>box_lz/2.0)
+        if(std::abs(P.y)>box.ly/2.0 || std::abs(P.z)>box.lz/2.0)
             hits[0]=-1;
     }
     
@@ -368,38 +368,38 @@ void Object::set_rectangle()
     NFc=1;
     F_arr.resize(NFc);
     
-    double span=std::max(box_ly,box_lz);
+    double span=std::max(box.ly,box.lz);
     
     bbox.xm=-0.05*span;
     bbox.xp=+0.05*span;
     
-    bbox.ym=-1.1*box_ly/2.0;
-    bbox.yp=+1.1*box_ly/2.0;
+    bbox.ym=-1.1*box.ly/2.0;
+    bbox.yp=+1.1*box.ly/2.0;
     
-    bbox.zm=-1.1*box_lz/2.0;
-    bbox.zp=+1.1*box_lz/2.0;
+    bbox.zm=-1.1*box.lz/2.0;
+    bbox.zp=+1.1*box.lz/2.0;
 }
 
 void Object::set_rectangle(double ly_,double lz_)
 {
-    box_ly=ly_;
-    box_lz=lz_;
+    box.ly=ly_;
+    box.lz=lz_;
     
     set_rectangle();
 }
 
 void Object::xyz_to_uv_rectangle(double &u,double &v,int face_,double x,double y,double z)
 {
-    u=0.5+y/box_ly;
-    v=0.5+z/box_lz;
+    u=0.5+y/box.ly;
+    v=0.5+z/box.lz;
 }
 
 void Object::default_N_uv_rectangle(int &Nu,int &Nv,int face_)
 {
-    double delta=std::max(box_ly,box_lz)/64.0;
+    double delta=std::max(box.ly,box.lz)/64.0;
     
-    Nu=nearest_2np1(box_ly/delta);
-    Nv=nearest_2np1(box_lz/delta);
+    Nu=nearest_2np1(box.ly/delta);
+    Nv=nearest_2np1(box.lz/delta);
 }
 
 //#####################

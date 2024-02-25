@@ -22,6 +22,28 @@ extern const Vector3 unit_vec_z;
 
 namespace Sel
 {
+    int nearest_2np1(double val)
+    {
+        int N=nearest_integer((val-1.0)/2.0);
+        return 2*N+1;
+    }
+    
+    
+    void Object::set_box()
+    {
+        type=OBJ_BOX;
+        
+        box.finalize();
+        NFc=F_arr.size();
+    }
+    
+    
+    void Object::set_box(double lx, double ly, double lz)
+    {
+        box.set_parameters(lx, ly, lz);
+        
+        set_box();
+    }
 
 //##############
 //   Booleans

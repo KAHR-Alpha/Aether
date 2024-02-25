@@ -88,7 +88,7 @@ Object::Object()
     :obj_ID(-1),
      max_ray_generation(200),
      NFc(0),
-     box_lx(0.1), box_ly(0.1), box_lz(0.1),
+     box(bbox, F_arr, face_name_arr),
      cone_r(1e-2), cone_l(4e-2), cone_cut(1.0),
      conic_R(0.1), conic_K(0), conic_in_radius(0), conic_out_radius(0.1),
      cyl_r(1e-2), cyl_l(4e-2), cyl_cut(1.0),
@@ -133,9 +133,9 @@ void Object::build_variables_map()
     variables_map["angle_B"]=&in_B.val;
     variables_map["angle_C"]=&in_C.val;
     
-    variables_map["box_length_x"]=&box_lx;
-    variables_map["box_length_y"]=&box_ly;
-    variables_map["box_length_z"]=&box_lz;
+    variables_map["box_length_x"]=&box.lx;
+    variables_map["box_length_y"]=&box.ly;
+    variables_map["box_length_z"]=&box.lz;
     
     variables_map["conic_radius"]=&conic_R;
     variables_map["conic_constant"]=&conic_K;
@@ -158,8 +158,8 @@ void Object::build_variables_map()
     variables_map["parabola_length"]=&pr_length;
     variables_map["parabola_internal_radius"]=&pr_in_radius;
     
-    variables_map["rectangle_length_y"]=&box_ly;
-    variables_map["rectangle_length_z"]=&box_lz;
+    variables_map["rectangle_length_y"]=&box.ly;
+    variables_map["rectangle_length_z"]=&box.lz;
     
     variables_map["sphere_radius"]=&sph_r;
     variables_map["sphere_cut_factor"]=&sph_cut;
@@ -209,7 +209,7 @@ void Object::bootstrap(std::filesystem::path const &output_directory,double ray_
             case OBJ_BOOLEAN:
                 sb_file<<"boolean "; break;
             case OBJ_BOX:
-                sb_file<<"box "<<box_lx<<" "<<box_ly<<" "<<box_lz; break;
+                sb_file<<"box "<<box.lx<<" "<<box.ly<<" "<<box.lz; break;
             case OBJ_VOL_CONE:
                 sb_file<<"cone "; break;
             case OBJ_CONIC:
@@ -223,7 +223,7 @@ void Object::bootstrap(std::filesystem::path const &output_directory,double ray_
             case OBJ_MESH:
                 sb_file<<"mesh "<<mesh_fname; break;
             case OBJ_RECTANGLE:
-                sb_file<<"rectangle "<<box_ly<<" "<<box_lz; break;
+                sb_file<<"rectangle "<<box.ly<<" "<<box.lz; break;
             case OBJ_PARABOLA:
                 sb_file<<"parabola "<<pr_f<<" "<<pr_in_radius<<" "<<pr_length; break;
             case OBJ_SPHERE:
@@ -377,7 +377,7 @@ void Object::default_N_uv(int &Nu,int &Nv,int face_)
     switch(type)
     {
         case OBJ_BOOLEAN: Nu=Nv=1; break;
-        case OBJ_BOX: default_N_uv_box(Nu,Nv,face_); break;
+        case OBJ_BOX: box.default_N_uv(Nu,Nv,face_); break;
         case OBJ_VOL_CONE: Nu=Nv=1; break;
         case OBJ_CONIC: default_N_uv_conic_section(Nu,Nv,face_); break;
         case OBJ_VOL_CYLINDER: default_N_uv_cylinder_volume(Nu,Nv,face_); break;
@@ -437,7 +437,7 @@ Vector3 Object::face_normal(RayInter const &inter)
     switch(type)
     {
         case OBJ_BOOLEAN: return normal_boolean(inter);
-        case OBJ_BOX: return normal_box(inter);
+        case OBJ_BOX: return box.normal(inter);
         case OBJ_VOL_CONE: return normal_cone_volume(inter);
         case OBJ_CONIC: return normal_conic_section(inter);
         case OBJ_VOL_CYLINDER: return normal_cylinder_volume(inter);
@@ -462,7 +462,7 @@ Vector3 Object::face_tangent(RayInter const &inter,
     switch(type)
     {
 //        case OBJ_BOOLEAN: return tangent_boolean(inter);
-        case OBJ_BOX: return tangent_box(inter,normal,up);
+        case OBJ_BOX: return box.tangent(inter,normal,up);
 //        case OBJ_VOL_CONE: return tangent_cone_volume(inter);
 //        case OBJ_VOL_CYLINDER: return tangent_cylinder_volume(inter);
 //        case OBJ_LENS: return tangent_lens(inter);
@@ -478,7 +478,7 @@ Vector3 Object::get_anchor(int anchor)
 {
     switch(type)
     {
-        case OBJ_BOX: return box_anchor(anchor);
+        case OBJ_BOX: return box.anchor(anchor);
         case OBJ_CONIC: return conic_section_anchor(anchor);
         case OBJ_LENS: return lens_anchor(anchor);
         case OBJ_PARABOLA: return parabola_anchor(anchor);
@@ -510,7 +510,7 @@ std::string Object::get_anchor_name(int anchor)
 {
     switch(type)
     {
-        case OBJ_BOX: return box_anchor_name(anchor);
+        case OBJ_BOX: return box.anchor_name(anchor);
         case OBJ_CONIC: return conic_section_anchor_name(anchor);
         case OBJ_LENS: return lens_anchor_name(anchor);
         case OBJ_PARABOLA: return parabola_anchor_name(anchor);
@@ -531,7 +531,7 @@ std::string Object::get_anchor_script_name(int anchor)
     {
         case OBJ_BOX:
             prefix="SEL_OBJ_BOX_";
-            anchor_name=box_anchor_name(anchor);
+            anchor_name=box.anchor_name(anchor);
             break;
         case OBJ_CONIC:
             prefix="SEL_OBJ_CONIC_SECTION_";
@@ -615,7 +615,7 @@ void Object::intersect(SelRay const &base_ray,std::vector<RayInter> &interlist,i
             intersect_boolean(ray,interlist,face_last_intersect,first_forward);
             break;
         case OBJ_BOX:
-            intersect_box(interlist, ray, obj_ID, face_last_intersect, first_forward);
+            box.intersect(interlist, ray, obj_ID, face_last_intersect, first_forward);
             break;
         case OBJ_VOL_CONE:
             intersect_cone_volume(ray,interlist,face_last_intersect,first_forward);
@@ -1080,7 +1080,7 @@ void Object::xyz_to_uv(double &u,double &v,int face_,
     switch(type)
     {
         case OBJ_BOOLEAN: u=v=0; break;
-        case OBJ_BOX: xyz_to_uv_box(u,v,face_,x,y,z); break;
+        case OBJ_BOX: box.xyz_to_uv(u,v,face_,x,y,z); break;
         case OBJ_VOL_CONE: u=v=0; break;
         case OBJ_VOL_CYLINDER: xyz_to_uv_cylinder_volume(u,v,face_,x,y,z); break;
         case OBJ_DISK: xyz_to_uv_disk(u,v,face_,x,y,z); break;

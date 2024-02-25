@@ -1123,7 +1123,7 @@ void SeleneFrame::update_vao(SeleneVAO *vao,Sel::Frame *frame)
         if(object->type==Sel::OBJ_BOX)
         {
             Glite::make_block_wires(V_arr,F_arr,
-                                    object->box_lx,object->box_ly,object->box_lz,
+                                    object->box.lx,object->box.ly,object->box.lz,
                                     -0.5,-0.5,-0.5);
         }
         else if(object->type==Sel::OBJ_VOL_CYLINDER)
@@ -1179,7 +1179,7 @@ void SeleneFrame::update_vao(SeleneVAO *vao,Sel::Frame *frame)
         }
         else if(object->type==Sel::OBJ_RECTANGLE)
         {
-            rectangle_mesh_wireframe(V_arr,F_arr,object->box_ly,object->box_lz);
+            rectangle_mesh_wireframe(V_arr,F_arr,object->box.ly,object->box.lz);
         }
         else if(object->type==Sel::OBJ_SPHERE)
         {
