@@ -74,12 +74,12 @@ namespace Sel::Primitives
     class Cone
     {
         public:
-            double cone_r,cone_l,cone_cut;
+            double radius,length,cut_factor;
             double cone_ca,cone_sa;
             
             Cone(BoundingBox &bbox,
-                std::vector<Sel::SelFace> &F_arr,
-                std::vector<std::string> &face_name_arr);
+                 std::vector<Sel::SelFace> &F_arr,
+                 std::vector<std::string> &face_name_arr);
                 
             Vector3 anchor(int anchor) const;
             std::string anchor_name(int anchor) const;

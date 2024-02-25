@@ -177,24 +177,24 @@ void Object::set_boolean(Object *bool_obj_1_,Object *bool_obj_2_,Boolean_Type ty
     //##########
     //   Cone
     //##########
-
+    
     void Object::set_cone_volume()
     {
         type=OBJ_VOL_CONE;
-
+        
         cone.finalize();
         NFc=F_arr.size();
     }
-
-
+    
+    
     void Object::set_cone_volume(double radius,double length,double cut)
     {
         cone.set_parameters(radius, length, cut);
-    
+        
         set_cone_volume();
     }
-
-
+    
+    
 //##############
 //   Cylinder
 //##############
