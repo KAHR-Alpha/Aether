@@ -105,8 +105,8 @@ namespace Sel::Primitives
     class Conic
     {
         public:
-            double conic_R,conic_K;
-            double conic_in_radius,conic_out_radius;
+            double R_factor,K_factor;
+            double in_radius,out_radius;
 
             Conic(BoundingBox &bbox,
                   std::vector<Sel::SelFace> &F_arr,

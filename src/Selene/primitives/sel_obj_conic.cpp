@@ -31,7 +31,7 @@ namespace Sel::Primitives
                  std::vector<Sel::SelFace> &F_arr_,
                  std::vector<std::string> &face_name_arr_)
         :bbox(bbox_), F_arr(F_arr_), face_name_arr(face_name_arr_),
-         conic_R(0.1), conic_K(0), conic_in_radius(0), conic_out_radius(0.1)
+         R_factor(0.1), K_factor(0), in_radius(0), out_radius(0.1)
     {
     }
     
@@ -43,12 +43,12 @@ namespace Sel::Primitives
         switch(anchor)
         {
             case 0: return Vector3(0);
-            case 1: return Vector3(conic_R,0,0);
+            case 1: return Vector3(R_factor,0,0);
             case 2:
-                conic_near_focus(x,y,conic_R,conic_K);
+                conic_near_focus(x,y,R_factor,K_factor);
                 return Vector3(x,y,0);
             case 3:
-                conic_far_focus(x,y,conic_R,conic_K);
+                conic_far_focus(x,y,R_factor,K_factor);
                 return Vector3(x,y,0);
             default: return Vector3(0);
         }
@@ -79,16 +79,16 @@ namespace Sel::Primitives
         int NFc=1;
         F_arr.resize(NFc);
         
-        bbox.xm=-0.1*conic_R;
+        bbox.xm=-0.1*R_factor;
         
-        if(conic_K>-1) bbox.xp=conic_R/(1.0+conic_K);
-        else bbox.xp=conic_invert(conic_out_radius,conic_R,conic_K);
+        if(K_factor>-1) bbox.xp=R_factor/(1.0+K_factor);
+        else bbox.xp=conic_invert(out_radius,R_factor,K_factor);
         
-        bbox.ym=-conic_out_radius;
-        bbox.yp=+conic_out_radius;
+        bbox.ym=-out_radius;
+        bbox.yp=+out_radius;
         
-        bbox.zm=-conic_out_radius;
-        bbox.zp=+conic_out_radius;
+        bbox.zm=-out_radius;
+        bbox.zp=+out_radius;
         
         // Todo
         /*face_name_arr.resize(NFc);
@@ -104,10 +104,10 @@ namespace Sel::Primitives
     void Conic::intersect(std::vector<RayInter> &interlist, SelRay const &ray, int obj_ID, int face_last_intersect, bool first_forward) const
     {
         std::array<double,2> hits;
-        std::array<int,2> face_labels={0,0
+        std::array<int,2> face_labels={0,0};
         
         ray_inter_conic_section_x(ray.start,ray.dir,
-                                  conic_R,conic_K,conic_in_radius,conic_out_radius,
+                                  R_factor,K_factor,in_radius,out_radius,
                                   hits[0],hits[1]);
                                   
         if(first_forward)
@@ -129,7 +129,7 @@ namespace Sel::Primitives
         Vector3 P(0,y,z);
         P.normalize();
         
-        double factor=(conic_R-(1+conic_K)*x)/std::sqrt(2*conic_R*x-(1+conic_K)*x*x);
+        double factor=(R_factor-(1+K_factor)*x)/std::sqrt(2*R_factor*x-(1+K_factor)*x*x);
         
         Fnorm(factor,-P.y,-P.z);
         Fnorm.normalize();

@@ -137,10 +137,10 @@ void Object::build_variables_map()
     variables_map["box_length_y"]=&box.ly;
     variables_map["box_length_z"]=&box.lz;
     
-    variables_map["conic_radius"]=&conic.conic_R;
-    variables_map["conic_constant"]=&conic.conic_K;
-    variables_map["conic_internal_radius"]=&conic.conic_in_radius;
-    variables_map["conic_external_radius"]=&conic.conic_out_radius;
+    variables_map["conic_radius"]=&conic.R_factor;
+    variables_map["conic_constant"]=&conic.K_factor;
+    variables_map["conic_internal_radius"]=&conic.in_radius;
+    variables_map["conic_external_radius"]=&conic.out_radius;
     
     variables_map["cylinder_radius"]=&cyl_r;
     variables_map["cylinder_length"]=&cyl_l;
@@ -213,7 +213,7 @@ void Object::bootstrap(std::filesystem::path const &output_directory,double ray_
             case OBJ_VOL_CONE:
                 sb_file<<"cone "; break;
             case OBJ_CONIC:
-                sb_file<<"conic_section "<<conic.conic_R<<" "<<conic.conic_K<<" "<<conic.conic_in_radius<<" "<<conic.conic_out_radius; break;
+                sb_file<<"conic_section "<<conic.R_factor<<" "<<conic.K_factor<<" "<<conic.in_radius<<" "<<conic.out_radius; break;
             case OBJ_VOL_CYLINDER:
                 sb_file<<"cylinder "<<cyl_l<<" "<<cyl_r<<" "<<cyl_cut; break;
             case OBJ_DISK:

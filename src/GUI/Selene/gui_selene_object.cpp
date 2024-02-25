@@ -665,26 +665,26 @@ ConicSectionDialog::ConicSectionDialog(Sel::Object *object_,
                                        OptimEngine &optim_engine_)
     :ObjectDialog(object_,frames_,materials_,irfs_,optim_engine_)
 {
-    conic_R=new LengthSelector(ctrl_panel,"Conic Radius",object->conic.conic_R,true);
-    conic_R->handle_external_optimization(&object->conic.conic_R,optim_engine);
+    conic_R=new LengthSelector(ctrl_panel,"Conic Radius",object->conic.R_factor,true);
+    conic_R->handle_external_optimization(&object->conic.R_factor,optim_engine);
     conic_R->Bind(EVT_LENGTH_SELECTOR,&ObjectDialog::evt_geometry,this);
     
     ctrl_sizer->Add(conic_R,wxSizerFlags().Expand().Border(wxALL,1));
     
-    conic_K=new NamedTextCtrl<double>(ctrl_panel,"Conic Constant",object->conic.conic_K,true);
-    conic_K->handle_external_optimization(&object->conic.conic_K,optim_engine);
+    conic_K=new NamedTextCtrl<double>(ctrl_panel,"Conic Constant",object->conic.K_factor,true);
+    conic_K->handle_external_optimization(&object->conic.K_factor,optim_engine);
     conic_K->Bind(EVT_NAMEDTXTCTRL,&ObjectDialog::evt_geometry,this);
     
     ctrl_sizer->Add(conic_K,wxSizerFlags().Expand().Border(wxALL,1));
     
-    conic_in_radius=new LengthSelector(ctrl_panel,"In Radius",object->conic.conic_in_radius,true,"mm");
-    conic_in_radius->handle_external_optimization(&object->conic.conic_in_radius,optim_engine);
+    conic_in_radius=new LengthSelector(ctrl_panel,"In Radius",object->conic.in_radius,true,"mm");
+    conic_in_radius->handle_external_optimization(&object->conic.in_radius,optim_engine);
     conic_in_radius->Bind(EVT_LENGTH_SELECTOR,&ObjectDialog::evt_geometry,this);
     
     ctrl_sizer->Add(conic_in_radius,wxSizerFlags().Expand().Border(wxALL,1));
     
-    conic_out_radius=new LengthSelector(ctrl_panel,"Out Radius",object->conic.conic_out_radius,true);
-    conic_out_radius->handle_external_optimization(&object->conic.conic_out_radius,optim_engine);
+    conic_out_radius=new LengthSelector(ctrl_panel,"Out Radius",object->conic.out_radius,true);
+    conic_out_radius->handle_external_optimization(&object->conic.out_radius,optim_engine);
     conic_out_radius->Bind(EVT_LENGTH_SELECTOR,&ObjectDialog::evt_geometry,this);
     
     ctrl_sizer->Add(conic_out_radius,wxSizerFlags().Expand().Border(wxALL,1));
@@ -704,15 +704,15 @@ double ConicSectionDialog::mesh(std::vector<Vertex> &V_arr,std::vector<Face> &F_
 
 void ConicSectionDialog::save_object_geometry()
 {
-    object->conic.conic_R=conic_R->get_length();
-    object->conic.conic_K=conic_K->get_value();
-    object->conic.conic_in_radius=conic_in_radius->get_length();
-    object->conic.conic_out_radius=conic_out_radius->get_length();
+    object->conic.R_factor=conic_R->get_length();
+    object->conic.K_factor=conic_K->get_value();
+    object->conic.in_radius=conic_in_radius->get_length();
+    object->conic.out_radius=conic_out_radius->get_length();
     
-    register_optimization(conic_R,&object->conic.conic_R,optim_engine);
-    register_optimization(conic_K,&object->conic.conic_K,optim_engine);
-    register_optimization(conic_in_radius,&object->conic.conic_in_radius,optim_engine);
-    register_optimization(conic_out_radius,&object->conic.conic_out_radius,optim_engine);
+    register_optimization(conic_R,&object->conic.R_factor,optim_engine);
+    register_optimization(conic_K,&object->conic.K_factor,optim_engine);
+    register_optimization(conic_in_radius,&object->conic.in_radius,optim_engine);
+    register_optimization(conic_out_radius,&object->conic.out_radius,optim_engine);
     
     object->set_conic_section();
 }

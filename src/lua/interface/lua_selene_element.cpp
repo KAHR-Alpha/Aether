@@ -57,10 +57,10 @@ namespace LuaUI
         }
         else if(type=="conic_section")
         {
-            object->conic.conic_R=lua_tonumber(L,2);
-            object->conic.conic_K=lua_tonumber(L,3);
-            object->conic.conic_in_radius=lua_tonumber(L,4);
-            object->conic.conic_out_radius=lua_tonumber(L,5);
+            object->conic.R_factor=lua_tonumber(L,2);
+            object->conic.K_factor=lua_tonumber(L,3);
+            object->conic.in_radius=lua_tonumber(L,4);
+            object->conic.out_radius=lua_tonumber(L,5);
             
             object->set_conic_section();
         }
@@ -209,10 +209,10 @@ namespace LuaUI
     {
         Sel::Object *p_object=get_object_cast_metapointer(L);
         
-        p_object->conic.conic_R=lua_tonumber(L,2);
-        p_object->conic.conic_K=lua_tonumber(L,3);
-        p_object->conic.conic_in_radius=lua_tonumber(L,4);
-        p_object->conic.conic_out_radius=lua_tonumber(L,5);
+        p_object->conic.R_factor=lua_tonumber(L,2);
+        p_object->conic.K_factor=lua_tonumber(L,3);
+        p_object->conic.in_radius=lua_tonumber(L,4);
+        p_object->conic.out_radius=lua_tonumber(L,5);
         
         p_object->set_conic_section();
         
