@@ -7,7 +7,8 @@ set(selene_src sel_analysis.cpp
 			   sel_obj_volume.cpp
 			   selene.cpp
 			   selene_rays.cpp
-			   primitives/sel_obj_box.cpp)
+			   primitives/sel_obj_box.cpp
+			   primitives/sel_obj_cone.cpp)
 			 
 set(selene_headers selene.h
                    selene_mesh.h

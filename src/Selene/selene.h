@@ -375,18 +375,11 @@ class Object: public Frame
         
         // Cone Type
         
-        double cone_r,cone_l,cone_cut;
-        double cone_ca,cone_sa;
+        Primitives::Cone cone;
         
         void set_cone_volume();
         void set_cone_volume(double length,double radius,double cut);
-        
-        Vector3 cone_anchor(int anchor);
-        std::string cone_anchor_name(int anchor);
-        void intersect_cone_volume(SelRay const &ray,std::vector<RayInter> &interlist,int face_last_intersect,bool first_forward);
-        Vector3 normal_cone_volume(RayInter const &inter);
-        Vector3 tangent_cone_volume(RayInter const &inter);
-        
+                
         // Conic Section Type
         
         double conic_R,conic_K;

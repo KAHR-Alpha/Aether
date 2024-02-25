@@ -174,99 +174,26 @@ void Object::set_boolean(Object *bool_obj_1_,Object *bool_obj_2_,Boolean_Type ty
     NFc=bool_obj_1->NFc+bool_obj_2->NFc;
 }
 
-//##########
-//   Cone
-//##########
+    //##########
+    //   Cone
+    //##########
 
-void Object::intersect_cone_volume(SelRay const &ray,std::vector<RayInter> &interlist,int face_last_intersect,bool first_forward)
-{
-    std::array<double,3> hits;
-    std::array<int,3> face_labels={0,1,1};
-    
-    double l2=cone_l/2.0;
-    
-    if(!ray_inter_disk_x(ray.start,ray.dir,-l2,0,cone_r,hits[0])) hits[0]=-1;
-    if(!ray_inter_cone_x(ray.start,ray.dir,-l2,cone_r,cone_l,hits[1],hits[2]))
+    void Object::set_cone_volume()
     {
-        hits[1]=-1;
-        hits[2]=-1;
-    }
-    
-    if(first_forward)
-        push_first_forward(interlist,ray,obj_ID,hits,face_labels);
-    else
-        push_full_forward(interlist,ray,obj_ID,hits,face_labels);
-}
+        type=OBJ_VOL_CONE;
 
-Vector3 Object::normal_cone_volume(RayInter const &inter)
-{
-    Vector3 Fnorm;
-    int const &face_inter=inter.face;
-    
-    if(face_inter==0) Fnorm=-unit_vec_x;
-    else
+        cone.finalize();
+        NFc=F_arr.size();
+    }
+
+
+    void Object::set_cone_volume(double radius,double length,double cut)
     {
-        Fnorm=Vector3(0,inter.obj_y,inter.obj_z);
-        Fnorm.normalize();
-        
-        Fnorm=cone_ca*Fnorm+cone_sa*unit_vec_x;
+        cone.set_parameters(radius, length, cut);
+    
+        set_cone_volume();
     }
-    
-    Fnorm.normalize();
-    return Fnorm;
-}
 
-void Object::set_cone_volume()
-{
-    type=OBJ_VOL_CONE;
-    
-    double a=std::atan(cone_r/cone_l);
-    cone_ca=std::cos(a);
-    cone_sa=std::sin(a);
-    
-    NFc=2;
-    F_arr.resize(NFc);
-    
-    bbox.xm=-cone_l/2.0;
-    bbox.xp=+cone_l/2.0;
-    
-    bbox.ym=-cone_r;
-    bbox.yp=+cone_r;
-    
-    bbox.zm=-cone_r;
-    bbox.zp=+cone_r;
-}
-
-void Object::set_cone_volume(double radius,double length,double cut)
-{
-    cone_r=radius;
-    cone_l=length;
-    cone_cut=cut;
-    
-    set_cone_volume();
-}
-
-Vector3 Object::cone_anchor(int anchor)
-{
-    switch(anchor)
-    {
-        case 0: return Vector3(0);
-        case 1: return Vector3(-cone_l/2.0,0,0);
-        case 2: return Vector3(+cone_l/2.0,0,0);
-        default: return Vector3(0);
-    }
-}
-
-std::string Object::cone_anchor_name(int anchor)
-{
-    switch(anchor)
-    {
-        case 0: return "Center";
-        case 1: return "Face";
-        case 2: return "Tip";
-        default: return "Center";
-    }
-}
 
 //##############
 //   Cylinder

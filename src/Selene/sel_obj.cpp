@@ -89,7 +89,7 @@ Object::Object()
      max_ray_generation(200),
      NFc(0),
      box(bbox, F_arr, face_name_arr),
-     cone_r(1e-2), cone_l(4e-2), cone_cut(1.0),
+     cone(bbox, F_arr, face_name_arr),
      conic_R(0.1), conic_K(0), conic_in_radius(0), conic_out_radius(0.1),
      cyl_r(1e-2), cyl_l(4e-2), cyl_cut(1.0),
      dsk_r(0.01), dsk_r_in(0),
@@ -438,7 +438,7 @@ Vector3 Object::face_normal(RayInter const &inter)
     {
         case OBJ_BOOLEAN: return normal_boolean(inter);
         case OBJ_BOX: return box.normal(inter);
-        case OBJ_VOL_CONE: return normal_cone_volume(inter);
+        case OBJ_VOL_CONE: return cone.normal(inter);
         case OBJ_CONIC: return normal_conic_section(inter);
         case OBJ_VOL_CYLINDER: return normal_cylinder_volume(inter);
         case OBJ_DISK: return -unit_vec_x;
@@ -482,7 +482,7 @@ Vector3 Object::get_anchor(int anchor)
         case OBJ_CONIC: return conic_section_anchor(anchor);
         case OBJ_LENS: return lens_anchor(anchor);
         case OBJ_PARABOLA: return parabola_anchor(anchor);
-        case OBJ_VOL_CONE: return cone_anchor(anchor);
+        case OBJ_VOL_CONE: return cone.anchor(anchor);
         case OBJ_VOL_CYLINDER: return cylinder_anchor(anchor);
         case OBJ_SPHERE: return sphere_anchor(anchor);
         case OBJ_SPHERE_PATCH: return sphere_anchor(anchor);
@@ -514,7 +514,7 @@ std::string Object::get_anchor_name(int anchor)
         case OBJ_CONIC: return conic_section_anchor_name(anchor);
         case OBJ_LENS: return lens_anchor_name(anchor);
         case OBJ_PARABOLA: return parabola_anchor_name(anchor);
-        case OBJ_VOL_CONE: return cone_anchor_name(anchor);
+        case OBJ_VOL_CONE: return cone.anchor_name(anchor);
         case OBJ_VOL_CYLINDER: return cylinder_anchor_name(anchor);
         case OBJ_SPHERE: return sphere_anchor_name(anchor);
         case OBJ_SPHERE_PATCH: return sphere_anchor_name(anchor);
@@ -547,7 +547,7 @@ std::string Object::get_anchor_script_name(int anchor)
             break;
         case OBJ_VOL_CONE:
             prefix="SEL_OBJ_CONE_";
-            anchor_name=cone_anchor_name(anchor);
+            anchor_name=cone.anchor_name(anchor);
             break;
         case OBJ_VOL_CYLINDER:
             prefix="SEL_OBJ_CYL_";
@@ -618,7 +618,7 @@ void Object::intersect(SelRay const &base_ray,std::vector<RayInter> &interlist,i
             box.intersect(interlist, ray, obj_ID, face_last_intersect, first_forward);
             break;
         case OBJ_VOL_CONE:
-            intersect_cone_volume(ray,interlist,face_last_intersect,first_forward);
+            cone.intersect(interlist, ray, obj_ID, face_last_intersect, first_forward);
             break;
         case OBJ_CONIC:
             intersect_conic_section(ray,interlist,face_last_intersect,first_forward);
