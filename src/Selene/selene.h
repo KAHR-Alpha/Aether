@@ -433,18 +433,10 @@ class Object: public Frame
         
         // Parabola
         
-        double pr_f,pr_in_radius,pr_length,prm_thickness;
+        Primitives::Parabola parabola;
         
         void set_parabola();
         void set_parabola(double focal_length,double in_radius,double height);
-        
-        Vector3 parabola_anchor(int anchor);
-        std::string parabola_anchor_name(int anchor);
-        void intersect_parabola(SelRay const &ray,std::vector<RayInter> &interlist,int face_last_intersect,bool first_forward);
-        Vector3 normal_parabola(RayInter const &inter);
-        Vector3 tangent_parabola(RayInter const &inter);
-        void xyz_to_uv_parabola(double &u,double &v,int face,double x,double y,double z);
-        void default_N_uv_parabola(int &Nu,int &Nv,int face);
         
         // Prism Functions
         

@@ -62,99 +62,24 @@ void Object::set_disk(double radius_,double in_radius_)
 //   Parabola
 //##############
 
-Vector3 Object::parabola_anchor(int anchor)
-{
-    switch(anchor)
-    {
-        case 0: return Vector3(0);
-        case 1: return Vector3(pr_f,0,0);
-        case 2: return Vector3(pr_in_radius*pr_in_radius/(4.0*pr_f),0,0);
-        case 3: return Vector3(pr_length,0,0);
-        default: return Vector3(0);
-    }
-}
-
-std::string Object::parabola_anchor_name(int anchor)
-{
-    switch(anchor)
-    {
-        case 0: return "Center";
-        case 1: return "Focus";
-        case 2: return "In_center";
-        case 3: return "Out_center";
-        default: return "Center";
-    }
-}
-
-void Object::intersect_parabola(SelRay const &ray,std::vector<RayInter> &interlist,int face_last_intersect,bool first_forward)
-{
-    std::array<double,2> hits;
-    std::array<int,2> face_labels={0,0};
-    
-    ray_inter_parabola_x(ray.start,ray.dir,
-                         pr_f,pr_in_radius,pr_length,
-                         hits[0],hits[1]);
-    
-    if(first_forward)
-        push_first_forward(interlist,ray,obj_ID,hits,face_labels);
-    else
-        push_full_forward(interlist,ray,obj_ID,hits,face_labels);
-}
-
-Vector3 Object::normal_parabola(RayInter const &inter)
-{
-    Vector3 Fnorm;
-    
-    Fnorm(-1,0.5/pr_f*inter.obj_y,0.5/pr_f*inter.obj_z);
-    Fnorm.normalize();
-    
-    return Fnorm;
-}
-
 void Object::set_parabola()
 {
     type=OBJ_PARABOLA;
     
-    NFc=1;
-    F_arr.resize(NFc);
-    
-    bbox.xm=-0.1*pr_length;
-    bbox.xp=1.01*pr_length;
-    
-    double out_radius=std::sqrt(4.0*pr_f*pr_length)*1.01;
-    
-    bbox.ym=-out_radius;
-    bbox.yp=+out_radius;
-    
-    bbox.zm=-out_radius;
-    bbox.zp=+out_radius;
+    parabola.finalize();
+    NFc = F_arr.size();
 }
+
 
 void Object::set_parabola(double focal_length_,double in_radius_,double length_)
 {
-    pr_f=focal_length_;
-    pr_in_radius=in_radius_;
-    pr_length=length_;
+    parabola.pr_f=focal_length_;
+    parabola.pr_in_radius=in_radius_;
+    parabola.pr_length=length_;
     
     set_parabola();
 }
 
-void Object::xyz_to_uv_parabola(double &u,double &v,int face_,double x,double y,double z)
-{
-    double phi=std::atan2(z,y);
-    double th=std::atan2(std::sqrt(y*y+z*z),x);
-    
-    u=th*std::cos(phi)/sph_cut_th;
-    v=th*std::sin(phi)/sph_cut_th;
-    
-    u=u/2.0+0.5;
-    v=v/2.0+0.5;
-}
-
-void Object::default_N_uv_parabola(int &Nu,int &Nv,int face_)
-{
-    Nu=Nv=64;
-}
 
 //###############
 //   Rectangle

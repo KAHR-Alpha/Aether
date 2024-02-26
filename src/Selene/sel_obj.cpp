@@ -94,8 +94,8 @@ Object::Object()
      cylinder(bbox, F_arr, face_name_arr),
      disk(bbox, F_arr, face_name_arr),
      lens(bbox, F_arr, face_name_arr),
+     parabola(bbox, F_arr, face_name_arr),
      scaled_mesh(false), scaling_factor(1.0), has_octree(false),
-     pr_f(0.1), pr_in_radius(5e-3), pr_length(0.02),
      sph_r(0.05), sph_cut(1.0),
 //     prism_length(5e-2), prism_height(2e-2), prism_a1(Pi/3.0), prism_a2(Pi/3.0), prism_width(1),
      cleanup_done(false),
@@ -154,9 +154,9 @@ void Object::build_variables_map()
     variables_map["lens_back_radius"]=&lens.radius_back;
     variables_map["lens_radius"]=&lens.max_outer_radius;
     
-    variables_map["parabola_focal_lengths"]=&pr_f;
-    variables_map["parabola_length"]=&pr_length;
-    variables_map["parabola_internal_radius"]=&pr_in_radius;
+    variables_map["parabola_focal_lengths"]=&parabola.pr_f;
+    variables_map["parabola_length"]=&parabola.pr_length;
+    variables_map["parabola_internal_radius"]=&parabola.pr_in_radius;
     
     variables_map["rectangle_length_y"]=&box.ly;
     variables_map["rectangle_length_z"]=&box.lz;
@@ -225,7 +225,7 @@ void Object::bootstrap(std::filesystem::path const &output_directory,double ray_
             case OBJ_RECTANGLE:
                 sb_file<<"rectangle "<<box.ly<<" "<<box.lz; break;
             case OBJ_PARABOLA:
-                sb_file<<"parabola "<<pr_f<<" "<<pr_in_radius<<" "<<pr_length; break;
+                sb_file<<"parabola "<<parabola.pr_f<<" "<<parabola.pr_in_radius<<" "<<parabola.pr_length; break;
             case OBJ_SPHERE:
                 sb_file<<"sphere "<<sph_r<<" "<<sph_cut; break;
             case OBJ_SPHERE_PATCH:
@@ -372,7 +372,7 @@ void Object::default_N_uv(int &Nu,int &Nv,int face_)
         case OBJ_VOL_CYLINDER: cylinder.default_N_uv(Nu,Nv,face_); break;
         case OBJ_DISK: disk.default_N_uv(Nu,Nv,face_); break;
         case OBJ_LENS: lens.default_N_uv(Nu,Nv,face_); break;
-        case OBJ_PARABOLA: default_N_uv_parabola(Nu,Nv,face_); break;
+        case OBJ_PARABOLA: parabola.default_N_uv(Nu,Nv,face_); break;
         case OBJ_MESH: Nu=Nv=1; break;
         case OBJ_RECTANGLE: default_N_uv_rectangle(Nu,Nv,face_); break;
         case OBJ_SPHERE: default_N_uv_sphere(Nu,Nv,face_); break;
@@ -432,7 +432,7 @@ Vector3 Object::face_normal(RayInter const &inter)
         case OBJ_VOL_CYLINDER: return cylinder.normal(inter);
         case OBJ_DISK: return -unit_vec_x;
         case OBJ_LENS: return lens.normal(inter);
-        case OBJ_PARABOLA: return normal_parabola(inter);
+        case OBJ_PARABOLA: return parabola.normal(inter);
         case OBJ_MESH: return face(inter.face).norm;
         case OBJ_RECTANGLE: return -unit_vec_x;
         case OBJ_SPHERE: return normal_sphere(inter);
@@ -470,7 +470,7 @@ Vector3 Object::get_anchor(int anchor)
         case OBJ_BOX: return box.anchor(anchor);
         case OBJ_CONIC: return conic.anchor(anchor);
         case OBJ_LENS: return lens.anchor(anchor);
-        case OBJ_PARABOLA: return parabola_anchor(anchor);
+        case OBJ_PARABOLA: return parabola.anchor(anchor);
         case OBJ_VOL_CONE: return cone.anchor(anchor);
         case OBJ_VOL_CYLINDER: return cylinder.anchor(anchor);
         case OBJ_SPHERE: return sphere_anchor(anchor);
@@ -502,7 +502,7 @@ std::string Object::get_anchor_name(int anchor)
         case OBJ_BOX: return box.anchor_name(anchor);
         case OBJ_CONIC: return conic.anchor_name(anchor);
         case OBJ_LENS: return lens.anchor_name(anchor);
-        case OBJ_PARABOLA: return parabola_anchor_name(anchor);
+        case OBJ_PARABOLA: return parabola.anchor_name(anchor);
         case OBJ_VOL_CONE: return cone.anchor_name(anchor);
         case OBJ_VOL_CYLINDER: return cylinder.anchor_name(anchor);
         case OBJ_SPHERE: return sphere_anchor_name(anchor);
@@ -532,7 +532,7 @@ std::string Object::get_anchor_script_name(int anchor)
             break;
         case OBJ_PARABOLA:
             prefix="SEL_PARABOLA_";
-            anchor_name=parabola_anchor_name(anchor);
+            anchor_name=parabola.anchor_name(anchor);
             break;
         case OBJ_VOL_CONE:
             prefix="SEL_OBJ_CONE_";
@@ -625,7 +625,7 @@ void Object::intersect(SelRay const &base_ray,std::vector<RayInter> &interlist,i
             intersect_mesh(ray,interlist,face_last_intersect,first_forward);
             break;
         case OBJ_PARABOLA:
-            intersect_parabola(ray,interlist,face_last_intersect,first_forward);
+            parabola.intersect(interlist, ray, obj_ID, face_last_intersect, first_forward);
             break;
         case OBJ_RECTANGLE:
             intersect_rectangle(ray,interlist,face_last_intersect,first_forward);
@@ -1074,7 +1074,7 @@ void Object::xyz_to_uv(double &u,double &v,int face_,
         case OBJ_VOL_CYLINDER: cylinder.xyz_to_uv(u,v,face_,x,y,z); break;
         case OBJ_DISK: disk.xyz_to_uv(u,v,face_,x,y,z); break;
         case OBJ_LENS: lens.xyz_to_uv(u,v,face_,x,y,z); break;
-        case OBJ_PARABOLA: xyz_to_uv_parabola(u,v,face_,x,y,z); break;
+        case OBJ_PARABOLA: parabola.xyz_to_uv(u,v,face_,x,y,z); break;
         case OBJ_MESH: u=v=0; break;
         case OBJ_RECTANGLE: xyz_to_uv_rectangle(u,v,face_,x,y,z); break;
         case OBJ_SPHERE: xyz_to_uv_sphere(u,v,face_,x,y,z); break;
