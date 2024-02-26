@@ -134,9 +134,7 @@ void Object::build_variables_map()
     variables_map["angle_B"]=&in_B.val;
     variables_map["angle_C"]=&in_C.val;
     
-    variables_map["box_length_x"]=&box.lx;
-    variables_map["box_length_y"]=&box.ly;
-    variables_map["box_length_z"]=&box.lz;
+    box.map_variables(variables_map);
     
     variables_map["conic_radius"]=&conic.R_factor;
     variables_map["conic_constant"]=&conic.K_factor;
@@ -159,8 +157,8 @@ void Object::build_variables_map()
     variables_map["parabola_length"]=&parabola.length;
     variables_map["parabola_internal_radius"]=&parabola.inner_radius;
     
-    variables_map["rectangle_length_y"]=&box.ly;
-    variables_map["rectangle_length_z"]=&box.lz;
+    variables_map["rectangle_length_y"]=&rectangle.ly;
+    variables_map["rectangle_length_z"]=&rectangle.lz;
     
     variables_map["sphere_radius"]=&sph_r;
     variables_map["sphere_cut_factor"]=&sph_cut;
@@ -210,7 +208,7 @@ void Object::bootstrap(std::filesystem::path const &output_directory,double ray_
             case OBJ_BOOLEAN:
                 sb_file<<"boolean "; break;
             case OBJ_BOX:
-                sb_file<<"box "<<box.lx<<" "<<box.ly<<" "<<box.lz; break;
+                sb_file<<"box "<<box.get_lx()<<" "<<box.get_ly()<<" "<<box.get_lz(); break;
             case OBJ_VOL_CONE:
                 sb_file<<"cone "; break;
             case OBJ_CONIC:
@@ -224,7 +222,7 @@ void Object::bootstrap(std::filesystem::path const &output_directory,double ray_
             case OBJ_MESH:
                 sb_file<<"mesh "<<mesh_fname; break;
             case OBJ_RECTANGLE:
-                sb_file<<"rectangle "<<box.ly<<" "<<box.lz; break;
+                sb_file<<"rectangle "<<rectangle.ly<<" "<<rectangle.lz; break;
             case OBJ_PARABOLA:
                 sb_file<<"parabola "<<parabola.focal<<" "<<parabola.inner_radius<<" "<<parabola.length; break;
             case OBJ_SPHERE:

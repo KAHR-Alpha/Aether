@@ -478,7 +478,7 @@ void SeleneFrame::save_project(wxFileName const &fname_)
             switch(object->type)
             {
                 case Sel::OBJ_BOX:
-                    file<<"\"box\","<<object->box.lx<<","<<object->box.ly<<","<<object->box.lz;
+                    file<<"\"box\","<<object->box.get_lx()<<","<<object->box.get_ly()<<","<<object->box.get_lz();
                     break;
                 case Sel::OBJ_VOL_CONE:
                     break;
@@ -498,7 +498,7 @@ void SeleneFrame::save_project(wxFileName const &fname_)
                     file<<"\"mesh\",\""<<object->mesh_fname<<"\"";
                     break;
                 case Sel::OBJ_RECTANGLE:
-                    file<<"\"rectangle\","<<object->box.ly<<","<<object->box.lz;
+                    file<<"\"rectangle\","<<object->rectangle.ly<<","<<object->rectangle.lz;
                     break;
                 case Sel::OBJ_PARABOLA:
                     file<<"\"parabola\","<<object->parabola.focal<<","<<object->parabola.inner_radius<<","<<object->parabola.length;

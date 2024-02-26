@@ -595,20 +595,20 @@ BoxDialog::BoxDialog(Sel::Object *object_,std::vector<Sel::Frame*> const &frames
                      OptimEngine &optim_engine_)
     :ObjectDialog(object_,frames_,materials_,irfs_,optim_engine_)
 {    
-    box_lx=new LengthSelector(ctrl_panel,"X Length",object->box.lx,true);
-    box_lx->handle_external_optimization(&object->box.lx,optim_engine);
+    box_lx=new LengthSelector(ctrl_panel,"X Length",object->box.get_lx(),true);
+    box_lx->handle_external_optimization(&object->box.ref_lx(),optim_engine);
     box_lx->Bind(EVT_LENGTH_SELECTOR,&ObjectDialog::evt_geometry,this);
     
     ctrl_sizer->Add(box_lx,wxSizerFlags().Expand().Border(wxALL,1));
     
-    box_ly=new LengthSelector(ctrl_panel,"Y Length",object->box.ly,true);
-    box_ly->handle_external_optimization(&object->box.ly,optim_engine);
+    box_ly=new LengthSelector(ctrl_panel,"Y Length",object->box.get_ly(),true);
+    box_ly->handle_external_optimization(&object->box.ref_ly(),optim_engine);
     box_ly->Bind(EVT_LENGTH_SELECTOR,&ObjectDialog::evt_geometry,this);
     
     ctrl_sizer->Add(box_ly,wxSizerFlags().Expand().Border(wxALL,1));
     
-    box_lz=new LengthSelector(ctrl_panel,"Z Length",object->box.lz,true);
-    box_lz->handle_external_optimization(&object->box.lz,optim_engine);
+    box_lz=new LengthSelector(ctrl_panel,"Z Length",object->box.get_lz(),true);
+    box_lz->handle_external_optimization(&object->box.ref_lz(),optim_engine);
     box_lz->Bind(EVT_LENGTH_SELECTOR,&ObjectDialog::evt_geometry,this);
     
     ctrl_sizer->Add(box_lz,wxSizerFlags().Expand().Border(wxALL,1));
@@ -643,13 +643,13 @@ void register_optimization(T *ctrl,double *var,OptimEngine &engine)
 
 void BoxDialog::save_object_geometry()
 {
-    object->box.lx=box_lx->get_length();
-    object->box.ly=box_ly->get_length();
-    object->box.lz=box_lz->get_length();
+    object->box.set_parameters(box_lx->get_length(),
+                               box_ly->get_length(),
+                               box_lz->get_length());
     
-    register_optimization(box_lx,&object->box.lx,optim_engine);
-    register_optimization(box_ly,&object->box.ly,optim_engine);
-    register_optimization(box_lz,&object->box.lz,optim_engine);
+    register_optimization(box_lx,&object->box.ref_lx(),optim_engine);
+    register_optimization(box_ly,&object->box.ref_ly(),optim_engine);
+    register_optimization(box_lz,&object->box.ref_lz(),optim_engine);
     
     object->set_box();
 }
@@ -957,12 +957,12 @@ RectangleDialog::RectangleDialog(Sel::Object *object_,std::vector<Sel::Frame*> c
                      OptimEngine &optim_engine_)
     :ObjectDialog(object_,frames_,materials_,irfs_,optim_engine_)
 {
-    box_ly=new LengthSelector(ctrl_panel,"Y Length",object->box.ly,true,"mm");
-    box_ly->handle_external_optimization(&object->box.ly,optim_engine);
+    box_ly=new LengthSelector(ctrl_panel,"Y Length",object->rectangle.ly,true,"mm");
+    box_ly->handle_external_optimization(&object->rectangle.ly,optim_engine);
     box_ly->Bind(EVT_LENGTH_SELECTOR,&ObjectDialog::evt_geometry,this);
     
-    box_lz=new LengthSelector(ctrl_panel,"Z Length",object->box.lz,true,"mm");
-    box_lz->handle_external_optimization(&object->box.lz,optim_engine);
+    box_lz=new LengthSelector(ctrl_panel,"Z Length",object->rectangle.lz,true,"mm");
+    box_lz->handle_external_optimization(&object->rectangle.lz,optim_engine);
     box_lz->Bind(EVT_LENGTH_SELECTOR,&ObjectDialog::evt_geometry,this);
     
     ctrl_sizer->Add(box_ly,wxSizerFlags().Expand().Border(wxALL,1));
@@ -981,11 +981,11 @@ double RectangleDialog::mesh(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr
 
 void RectangleDialog::save_object_geometry()
 {
-    object->box.ly=box_ly->get_length();
-    object->box.lz=box_lz->get_length();
+    object->rectangle.ly=box_ly->get_length();
+    object->rectangle.lz=box_lz->get_length();
     
-    register_optimization(box_ly,&object->box.ly,optim_engine);
-    register_optimization(box_lz,&object->box.lz,optim_engine);
+    register_optimization(box_ly,&object->rectangle.ly,optim_engine);
+    register_optimization(box_lz,&object->rectangle.lz,optim_engine);
     
     object->set_rectangle();
 }

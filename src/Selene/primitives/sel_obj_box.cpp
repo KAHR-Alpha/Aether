@@ -136,6 +136,11 @@ namespace Sel::Primitives
         face_name_arr[4]="Face ZM";
         face_name_arr[5]="Face ZP";
     }
+
+
+    double Box::get_lx() const { return lx; }
+    double Box::get_ly() const { return ly; }
+    double Box::get_lz() const { return lz; }
     
     
     void Box::intersect(std::vector<RayInter> &interlist, SelRay const &ray, int obj_ID, int face_last_intersect, bool first_forward) const
@@ -185,6 +190,14 @@ namespace Sel::Primitives
             push_full_forward(interlist,ray,obj_ID,hits,face_labels);
     }
     
+
+    void Box::map_variables(std::map<std::string,double*> &variables_map)
+    {
+        variables_map["box_length_x"]=&lx;
+        variables_map["box_length_y"]=&ly;
+        variables_map["box_length_z"]=&lz;
+    }
+
     
     Vector3 Box::normal(RayInter const &inter) const
     {
@@ -200,6 +213,11 @@ namespace Sel::Primitives
         
         return Fnorm;
     }
+
+
+    double& Box::ref_lx() { return lx; }
+    double& Box::ref_ly() { return ly; }
+    double& Box::ref_lz() { return lz; }
     
     
     void Box::set_parameters(double lx_, double ly_, double lz_)
