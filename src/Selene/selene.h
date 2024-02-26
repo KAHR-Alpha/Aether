@@ -446,14 +446,10 @@ class Object: public Frame
         
         // Rectangle Functions
         
+        Primitives::Rectangle rectangle;
+
         void set_rectangle();
         void set_rectangle(double ly,double lz);
-        
-        void intersect_rectangle(SelRay const &ray,std::vector<RayInter> &interlist,int face_last_intersect,bool first_forward);
-        Vector3 normal_rectangle(RayInter const &inter);
-        Vector3 tangent_rectangle(RayInter const &inter,Vector3 const &normal,bool up);
-        void xyz_to_uv_rectangle(double &u,double &v,int face,double x,double y,double z);
-        void default_N_uv_rectangle(int &Nu,int &Nv,int face);
         
         // Sphere Functions
         

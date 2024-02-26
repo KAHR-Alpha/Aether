@@ -95,6 +95,7 @@ Object::Object()
      disk(bbox, F_arr, face_name_arr),
      lens(bbox, F_arr, face_name_arr),
      parabola(bbox, F_arr, face_name_arr),
+     rectangle(bbox, F_arr, face_name_arr),
      scaled_mesh(false), scaling_factor(1.0), has_octree(false),
      sph_r(0.05), sph_cut(1.0),
 //     prism_length(5e-2), prism_height(2e-2), prism_a1(Pi/3.0), prism_a2(Pi/3.0), prism_width(1),
@@ -374,7 +375,7 @@ void Object::default_N_uv(int &Nu,int &Nv,int face_)
         case OBJ_LENS: lens.default_N_uv(Nu,Nv,face_); break;
         case OBJ_PARABOLA: parabola.default_N_uv(Nu,Nv,face_); break;
         case OBJ_MESH: Nu=Nv=1; break;
-        case OBJ_RECTANGLE: default_N_uv_rectangle(Nu,Nv,face_); break;
+        case OBJ_RECTANGLE: rectangle.default_N_uv(Nu,Nv,face_); break;
         case OBJ_SPHERE: default_N_uv_sphere(Nu,Nv,face_); break;
         case OBJ_SPHERE_PATCH: default_N_uv_spherical_patch(Nu,Nv,face_); break;
         default:
@@ -457,7 +458,7 @@ Vector3 Object::face_tangent(RayInter const &inter,
 //        case OBJ_LENS: return tangent_lens(inter);
 //        case OBJ_PARABOLA: return tangent_parabola(inter);
 //        case OBJ_MESH: return face(inter.face).norm;
-        case OBJ_RECTANGLE: return tangent_rectangle(inter,normal,up);
+        case OBJ_RECTANGLE: return rectangle.tangent(inter,normal,up);
     }
     
     return Vector3(0);
@@ -628,7 +629,7 @@ void Object::intersect(SelRay const &base_ray,std::vector<RayInter> &interlist,i
             parabola.intersect(interlist, ray, obj_ID, face_last_intersect, first_forward);
             break;
         case OBJ_RECTANGLE:
-            intersect_rectangle(ray,interlist,face_last_intersect,first_forward);
+            rectangle.intersect(interlist, ray, obj_ID, face_last_intersect, first_forward);
             break;
         case OBJ_SPHERE:
             intersect_sphere(ray,interlist,face_last_intersect,first_forward);
@@ -1076,7 +1077,7 @@ void Object::xyz_to_uv(double &u,double &v,int face_,
         case OBJ_LENS: lens.xyz_to_uv(u,v,face_,x,y,z); break;
         case OBJ_PARABOLA: parabola.xyz_to_uv(u,v,face_,x,y,z); break;
         case OBJ_MESH: u=v=0; break;
-        case OBJ_RECTANGLE: xyz_to_uv_rectangle(u,v,face_,x,y,z); break;
+        case OBJ_RECTANGLE: rectangle.xyz_to_uv(u,v,face_,x,y,z); break;
         case OBJ_SPHERE: xyz_to_uv_sphere(u,v,face_,x,y,z); break;
         case OBJ_SPHERE_PATCH: xyz_to_uv_spherical_patch(u,v,face_,x,y,z); break;
         default:

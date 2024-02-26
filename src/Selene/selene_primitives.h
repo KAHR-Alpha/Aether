@@ -31,9 +31,9 @@ namespace Sel
         double zm=0;
         double zp=0;
         
-        double span_x() { return xp-xm; }
-        double span_y() { return yp-ym; }
-        double span_z() { return zp-zm; }
+        double span_x() const { return xp-xm; }
+        double span_y() const { return yp-ym; }
+        double span_z() const { return zp-zm; }
     };
     
     int nearest_2np1(double val);
@@ -254,6 +254,35 @@ namespace Sel::Primitives
             Vector3 normal(RayInter const &inter) const;
             void set_parameters(double lx,
                                 double ly,
+                                double lz);
+            Vector3 tangent(RayInter const &inter,
+                            Vector3 const &normal,
+                            bool up) const;
+            void xyz_to_uv(double &u, double &v, int face,
+                           double x, double y, double z) const;
+                           
+        private:
+            BoundingBox &bbox;
+            std::vector<Sel::SelFace> &F_arr;
+            std::vector<std::string> &face_name_arr;
+    };
+
+    class Rectangle
+    {
+        public:
+            double ly,lz;
+            
+            Rectangle(BoundingBox &bbox,
+                      std::vector<Sel::SelFace> &F_arr,
+                      std::vector<std::string> &face_name_arr);
+                
+            Vector3 anchor(int anchor) const;
+            std::string anchor_name(int anchor) const;
+            void default_N_uv(int &Nu, int &Nv, int face) const;
+            void finalize();
+            void intersect(std::vector<RayInter> &interlist, SelRay const &ray, int obj_ID, int face_last_intersect,bool first_forward) const;
+            Vector3 normal(RayInter const &inter) const;
+            void set_parameters(double ly,
                                 double lz);
             Vector3 tangent(RayInter const &inter,
                             Vector3 const &normal,

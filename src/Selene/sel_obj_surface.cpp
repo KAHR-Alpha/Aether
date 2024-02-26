@@ -85,105 +85,20 @@ void Object::set_parabola(double focal_length_,double in_radius_,double length_)
 //   Rectangle
 //###############
 
-void Object::intersect_rectangle(SelRay const &ray,std::vector<RayInter> &interlist,int face_last_intersect,bool first_forward)
-{
-    std::array<double,1> hits;
-    std::array<int,1> face_labels={0};
-    
-    if(!ray_inter_plane_x(ray.start,ray.dir,0,hits[0])) hits[0]=-1;
-    else
-    {
-        Vector3 P=ray.start+hits[0]*ray.dir;
-        
-        if(std::abs(P.y)>box.ly/2.0 || std::abs(P.z)>box.lz/2.0)
-            hits[0]=-1;
-    }
-    
-    if(first_forward)
-        push_first_forward(interlist,ray,obj_ID,hits,face_labels);
-    else
-        push_full_forward(interlist,ray,obj_ID,hits,face_labels);
-}
-
-Vector3 Object::normal_rectangle(RayInter const &inter)
-{
-    return -unit_vec_x;
-}
-
-Vector3 Object::tangent_rectangle(RayInter const &inter,Vector3 const &normal,bool up)
-{
-    Sel::SelFace &face=F_arr[0];
-    
-    int tangent_type;
-    Vector3 tangent;
-    
-    if(up)
-    {
-        tangent_type=face.tangent_up;
-        tangent=face.fixed_tangent_up;
-    }
-    else
-    {
-        tangent_type=face.tangent_down;
-        tangent=face.fixed_tangent_down;
-    }
-    
-         if(tangent_type==TANGENT_UNSET) return Vector3(0);
-    else if(tangent_type==TANGENT_FIXED)
-    {
-        tangent=tangent-normal*scalar_prod(normal,tangent);
-        tangent.normalize();
-    }
-    else
-    {
-        switch(tangent_type)
-        {
-        }
-    }
-    
-    return tangent;
-}
-
 void Object::set_rectangle()
 {
     type=OBJ_RECTANGLE;
     
-    NFc=1;
-    F_arr.resize(NFc);
     
-    double span=std::max(box.ly,box.lz);
-    
-    bbox.xm=-0.05*span;
-    bbox.xp=+0.05*span;
-    
-    bbox.ym=-1.1*box.ly/2.0;
-    bbox.yp=+1.1*box.ly/2.0;
-    
-    bbox.zm=-1.1*box.lz/2.0;
-    bbox.zp=+1.1*box.lz/2.0;
 }
 
-void Object::set_rectangle(double ly_,double lz_)
+
+void Object::set_rectangle(double ly, double lz)
 {
-    box.ly=ly_;
-    box.lz=lz_;
-    
+    rectangle.set_parameters(ly, lz);
     set_rectangle();
 }
 
-void Object::xyz_to_uv_rectangle(double &u,double &v,int face_,double x,double y,double z)
-{
-    u=0.5+y/box.ly;
-    v=0.5+z/box.lz;
-}
-
-void Object::default_N_uv_rectangle(int &Nu,int &Nv,int face_)
-{
-    double delta=std::max(box.ly,box.lz)/64.0;
-    
-    Nu=nearest_2np1(box.ly/delta);
-    Nv=nearest_2np1(box.lz/delta);
-}
 
 //#####################
 //   Spherical Patch
