@@ -829,26 +829,26 @@ LensDialog::LensDialog(Sel::Object *object_,
                        OptimEngine &optim_engine_)
     :ObjectDialog(object_,frames_,materials_,irfs_,optim_engine_)
 {
-    ls_thickness=new LengthSelector(ctrl_panel,"Thickness",object->lens.ls_thickness,true);
-    ls_thickness->handle_external_optimization(&object->lens.ls_thickness,optim_engine);
+    ls_thickness=new LengthSelector(ctrl_panel,"Thickness",object->lens.thickness,true);
+    ls_thickness->handle_external_optimization(&object->lens.thickness,optim_engine);
     ls_thickness->Bind(EVT_LENGTH_SELECTOR,&ObjectDialog::evt_geometry,this);
     
     ctrl_sizer->Add(ls_thickness,wxSizerFlags().Expand().Border(wxALL,1));
     
-    ls_r1=new LengthSelector(ctrl_panel,"In Radius",object->lens.ls_r1,true);
-    ls_r1->handle_external_optimization(&object->lens.ls_r1,optim_engine);
+    ls_r1=new LengthSelector(ctrl_panel,"In Radius",object->lens.radius_front,true);
+    ls_r1->handle_external_optimization(&object->lens.radius_front,optim_engine);
     ls_r1->Bind(EVT_LENGTH_SELECTOR,&ObjectDialog::evt_geometry,this);
     
     ctrl_sizer->Add(ls_r1,wxSizerFlags().Expand().Border(wxALL,1));
     
-    ls_r2=new LengthSelector(ctrl_panel,"Out Radius",object->lens.ls_r2,true);
-    ls_r2->handle_external_optimization(&object->lens.ls_r2,optim_engine);
+    ls_r2=new LengthSelector(ctrl_panel,"Out Radius",object->lens.radius_back,true);
+    ls_r2->handle_external_optimization(&object->lens.radius_back,optim_engine);
     ls_r2->Bind(EVT_LENGTH_SELECTOR,&ObjectDialog::evt_geometry,this);
     
     ctrl_sizer->Add(ls_r2,wxSizerFlags().Expand().Border(wxALL,1));
     
-    ls_r_max=new LengthSelector(ctrl_panel,"Max Radius",object->lens.ls_r_max_nominal,true);
-    ls_r_max->handle_external_optimization(&object->lens.ls_r_max_nominal,optim_engine);
+    ls_r_max=new LengthSelector(ctrl_panel,"Max Radius",object->lens.max_outer_radius,true);
+    ls_r_max->handle_external_optimization(&object->lens.max_outer_radius,optim_engine);
     ls_r_max->Bind(EVT_LENGTH_SELECTOR,&ObjectDialog::evt_geometry,this);
     
     ctrl_sizer->Add(ls_r_max,wxSizerFlags().Expand().Border(wxALL,1));
@@ -878,15 +878,15 @@ double LensDialog::mesh(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr)
 
 void LensDialog::save_object_geometry()
 {
-    object->lens.ls_thickness=ls_thickness->get_length();
-    object->lens.ls_r1=ls_r1->get_length();
-    object->lens.ls_r2=ls_r2->get_length();
-    object->lens.ls_r_max_nominal=ls_r_max->get_length();
+    object->lens.thickness=ls_thickness->get_length();
+    object->lens.radius_front=ls_r1->get_length();
+    object->lens.radius_back=ls_r2->get_length();
+    object->lens.max_outer_radius=ls_r_max->get_length();
     
-    register_optimization(ls_thickness,&object->lens.ls_thickness,optim_engine);
-    register_optimization(ls_r1,&object->lens.ls_r1,optim_engine);
-    register_optimization(ls_r2,&object->lens.ls_r2,optim_engine);
-    register_optimization(ls_r_max,&object->lens.ls_r_max_nominal,optim_engine);
+    register_optimization(ls_thickness,&object->lens.thickness,optim_engine);
+    register_optimization(ls_r1,&object->lens.radius_front,optim_engine);
+    register_optimization(ls_r2,&object->lens.radius_back,optim_engine);
+    register_optimization(ls_r_max,&object->lens.max_outer_radius,optim_engine);
     
     object->set_lens();
 }

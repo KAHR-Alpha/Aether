@@ -31,7 +31,7 @@ namespace Sel::Primitives
                std::vector<Sel::SelFace> &F_arr_,
                std::vector<std::string> &face_name_arr_)
         :bbox(bbox_), F_arr(F_arr_), face_name_arr(face_name_arr_),
-         ls_thickness(0.01), ls_r1(0.3), ls_r2(-0.3), ls_r_max_nominal(0.1)
+         thickness(0.01), radius_front(0.3), radius_back(-0.3), max_outer_radius(0.1)
     {
     }
     
@@ -41,8 +41,8 @@ namespace Sel::Primitives
         switch(anchor)
         {
             case 0: return Vector3(0);
-            case 1: return Vector3(-ls_thickness/1.0,0,0);
-            case 2: return Vector3(+ls_thickness/1.0,0,0);
+            case 1: return Vector3(-thickness/1.0,0,0);
+            case 2: return Vector3(+thickness/1.0,0,0);
             default: return Vector3(0);
         }
     }
@@ -73,45 +73,45 @@ namespace Sel::Primitives
     void Lens::finalize()
     {
         double A,B,th_1,th_2;
-
-        lens_geometry(A,B,ls_r_max,th_1,th_2,
-                      ls_thickness,ls_r_max_nominal,ls_r1,ls_r2);
-
-        ls_c1=Vector3(A,0,0);
-        ls_c2=Vector3(B,0,0);
-
-        ls_cth_1=std::cos(th_1);
-        ls_cth_2=std::cos(th_2);
-
-        if(ls_r1>=0) ls_N1=-unit_vec_x;
-        else ls_N1=unit_vec_x;
-
-        if(ls_r2>=0) ls_N2=-unit_vec_x;
-        else ls_N2=unit_vec_x;
-
-        double x1=A-ls_r1*ls_cth_1;
-        double x2=B-ls_r2*ls_cth_2;
-
-        ls_cyl_pos=Vector3(x1,0,0);
-        ls_cyl_h=x2-x1;
-        ls_cyl_N=unit_vec_x;
-
+        
+        lens_geometry(A,B,outer_radius,th_1,th_2,
+                      thickness,max_outer_radius,radius_front,radius_back);
+                      
+        center_front=Vector3(A,0,0);
+        center_back=Vector3(B,0,0);
+        
+        cth_front=std::cos(th_1);
+        cth_back=std::cos(th_2);
+        
+        if(radius_front>=0) normal_front=-unit_vec_x;
+        else normal_front=unit_vec_x;
+        
+        if(radius_back>=0) normal_back=-unit_vec_x;
+        else normal_back=unit_vec_x;
+        
+        double x1=A-radius_front*cth_front;
+        double x2=B-radius_back*cth_back;
+        
+        cylinder_origin=Vector3(x1,0,0);
+        cylinder_length=x2-x1;
+        cylinder_direction=unit_vec_x;
+        
         int NFc=3;
         F_arr.resize(NFc);
-
+        
         // Bounding box
-
-        x1=std::min(ls_cyl_pos.x,ls_c1.x-ls_r1);
-        x2=std::max(ls_cyl_pos.x+ls_cyl_h,ls_c2.x-ls_r2);
-
+        
+        x1=std::min(cylinder_origin.x,center_front.x-radius_front);
+        x2=std::max(cylinder_origin.x+cylinder_length,center_back.x-radius_back);
+        
         bbox.xm=1.1*x1;
         bbox.xp=1.1*x2;
-
-        bbox.ym=-1.1*ls_r_max;
-        bbox.yp=+1.1*ls_r_max;
-
-        bbox.zm=-1.1*ls_r_max;
-        bbox.zp=+1.1*ls_r_max;
+        
+        bbox.ym=-1.1*outer_radius;
+        bbox.yp=+1.1*outer_radius;
+        
+        bbox.zm=-1.1*outer_radius;
+        bbox.zp=+1.1*outer_radius;
         
         // Todo
         /*face_name_arr.resize(NFc);
@@ -128,25 +128,25 @@ namespace Sel::Primitives
     {
         std::array<double,6> hits;
         std::array<int,6> face_labels={0,0,1,1,2,2};
-
+        
         RayInter inter_out;
-
-        if(!ray_inter_coupola(ray.start,ray.dir,ls_c1,ls_N1,ls_r1,ls_cth_1,hits[0],hits[1]))
+        
+        if(!ray_inter_coupola(ray.start,ray.dir,center_front,normal_front,radius_front,cth_front,hits[0],hits[1]))
         {
             hits[0]=-1;
             hits[1]=-1;
         }
-        if(!ray_inter_coupola(ray.start,ray.dir,ls_c2,ls_N2,ls_r2,ls_cth_2,hits[2],hits[3]))
+        if(!ray_inter_coupola(ray.start,ray.dir,center_back,normal_back,radius_back,cth_back,hits[2],hits[3]))
         {
             hits[2]=-1;
             hits[3]=-1;
         }
-        if(!ray_inter_cylinder(ray.start,ray.dir,ls_cyl_pos,ls_cyl_N,ls_r_max,ls_cyl_h,hits[4],hits[5]))
+        if(!ray_inter_cylinder(ray.start,ray.dir,cylinder_origin,cylinder_direction,outer_radius,cylinder_length,hits[4],hits[5]))
         {
             hits[4]=-1;
             hits[5]=-1;
         }
-
+        
         if(first_forward)
             push_first_forward(interlist,ray,obj_ID,hits,face_labels);
         else
@@ -157,19 +157,19 @@ namespace Sel::Primitives
     Vector3 Lens::normal(RayInter const &inter) const
     {
         Vector3 Fnorm;
-
+        
         if(inter.face==0)
-            Fnorm=+sgn(ls_r1)*(Vector3(inter.obj_x,inter.obj_y,inter.obj_z)-ls_c1);
+            Fnorm=+sgn(radius_front)*(Vector3(inter.obj_x,inter.obj_y,inter.obj_z)-center_front);
         else if(inter.face==1)
-            Fnorm=-sgn(ls_r2)*(Vector3(inter.obj_x,inter.obj_y,inter.obj_z)-ls_c2);
+            Fnorm=-sgn(radius_back)*(Vector3(inter.obj_x,inter.obj_y,inter.obj_z)-center_back);
         else
         {
-            Fnorm=Vector3(inter.obj_x,inter.obj_y,inter.obj_z)-ls_cyl_pos;
-            Fnorm=Fnorm.transverse(ls_cyl_N);
-
+            Fnorm=Vector3(inter.obj_x,inter.obj_y,inter.obj_z)-cylinder_origin;
+            Fnorm=Fnorm.transverse(cylinder_direction);
+            
             Fnorm=Vector3(0,inter.obj_y,inter.obj_z);
         }
-
+        
         Fnorm.normalize();
         return Fnorm;
     }
@@ -180,10 +180,10 @@ namespace Sel::Primitives
                               double r1_,
                               double r2_)
     {
-        ls_thickness=thickness_;
-        ls_r1=r1_;
-        ls_r2=r2_;
-        ls_r_max_nominal=r_max_;
+        thickness=thickness_;
+        radius_front=r1_;
+        radius_back=r2_;
+        max_outer_radius=r_max_;
     }
     
     

@@ -149,10 +149,10 @@ void Object::build_variables_map()
     variables_map["disk_radius"]=&disk.radius;
     variables_map["disk_internal_radius"]=&disk.in_radius;
     
-    variables_map["lens_thickness"]=&lens.ls_thickness;
-    variables_map["lens_front_radius"]=&lens.ls_r1;
-    variables_map["lens_back_radius"]=&lens.ls_r2;
-    variables_map["lens_radius"]=&lens.ls_r_max_nominal;
+    variables_map["lens_thickness"]=&lens.thickness;
+    variables_map["lens_front_radius"]=&lens.radius_front;
+    variables_map["lens_back_radius"]=&lens.radius_back;
+    variables_map["lens_radius"]=&lens.max_outer_radius;
     
     variables_map["parabola_focal_lengths"]=&pr_f;
     variables_map["parabola_length"]=&pr_length;
@@ -219,7 +219,7 @@ void Object::bootstrap(std::filesystem::path const &output_directory,double ray_
             case OBJ_DISK:
                 sb_file<<"disk "<<disk.radius<<" "<<disk.in_radius; break;
             case OBJ_LENS:
-                sb_file<<"lens "<<lens.ls_thickness<<" "<<lens.ls_r_max_nominal<<" "<<lens.ls_r1<<" "<<lens.ls_r2; break;
+                sb_file<<"lens "<<lens.thickness<<" "<<lens.max_outer_radius<<" "<<lens.radius_front<<" "<<lens.radius_back; break;
             case OBJ_MESH:
                 sb_file<<"mesh "<<mesh_fname; break;
             case OBJ_RECTANGLE:

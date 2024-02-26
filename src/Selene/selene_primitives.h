@@ -194,10 +194,10 @@ namespace Sel::Primitives
     class Lens
     {
         public:
-            double ls_thickness,
-                   ls_r1,ls_r2,
-                   ls_cth_1,ls_cth_2,
-                   ls_cyl_h,ls_r_max,ls_r_max_nominal;
+            double thickness,
+                   radius_front,
+                   radius_back,
+                   max_outer_radius;
         
             Lens(BoundingBox &bbox,
                  std::vector<Sel::SelFace> &F_arr,
@@ -220,9 +220,17 @@ namespace Sel::Primitives
                            double x, double y, double z) const;
                            
         private:
-            Vector3 ls_c1,ls_c2,
-                    ls_N1,ls_N2,
-                    ls_cyl_pos,ls_cyl_N;
+            double cth_front,
+                   cth_back,
+                   cylinder_length,
+                   outer_radius;
+
+            Vector3 center_front,
+                    center_back,
+                    normal_front,
+                    normal_back,
+                    cylinder_origin,
+                    cylinder_direction;
 
             BoundingBox &bbox;
             std::vector<Sel::SelFace> &F_arr;

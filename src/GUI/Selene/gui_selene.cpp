@@ -1144,7 +1144,7 @@ void SeleneFrame::update_vao(SeleneVAO *vao,Sel::Frame *frame)
         else if(object->type==Sel::OBJ_LENS)
         {
             lens_mesh_wireframe(V_arr,F_arr,128,
-                                object->lens.ls_thickness,object->lens.ls_r_max_nominal,object->lens.ls_r1,object->lens.ls_r2);
+                                object->lens.thickness,object->lens.max_outer_radius,object->lens.radius_front,object->lens.radius_back);
         }
         else if(object->type==Sel::OBJ_PARABOLA)
         {
