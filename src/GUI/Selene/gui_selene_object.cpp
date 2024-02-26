@@ -902,20 +902,20 @@ ParabolaDialog::ParabolaDialog(Sel::Object *object_,
                                OptimEngine &optim_engine_)
     :ObjectDialog(object_,frames_,materials_,irfs_,optim_engine_)
 {
-    pr_focal=new LengthSelector(ctrl_panel,"Focal Point",object->parabola.pr_f,true);
-    pr_focal->handle_external_optimization(&object->parabola.pr_f,optim_engine);
+    pr_focal=new LengthSelector(ctrl_panel,"Focal Point",object->parabola.focal,true);
+    pr_focal->handle_external_optimization(&object->parabola.focal,optim_engine);
     pr_focal->Bind(EVT_LENGTH_SELECTOR,&ObjectDialog::evt_geometry,this);
     
     ctrl_sizer->Add(pr_focal,wxSizerFlags().Expand().Border(wxALL,1));
     
-    pr_in_radius=new LengthSelector(ctrl_panel,"In Radius",object->parabola.pr_in_radius,true);
-    pr_in_radius->handle_external_optimization(&object->parabola.pr_in_radius,optim_engine);
+    pr_in_radius=new LengthSelector(ctrl_panel,"In Radius",object->parabola.inner_radius,true);
+    pr_in_radius->handle_external_optimization(&object->parabola.inner_radius,optim_engine);
     pr_in_radius->Bind(EVT_LENGTH_SELECTOR,&ObjectDialog::evt_geometry,this);
     
     ctrl_sizer->Add(pr_in_radius,wxSizerFlags().Expand().Border(wxALL,1));
     
-    pr_height=new LengthSelector(ctrl_panel,"Height",object->parabola.pr_length,true);
-    pr_height->handle_external_optimization(&object->parabola.pr_length,optim_engine);
+    pr_height=new LengthSelector(ctrl_panel,"Height",object->parabola.length,true);
+    pr_height->handle_external_optimization(&object->parabola.length,optim_engine);
     pr_height->Bind(EVT_LENGTH_SELECTOR,&ObjectDialog::evt_geometry,this);
     
     ctrl_sizer->Add(pr_height,wxSizerFlags().Expand().Border(wxALL,1));
@@ -936,13 +936,13 @@ double ParabolaDialog::mesh(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr)
 
 void ParabolaDialog::save_object_geometry()
 {
-    object->parabola.pr_f=pr_focal->get_length();
-    object->parabola.pr_in_radius=pr_in_radius->get_length();
-    object->parabola.pr_length=pr_height->get_length();
+    object->parabola.focal=pr_focal->get_length();
+    object->parabola.inner_radius=pr_in_radius->get_length();
+    object->parabola.length=pr_height->get_length();
     
-    register_optimization(pr_focal,&object->parabola.pr_f,optim_engine);
-    register_optimization(pr_in_radius,&object->parabola.pr_in_radius,optim_engine);
-    register_optimization(pr_height,&object->parabola.pr_length,optim_engine);
+    register_optimization(pr_focal,&object->parabola.focal,optim_engine);
+    register_optimization(pr_in_radius,&object->parabola.inner_radius,optim_engine);
+    register_optimization(pr_height,&object->parabola.length,optim_engine);
     
     object->set_parabola();
 }

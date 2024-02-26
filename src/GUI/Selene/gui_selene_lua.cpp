@@ -501,7 +501,7 @@ void SeleneFrame::save_project(wxFileName const &fname_)
                     file<<"\"rectangle\","<<object->box.ly<<","<<object->box.lz;
                     break;
                 case Sel::OBJ_PARABOLA:
-                    file<<"\"parabola\","<<object->parabola.pr_f<<","<<object->parabola.pr_in_radius<<","<<object->parabola.pr_length;
+                    file<<"\"parabola\","<<object->parabola.focal<<","<<object->parabola.inner_radius<<","<<object->parabola.length;
                     break;
                 case Sel::OBJ_SPHERE:
                     file<<"\"sphere\","<<object->sph_r<<","<<object->sph_cut;

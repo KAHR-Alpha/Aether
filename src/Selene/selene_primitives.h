@@ -240,7 +240,7 @@ namespace Sel::Primitives
     class Parabola
     {
         public:
-            double pr_f,pr_in_radius,pr_length,prm_thickness;
+            double focal,inner_radius,length;
             
             Parabola(BoundingBox &bbox,
                      std::vector<Sel::SelFace> &F_arr,

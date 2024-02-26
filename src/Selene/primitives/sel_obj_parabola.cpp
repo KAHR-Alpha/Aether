@@ -31,7 +31,7 @@ namespace Sel::Primitives
                        std::vector<Sel::SelFace> &F_arr_,
                        std::vector<std::string> &face_name_arr_)
         :bbox(bbox_), F_arr(F_arr_), face_name_arr(face_name_arr_),
-         pr_f(0.1), pr_in_radius(5e-3), pr_length(0.02)
+         focal(0.1), inner_radius(5e-3), length(0.02)
     {
     }
     
@@ -41,9 +41,9 @@ namespace Sel::Primitives
         switch(anchor)
         {
             case 0: return Vector3(0);
-            case 1: return Vector3(pr_f,0,0);
-            case 2: return Vector3(pr_in_radius*pr_in_radius/(4.0*pr_f),0,0);
-            case 3: return Vector3(pr_length,0,0);
+            case 1: return Vector3(focal,0,0);
+            case 2: return Vector3(inner_radius*inner_radius/(4.0*focal),0,0);
+            case 3: return Vector3(length,0,0);
             default: return Vector3(0);
         }
     }
@@ -72,15 +72,15 @@ namespace Sel::Primitives
     {
         int NFc=1;
         F_arr.resize(NFc);
-
-        bbox.xm=-0.1*pr_length;
-        bbox.xp=1.01*pr_length;
-
-        double out_radius=std::sqrt(4.0*pr_f*pr_length)*1.01;
-
+        
+        bbox.xm=-0.1*length;
+        bbox.xp=1.01*length;
+        
+        double out_radius=std::sqrt(4.0*focal*length)*1.01;
+        
         bbox.ym=-out_radius;
         bbox.yp=+out_radius;
-
+        
         bbox.zm=-out_radius;
         bbox.zp=+out_radius;
         
@@ -99,11 +99,11 @@ namespace Sel::Primitives
     {
         std::array<double,2> hits;
         std::array<int,2> face_labels={0,0};
-
+        
         ray_inter_parabola_x(ray.start,ray.dir,
-                             pr_f,pr_in_radius,pr_length,
+                             focal,inner_radius,length,
                              hits[0],hits[1]);
-
+                             
         if(first_forward)
             push_first_forward(interlist,ray,obj_ID,hits,face_labels);
         else
@@ -114,10 +114,10 @@ namespace Sel::Primitives
     Vector3 Parabola::normal(RayInter const &inter) const
     {
         Vector3 Fnorm;
-
-        Fnorm(-1,0.5/pr_f*inter.obj_y,0.5/pr_f*inter.obj_z);
+        
+        Fnorm(-1,0.5/focal*inter.obj_y,0.5/focal*inter.obj_z);
         Fnorm.normalize();
-
+        
         return Fnorm;
     }
     
@@ -134,13 +134,13 @@ namespace Sel::Primitives
         // Todo
         /*double phi=std::atan2(z,y);
         double th=std::atan2(std::sqrt(y*y+z*z),x);
-
+        
         u=th*std::cos(phi)/sph_cut_th;
         v=th*std::sin(phi)/sph_cut_th;
-
+        
         u=u/2.0+0.5;
         v=v/2.0+0.5;*/
-
+        
         u=v=0;
     }
 }

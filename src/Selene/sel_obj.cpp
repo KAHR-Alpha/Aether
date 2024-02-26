@@ -154,9 +154,9 @@ void Object::build_variables_map()
     variables_map["lens_back_radius"]=&lens.radius_back;
     variables_map["lens_radius"]=&lens.max_outer_radius;
     
-    variables_map["parabola_focal_lengths"]=&parabola.pr_f;
-    variables_map["parabola_length"]=&parabola.pr_length;
-    variables_map["parabola_internal_radius"]=&parabola.pr_in_radius;
+    variables_map["parabola_focal_lengths"]=&parabola.focal;
+    variables_map["parabola_length"]=&parabola.length;
+    variables_map["parabola_internal_radius"]=&parabola.inner_radius;
     
     variables_map["rectangle_length_y"]=&box.ly;
     variables_map["rectangle_length_z"]=&box.lz;
@@ -225,7 +225,7 @@ void Object::bootstrap(std::filesystem::path const &output_directory,double ray_
             case OBJ_RECTANGLE:
                 sb_file<<"rectangle "<<box.ly<<" "<<box.lz; break;
             case OBJ_PARABOLA:
-                sb_file<<"parabola "<<parabola.pr_f<<" "<<parabola.pr_in_radius<<" "<<parabola.pr_length; break;
+                sb_file<<"parabola "<<parabola.focal<<" "<<parabola.inner_radius<<" "<<parabola.length; break;
             case OBJ_SPHERE:
                 sb_file<<"sphere "<<sph_r<<" "<<sph_cut; break;
             case OBJ_SPHERE_PATCH:

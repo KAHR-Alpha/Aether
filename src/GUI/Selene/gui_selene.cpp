@@ -1149,9 +1149,9 @@ void SeleneFrame::update_vao(SeleneVAO *vao,Sel::Frame *frame)
         else if(object->type==Sel::OBJ_PARABOLA)
         {
             parabola_mesh_wireframe(V_arr,F_arr,128,
-                                    object->parabola.pr_f,
-                                    object->parabola.pr_in_radius,
-                                    object->parabola.pr_length);
+                                    object->parabola.focal,
+                                    object->parabola.inner_radius,
+                                    object->parabola.length);
         }
         else if(object->type==Sel::OBJ_MESH)
         {

@@ -73,9 +73,9 @@ void Object::set_parabola()
 
 void Object::set_parabola(double focal_length_,double in_radius_,double length_)
 {
-    parabola.pr_f=focal_length_;
-    parabola.pr_in_radius=in_radius_;
-    parabola.pr_length=length_;
+    parabola.focal=focal_length_;
+    parabola.inner_radius=in_radius_;
+    parabola.length=length_;
     
     set_parabola();
 }
