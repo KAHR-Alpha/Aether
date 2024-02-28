@@ -1183,11 +1183,11 @@ void SeleneFrame::update_vao(SeleneVAO *vao,Sel::Frame *frame)
         }
         else if(object->type==Sel::OBJ_SPHERE)
         {
-            sphere_cut_mesh_wireframe(V_arr,F_arr,object->sph_r,object->sph_cut,true);
+            sphere_cut_mesh_wireframe(V_arr,F_arr,object->sphere.get_radius(),object->sphere.get_cut_factor(),true);
         }
         else if(object->type==Sel::OBJ_SPHERE_PATCH)
         {
-            sphere_cut_mesh_wireframe(V_arr,F_arr,object->sph_r,object->sph_cut,false);
+            sphere_cut_mesh_wireframe(V_arr,F_arr,object->sphere_patch.get_radius(),object->sphere_patch.get_cut_factor(),false);
         }
     }
     else if(light!=nullptr)

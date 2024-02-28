@@ -453,127 +453,19 @@ Vertex& Object::vertex(int index) { return V_arr[index]; }
 //   Sphere
 //############
 
-void Object::intersect_sphere(SelRay const &ray,std::vector<RayInter> &interlist,int face_last_intersect,bool first_forward)
-{
-    std::array<double,3> hits;
-    std::array<int,3> face_labels={0,0,1};
-    
-    if(!ray_inter_sphere(ray.start,ray.dir,sph_r,hits[0],hits[1]))
-    {
-        hits[0]=-1;
-        hits[1]=-1;
-    }
-    
-    Vector3 P=ray.start+hits[0]*ray.dir;
-    if(P.x<sph_cut_x) hits[0]=-1;
-    
-    P=ray.start+hits[1]*ray.dir;
-    if(P.x<sph_cut_x) hits[1]=-1;
-    
-    if(!ray_inter_plane_x(ray.start,ray.dir,sph_cut_x,hits[2])) hits[2]=-1;
-    else
-    {
-        P=ray.start+hits[2]*ray.dir;
-        
-        if(P.y*P.y+P.z*P.z>=sph_cut_rad*sph_cut_rad) hits[2]=-1;
-    }
-    
-    if(first_forward)
-        push_first_forward(interlist,ray,obj_ID,hits,face_labels);
-    else
-        push_full_forward(interlist,ray,obj_ID,hits,face_labels);
-}
-
-Vector3 Object::normal_sphere(RayInter const &inter)
-{
-    Vector3 Fnorm;
-    
-    if(inter.face==0) Fnorm=Vector3(inter.obj_x,inter.obj_y,inter.obj_z);
-    else Fnorm=-unit_vec_x;
-    
-    Fnorm.normalize();
-    return Fnorm;
-}
-
 void Object::set_sphere()
 {
-    sph_cut_x=sph_r*(1.0-2.0*sph_cut);
-    sph_cut_th=std::acos(1.0-2.0*sph_cut);
-    sph_cut_rad=sph_r*std::sin(sph_cut_th);
-    
     type=OBJ_SPHERE;
     
-    NFc=2;
-    F_arr.resize(NFc);
-    
-    bbox.xm=-1.1*sph_r;
-    bbox.xp=+1.1*sph_r;
-    
-    bbox.ym=-1.1*sph_r;
-    bbox.yp=+1.1*sph_r;
-    
-    bbox.zm=-1.1*sph_r;
-    bbox.zp=+1.1*sph_r;
-    
-    face_name_arr.resize(NFc);
-    face_name_arr[0]="Sphere";
-    face_name_arr[1]="Slice";
+    sphere.finalize();
+    NFc = F_arr.size();
 }
 
-void Object::set_sphere(double radius,double slice)
+
+void Object::set_sphere(double radius, double slice)
 {
-    sph_r=radius;
-    sph_cut=slice;
+    sphere.set_parameters(radius, slice);
     
     set_sphere();
 }
-
-Vector3 Object::sphere_anchor(int anchor)
-{
-    switch(anchor)
-    {
-        case 0: return Vector3(0);
-        case 1: return Vector3(sph_cut_x,0,0);
-        default: return Vector3(0);
-    }
-}
-
-std::string Object::sphere_anchor_name(int anchor)
-{
-    switch(anchor)
-    {
-        case 0: return "Center";
-        case 1: return "Slice_Center";
-        default: return "Center";
-    }
-}
-
-void Object::xyz_to_uv_sphere(double &u,double &v,int face_,double x,double y,double z)
-{
-    if(face_==0)
-    {
-        double phi=std::atan2(z,y);
-        double th=std::atan2(std::sqrt(y*y+z*z),x);
-        
-        u=th*std::cos(phi)/sph_cut_th;
-        v=th*std::sin(phi)/sph_cut_th;
-    }
-    else
-    {
-        u=y/sph_cut_rad;
-        v=z/sph_cut_rad;
-    }
-    
-    u=u/2.0+0.5;
-    v=v/2.0+0.5;
-}
-
-void Object::default_N_uv_sphere(int &Nu,int &Nv,int face_)
-{
-    double delta=std::max(2.0*Pi*sph_r/64,2.0*sph_cut_rad/64);
-    
-    if(face_==0) Nu=Nv=nearest_2np1(2.0*Pi*sph_r/delta);
-    else Nu=Nv=nearest_2np1(2.0*sph_cut_rad/delta);
-}
-
 }

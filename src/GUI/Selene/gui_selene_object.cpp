@@ -1001,12 +1001,12 @@ SphereDialog::SphereDialog(Sel::Object *object_,
                                OptimEngine &optim_engine_)
     :ObjectDialog(object_,frames_,materials_,irfs_,optim_engine_)
 {
-    sph_r=new LengthSelector(ctrl_panel,"Radius",object->sph_r,true);
-    sph_r->handle_external_optimization(&object->sph_r,optim_engine);
+    sph_r=new LengthSelector(ctrl_panel,"Radius",object->sphere.get_radius(),true);
+    sph_r->handle_external_optimization(&object->sphere.ref_radius(),optim_engine);
     sph_r->Bind(EVT_LENGTH_SELECTOR,&ObjectDialog::evt_geometry,this);
     
-    sph_cut=new NamedTextCtrl(ctrl_panel,"Slice Factor",object->sph_cut,true);
-    sph_cut->handle_external_optimization(&object->sph_cut,optim_engine);
+    sph_cut=new NamedTextCtrl(ctrl_panel,"Slice Factor",object->sphere.get_cut_factor(),true);
+    sph_cut->handle_external_optimization(&object->sphere.ref_cut_factor(),optim_engine);
     sph_cut->Bind(EVT_NAMEDTXTCTRL,&ObjectDialog::evt_geometry,this);
     
     ctrl_sizer->Add(sph_r,wxSizerFlags().Expand().Border(wxALL,1));
@@ -1025,11 +1025,11 @@ double SphereDialog::mesh(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr)
 
 void SphereDialog::save_object_geometry()
 {
-    object->sph_r=sph_r->get_length();
-    object->sph_cut=sph_cut->get_value();
+    object->sphere.set_parameters(sph_r->get_length(),
+                                  sph_cut->get_value());
     
-    register_optimization(sph_r,&object->sph_r,optim_engine);
-    register_optimization(sph_cut,&object->sph_cut,optim_engine);
+    register_optimization(sph_r,&object->sphere.ref_radius(),optim_engine);
+    register_optimization(sph_cut,&object->sphere.ref_cut_factor(),optim_engine);
     
     object->set_sphere();
 }
@@ -1045,12 +1045,12 @@ SpherePatchDialog::SpherePatchDialog(Sel::Object *object_,
                                      OptimEngine &optim_engine_)
     :ObjectDialog(object_,frames_,materials_,irfs_,optim_engine_)
 {
-    sph_r=new LengthSelector(ctrl_panel,"Radius",object->sph_r,true);
-    sph_r->handle_external_optimization(&object->sph_r,optim_engine);
+    sph_r=new LengthSelector(ctrl_panel,"Radius",object->sphere_patch.get_radius(),true);
+    sph_r->handle_external_optimization(&object->sphere_patch.ref_radius(),optim_engine);
     sph_r->Bind(EVT_LENGTH_SELECTOR,&ObjectDialog::evt_geometry,this);
     
-    sph_cut=new NamedTextCtrl(ctrl_panel,"Slice Factor",object->sph_cut,true);
-    sph_cut->handle_external_optimization(&object->sph_cut,optim_engine);
+    sph_cut=new NamedTextCtrl(ctrl_panel,"Slice Factor",object->sphere_patch.get_cut_factor(),true);
+    sph_cut->handle_external_optimization(&object->sphere_patch.ref_cut_factor(),optim_engine);
     sph_cut->Bind(EVT_NAMEDTXTCTRL,&ObjectDialog::evt_geometry,this);
     
     ctrl_sizer->Add(sph_r,wxSizerFlags().Expand().Border(wxALL,1));
@@ -1069,11 +1069,11 @@ double SpherePatchDialog::mesh(std::vector<Vertex> &V_arr,std::vector<Face> &F_a
 
 void SpherePatchDialog::save_object_geometry()
 {
-    object->sph_r=sph_r->get_length();
-    object->sph_cut=sph_cut->get_value();
+    object->sphere_patch.set_parameters(sph_r->get_length(),
+                                        sph_cut->get_value());
     
-    register_optimization(sph_r,&object->sph_r,optim_engine);
-    register_optimization(sph_cut,&object->sph_cut,optim_engine);
+    register_optimization(sph_r,&object->sphere_patch.ref_radius(),optim_engine);
+    register_optimization(sph_cut,&object->sphere_patch.ref_cut_factor(),optim_engine);
     
     object->set_spherical_patch();
 }

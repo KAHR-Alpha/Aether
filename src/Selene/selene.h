@@ -453,29 +453,17 @@ class Object: public Frame
         
         // Sphere Functions
         
-        double sph_r,sph_cut,sph_cut_x,sph_cut_th,sph_cut_rad;
+        Primitives::Sphere sphere;
         
         void set_sphere();
         void set_sphere(double r,double cut=1.0);
-        
-        Vector3 sphere_anchor(int anchor);
-        std::string sphere_anchor_name(int anchor);
-        void intersect_sphere(SelRay const &ray,std::vector<RayInter> &interlist,int face_last_intersect,bool first_forward);
-        Vector3 normal_sphere(RayInter const &inter);
-        Vector3 tangent_sphere(RayInter const &inter);
-        void xyz_to_uv_sphere(double &u,double &v,int face,double x,double y,double z);
-        void default_N_uv_sphere(int &Nu,int &Nv,int face);
-        
+
         // Spherical Patch Functions
+
+        Primitives::Sphere sphere_patch;
         
         void set_spherical_patch();
         void set_spherical_patch(double r,double cut=1.0);
-        
-        void intersect_spherical_patch(SelRay const &ray,std::vector<RayInter> &interlist,int face_last_intersect,bool first_forward);
-        Vector3 normal_spherical_patch(RayInter const &inter);
-        Vector3 tangent_spherical_patch(RayInter const &inter);
-        void xyz_to_uv_spherical_patch(double &u,double &v,int face,double x,double y,double z);
-        void default_N_uv_spherical_patch(int &Nu,int &Nv,int face);
         
         // Spheroid Functions
         

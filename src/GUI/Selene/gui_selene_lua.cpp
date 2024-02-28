@@ -504,10 +504,10 @@ void SeleneFrame::save_project(wxFileName const &fname_)
                     file<<"\"parabola\","<<object->parabola.focal<<","<<object->parabola.inner_radius<<","<<object->parabola.length;
                     break;
                 case Sel::OBJ_SPHERE:
-                    file<<"\"sphere\","<<object->sph_r<<","<<object->sph_cut;
+                    file<<"\"sphere\","<<object->sphere.get_radius()<<","<<object->sphere.get_cut_factor();
                     break;
                 case Sel::OBJ_SPHERE_PATCH:
-                    file<<"\"spherical_patch\","<<object->sph_r<<","<<object->sph_cut;
+                    file<<"\"spherical_patch\","<<object->sphere_patch.get_radius()<<","<<object->sphere_patch.get_cut_factor();
                     break;
             }
             

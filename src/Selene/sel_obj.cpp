@@ -97,7 +97,8 @@ Object::Object()
      parabola(bbox, F_arr, face_name_arr),
      rectangle(bbox, F_arr, face_name_arr),
      scaled_mesh(false), scaling_factor(1.0), has_octree(false),
-     sph_r(0.05), sph_cut(1.0),
+     sphere(bbox, F_arr, face_name_arr),
+     sphere_patch(bbox, F_arr, face_name_arr),
 //     prism_length(5e-2), prism_height(2e-2), prism_a1(Pi/3.0), prism_a2(Pi/3.0), prism_width(1),
      cleanup_done(false),
      sensor_type(Sensor::NONE),
@@ -160,8 +161,8 @@ void Object::build_variables_map()
     variables_map["rectangle_length_y"]=&rectangle.ly;
     variables_map["rectangle_length_z"]=&rectangle.lz;
     
-    variables_map["sphere_radius"]=&sph_r;
-    variables_map["sphere_cut_factor"]=&sph_cut;
+    sphere.map_variables(variables_map);
+    sphere_patch.map_variables(variables_map);
     
     variables_map["spheroid_radius_x"]=&spd_rx;
     variables_map["spheroid_radius_y"]=&spd_ry;
@@ -226,9 +227,9 @@ void Object::bootstrap(std::filesystem::path const &output_directory,double ray_
             case OBJ_PARABOLA:
                 sb_file<<"parabola "<<parabola.focal<<" "<<parabola.inner_radius<<" "<<parabola.length; break;
             case OBJ_SPHERE:
-                sb_file<<"sphere "<<sph_r<<" "<<sph_cut; break;
+                sb_file<<"sphere "<<sphere.get_radius()<<" "<<sphere.get_cut_factor(); break;
             case OBJ_SPHERE_PATCH:
-                sb_file<<"spherical_patch "<<sph_r<<" "<<sph_cut; break;
+                sb_file<<"spherical_patch "<<sphere_patch.get_radius()<<" "<<sphere_patch.get_cut_factor(); break;
         }
         
         sb_file<<"\n";
@@ -374,8 +375,8 @@ void Object::default_N_uv(int &Nu,int &Nv,int face_)
         case OBJ_PARABOLA: parabola.default_N_uv(Nu,Nv,face_); break;
         case OBJ_MESH: Nu=Nv=1; break;
         case OBJ_RECTANGLE: rectangle.default_N_uv(Nu,Nv,face_); break;
-        case OBJ_SPHERE: default_N_uv_sphere(Nu,Nv,face_); break;
-        case OBJ_SPHERE_PATCH: default_N_uv_spherical_patch(Nu,Nv,face_); break;
+        case OBJ_SPHERE: sphere.default_N_uv(Nu,Nv,face_); break;
+        case OBJ_SPHERE_PATCH: sphere_patch.default_N_uv(Nu,Nv,face_); break;
         default:
             std::cout<<"Undefined UV coordinates for object of type "<<type<<"\n";
             std::exit(EXIT_FAILURE);
@@ -434,8 +435,8 @@ Vector3 Object::face_normal(RayInter const &inter)
         case OBJ_PARABOLA: return parabola.normal(inter);
         case OBJ_MESH: return face(inter.face).norm;
         case OBJ_RECTANGLE: return -unit_vec_x;
-        case OBJ_SPHERE: return normal_sphere(inter);
-        case OBJ_SPHERE_PATCH: return normal_spherical_patch(inter);
+        case OBJ_SPHERE: return sphere.normal(inter);
+        case OBJ_SPHERE_PATCH: return sphere_patch.normal(inter);
         default:
             std::cout<<"Undefined normal for object of type "<<type<<"\n";
             std::exit(0);
@@ -472,8 +473,8 @@ Vector3 Object::get_anchor(int anchor)
         case OBJ_PARABOLA: return parabola.anchor(anchor);
         case OBJ_VOL_CONE: return cone.anchor(anchor);
         case OBJ_VOL_CYLINDER: return cylinder.anchor(anchor);
-        case OBJ_SPHERE: return sphere_anchor(anchor);
-        case OBJ_SPHERE_PATCH: return sphere_anchor(anchor);
+        case OBJ_SPHERE: return sphere.anchor(anchor);
+        case OBJ_SPHERE_PATCH: return sphere_patch.anchor(anchor);
         default: return Vector3(0);
     }
 }
@@ -504,8 +505,8 @@ std::string Object::get_anchor_name(int anchor)
         case OBJ_PARABOLA: return parabola.anchor_name(anchor);
         case OBJ_VOL_CONE: return cone.anchor_name(anchor);
         case OBJ_VOL_CYLINDER: return cylinder.anchor_name(anchor);
-        case OBJ_SPHERE: return sphere_anchor_name(anchor);
-        case OBJ_SPHERE_PATCH: return sphere_anchor_name(anchor);
+        case OBJ_SPHERE: return sphere.anchor_name(anchor);
+        case OBJ_SPHERE_PATCH: return sphere_patch.anchor_name(anchor);
         default: return "Center";
     }
 }
@@ -543,11 +544,11 @@ std::string Object::get_anchor_script_name(int anchor)
             break;
         case OBJ_SPHERE:
             prefix="SEL_OBJ_SPHERE_";
-            anchor_name=sphere_anchor_name(anchor);
+            anchor_name=sphere.anchor_name(anchor);
             break;
         case OBJ_SPHERE_PATCH:
             prefix="SEL_OBJ_SPHERE_PATCH_";
-            anchor_name=sphere_anchor_name(anchor);
+            anchor_name=sphere_patch.anchor_name(anchor);
             break;
         default:
             prefix="SEL_OBJ_";
@@ -630,10 +631,10 @@ void Object::intersect(SelRay const &base_ray,std::vector<RayInter> &interlist,i
             rectangle.intersect(interlist, ray, obj_ID, face_last_intersect, first_forward);
             break;
         case OBJ_SPHERE:
-            intersect_sphere(ray,interlist,face_last_intersect,first_forward);
+            sphere.intersect(interlist, ray, obj_ID, face_last_intersect, first_forward);
             break;
         case OBJ_SPHERE_PATCH:
-            intersect_spherical_patch(ray,interlist,face_last_intersect,first_forward);
+            sphere_patch.intersect(interlist, ray, obj_ID, face_last_intersect, first_forward);
             break;
     }
 }
@@ -1076,8 +1077,8 @@ void Object::xyz_to_uv(double &u,double &v,int face_,
         case OBJ_PARABOLA: parabola.xyz_to_uv(u,v,face_,x,y,z); break;
         case OBJ_MESH: u=v=0; break;
         case OBJ_RECTANGLE: rectangle.xyz_to_uv(u,v,face_,x,y,z); break;
-        case OBJ_SPHERE: xyz_to_uv_sphere(u,v,face_,x,y,z); break;
-        case OBJ_SPHERE_PATCH: xyz_to_uv_spherical_patch(u,v,face_,x,y,z); break;
+        case OBJ_SPHERE: sphere.xyz_to_uv(u,v,face_,x,y,z); break;
+        case OBJ_SPHERE_PATCH: sphere_patch.xyz_to_uv(u,v,face_,x,y,z); break;
         default:
             std::cout<<"Undefined UV coordinates for object of type "<<type<<"\n";
             std::exit(EXIT_FAILURE);
