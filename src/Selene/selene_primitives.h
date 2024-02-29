@@ -333,7 +333,10 @@ namespace Sel::Primitives
             std::vector<Sel::SelFace> &F_arr;
             std::vector<std::string> &face_name_arr;
 
-            double sph_r,sph_cut,sph_cut_x,sph_cut_th,sph_cut_rad;
+            double radius,cut_factor;
+            double cut_x,
+                   cut_angle,
+                   cut_radius;
     };
 
     class Spherical_Patch
@@ -366,7 +369,10 @@ namespace Sel::Primitives
             std::vector<Sel::SelFace> &F_arr;
             std::vector<std::string> &face_name_arr;
 
-            double sph_r,sph_cut,sph_cut_x,sph_cut_th,sph_cut_rad;
+            double radius,cut_factor;
+            double cut_x,
+                   cut_angle,
+                   cut_radius;
     };
 }
 
