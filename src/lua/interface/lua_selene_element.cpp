@@ -89,7 +89,7 @@ namespace LuaUI
             for(unsigned int i=0;i<f_arr.size();i++)
                 f_arr[i].comp_norm(v_arr);
             
-            object->mesh_fname=fname;
+            object->mesh.set_mesh_path(fname);
             object->set_mesh(v_arr,f_arr);
         }
         else if(type=="parabola")
@@ -138,13 +138,14 @@ namespace LuaUI
             for(unsigned int i=0;i<f_arr.size();i++)
                 f_arr[i].comp_norm(v_arr);
             
-            p_object->add_mesh(v_arr,f_arr);
+            p_object->mesh.add_mesh(v_arr,f_arr);
         }
         else if(lua_islightuserdata(L,2))
         {
             Sel::Object *p_source=get_object_cast_metapointer(L,2);
             
-            p_object->add_mesh(p_source->V_arr,p_source->F_arr);
+            p_object->mesh.add_mesh(p_source->mesh.get_vertex_array(),
+                                    p_source->mesh.get_faces_array());
         }
         
         return 0;
@@ -154,7 +155,7 @@ namespace LuaUI
     {
         Sel::Object *p_object=get_object_cast_metapointer(L);
         
-        p_object->auto_recalc_normals();
+        p_object->mesh.auto_recalc_normals();
         
         return 0;
     }
@@ -199,7 +200,7 @@ namespace LuaUI
     {
         Sel::Object *p_object=get_object_cast_metapointer(L);
         
-        p_object->rescale_mesh(lua_tonumber(L,2));
+        p_object->mesh.rescale_mesh(lua_tonumber(L,2));
         
         return 1;
     }
@@ -423,7 +424,7 @@ namespace LuaUI
         int start=lua_tointeger(L,3);
         int end=lua_tointeger(L,4);
         
-        p_object->define_faces_group(index,start,end);
+        p_object->mesh.define_faces_group(index,start,end);
         
         return 0;
     }
@@ -432,7 +433,7 @@ namespace LuaUI
     {
         Sel::Object *p_object=get_object_cast_metapointer(L);
         
-        Sel::SelFace &face=p_object->faces_group(lua_tointeger(L,2));
+        Sel::SelFace &face=p_object->mesh.faces_group(lua_tointeger(L,2));
         
         Sel::IRF *p_irf;
         
@@ -441,7 +442,7 @@ namespace LuaUI
         
         face.down_irf=p_irf;
         
-        p_object->propagate_faces_group(lua_tointeger(L,2));
+        p_object->mesh.propagate_faces_group(lua_tointeger(L,2));
         
         return 0;
     }
@@ -450,10 +451,10 @@ namespace LuaUI
     {
         Sel::Object *p_object=get_object_cast_metapointer(L);
         
-        Sel::SelFace &face=p_object->faces_group(lua_tointeger(L,2));
+        Sel::SelFace &face=p_object->mesh.faces_group(lua_tointeger(L,2));
         face.down_mat=lua_get_metapointer<Material>(L,3);
         
-        p_object->propagate_faces_group(lua_tointeger(L,2));
+        p_object->mesh.propagate_faces_group(lua_tointeger(L,2));
         
         return 0;
     }
@@ -462,7 +463,7 @@ namespace LuaUI
     {
         Sel::Object *p_object=get_object_cast_metapointer(L);
         
-        Sel::SelFace &face=p_object->faces_group(lua_tointeger(L,2));
+        Sel::SelFace &face=p_object->mesh.faces_group(lua_tointeger(L,2));
         
         if(lua_gettop(L)>3)
         {
@@ -481,7 +482,7 @@ namespace LuaUI
             else if(str=="polar_neg") face.tangent_down=Sel::TANGENT_POLAR_NEG;
         }
         
-        p_object->propagate_faces_group(lua_tointeger(L,2));
+        p_object->mesh.propagate_faces_group(lua_tointeger(L,2));
         
         return 0;
     }
@@ -490,7 +491,7 @@ namespace LuaUI
     {
         Sel::Object *p_object=get_object_cast_metapointer(L);
         
-        Sel::SelFace &face=p_object->faces_group(lua_tointeger(L,2));
+        Sel::SelFace &face=p_object->mesh.faces_group(lua_tointeger(L,2));
         
         Sel::IRF *p_irf;
         
@@ -500,7 +501,7 @@ namespace LuaUI
         face.down_irf=p_irf;
         face.up_irf=p_irf;
         
-        p_object->propagate_faces_group(lua_tointeger(L,2));
+        p_object->mesh.propagate_faces_group(lua_tointeger(L,2));
         
         return 0;
     }
@@ -509,7 +510,7 @@ namespace LuaUI
     {
         Sel::Object *p_object=get_object_cast_metapointer(L);
         
-        Sel::SelFace &face=p_object->faces_group(lua_tointeger(L,2));
+        Sel::SelFace &face=p_object->mesh.faces_group(lua_tointeger(L,2));
         
         Sel::IRF *p_irf;
         
@@ -518,7 +519,7 @@ namespace LuaUI
         
         face.up_irf=p_irf;
         
-        p_object->propagate_faces_group(lua_tointeger(L,2));
+        p_object->mesh.propagate_faces_group(lua_tointeger(L,2));
         
         return 0;
     }
@@ -527,10 +528,10 @@ namespace LuaUI
     {
         Sel::Object *p_object=get_object_cast_metapointer(L);
         
-        Sel::SelFace &face=p_object->faces_group(lua_tointeger(L,2));
+        Sel::SelFace &face=p_object->mesh.faces_group(lua_tointeger(L,2));
         face.up_mat=lua_get_metapointer<Material>(L,3);
         
-        p_object->propagate_faces_group(lua_tointeger(L,2));
+        p_object->mesh.propagate_faces_group(lua_tointeger(L,2));
         
         return 0;
     }
@@ -539,7 +540,7 @@ namespace LuaUI
     {
         Sel::Object *p_object=get_object_cast_metapointer(L);
         
-        Sel::SelFace &face=p_object->faces_group(lua_tointeger(L,2));
+        Sel::SelFace &face=p_object->mesh.faces_group(lua_tointeger(L,2));
         
         if(lua_gettop(L)>3)
         {
@@ -558,7 +559,7 @@ namespace LuaUI
             else if(str=="polar_neg") face.tangent_up=Sel::TANGENT_POLAR_NEG;
         }
         
-        p_object->propagate_faces_group(lua_tointeger(L,2));
+        p_object->mesh.propagate_faces_group(lua_tointeger(L,2));
         
         return 0;
     }

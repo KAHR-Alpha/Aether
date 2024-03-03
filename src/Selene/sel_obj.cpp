@@ -94,9 +94,9 @@ Object::Object()
      cylinder(bbox, F_arr, face_name_arr),
      disk(bbox, F_arr, face_name_arr),
      lens(bbox, F_arr, face_name_arr),
+     mesh(bbox, F_arr, face_name_arr),
      parabola(bbox, F_arr, face_name_arr),
      rectangle(bbox, F_arr, face_name_arr),
-     scaled_mesh(false), scaling_factor(1.0), has_octree(false),
      sphere(bbox, F_arr, face_name_arr),
      sphere_patch(bbox, F_arr, face_name_arr),
 //     prism_length(5e-2), prism_height(2e-2), prism_a1(Pi/3.0), prism_a2(Pi/3.0), prism_width(1),
@@ -221,7 +221,7 @@ void Object::bootstrap(std::filesystem::path const &output_directory,double ray_
             case OBJ_LENS:
                 sb_file<<"lens "<<lens.thickness<<" "<<lens.max_outer_radius<<" "<<lens.radius_front<<" "<<lens.radius_back; break;
             case OBJ_MESH:
-                sb_file<<"mesh "<<mesh_fname; break;
+                sb_file<<"mesh "<<mesh.get_mesh_path().generic_string(); break;
             case OBJ_RECTANGLE:
                 sb_file<<"rectangle "<<rectangle.ly<<" "<<rectangle.lz; break;
             case OBJ_PARABOLA:
@@ -289,60 +289,6 @@ void Object::cleanup()
     cleanup_done=true;
 }
 
-void Object::compute_boundaries()
-{
-         if(type==OBJ_LENS)
-    {
-    }
-    else if(type==OBJ_MESH)
-    {
-        if(V_arr.size()==0)
-        {
-            bbox.xm=bbox.xp=0;
-            bbox.ym=bbox.yp=0;
-            bbox.zm=bbox.zp=0;
-            
-            return;
-        }
-                
-        bbox.xm=bbox.xp=V_arr[0].loc.x;
-        bbox.ym=bbox.yp=V_arr[0].loc.y;
-        bbox.zm=bbox.zp=V_arr[0].loc.z;
-        
-        for(std::size_t i=0;i<V_arr.size();i++)
-        {
-            bbox.xm=std::min(bbox.xm,V_arr[i].loc.x);
-            bbox.ym=std::min(bbox.ym,V_arr[i].loc.y);
-            bbox.zm=std::min(bbox.zm,V_arr[i].loc.z);
-            
-            bbox.xp=std::max(bbox.xp,V_arr[i].loc.x);
-            bbox.yp=std::max(bbox.yp,V_arr[i].loc.y);
-            bbox.zp=std::max(bbox.zp,V_arr[i].loc.z);
-        }
-        
-        double spanx=bbox.xp-bbox.xm;
-        double spany=bbox.yp-bbox.ym;
-        double spanz=bbox.zp-bbox.zm;
-        
-        double span_max=var_max(spanx,spany,spanz);
-        
-        spanx=std::max(spanx,0.1*span_max);
-        spany=std::max(spany,0.1*span_max);
-        spanz=std::max(spanz,0.1*span_max);
-        
-        bbox.xm-=0.05*spanx; bbox.xp+=0.05*spanx;
-        bbox.ym-=0.05*spany; bbox.yp+=0.05*spany;
-        bbox.zm-=0.05*spanz; bbox.zp+=0.05*spanz;
-        
-        if(NFc>12)
-        {
-            has_octree=true;
-            octree.clear_tree();
-            octree.set_params(8,bbox.xm,bbox.xp,bbox.ym,bbox.yp,bbox.zm,bbox.zp);
-            octree.generate_tree(V_arr,F_arr);
-        }
-    }
-}
 
 bool Object::contains(double x_,double y_,double z_)
 {
@@ -383,20 +329,6 @@ void Object::default_N_uv(int &Nu,int &Nv,int face_)
     }
 }
 
-void Object::define_faces_group(int index,int start,int end)
-{
-    if(index<0) return;
-    
-    if(static_cast<int>(Fg_arr.size())<=index)
-    {
-        Fg_arr.resize(index+1);
-        Fg_start.resize(index+1);
-        Fg_end.resize(index+1);
-    }
-    
-    Fg_start[index]=start;
-    Fg_end[index]=end;
-}
 
 SelFace& Object::face(int index)
 {
@@ -410,16 +342,19 @@ SelFace& Object::face(int index)
     }
 }
 
+
 SelFace& Object::faces_group(int index)
 {
-    return Fg_arr[index];
+    return mesh.faces_group(index);
 }
+
 
 std::string Object::face_name(int index)
 {
     if(index<static_cast<int>(face_name_arr.size())) return face_name_arr[index];
     else return "Face "+std::to_string(index);
 }
+
 
 Vector3 Object::face_normal(RayInter const &inter)
 {
@@ -563,7 +498,6 @@ std::string Object::get_anchor_script_name(int anchor)
 }
 
 int Object::get_N_faces() { return NFc; }
-int Object::get_N_faces_groups() { return Fg_arr.size(); }
 
 std::filesystem::path Object::get_sensor_file_path() const
 {
@@ -622,7 +556,7 @@ void Object::intersect(SelRay const &base_ray,std::vector<RayInter> &interlist,i
             lens.intersect(interlist, ray, obj_ID, face_last_intersect, first_forward);
             break;
         case OBJ_MESH:
-            intersect_mesh(ray,interlist,face_last_intersect,first_forward);
+            mesh.intersect(interlist, ray, obj_ID, face_last_intersect, first_forward);
             break;
         case OBJ_PARABOLA:
             parabola.intersect(interlist, ray, obj_ID, face_last_intersect, first_forward);
@@ -790,29 +724,6 @@ void Object::process_intersection(RayPath &path)
     path.intersection.reset();
 }
 
-void Object::propagate_faces_group(int index)
-{
-    int start=std::max(0,Fg_start[index]);
-    int end=std::min(Fg_end[index],static_cast<int>(F_arr.size()-1));
-    chk_var(start);
-    chk_var(end);
-    chk_var(Fg_start.size());
-    chk_var(Fg_end.size());
-    for(int i=start;i<=end;i++)
-    {
-        F_arr[i].up_mat=Fg_arr[index].up_mat;
-        F_arr[i].down_mat=Fg_arr[index].down_mat;
-        
-        F_arr[i].up_irf=Fg_arr[index].up_irf;
-        F_arr[i].down_irf=Fg_arr[index].down_irf;
-        
-        F_arr[i].tangent_up=Fg_arr[index].tangent_up;
-        F_arr[i].tangent_down=Fg_arr[index].tangent_down;
-        
-        F_arr[i].fixed_tangent_up=Fg_arr[index].fixed_tangent_up;
-        F_arr[i].fixed_tangent_down=Fg_arr[index].fixed_tangent_down;
-    }
-}
 
 double* Object::reference_variable(std::string const &variable_name)
 {
@@ -821,9 +732,10 @@ double* Object::reference_variable(std::string const &variable_name)
     return variables_map[variable_name];
 }
 
+
 void Object::save_mesh_to_obj(std::string const &fname)
 {
-    obj_file_save(fname,V_arr,F_arr);
+    mesh.save_mesh_to_obj(fname);
 }
 
 void Object::sens_buffer_add(SelRay &ray,
@@ -904,8 +816,7 @@ void Object::set_default_in_irf(IRF *irf)
     {
         for(int i=0;i<NFc;i++) F_arr[i].down_irf=irf;
         
-        for(std::size_t i=0;i<Fg_arr.size();i++)
-            Fg_arr[i].down_irf=irf;
+        mesh.set_group_default_in_irf(irf);
     }
 }
 
@@ -928,8 +839,7 @@ void Object::set_default_in_mat(Material *mat)
     {
         for(int i=0;i<NFc;i++) F_arr[i].down_mat=mat;
         
-        for(std::size_t i=0;i<Fg_arr.size();i++)
-            Fg_arr[i].down_mat=mat;
+        mesh.set_group_default_in_mat(mat);
     }
 }
 
@@ -948,11 +858,7 @@ void Object::set_default_irf(IRF *irf)
             F_arr[i].up_irf=irf;
         }
         
-        for(std::size_t i=0;i<Fg_arr.size();i++)
-        {
-            Fg_arr[i].down_irf=irf;
-            Fg_arr[i].up_irf=irf;
-        }
+        mesh.set_group_default_irf(irf);
     }
 }
 
@@ -975,8 +881,7 @@ void Object::set_default_out_irf(IRF *irf)
     {
         for(int i=0;i<NFc;i++) F_arr[i].up_irf=irf;
         
-        for(std::size_t i=0;i<Fg_arr.size();i++)
-            Fg_arr[i].up_irf=irf;
+        mesh.set_group_default_out_irf(irf);
     }
 }
 
@@ -999,8 +904,7 @@ void Object::set_default_out_mat(Material *mat)
     {
         for(int i=0;i<NFc;i++) F_arr[i].up_mat=mat;
         
-        for(std::size_t i=0;i<Fg_arr.size();i++)
-            Fg_arr[i].up_mat=mat;
+        mesh.set_group_default_out_mat(mat);
     }
 }
 

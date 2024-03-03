@@ -315,10 +315,9 @@ class Object: public Frame
         void build_variables_map();
         void bootstrap(std::filesystem::path const &output_directory,double ray_power,int max_ray_bounces);   // switch
         void cleanup();
-        void compute_boundaries();
         bool contains(double x,double y,double z);
         void default_N_uv(int &Nu,int &Nv,int face);   // switch
-        void define_faces_group(int index,int start,int end);
+        //void define_faces_group(int index,int start,int end);
         SelFace& face(int index);
         SelFace& faces_group(int index);
         std::string face_name(int index);
@@ -330,13 +329,13 @@ class Object: public Frame
         std::string get_anchor_script_name(int anchor); // switch
         int get_anchors_number();                       // switch
         int get_N_faces();
-        int get_N_faces_groups();
+        //int get_N_faces_groups();
         std::filesystem::path get_sensor_file_path() const;
         std::string get_type_name();                    // switch
         void intersect(SelRay const &ray,std::vector<RayInter> &inter_list,int face_last_intersect=-1,bool first_forward=true); //switch
         bool intersect_boundaries_box(SelRay const &ray);
         void process_intersection(RayPath &path);
-        void propagate_faces_group(int index);
+        //void propagate_faces_group(int index);
         void save_mesh_to_obj(std::string const &fname);
         double* reference_variable(std::string const &variable_name);
         void set_default_in_irf(IRF *irf);
@@ -409,28 +408,11 @@ class Object: public Frame
         
         // Mesh Functions
         
-        bool scaled_mesh;
-        double scaling_factor;
-        std::vector<Sel::SelFace> Fg_arr;
-        std::vector<int> Fg_start,Fg_end;
-        std::vector<Sel::Vertex> V_arr;
-        std::string mesh_fname;
-        
-        bool has_octree;
-        FOctree octree;
-        std::vector<int> octree_buffer;
-        std::vector<RayFaceIntersect> face_intersect_buffer;
+        Primitives::Mesh mesh;
         
         void set_mesh();
         void set_mesh(std::vector<Sel::Vertex> const &V_arr,std::vector<Sel::SelFace> const &F_arr);
-        
-        void add_mesh(std::vector<Sel::Vertex> const &V_arr,std::vector<Sel::SelFace> const &F_arr);
-        void auto_recalc_normals();
-        void intersect_mesh(SelRay const &ray,std::vector<RayInter> &interlist,int face_last_intersect,bool first_forward);
-        void rescale_mesh(double scaling_factor);
-        void recalc_normals_z();
-        Vertex& vertex(int index);
-        
+                
         // Parabola
         
         Primitives::Parabola parabola;

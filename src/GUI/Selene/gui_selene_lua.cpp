@@ -495,7 +495,7 @@ void SeleneFrame::save_project(wxFileName const &fname_)
                     file<<"\"lens\","<<object->lens.thickness<<","<<object->lens.max_outer_radius<<","<<object->lens.radius_front<<","<<object->lens.radius_back;
                     break;
                 case Sel::OBJ_MESH:
-                    file<<"\"mesh\",\""<<object->mesh_fname<<"\"";
+                    file<<"\"mesh\",\""<<std::filesystem::absolute(object->mesh.get_mesh_path())<<"\"";
                     break;
                 case Sel::OBJ_RECTANGLE:
                     file<<"\"rectangle\","<<object->rectangle.ly<<","<<object->rectangle.lz;
@@ -601,17 +601,23 @@ void SeleneFrame::save_project(wxFileName const &fname_)
             
             if(object->type==Sel::OBJ_MESH)
             {
-                N=object->get_N_faces_groups();
+                N=object->mesh.get_N_faces_groups();
                 face_access=&Sel::Object::faces_group;
                 face_name="faces_group";
             }
             
             // Mesh Specifics
+
+            std::vector<Sel::SelFace> faces;
+            std::vector<int> groups_starts;
+            std::vector<int> groups_ends;
+
+            object->mesh.get_faces_groups(faces, groups_starts, groups_ends);
             
-            if(object->scaled_mesh)
-                file<<ID[i]<<":rescale_mesh("<<object->scaling_factor<<")\n";
-            for(std::size_t k=0;k<object->Fg_arr.size();k++)
-                file<<ID[i]<<":define_faces_group("<<k<<","<<object->Fg_start[k]<<","<<object->Fg_end[k]<<")\n";
+            if(object->mesh.get_scaling_status())
+                file<<ID[i]<<":rescale_mesh("<<object->mesh.get_scaling_factor()<<")\n";
+            for(std::size_t k=0; k<faces.size(); k++)
+                file<<ID[i]<<":define_faces_group("<<k<<","<<groups_starts[k]<<","<<groups_ends[k]<<")\n";
                         
             //#####################
             //   Materials check

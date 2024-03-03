@@ -244,6 +244,68 @@ namespace Sel::Primitives
             std::vector<std::string> &face_name_arr;
     };
 
+    class Mesh
+    {
+        public:
+            Mesh(BoundingBox &bbox,
+                 std::vector<Sel::SelFace> &F_arr,
+                 std::vector<std::string> &face_name_arr);
+                
+            void add_mesh(std::vector<Sel::Vertex> const &V_arr,
+                          std::vector<Sel::SelFace> const &F_arr);
+            void auto_recalc_normals();
+            void compute_boundaries();
+            void define_faces_group(int index,int start,int end);
+            SelFace& faces_group(int index);
+            void finalize();
+            std::vector<Sel::SelFace> const& get_faces_array() const;
+            void get_faces_groups(std::vector<Sel::SelFace> &faces,
+                                  std::vector<int> &groups_starts,
+                                  std::vector<int> &groups_ends) const;
+            std::filesystem::path get_mesh_path() const;
+            int get_N_faces_groups() const;
+            double get_scaling_factor() const;
+            bool get_scaling_status() const;
+            std::vector<Sel::Vertex> const& get_vertex_array() const;
+            void intersect(std::vector<RayInter> &interlist, SelRay const &ray, int obj_ID, int face_last_intersect,bool first_forward);
+            void propagate_faces_group(int index);
+            void propagate_faces_groups();
+            void recalc_normals_z();
+            void rescale_mesh(double scaling_factor);
+            void save_mesh_to_obj(std::string const &fname) const;
+            void set_group_default_in_irf(IRF *irf);
+            void set_group_default_in_mat(Material *mat);
+            void set_group_default_irf(IRF *irf);
+            void set_group_default_out_irf(IRF *irf);
+            void set_group_default_out_mat(Material *mat);
+            void set_faces_groups(std::vector<Sel::SelFace> const &faces,
+                                  std::vector<int> const &groups_starts,
+                                  std::vector<int> const &group_sends);
+            void set_mesh(std::vector<Sel::Vertex> const &V_arr,
+                          std::vector<Sel::SelFace> const &F_arr);
+            void set_mesh_path(std::filesystem::path const &path);
+            void set_scaling_factor(double scaling_factor);
+            void set_scaling_status(bool scaling_status);
+            Vertex& vertex(int index);
+                           
+        private:
+            BoundingBox &bbox;
+            std::vector<Sel::SelFace> &F_arr;
+            std::vector<std::string> &face_name_arr;
+
+            bool scaled_mesh;
+            double scaling_factor;
+            std::vector<Sel::SelFace> Fg_arr;
+            std::vector<int> Fg_start,Fg_end;
+            std::vector<Sel::Vertex> V_arr;
+            std::filesystem::path mesh_fname;
+
+            bool has_octree;
+            FOctree octree;
+            std::vector<int> octree_buffer;
+            std::vector<RayFaceIntersect> face_intersect_buffer;
+    };
+
     class Parabola
     {
         public:

@@ -1155,20 +1155,23 @@ void SeleneFrame::update_vao(SeleneVAO *vao,Sel::Frame *frame)
         }
         else if(object->type==Sel::OBJ_MESH)
         {
-            V_arr.resize(object->V_arr.size());
-            F_arr.resize(object->F_arr.size());
+            std::vector<Sel::Vertex> const &mesh_verts = object->mesh.get_vertex_array();
+            std::vector<Sel::SelFace> const &mesh_faces = object->mesh.get_faces_array();
+
+            V_arr.resize(mesh_verts.size());
+            F_arr.resize(mesh_faces.size());
             
             for(unsigned int i=0;i<V_arr.size();i++)
             {
-                V_arr[i].loc=object->V_arr[i].loc;
-                V_arr[i].norm=object->V_arr[i].norm;
+                V_arr[i].loc=mesh_verts[i].loc;
+                V_arr[i].norm=mesh_verts[i].norm;
             }
             
             for(unsigned int i=0;i<F_arr.size();i++)
             {
-                F_arr[i].V1=object->F_arr[i].V1;
-                F_arr[i].V2=object->F_arr[i].V2;
-                F_arr[i].V3=object->F_arr[i].V3;
+                F_arr[i].V1=mesh_faces[i].V1;
+                F_arr[i].V2=mesh_faces[i].V2;
+                F_arr[i].V3=mesh_faces[i].V3;
             }
         }
         else if(object->type==Sel::OBJ_PRISM)

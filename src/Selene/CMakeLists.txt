@@ -13,6 +13,7 @@ set(selene_src sel_analysis.cpp
 			   primitives/sel_obj_cylinder.cpp
 			   primitives/sel_obj_disk.cpp
 			   primitives/sel_obj_lens.cpp
+			   primitives/sel_obj_mesh.cpp
 			   primitives/sel_obj_parabola.cpp
 			   primitives/sel_obj_rectangle.cpp
 			   primitives/sel_obj_sphere.cpp
