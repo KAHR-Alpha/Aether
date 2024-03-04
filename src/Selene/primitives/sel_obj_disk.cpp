@@ -30,7 +30,7 @@ namespace Sel::Primitives
     Disk::Disk(BoundingBox &bbox_,
                std::vector<Sel::SelFace> &F_arr_,
                std::vector<std::string> &face_name_arr_)
-        :bbox(bbox_), F_arr(F_arr_), face_name_arr(face_name_arr_),
+        :Primitive(bbox_, F_arr_, face_name_arr_),
          radius(0.01), in_radius(0)
     {
     }

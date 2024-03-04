@@ -30,7 +30,7 @@ namespace Sel::Primitives
     Parabola::Parabola(BoundingBox &bbox_,
                        std::vector<Sel::SelFace> &F_arr_,
                        std::vector<std::string> &face_name_arr_)
-        :bbox(bbox_), F_arr(F_arr_), face_name_arr(face_name_arr_),
+        :Primitive(bbox_, F_arr_, face_name_arr_),
          focal(0.1), inner_radius(5e-3), length(0.02)
     {
     }

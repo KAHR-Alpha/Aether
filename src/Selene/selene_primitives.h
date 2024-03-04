@@ -41,7 +41,22 @@ namespace Sel
 
 namespace Sel::Primitives
 {
-    class Box
+    class Primitive
+    {
+        public:
+            BoundingBox &bbox;
+            std::vector<Sel::SelFace> &F_arr;
+            std::vector<std::string> &face_name_arr;
+            
+            Primitive(BoundingBox &bbox_,
+                      std::vector<Sel::SelFace> &F_arr_,
+                      std::vector<std::string> &face_name_arr_)
+                :bbox(bbox_), F_arr(F_arr_), face_name_arr(face_name_arr_)
+            {
+            }
+    };
+    
+    class Box: public Primitive
     {
         public:
             Box(BoundingBox &bbox,
@@ -71,14 +86,10 @@ namespace Sel::Primitives
                            double x, double y, double z) const;
                            
         private:
-            BoundingBox &bbox;
-            std::vector<Sel::SelFace> &F_arr;
-            std::vector<std::string> &face_name_arr;
-
             double lx,ly,lz;
     };
 
-    class Cone
+    class Cone: public Primitive
     {
         public:
             double radius,length,cut_factor;
@@ -104,12 +115,9 @@ namespace Sel::Primitives
                            double x, double y, double z) const;
                            
         private:
-            BoundingBox &bbox;
-            std::vector<Sel::SelFace> &F_arr;
-            std::vector<std::string> &face_name_arr;
     };
 
-    class Conic
+    class Conic: public Primitive
     {
         public:
             double R_factor,K_factor;
@@ -135,12 +143,9 @@ namespace Sel::Primitives
                            double x, double y, double z) const;
 
         private:
-            BoundingBox &bbox;
-            std::vector<Sel::SelFace> &F_arr;
-            std::vector<std::string> &face_name_arr;
     };
 
-    class Cylinder
+    class Cylinder: public Primitive
     {
         public:
             double radius,length,cut_factor;
@@ -163,12 +168,9 @@ namespace Sel::Primitives
                            double x, double y, double z) const;
 
         private:
-            BoundingBox &bbox;
-            std::vector<Sel::SelFace> &F_arr;
-            std::vector<std::string> &face_name_arr;
     };
 
-    class Disk
+    class Disk: public Primitive
     {
         public:
             double radius,in_radius;
@@ -193,12 +195,9 @@ namespace Sel::Primitives
                            double x, double y, double z) const;
 
         private:
-            BoundingBox &bbox;
-            std::vector<Sel::SelFace> &F_arr;
-            std::vector<std::string> &face_name_arr;
     };
 
-    class Lens
+    class Lens: public Primitive
     {
         public:
             double thickness,
@@ -238,13 +237,9 @@ namespace Sel::Primitives
                     normal_back,
                     cylinder_origin,
                     cylinder_direction;
-
-            BoundingBox &bbox;
-            std::vector<Sel::SelFace> &F_arr;
-            std::vector<std::string> &face_name_arr;
     };
 
-    class Mesh
+    class Mesh: public Primitive
     {
         public:
             Mesh(BoundingBox &bbox,
@@ -289,10 +284,6 @@ namespace Sel::Primitives
             Vertex& vertex(int index);
                            
         private:
-            BoundingBox &bbox;
-            std::vector<Sel::SelFace> &F_arr;
-            std::vector<std::string> &face_name_arr;
-
             bool scaled_mesh;
             double scaling_factor;
             std::vector<Sel::SelFace> Fg_arr;
@@ -306,7 +297,7 @@ namespace Sel::Primitives
             std::vector<RayFaceIntersect> face_intersect_buffer;
     };
 
-    class Parabola
+    class Parabola: public Primitive
     {
         public:
             double focal,inner_radius,length;
@@ -331,12 +322,9 @@ namespace Sel::Primitives
                            double x, double y, double z) const;
                            
         private:
-            BoundingBox &bbox;
-            std::vector<Sel::SelFace> &F_arr;
-            std::vector<std::string> &face_name_arr;
     };
 
-    class Rectangle
+    class Rectangle: public Primitive
     {
         public:
             double ly,lz;
@@ -360,12 +348,9 @@ namespace Sel::Primitives
                            double x, double y, double z) const;
                            
         private:
-            BoundingBox &bbox;
-            std::vector<Sel::SelFace> &F_arr;
-            std::vector<std::string> &face_name_arr;
     };
 
-    class Sphere
+    class Sphere: public Primitive
     {
         public:
             Sphere(BoundingBox &bbox,
@@ -391,17 +376,13 @@ namespace Sel::Primitives
                            double x, double y, double z) const;
                            
         private:
-            BoundingBox &bbox;
-            std::vector<Sel::SelFace> &F_arr;
-            std::vector<std::string> &face_name_arr;
-
             double radius,cut_factor;
             double cut_x,
                    cut_angle,
                    cut_radius;
     };
 
-    class Spherical_Patch
+    class Spherical_Patch: public Primitive
     {
         public:
             Spherical_Patch(BoundingBox &bbox,
@@ -427,10 +408,6 @@ namespace Sel::Primitives
                            double x, double y, double z) const;
                            
         private:
-            BoundingBox &bbox;
-            std::vector<Sel::SelFace> &F_arr;
-            std::vector<std::string> &face_name_arr;
-
             double radius,cut_factor;
             double cut_x,
                    cut_angle,
