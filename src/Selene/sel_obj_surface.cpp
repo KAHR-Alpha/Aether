@@ -89,7 +89,8 @@ void Object::set_rectangle()
 {
     type=OBJ_RECTANGLE;
     
-    
+    rectangle.finalize();
+    NFc = F_arr.size();
 }
 
 

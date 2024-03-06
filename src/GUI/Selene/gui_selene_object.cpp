@@ -957,12 +957,12 @@ RectangleDialog::RectangleDialog(Sel::Object *object_,std::vector<Sel::Frame*> c
                      OptimEngine &optim_engine_)
     :ObjectDialog(object_,frames_,materials_,irfs_,optim_engine_)
 {
-    box_ly=new LengthSelector(ctrl_panel,"Y Length",object->rectangle.ly,true,"mm");
-    box_ly->handle_external_optimization(&object->rectangle.ly,optim_engine);
+    box_ly=new LengthSelector(ctrl_panel,"Y Length",object->rectangle.get_ly(),true,"mm");
+    box_ly->handle_external_optimization(&object->rectangle.ref_ly(),optim_engine);
     box_ly->Bind(EVT_LENGTH_SELECTOR,&ObjectDialog::evt_geometry,this);
     
-    box_lz=new LengthSelector(ctrl_panel,"Z Length",object->rectangle.lz,true,"mm");
-    box_lz->handle_external_optimization(&object->rectangle.lz,optim_engine);
+    box_lz=new LengthSelector(ctrl_panel,"Z Length",object->rectangle.get_lz(),true,"mm");
+    box_lz->handle_external_optimization(&object->rectangle.ref_lz(),optim_engine);
     box_lz->Bind(EVT_LENGTH_SELECTOR,&ObjectDialog::evt_geometry,this);
     
     ctrl_sizer->Add(box_ly,wxSizerFlags().Expand().Border(wxALL,1));
@@ -981,11 +981,11 @@ double RectangleDialog::mesh(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr
 
 void RectangleDialog::save_object_geometry()
 {
-    object->rectangle.ly=box_ly->get_length();
-    object->rectangle.lz=box_lz->get_length();
+    object->rectangle.set_parameters(box_ly->get_length(),
+                                     box_lz->get_length());
     
-    register_optimization(box_ly,&object->rectangle.ly,optim_engine);
-    register_optimization(box_lz,&object->rectangle.lz,optim_engine);
+    register_optimization(box_ly,&object->rectangle.ref_ly(),optim_engine);
+    register_optimization(box_lz,&object->rectangle.ref_lz(),optim_engine);
     
     object->set_rectangle();
 }

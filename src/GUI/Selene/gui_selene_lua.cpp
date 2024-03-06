@@ -498,7 +498,7 @@ void SeleneFrame::save_project(wxFileName const &fname_)
                     file<<"\"mesh\",\""<<std::filesystem::absolute(object->mesh.get_mesh_path())<<"\"";
                     break;
                 case Sel::OBJ_RECTANGLE:
-                    file<<"\"rectangle\","<<object->rectangle.ly<<","<<object->rectangle.lz;
+                    file<<"\"rectangle\","<<object->rectangle.get_ly()<<","<<object->rectangle.get_lz();
                     break;
                 case Sel::OBJ_PARABOLA:
                     file<<"\"parabola\","<<object->parabola.focal<<","<<object->parabola.inner_radius<<","<<object->parabola.length;

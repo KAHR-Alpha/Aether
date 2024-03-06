@@ -84,6 +84,10 @@ namespace Sel::Primitives
     }
     
     
+    double Rectangle::get_ly() const { return ly; }
+    double Rectangle::get_lz() const { return lz; }
+    
+    
     void Rectangle::intersect(std::vector<RayInter> &interlist, SelRay const &ray, int obj_ID, int face_last_intersect, bool first_forward) const
     {
         std::array<double,1> hits;
@@ -109,6 +113,10 @@ namespace Sel::Primitives
     {
         return -unit_vec_x;
     }
+    
+    
+    double& Rectangle::ref_ly() { return ly; }
+    double& Rectangle::ref_lz() { return lz; }
     
     
     void Rectangle::set_parameters(double ly_, double lz_)

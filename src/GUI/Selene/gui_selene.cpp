@@ -1182,7 +1182,7 @@ void SeleneFrame::update_vao(SeleneVAO *vao,Sel::Frame *frame)
         }
         else if(object->type==Sel::OBJ_RECTANGLE)
         {
-            rectangle_mesh_wireframe(V_arr,F_arr,object->rectangle.ly,object->rectangle.lz);
+            rectangle_mesh_wireframe(V_arr,F_arr,object->rectangle.get_ly(),object->rectangle.get_lz());
         }
         else if(object->type==Sel::OBJ_SPHERE)
         {

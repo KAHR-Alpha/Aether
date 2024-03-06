@@ -158,8 +158,8 @@ void Object::build_variables_map()
     variables_map["parabola_length"]=&parabola.length;
     variables_map["parabola_internal_radius"]=&parabola.inner_radius;
     
-    variables_map["rectangle_length_y"]=&rectangle.ly;
-    variables_map["rectangle_length_z"]=&rectangle.lz;
+    variables_map["rectangle_length_y"]=&rectangle.ref_ly();
+    variables_map["rectangle_length_z"]=&rectangle.ref_lz();
     
     sphere.map_variables(variables_map);
     sphere_patch.map_variables(variables_map);
@@ -223,7 +223,7 @@ void Object::bootstrap(std::filesystem::path const &output_directory,double ray_
             case OBJ_MESH:
                 sb_file<<"mesh "<<mesh.get_mesh_path().generic_string(); break;
             case OBJ_RECTANGLE:
-                sb_file<<"rectangle "<<rectangle.ly<<" "<<rectangle.lz; break;
+                sb_file<<"rectangle "<<rectangle.get_ly()<<" "<<rectangle.get_lz(); break;
             case OBJ_PARABOLA:
                 sb_file<<"parabola "<<parabola.focal<<" "<<parabola.inner_radius<<" "<<parabola.length; break;
             case OBJ_SPHERE:

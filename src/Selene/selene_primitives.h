@@ -327,8 +327,6 @@ namespace Sel::Primitives
     class Rectangle: public Primitive
     {
         public:
-            double ly,lz;
-            
             Rectangle(BoundingBox &bbox,
                       std::vector<Sel::SelFace> &F_arr,
                       std::vector<std::string> &face_name_arr);
@@ -337,8 +335,12 @@ namespace Sel::Primitives
             std::string anchor_name(int anchor) const;
             void default_N_uv(int &Nu, int &Nv, int face) const;
             void finalize();
+            double get_ly() const;
+            double get_lz() const;
             void intersect(std::vector<RayInter> &interlist, SelRay const &ray, int obj_ID, int face_last_intersect,bool first_forward) const;
             Vector3 normal(RayInter const &inter) const;
+            double& ref_ly();
+            double& ref_lz();
             void set_parameters(double ly,
                                 double lz);
             Vector3 tangent(RayInter const &inter,
@@ -348,6 +350,7 @@ namespace Sel::Primitives
                            double x, double y, double z) const;
                            
         private:
+            double ly,lz;
     };
 
     class Sphere: public Primitive
