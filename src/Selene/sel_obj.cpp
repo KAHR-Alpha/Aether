@@ -87,19 +87,18 @@ void Frame::consolidate_position()
 Object::Object()
     :obj_ID(-1),
      max_ray_generation(200),
-     bxm(0), bxp(0),
-     bym(0), byp(0),
-     bzm(0), bzp(0),
      NFc(0),
-     box_lx(0.1), box_ly(0.1), box_lz(0.1),
-     cone_r(1e-2), cone_l(4e-2), cone_cut(1.0),
-     conic_R(0.1), conic_K(0), conic_in_radius(0), conic_out_radius(0.1),
-     cyl_r(1e-2), cyl_l(4e-2), cyl_cut(1.0),
-     dsk_r(0.01), dsk_r_in(0),
-     ls_thickness(0.01), ls_r1(0.3), ls_r2(-0.3), ls_r_max_nominal(0.1),
-     scaled_mesh(false), scaling_factor(1.0), has_octree(false),
-     pr_f(0.1), pr_in_radius(5e-3), pr_length(0.02),
-     sph_r(0.05), sph_cut(1.0),
+     box(bbox, F_arr, face_name_arr),
+     cone(bbox, F_arr, face_name_arr),
+     conic(bbox, F_arr, face_name_arr),
+     cylinder(bbox, F_arr, face_name_arr),
+     disk(bbox, F_arr, face_name_arr),
+     lens(bbox, F_arr, face_name_arr),
+     mesh(bbox, F_arr, face_name_arr),
+     parabola(bbox, F_arr, face_name_arr),
+     rectangle(bbox, F_arr, face_name_arr),
+     sphere(bbox, F_arr, face_name_arr),
+     sphere_patch(bbox, F_arr, face_name_arr),
 //     prism_length(5e-2), prism_height(2e-2), prism_a1(Pi/3.0), prism_a2(Pi/3.0), prism_width(1),
      cleanup_done(false),
      sensor_type(Sensor::NONE),
@@ -136,36 +135,34 @@ void Object::build_variables_map()
     variables_map["angle_B"]=&in_B.val;
     variables_map["angle_C"]=&in_C.val;
     
-    variables_map["box_length_x"]=&box_lx;
-    variables_map["box_length_y"]=&box_ly;
-    variables_map["box_length_z"]=&box_lz;
+    box.map_variables(variables_map);
     
-    variables_map["conic_radius"]=&conic_R;
-    variables_map["conic_constant"]=&conic_K;
-    variables_map["conic_internal_radius"]=&conic_in_radius;
-    variables_map["conic_external_radius"]=&conic_out_radius;
+    variables_map["conic_radius"]=&conic.R_factor;
+    variables_map["conic_constant"]=&conic.K_factor;
+    variables_map["conic_internal_radius"]=&conic.in_radius;
+    variables_map["conic_external_radius"]=&conic.out_radius;
     
-    variables_map["cylinder_radius"]=&cyl_r;
-    variables_map["cylinder_length"]=&cyl_l;
-    variables_map["cylinder_cut_factor"]=&cyl_cut;
+    variables_map["cylinder_radius"]=&cylinder.radius;
+    variables_map["cylinder_length"]=&cylinder.length;
+    variables_map["cylinder_cut_factor"]=&cylinder.cut_factor;
     
-    variables_map["disk_radius"]=&dsk_r;
-    variables_map["disk_internal_radius"]=&dsk_r_in;
+    variables_map["disk_radius"]=&disk.radius;
+    variables_map["disk_internal_radius"]=&disk.in_radius;
     
-    variables_map["lens_thickness"]=&ls_thickness;
-    variables_map["lens_front_radius"]=&ls_r1;
-    variables_map["lens_back_radius"]=&ls_r2;
-    variables_map["lens_radius"]=&ls_r_max_nominal;
+    variables_map["lens_thickness"]=&lens.thickness;
+    variables_map["lens_front_radius"]=&lens.radius_front;
+    variables_map["lens_back_radius"]=&lens.radius_back;
+    variables_map["lens_radius"]=&lens.max_outer_radius;
     
-    variables_map["parabola_focal_lengths"]=&pr_f;
-    variables_map["parabola_length"]=&pr_length;
-    variables_map["parabola_internal_radius"]=&pr_in_radius;
+    variables_map["parabola_focal_lengths"]=&parabola.focal;
+    variables_map["parabola_length"]=&parabola.length;
+    variables_map["parabola_internal_radius"]=&parabola.inner_radius;
     
-    variables_map["rectangle_length_y"]=&box_ly;
-    variables_map["rectangle_length_z"]=&box_lz;
+    variables_map["rectangle_length_y"]=&rectangle.ref_ly();
+    variables_map["rectangle_length_z"]=&rectangle.ref_lz();
     
-    variables_map["sphere_radius"]=&sph_r;
-    variables_map["sphere_cut_factor"]=&sph_cut;
+    sphere.map_variables(variables_map);
+    sphere_patch.map_variables(variables_map);
     
     variables_map["spheroid_radius_x"]=&spd_rx;
     variables_map["spheroid_radius_y"]=&spd_ry;
@@ -212,27 +209,27 @@ void Object::bootstrap(std::filesystem::path const &output_directory,double ray_
             case OBJ_BOOLEAN:
                 sb_file<<"boolean "; break;
             case OBJ_BOX:
-                sb_file<<"box "<<box_lx<<" "<<box_ly<<" "<<box_lz; break;
+                sb_file<<"box "<<box.get_lx()<<" "<<box.get_ly()<<" "<<box.get_lz(); break;
             case OBJ_VOL_CONE:
                 sb_file<<"cone "; break;
             case OBJ_CONIC:
-                sb_file<<"conic_section "<<conic_R<<" "<<conic_K<<" "<<conic_in_radius<<" "<<conic_out_radius; break;
+                sb_file<<"conic_section "<<conic.R_factor<<" "<<conic.K_factor<<" "<<conic.in_radius<<" "<<conic.out_radius; break;
             case OBJ_VOL_CYLINDER:
-                sb_file<<"cylinder "<<cyl_l<<" "<<cyl_r<<" "<<cyl_cut; break;
+                sb_file<<"cylinder "<<cylinder.length<<" "<<cylinder.radius<<" "<<cylinder.cut_factor; break;
             case OBJ_DISK:
-                sb_file<<"disk "<<dsk_r<<" "<<dsk_r_in; break;
+                sb_file<<"disk "<<disk.radius<<" "<<disk.in_radius; break;
             case OBJ_LENS:
-                sb_file<<"lens "<<ls_thickness<<" "<<ls_r_max_nominal<<" "<<ls_r1<<" "<<ls_r2; break;
+                sb_file<<"lens "<<lens.thickness<<" "<<lens.max_outer_radius<<" "<<lens.radius_front<<" "<<lens.radius_back; break;
             case OBJ_MESH:
-                sb_file<<"mesh "<<mesh_fname; break;
+                sb_file<<"mesh "<<mesh.get_mesh_path().generic_string(); break;
             case OBJ_RECTANGLE:
-                sb_file<<"rectangle "<<box_ly<<" "<<box_lz; break;
+                sb_file<<"rectangle "<<rectangle.get_ly()<<" "<<rectangle.get_lz(); break;
             case OBJ_PARABOLA:
-                sb_file<<"parabola "<<pr_f<<" "<<pr_in_radius<<" "<<pr_length; break;
+                sb_file<<"parabola "<<parabola.focal<<" "<<parabola.inner_radius<<" "<<parabola.length; break;
             case OBJ_SPHERE:
-                sb_file<<"sphere "<<sph_r<<" "<<sph_cut; break;
+                sb_file<<"sphere "<<sphere.get_radius()<<" "<<sphere.get_cut_factor(); break;
             case OBJ_SPHERE_PATCH:
-                sb_file<<"spherical_patch "<<sph_r<<" "<<sph_cut; break;
+                sb_file<<"spherical_patch "<<sphere_patch.get_radius()<<" "<<sphere_patch.get_cut_factor(); break;
         }
         
         sb_file<<"\n";
@@ -240,9 +237,9 @@ void Object::bootstrap(std::filesystem::path const &output_directory,double ray_
                <<local_x.x<<" "<<local_x.y<<" "<<local_x.z<<" "
                <<local_y.x<<" "<<local_y.y<<" "<<local_y.z<<" "
                <<local_z.x<<" "<<local_z.y<<" "<<local_z.z<<" "
-               <<bxm<<" "<<bxp<<" "
-               <<bym<<" "<<byp<<" "
-               <<bzm<<" "<<bzp<<" "
+               <<bbox.xm<<" "<<bbox.xp<<" "
+               <<bbox.ym<<" "<<bbox.yp<<" "
+               <<bbox.zm<<" "<<bbox.zp<<" "
                <<ray_power<<"\n";
         
         if(sens_wavelength) { sb_Nmax+=sizeof(double); sb_file<<"wavelength "; }
@@ -292,71 +289,6 @@ void Object::cleanup()
     cleanup_done=true;
 }
 
-void Object::compute_boundaries()
-{
-         if(type==OBJ_LENS)
-    {
-        double x1=std::min(ls_cyl_pos.x,ls_c1.x-ls_r1);
-        double x2=std::max(ls_cyl_pos.x+ls_cyl_h,ls_c2.x-ls_r2);
-        
-        bxm=1.1*x1;
-        bxp=1.1*x2;
-        
-        bym=-1.1*ls_r_max;
-        byp=+1.1*ls_r_max;
-        
-        bzm=-1.1*ls_r_max;
-        bzp=+1.1*ls_r_max;
-    }
-    else if(type==OBJ_MESH)
-    {
-        if(V_arr.size()==0)
-        {
-            bxm=bxp=0;
-            bym=byp=0;
-            bzm=bzp=0;
-            
-            return;
-        }
-                
-        bxm=bxp=V_arr[0].loc.x;
-        bym=byp=V_arr[0].loc.y;
-        bzm=bzp=V_arr[0].loc.z;
-        
-        for(std::size_t i=0;i<V_arr.size();i++)
-        {
-            bxm=std::min(bxm,V_arr[i].loc.x);
-            bym=std::min(bym,V_arr[i].loc.y);
-            bzm=std::min(bzm,V_arr[i].loc.z);
-            
-            bxp=std::max(bxp,V_arr[i].loc.x);
-            byp=std::max(byp,V_arr[i].loc.y);
-            bzp=std::max(bzp,V_arr[i].loc.z);
-        }
-        
-        double spanx=bxp-bxm;
-        double spany=byp-bym;
-        double spanz=bzp-bzm;
-        
-        double span_max=var_max(spanx,spany,spanz);
-        
-        spanx=std::max(spanx,0.1*span_max);
-        spany=std::max(spany,0.1*span_max);
-        spanz=std::max(spanz,0.1*span_max);
-        
-        bxm-=0.05*spanx; bxp+=0.05*spanx;
-        bym-=0.05*spany; byp+=0.05*spany;
-        bzm-=0.05*spanz; bzp+=0.05*spanz;
-        
-        if(NFc>12)
-        {
-            has_octree=true;
-            octree.clear_tree();
-            octree.set_params(8,bxm,bxp,bym,byp,bzm,bzp);
-            octree.generate_tree(V_arr,F_arr);
-        }
-    }
-}
 
 bool Object::contains(double x_,double y_,double z_)
 {
@@ -380,37 +312,23 @@ void Object::default_N_uv(int &Nu,int &Nv,int face_)
     switch(type)
     {
         case OBJ_BOOLEAN: Nu=Nv=1; break;
-        case OBJ_BOX: default_N_uv_box(Nu,Nv,face_); break;
+        case OBJ_BOX: box.default_N_uv(Nu,Nv,face_); break;
         case OBJ_VOL_CONE: Nu=Nv=1; break;
-        case OBJ_CONIC: default_N_uv_conic_section(Nu,Nv,face_); break;
-        case OBJ_VOL_CYLINDER: default_N_uv_cylinder_volume(Nu,Nv,face_); break;
-        case OBJ_DISK: default_N_uv_disk(Nu,Nv,face_); break;
-        case OBJ_LENS: default_N_uv_lens(Nu,Nv,face_); break;
-        case OBJ_PARABOLA: default_N_uv_parabola(Nu,Nv,face_); break;
+        case OBJ_CONIC: conic.default_N_uv(Nu,Nv,face_); break;
+        case OBJ_VOL_CYLINDER: cylinder.default_N_uv(Nu,Nv,face_); break;
+        case OBJ_DISK: disk.default_N_uv(Nu,Nv,face_); break;
+        case OBJ_LENS: lens.default_N_uv(Nu,Nv,face_); break;
+        case OBJ_PARABOLA: parabola.default_N_uv(Nu,Nv,face_); break;
         case OBJ_MESH: Nu=Nv=1; break;
-        case OBJ_RECTANGLE: default_N_uv_rectangle(Nu,Nv,face_); break;
-        case OBJ_SPHERE: default_N_uv_sphere(Nu,Nv,face_); break;
-        case OBJ_SPHERE_PATCH: default_N_uv_spherical_patch(Nu,Nv,face_); break;
+        case OBJ_RECTANGLE: rectangle.default_N_uv(Nu,Nv,face_); break;
+        case OBJ_SPHERE: sphere.default_N_uv(Nu,Nv,face_); break;
+        case OBJ_SPHERE_PATCH: sphere_patch.default_N_uv(Nu,Nv,face_); break;
         default:
             std::cout<<"Undefined UV coordinates for object of type "<<type<<"\n";
             std::exit(EXIT_FAILURE);
     }
 }
 
-void Object::define_faces_group(int index,int start,int end)
-{
-    if(index<0) return;
-    
-    if(static_cast<int>(Fg_arr.size())<=index)
-    {
-        Fg_arr.resize(index+1);
-        Fg_start.resize(index+1);
-        Fg_end.resize(index+1);
-    }
-    
-    Fg_start[index]=start;
-    Fg_end[index]=end;
-}
 
 SelFace& Object::face(int index)
 {
@@ -424,10 +342,12 @@ SelFace& Object::face(int index)
     }
 }
 
+
 SelFace& Object::faces_group(int index)
 {
-    return Fg_arr[index];
+    return mesh.faces_group(index);
 }
+
 
 std::string Object::face_name(int index)
 {
@@ -435,22 +355,23 @@ std::string Object::face_name(int index)
     else return "Face "+std::to_string(index);
 }
 
+
 Vector3 Object::face_normal(RayInter const &inter)
 {
     switch(type)
     {
         case OBJ_BOOLEAN: return normal_boolean(inter);
-        case OBJ_BOX: return normal_box(inter);
-        case OBJ_VOL_CONE: return normal_cone_volume(inter);
-        case OBJ_CONIC: return normal_conic_section(inter);
-        case OBJ_VOL_CYLINDER: return normal_cylinder_volume(inter);
+        case OBJ_BOX: return box.normal(inter);
+        case OBJ_VOL_CONE: return cone.normal(inter);
+        case OBJ_CONIC: return conic.normal(inter);
+        case OBJ_VOL_CYLINDER: return cylinder.normal(inter);
         case OBJ_DISK: return -unit_vec_x;
-        case OBJ_LENS: return normal_lens(inter);
-        case OBJ_PARABOLA: return normal_parabola(inter);
+        case OBJ_LENS: return lens.normal(inter);
+        case OBJ_PARABOLA: return parabola.normal(inter);
         case OBJ_MESH: return face(inter.face).norm;
         case OBJ_RECTANGLE: return -unit_vec_x;
-        case OBJ_SPHERE: return normal_sphere(inter);
-        case OBJ_SPHERE_PATCH: return normal_spherical_patch(inter);
+        case OBJ_SPHERE: return sphere.normal(inter);
+        case OBJ_SPHERE_PATCH: return sphere_patch.normal(inter);
         default:
             std::cout<<"Undefined normal for object of type "<<type<<"\n";
             std::exit(0);
@@ -465,13 +386,13 @@ Vector3 Object::face_tangent(RayInter const &inter,
     switch(type)
     {
 //        case OBJ_BOOLEAN: return tangent_boolean(inter);
-        case OBJ_BOX: return tangent_box(inter,normal,up);
+        case OBJ_BOX: return box.tangent(inter,normal,up);
 //        case OBJ_VOL_CONE: return tangent_cone_volume(inter);
 //        case OBJ_VOL_CYLINDER: return tangent_cylinder_volume(inter);
 //        case OBJ_LENS: return tangent_lens(inter);
 //        case OBJ_PARABOLA: return tangent_parabola(inter);
 //        case OBJ_MESH: return face(inter.face).norm;
-        case OBJ_RECTANGLE: return tangent_rectangle(inter,normal,up);
+        case OBJ_RECTANGLE: return rectangle.tangent(inter,normal,up);
     }
     
     return Vector3(0);
@@ -481,14 +402,14 @@ Vector3 Object::get_anchor(int anchor)
 {
     switch(type)
     {
-        case OBJ_BOX: return box_anchor(anchor);
-        case OBJ_CONIC: return conic_section_anchor(anchor);
-        case OBJ_LENS: return lens_anchor(anchor);
-        case OBJ_PARABOLA: return parabola_anchor(anchor);
-        case OBJ_VOL_CONE: return cone_anchor(anchor);
-        case OBJ_VOL_CYLINDER: return cylinder_anchor(anchor);
-        case OBJ_SPHERE: return sphere_anchor(anchor);
-        case OBJ_SPHERE_PATCH: return sphere_anchor(anchor);
+        case OBJ_BOX: return box.anchor(anchor);
+        case OBJ_CONIC: return conic.anchor(anchor);
+        case OBJ_LENS: return lens.anchor(anchor);
+        case OBJ_PARABOLA: return parabola.anchor(anchor);
+        case OBJ_VOL_CONE: return cone.anchor(anchor);
+        case OBJ_VOL_CYLINDER: return cylinder.anchor(anchor);
+        case OBJ_SPHERE: return sphere.anchor(anchor);
+        case OBJ_SPHERE_PATCH: return sphere_patch.anchor(anchor);
         default: return Vector3(0);
     }
 }
@@ -513,14 +434,14 @@ std::string Object::get_anchor_name(int anchor)
 {
     switch(type)
     {
-        case OBJ_BOX: return box_anchor_name(anchor);
-        case OBJ_CONIC: return conic_section_anchor_name(anchor);
-        case OBJ_LENS: return lens_anchor_name(anchor);
-        case OBJ_PARABOLA: return parabola_anchor_name(anchor);
-        case OBJ_VOL_CONE: return cone_anchor_name(anchor);
-        case OBJ_VOL_CYLINDER: return cylinder_anchor_name(anchor);
-        case OBJ_SPHERE: return sphere_anchor_name(anchor);
-        case OBJ_SPHERE_PATCH: return sphere_anchor_name(anchor);
+        case OBJ_BOX: return box.anchor_name(anchor);
+        case OBJ_CONIC: return conic.anchor_name(anchor);
+        case OBJ_LENS: return lens.anchor_name(anchor);
+        case OBJ_PARABOLA: return parabola.anchor_name(anchor);
+        case OBJ_VOL_CONE: return cone.anchor_name(anchor);
+        case OBJ_VOL_CYLINDER: return cylinder.anchor_name(anchor);
+        case OBJ_SPHERE: return sphere.anchor_name(anchor);
+        case OBJ_SPHERE_PATCH: return sphere_patch.anchor_name(anchor);
         default: return "Center";
     }
 }
@@ -534,35 +455,35 @@ std::string Object::get_anchor_script_name(int anchor)
     {
         case OBJ_BOX:
             prefix="SEL_OBJ_BOX_";
-            anchor_name=box_anchor_name(anchor);
+            anchor_name=box.anchor_name(anchor);
             break;
         case OBJ_CONIC:
             prefix="SEL_OBJ_CONIC_SECTION_";
-            anchor_name=conic_section_anchor_name(anchor);
+            anchor_name=conic.anchor_name(anchor);
             break;
         case OBJ_LENS:
             prefix="SEL_OBJ_LENS_";
-            anchor_name=lens_anchor_name(anchor);
+            anchor_name=lens.anchor_name(anchor);
             break;
         case OBJ_PARABOLA:
             prefix="SEL_PARABOLA_";
-            anchor_name=parabola_anchor_name(anchor);
+            anchor_name=parabola.anchor_name(anchor);
             break;
         case OBJ_VOL_CONE:
             prefix="SEL_OBJ_CONE_";
-            anchor_name=cone_anchor_name(anchor);
+            anchor_name=cone.anchor_name(anchor);
             break;
         case OBJ_VOL_CYLINDER:
             prefix="SEL_OBJ_CYL_";
-            anchor_name=cylinder_anchor_name(anchor);
+            anchor_name=cylinder.anchor_name(anchor);
             break;
         case OBJ_SPHERE:
             prefix="SEL_OBJ_SPHERE_";
-            anchor_name=sphere_anchor_name(anchor);
+            anchor_name=sphere.anchor_name(anchor);
             break;
         case OBJ_SPHERE_PATCH:
             prefix="SEL_OBJ_SPHERE_PATCH_";
-            anchor_name=sphere_anchor_name(anchor);
+            anchor_name=sphere_patch.anchor_name(anchor);
             break;
         default:
             prefix="SEL_OBJ_";
@@ -577,7 +498,6 @@ std::string Object::get_anchor_script_name(int anchor)
 }
 
 int Object::get_N_faces() { return NFc; }
-int Object::get_N_faces_groups() { return Fg_arr.size(); }
 
 std::filesystem::path Object::get_sensor_file_path() const
 {
@@ -618,37 +538,37 @@ void Object::intersect(SelRay const &base_ray,std::vector<RayInter> &interlist,i
             intersect_boolean(ray,interlist,face_last_intersect,first_forward);
             break;
         case OBJ_BOX:
-            intersect_box(ray,interlist,face_last_intersect,first_forward);
+            box.intersect(interlist, ray, obj_ID, face_last_intersect, first_forward);
             break;
         case OBJ_VOL_CONE:
-            intersect_cone_volume(ray,interlist,face_last_intersect,first_forward);
+            cone.intersect(interlist, ray, obj_ID, face_last_intersect, first_forward);
             break;
         case OBJ_CONIC:
-            intersect_conic_section(ray,interlist,face_last_intersect,first_forward);
+            conic.intersect(interlist, ray, obj_ID, face_last_intersect, first_forward);
             break;
         case OBJ_VOL_CYLINDER:
-            intersect_cylinder_volume(ray,interlist,face_last_intersect,first_forward);
+            cylinder.intersect(interlist, ray, obj_ID, face_last_intersect, first_forward);
             break;
         case OBJ_DISK:
-            intersect_disk(ray,interlist,face_last_intersect,first_forward);
+            disk.intersect(interlist, ray, obj_ID, face_last_intersect, first_forward);
             break;
         case OBJ_LENS:
-            intersect_lens(ray,interlist,face_last_intersect,first_forward);
+            lens.intersect(interlist, ray, obj_ID, face_last_intersect, first_forward);
             break;
         case OBJ_MESH:
-            intersect_mesh(ray,interlist,face_last_intersect,first_forward);
+            mesh.intersect(interlist, ray, obj_ID, face_last_intersect, first_forward);
             break;
         case OBJ_PARABOLA:
-            intersect_parabola(ray,interlist,face_last_intersect,first_forward);
+            parabola.intersect(interlist, ray, obj_ID, face_last_intersect, first_forward);
             break;
         case OBJ_RECTANGLE:
-            intersect_rectangle(ray,interlist,face_last_intersect,first_forward);
+            rectangle.intersect(interlist, ray, obj_ID, face_last_intersect, first_forward);
             break;
         case OBJ_SPHERE:
-            intersect_sphere(ray,interlist,face_last_intersect,first_forward);
+            sphere.intersect(interlist, ray, obj_ID, face_last_intersect, first_forward);
             break;
         case OBJ_SPHERE_PATCH:
-            intersect_spherical_patch(ray,interlist,face_last_intersect,first_forward);
+            sphere_patch.intersect(interlist, ray, obj_ID, face_last_intersect, first_forward);
             break;
     }
 }
@@ -657,10 +577,10 @@ bool Object::intersect_boundaries_box(SelRay const &ray)
 {
     if(type!=OBJ_BOOLEAN)
     {
-        double tmin=(bxm-ray.start.x)*ray.inv_dir.x;
-        double tmax=(bxp-ray.start.x)*ray.inv_dir.x;
-        double tymin=(bym-ray.start.y)*ray.inv_dir.y;
-        double tymax=(byp-ray.start.y)*ray.inv_dir.y;
+        double tmin=(bbox.xm-ray.start.x)*ray.inv_dir.x;
+        double tmax=(bbox.xp-ray.start.x)*ray.inv_dir.x;
+        double tymin=(bbox.ym-ray.start.y)*ray.inv_dir.y;
+        double tymax=(bbox.yp-ray.start.y)*ray.inv_dir.y;
         
         if(tmin>tmax) std::swap(tmin,tmax);
         if(tymin>tymax) std::swap(tymin,tymax);
@@ -669,8 +589,8 @@ bool Object::intersect_boundaries_box(SelRay const &ray)
         if(tymin>tmin) tmin=tymin;
         if(tymax<tmax) tmax=tymax;
         
-        double tzmin=(bzm-ray.start.z)*ray.inv_dir.z;
-        double tzmax=(bzp-ray.start.z)*ray.inv_dir.z;
+        double tzmin=(bbox.zm-ray.start.z)*ray.inv_dir.z;
+        double tzmax=(bbox.zp-ray.start.z)*ray.inv_dir.z;
         
         if(tzmin>tzmax) std::swap(tzmin,tzmax);
         if(tmin>tzmax || tzmin>tmax) return false;
@@ -804,29 +724,6 @@ void Object::process_intersection(RayPath &path)
     path.intersection.reset();
 }
 
-void Object::propagate_faces_group(int index)
-{
-    int start=std::max(0,Fg_start[index]);
-    int end=std::min(Fg_end[index],static_cast<int>(F_arr.size()-1));
-    chk_var(start);
-    chk_var(end);
-    chk_var(Fg_start.size());
-    chk_var(Fg_end.size());
-    for(int i=start;i<=end;i++)
-    {
-        F_arr[i].up_mat=Fg_arr[index].up_mat;
-        F_arr[i].down_mat=Fg_arr[index].down_mat;
-        
-        F_arr[i].up_irf=Fg_arr[index].up_irf;
-        F_arr[i].down_irf=Fg_arr[index].down_irf;
-        
-        F_arr[i].tangent_up=Fg_arr[index].tangent_up;
-        F_arr[i].tangent_down=Fg_arr[index].tangent_down;
-        
-        F_arr[i].fixed_tangent_up=Fg_arr[index].fixed_tangent_up;
-        F_arr[i].fixed_tangent_down=Fg_arr[index].fixed_tangent_down;
-    }
-}
 
 double* Object::reference_variable(std::string const &variable_name)
 {
@@ -835,9 +732,10 @@ double* Object::reference_variable(std::string const &variable_name)
     return variables_map[variable_name];
 }
 
+
 void Object::save_mesh_to_obj(std::string const &fname)
 {
-    obj_file_save(fname,V_arr,F_arr);
+    mesh.save_mesh_to_obj(fname);
 }
 
 void Object::sens_buffer_add(SelRay &ray,
@@ -918,8 +816,7 @@ void Object::set_default_in_irf(IRF *irf)
     {
         for(int i=0;i<NFc;i++) F_arr[i].down_irf=irf;
         
-        for(std::size_t i=0;i<Fg_arr.size();i++)
-            Fg_arr[i].down_irf=irf;
+        mesh.set_group_default_in_irf(irf);
     }
 }
 
@@ -942,8 +839,7 @@ void Object::set_default_in_mat(Material *mat)
     {
         for(int i=0;i<NFc;i++) F_arr[i].down_mat=mat;
         
-        for(std::size_t i=0;i<Fg_arr.size();i++)
-            Fg_arr[i].down_mat=mat;
+        mesh.set_group_default_in_mat(mat);
     }
 }
 
@@ -962,11 +858,7 @@ void Object::set_default_irf(IRF *irf)
             F_arr[i].up_irf=irf;
         }
         
-        for(std::size_t i=0;i<Fg_arr.size();i++)
-        {
-            Fg_arr[i].down_irf=irf;
-            Fg_arr[i].up_irf=irf;
-        }
+        mesh.set_group_default_irf(irf);
     }
 }
 
@@ -989,8 +881,7 @@ void Object::set_default_out_irf(IRF *irf)
     {
         for(int i=0;i<NFc;i++) F_arr[i].up_irf=irf;
         
-        for(std::size_t i=0;i<Fg_arr.size();i++)
-            Fg_arr[i].up_irf=irf;
+        mesh.set_group_default_out_irf(irf);
     }
 }
 
@@ -1013,8 +904,7 @@ void Object::set_default_out_mat(Material *mat)
     {
         for(int i=0;i<NFc;i++) F_arr[i].up_mat=mat;
         
-        for(std::size_t i=0;i<Fg_arr.size();i++)
-            Fg_arr[i].up_mat=mat;
+        mesh.set_group_default_out_mat(mat);
     }
 }
 
@@ -1083,16 +973,16 @@ void Object::xyz_to_uv(double &u,double &v,int face_,
     switch(type)
     {
         case OBJ_BOOLEAN: u=v=0; break;
-        case OBJ_BOX: xyz_to_uv_box(u,v,face_,x,y,z); break;
+        case OBJ_BOX: box.xyz_to_uv(u,v,face_,x,y,z); break;
         case OBJ_VOL_CONE: u=v=0; break;
-        case OBJ_VOL_CYLINDER: xyz_to_uv_cylinder_volume(u,v,face_,x,y,z); break;
-        case OBJ_DISK: xyz_to_uv_disk(u,v,face_,x,y,z); break;
-        case OBJ_LENS: xyz_to_uv_lens(u,v,face_,x,y,z); break;
-        case OBJ_PARABOLA: xyz_to_uv_parabola(u,v,face_,x,y,z); break;
+        case OBJ_VOL_CYLINDER: cylinder.xyz_to_uv(u,v,face_,x,y,z); break;
+        case OBJ_DISK: disk.xyz_to_uv(u,v,face_,x,y,z); break;
+        case OBJ_LENS: lens.xyz_to_uv(u,v,face_,x,y,z); break;
+        case OBJ_PARABOLA: parabola.xyz_to_uv(u,v,face_,x,y,z); break;
         case OBJ_MESH: u=v=0; break;
-        case OBJ_RECTANGLE: xyz_to_uv_rectangle(u,v,face_,x,y,z); break;
-        case OBJ_SPHERE: xyz_to_uv_sphere(u,v,face_,x,y,z); break;
-        case OBJ_SPHERE_PATCH: xyz_to_uv_spherical_patch(u,v,face_,x,y,z); break;
+        case OBJ_RECTANGLE: rectangle.xyz_to_uv(u,v,face_,x,y,z); break;
+        case OBJ_SPHERE: sphere.xyz_to_uv(u,v,face_,x,y,z); break;
+        case OBJ_SPHERE_PATCH: sphere_patch.xyz_to_uv(u,v,face_,x,y,z); break;
         default:
             std::cout<<"Undefined UV coordinates for object of type "<<type<<"\n";
             std::exit(EXIT_FAILURE);

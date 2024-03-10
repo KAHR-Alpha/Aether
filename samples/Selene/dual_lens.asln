@@ -1,0 +1,65 @@
+Material_0=Material()
+Material_1=Material()
+
+Material_0:name("Air")
+Material_0:refractive_index(1)
+
+Material_1:name("Glass")
+Material_1:refractive_index(1.5)
+
+
+optim=Optimizer()
+optim:max_failures(100)
+
+-- Objects definition
+
+object_0=Selene_object("lens",0.01,0.1,0.3,-0.3)
+object_1=Selene_object("lens",0.01,0.1,0.1,-0.1)
+
+light_0=Selene_light("perfect_beam")
+
+-- Frame properties
+
+object_0:name("Lens_0")
+object_0:location(0,0,0)
+object_0:rotation(0,0,0)
+
+light_0:name("Perfect_Beam_1")
+light_0:location(-0.2,0,0)
+light_0:rotation(0,0,0)
+
+object_1:name("Lens_2")
+object_1:location(0.4,0,0)
+object_1:rotation(0,0,0)
+
+-- Specific object properties
+
+object_0:default_out_mat(Material_0)
+object_0:default_in_mat(Material_1)
+object_0:default_IRF(SEL_IRF_FRESNEL)
+
+object_1:default_out_mat(Material_0)
+object_1:default_in_mat(Material_1)
+object_1:default_IRF(SEL_IRF_FRESNEL)
+
+light_0:material(Material_0)
+light_0:wavelength(5.5e-07)
+light_0:extent("circle",0.05)
+
+-- Optimization targets
+
+-- Simulation properties
+
+selene=MODE("selene")
+
+selene:max_ray_bounces(200)
+selene:N_rays_total(10000)
+selene:N_rays_disp(1000)
+
+selene:output_directory("")
+selene:add_object(object_0)
+selene:add_object(object_1)
+
+selene:add_light(light_0)
+
+selene:render()

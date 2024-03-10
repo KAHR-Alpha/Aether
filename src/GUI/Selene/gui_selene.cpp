@@ -1123,52 +1123,55 @@ void SeleneFrame::update_vao(SeleneVAO *vao,Sel::Frame *frame)
         if(object->type==Sel::OBJ_BOX)
         {
             Glite::make_block_wires(V_arr,F_arr,
-                                    object->box_lx,object->box_ly,object->box_lz,
+                                    object->box.get_lx(),object->box.get_ly(),object->box.get_lz(),
                                     -0.5,-0.5,-0.5);
         }
         else if(object->type==Sel::OBJ_VOL_CYLINDER)
         {
-            cylinder_cut_mesh_wireframe(V_arr,F_arr,object->cyl_l,object->cyl_r,object->cyl_cut);
+            cylinder_cut_mesh_wireframe(V_arr,F_arr,object->cylinder.length,object->cylinder.radius,object->cylinder.cut_factor);
         }
         else if(object->type==Sel::OBJ_CONIC)
         {
             conic_section_mesh_wireframe(V_arr,F_arr,128,
-                                         object->conic_R,object->conic_K,
-                                         object->conic_in_radius,object->conic_out_radius);
+                                         object->conic.R_factor,object->conic.K_factor,
+                                         object->conic.in_radius,object->conic.out_radius);
     
         }
         else if(object->type==Sel::OBJ_DISK)
         {
-            disk_mesh_wireframe(V_arr,F_arr,object->dsk_r,object->dsk_r_in);
+            disk_mesh_wireframe(V_arr,F_arr,object->disk.radius,object->disk.in_radius);
         }
         else if(object->type==Sel::OBJ_LENS)
         {
             lens_mesh_wireframe(V_arr,F_arr,128,
-                                object->ls_thickness,object->ls_r_max_nominal,object->ls_r1,object->ls_r2);
+                                object->lens.thickness,object->lens.max_outer_radius,object->lens.radius_front,object->lens.radius_back);
         }
         else if(object->type==Sel::OBJ_PARABOLA)
         {
             parabola_mesh_wireframe(V_arr,F_arr,128,
-                                    object->pr_f,
-                                    object->pr_in_radius,
-                                    object->pr_length);
+                                    object->parabola.focal,
+                                    object->parabola.inner_radius,
+                                    object->parabola.length);
         }
         else if(object->type==Sel::OBJ_MESH)
         {
-            V_arr.resize(object->V_arr.size());
-            F_arr.resize(object->F_arr.size());
+            std::vector<Sel::Vertex> const &mesh_verts = object->mesh.get_vertex_array();
+            std::vector<Sel::SelFace> const &mesh_faces = object->mesh.get_faces_array();
+
+            V_arr.resize(mesh_verts.size());
+            F_arr.resize(mesh_faces.size());
             
             for(unsigned int i=0;i<V_arr.size();i++)
             {
-                V_arr[i].loc=object->V_arr[i].loc;
-                V_arr[i].norm=object->V_arr[i].norm;
+                V_arr[i].loc=mesh_verts[i].loc;
+                V_arr[i].norm=mesh_verts[i].norm;
             }
             
             for(unsigned int i=0;i<F_arr.size();i++)
             {
-                F_arr[i].V1=object->F_arr[i].V1;
-                F_arr[i].V2=object->F_arr[i].V2;
-                F_arr[i].V3=object->F_arr[i].V3;
+                F_arr[i].V1=mesh_faces[i].V1;
+                F_arr[i].V2=mesh_faces[i].V2;
+                F_arr[i].V3=mesh_faces[i].V3;
             }
         }
         else if(object->type==Sel::OBJ_PRISM)
@@ -1179,15 +1182,15 @@ void SeleneFrame::update_vao(SeleneVAO *vao,Sel::Frame *frame)
         }
         else if(object->type==Sel::OBJ_RECTANGLE)
         {
-            rectangle_mesh_wireframe(V_arr,F_arr,object->box_ly,object->box_lz);
+            rectangle_mesh_wireframe(V_arr,F_arr,object->rectangle.get_ly(),object->rectangle.get_lz());
         }
         else if(object->type==Sel::OBJ_SPHERE)
         {
-            sphere_cut_mesh_wireframe(V_arr,F_arr,object->sph_r,object->sph_cut,true);
+            sphere_cut_mesh_wireframe(V_arr,F_arr,object->sphere.get_radius(),object->sphere.get_cut_factor(),true);
         }
         else if(object->type==Sel::OBJ_SPHERE_PATCH)
         {
-            sphere_cut_mesh_wireframe(V_arr,F_arr,object->sph_r,object->sph_cut,false);
+            sphere_cut_mesh_wireframe(V_arr,F_arr,object->sphere_patch.get_radius(),object->sphere_patch.get_cut_factor(),false);
         }
     }
     else if(light!=nullptr)

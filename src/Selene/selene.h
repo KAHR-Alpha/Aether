@@ -22,10 +22,11 @@ limitations under the License.*/
 #include <math_optim.h>
 #include <phys_tools.h>
 #include <selene_mesh.h>
+#include <selene_primitives.h>
+#include <selene_rays.h>
 
 namespace Sel
 {
-
 enum
 {
     FRAME,
@@ -69,58 +70,6 @@ enum
     SPECTRUM_MONO,
     SPECTRUM_POLY,
     SPECTRUM_POLYMONO
-};
-
-class SelRay
-{
-    public:
-        unsigned int source_ID,family,generation;
-        double age;
-        double lambda;
-        double phase;
-        Imdouble n_ind;
-        
-        Vector3 start,dir,inv_dir,pol,prev_start;
-        
-        SelRay();
-        SelRay(SelRay const &ray);
-        
-        void operator = (SelRay const &ray);
-        
-        void set_dir(Vector3 const &dir);
-        void set_pol(Vector3 const &pol);
-        void set_start(Vector3 const &start);
-};
-
-class RayInter
-{
-    public:
-//        bool does_intersect;
-        double obj_x,obj_y,obj_z,t;
-        int face,object;
-        
-        RayInter();
-        RayInter(RayInter const &inter);
-        
-        void operator = (RayInter const &inter);
-        bool operator < (RayInter const &inter);
-        void reset();
-};
-
-class RayPath
-{
-    public:
-        bool complete;
-        bool does_intersect;
-        int face_last_intersect,obj_last_intersection_f;
-        
-        SelRay ray;
-        RayInter intersection;
-        
-        RayPath();
-        RayPath(RayPath const &path);
-        
-        void operator = (RayPath const &path);
 };
 
 class Frame
@@ -354,11 +303,7 @@ class Object: public Frame
         int obj_ID;
         int max_ray_generation;
         
-        // Boundary Box
-        
-        double bxm,bxp;
-        double bym,byp;
-        double bzm,bzp;
+        BoundingBox bbox;
         
         int NFc;
         std::vector<Sel::SelFace> F_arr;
@@ -370,10 +315,9 @@ class Object: public Frame
         void build_variables_map();
         void bootstrap(std::filesystem::path const &output_directory,double ray_power,int max_ray_bounces);   // switch
         void cleanup();
-        void compute_boundaries();
         bool contains(double x,double y,double z);
         void default_N_uv(int &Nu,int &Nv,int face);   // switch
-        void define_faces_group(int index,int start,int end);
+        //void define_faces_group(int index,int start,int end);
         SelFace& face(int index);
         SelFace& faces_group(int index);
         std::string face_name(int index);
@@ -385,13 +329,13 @@ class Object: public Frame
         std::string get_anchor_script_name(int anchor); // switch
         int get_anchors_number();                       // switch
         int get_N_faces();
-        int get_N_faces_groups();
+        //int get_N_faces_groups();
         std::filesystem::path get_sensor_file_path() const;
         std::string get_type_name();                    // switch
         void intersect(SelRay const &ray,std::vector<RayInter> &inter_list,int face_last_intersect=-1,bool first_forward=true); //switch
         bool intersect_boundaries_box(SelRay const &ray);
         void process_intersection(RayPath &path);
-        void propagate_faces_group(int index);
+        //void propagate_faces_group(int index);
         void save_mesh_to_obj(std::string const &fname);
         double* reference_variable(std::string const &variable_name);
         void set_default_in_irf(IRF *irf);
@@ -423,138 +367,58 @@ class Object: public Frame
         
         // Box Type
         
-        double box_lx,box_ly,box_lz;
+        Primitives::Box box;
         
         void set_box();
         void set_box(double lx,double lyh,double lz);
         
-        Vector3 box_anchor(int anchor);
-        std::string box_anchor_name(int anchor);
-        void intersect_box(SelRay const &ray,std::vector<RayInter> &interlist,int face_last_intersect,bool first_forward);
-        Vector3 normal_box(RayInter const &inter);
-        Vector3 tangent_box(RayInter const &inter,Vector3 const &normal,bool up);
-        void xyz_to_uv_box(double &u,double &v,int face,double x,double y,double z);
-        void default_N_uv_box(int &Nu,int &Nv,int face);
-        
         // Cone Type
         
-        double cone_r,cone_l,cone_cut;
-        double cone_ca,cone_sa;
+        Primitives::Cone cone;
         
         void set_cone_volume();
         void set_cone_volume(double length,double radius,double cut);
-        
-        Vector3 cone_anchor(int anchor);
-        std::string cone_anchor_name(int anchor);
-        void intersect_cone_volume(SelRay const &ray,std::vector<RayInter> &interlist,int face_last_intersect,bool first_forward);
-        Vector3 normal_cone_volume(RayInter const &inter);
-        Vector3 tangent_cone_volume(RayInter const &inter);
-        
+                
         // Conic Section Type
         
-        double conic_R,conic_K;
-        double conic_in_radius,conic_out_radius;
+        Primitives::Conic conic;
         
         void set_conic_section();
         
-        Vector3 conic_section_anchor(int anchor);
-        std::string conic_section_anchor_name(int anchor);
-        void intersect_conic_section(SelRay const &ray,std::vector<RayInter> &interlist,int face_last_intersect,bool first_forward);
-        Vector3 normal_conic_section(RayInter const &inter);
-        Vector3 tangent_conic_section(RayInter const &inter);
-        void xyz_to_uv_conic_section(double &u,double &v,int face,double x,double y,double z);
-        void default_N_uv_conic_section(int &Nu,int &Nv,int face);
-        
         // Cylinder Type
         
-        double cyl_r,cyl_l,cyl_cut;
+        Primitives::Cylinder cylinder;
         
         void set_cylinder_volume();
         void set_cylinder_volume(double length,double radius,double cut);
-        
-        Vector3 cylinder_anchor(int anchor);
-        std::string cylinder_anchor_name(int anchor);
-        void intersect_cylinder_volume(SelRay const &ray,std::vector<RayInter> &interlist,int face_last_intersect,bool first_forward);
-        Vector3 normal_cylinder_volume(RayInter const &inter);
-        Vector3 tangent_cylinder_volume(RayInter const &inter);
-        void xyz_to_uv_cylinder_volume(double &u,double &v,int face,double x,double y,double z);
-        void default_N_uv_cylinder_volume(int &Nu,int &Nv,int face);
-        
+                
         // Disk Type
         
-        double dsk_r,dsk_r_in;
+        Primitives::Disk disk;
         
         void set_disk();
         void set_disk(double radius,double in_radius);
         
-//        Vector3 disk_anchor(int anchor);
-//        std::string disk_anchor_name(int anchor);
-        void intersect_disk(SelRay const &ray,std::vector<RayInter> &interlist,int face_last_intersect,bool first_forward);
-        Vector3 normal_disk(RayInter const &inter);
-        Vector3 tangent_disk(RayInter const &inter);
-        void xyz_to_uv_disk(double &u,double &v,int face,double x,double y,double z);
-        void default_N_uv_disk(int &Nu,int &Nv,int face);
-        
         // Lens Functions
         
-        double ls_thickness,
-               ls_r1,ls_r2,
-               ls_cth_1,ls_cth_2,
-               ls_cyl_h,ls_r_max,ls_r_max_nominal;
-        
-        Vector3 ls_c1,ls_c2,
-                ls_N1,ls_N2,
-                ls_cyl_pos,ls_cyl_N;
-                
+        Primitives::Lens lens;
+
         void set_lens();
         void set_lens(double thickness,double r_max,double r1,double r2);
-                
-        Vector3 lens_anchor(int anchor);
-        std::string lens_anchor_name(int anchor);
-        void intersect_lens(SelRay const &ray,std::vector<RayInter> &interlist,int face_last_intersect,bool first_forward);
-        Vector3 normal_lens(RayInter const &inter);
-        Vector3 tangent_lens(RayInter const &inter);
-        void xyz_to_uv_lens(double &u,double &v,int face,double x,double y,double z);
-        void default_N_uv_lens(int &Nu,int &Nv,int face);
         
         // Mesh Functions
         
-        bool scaled_mesh;
-        double scaling_factor;
-        std::vector<Sel::SelFace> Fg_arr;
-        std::vector<int> Fg_start,Fg_end;
-        std::vector<Sel::Vertex> V_arr;
-        std::string mesh_fname;
-        
-        bool has_octree;
-        FOctree octree;
-        std::vector<int> octree_buffer;
-        std::vector<RayFaceIntersect> face_intersect_buffer;
+        Primitives::Mesh mesh;
         
         void set_mesh();
         void set_mesh(std::vector<Sel::Vertex> const &V_arr,std::vector<Sel::SelFace> const &F_arr);
-        
-        void add_mesh(std::vector<Sel::Vertex> const &V_arr,std::vector<Sel::SelFace> const &F_arr);
-        void auto_recalc_normals();
-        void intersect_mesh(SelRay const &ray,std::vector<RayInter> &interlist,int face_last_intersect,bool first_forward);
-        void rescale_mesh(double scaling_factor);
-        void recalc_normals_z();
-        Vertex& vertex(int index);
-        
+                
         // Parabola
         
-        double pr_f,pr_in_radius,pr_length,prm_thickness;
+        Primitives::Parabola parabola;
         
         void set_parabola();
         void set_parabola(double focal_length,double in_radius,double height);
-        
-        Vector3 parabola_anchor(int anchor);
-        std::string parabola_anchor_name(int anchor);
-        void intersect_parabola(SelRay const &ray,std::vector<RayInter> &interlist,int face_last_intersect,bool first_forward);
-        Vector3 normal_parabola(RayInter const &inter);
-        Vector3 tangent_parabola(RayInter const &inter);
-        void xyz_to_uv_parabola(double &u,double &v,int face,double x,double y,double z);
-        void default_N_uv_parabola(int &Nu,int &Nv,int face);
         
         // Prism Functions
         
@@ -564,40 +428,24 @@ class Object: public Frame
         
         // Rectangle Functions
         
+        Primitives::Rectangle rectangle;
+
         void set_rectangle();
         void set_rectangle(double ly,double lz);
         
-        void intersect_rectangle(SelRay const &ray,std::vector<RayInter> &interlist,int face_last_intersect,bool first_forward);
-        Vector3 normal_rectangle(RayInter const &inter);
-        Vector3 tangent_rectangle(RayInter const &inter,Vector3 const &normal,bool up);
-        void xyz_to_uv_rectangle(double &u,double &v,int face,double x,double y,double z);
-        void default_N_uv_rectangle(int &Nu,int &Nv,int face);
-        
         // Sphere Functions
         
-        double sph_r,sph_cut,sph_cut_x,sph_cut_th,sph_cut_rad;
+        Primitives::Sphere sphere;
         
         void set_sphere();
         void set_sphere(double r,double cut=1.0);
-        
-        Vector3 sphere_anchor(int anchor);
-        std::string sphere_anchor_name(int anchor);
-        void intersect_sphere(SelRay const &ray,std::vector<RayInter> &interlist,int face_last_intersect,bool first_forward);
-        Vector3 normal_sphere(RayInter const &inter);
-        Vector3 tangent_sphere(RayInter const &inter);
-        void xyz_to_uv_sphere(double &u,double &v,int face,double x,double y,double z);
-        void default_N_uv_sphere(int &Nu,int &Nv,int face);
-        
+
         // Spherical Patch Functions
+
+        Primitives::Sphere sphere_patch;
         
         void set_spherical_patch();
         void set_spherical_patch(double r,double cut=1.0);
-        
-        void intersect_spherical_patch(SelRay const &ray,std::vector<RayInter> &interlist,int face_last_intersect,bool first_forward);
-        Vector3 normal_spherical_patch(RayInter const &inter);
-        Vector3 tangent_spherical_patch(RayInter const &inter);
-        void xyz_to_uv_spherical_patch(double &u,double &v,int face,double x,double y,double z);
-        void default_N_uv_spherical_patch(int &Nu,int &Nv,int face);
         
         // Spheroid Functions
         

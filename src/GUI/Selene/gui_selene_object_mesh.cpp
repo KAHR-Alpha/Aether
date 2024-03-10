@@ -143,18 +143,18 @@ MeshDialog::MeshDialog(Sel::Object *object_,
                        OptimEngine &optim_engine_)
     :ObjectDialog(object_,frames_,materials_,irfs_,optim_engine_)
 {
-    faces=object->Fg_arr;
-    groups_start=object->Fg_start;
-    groups_end=object->Fg_end;
+    object->mesh.get_faces_groups(faces,
+                                  groups_start,
+                                  groups_end);
     
-    mesh_V_arr=object->V_arr;
-    mesh_F_arr=object->F_arr;
+    mesh_V_arr=object->mesh.get_vertex_array();
+    mesh_F_arr=object->mesh.get_faces_array();
     
     // Mesh File
     
     wxStaticBoxSizer *file_sizer=new wxStaticBoxSizer(wxHORIZONTAL,ctrl_panel,"Mesh File");
     
-    mesh_file=new wxTextCtrl(file_sizer->GetStaticBox(),wxID_ANY,object->mesh_fname);
+    mesh_file=new wxTextCtrl(file_sizer->GetStaticBox(),wxID_ANY,object->mesh.get_mesh_path().generic_string());
     mesh_file->SetEditable(false);
     
     wxButton *mesh_load_btn=new wxButton(file_sizer->GetStaticBox(),wxID_ANY,"...",
@@ -171,13 +171,13 @@ MeshDialog::MeshDialog(Sel::Object *object_,
     wxStaticBoxSizer *scale_sizer=new wxStaticBoxSizer(wxVERTICAL,ctrl_panel,"Scaling");
     wxBoxSizer *scale_subsizer=new wxBoxSizer(wxHORIZONTAL);
     
-    scaling_factor=new NamedTextCtrl<double>(scale_sizer->GetStaticBox(),"Factor: ",object->scaling_factor);
+    scaling_factor=new NamedTextCtrl<double>(scale_sizer->GetStaticBox(),"Factor: ",object->mesh.get_scaling_factor());
     
     wxButton *scaling_apply_btn=new wxButton(scale_sizer->GetStaticBox(),wxID_ANY,"Apply");
     scaling_apply_btn->Bind(wxEVT_BUTTON,&MeshDialog::evt_scale,this);
     
     mesh_scaled=new wxCheckBox(scale_sizer->GetStaticBox(),wxID_ANY,"Scaling applied");
-    mesh_scaled->SetValue(object->scaled_mesh);
+    mesh_scaled->SetValue(object->mesh.get_scaling_status());
     mesh_scaled->Disable();
     
     scale_subsizer->Add(scaling_apply_btn);
@@ -481,21 +481,16 @@ double MeshDialog::mesh(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr)
 
 void MeshDialog::save_object_geometry()
 {
-    object->mesh_fname=mesh_file->GetValue();
-    object->scaling_factor=scaling_factor->get_value();
-    object->scaled_mesh=mesh_scaled->GetValue();
+    object->mesh.set_mesh_path(mesh_file->GetValue().ToStdString());
+    object->mesh.set_scaling_factor(scaling_factor->get_value());
+    object->mesh.set_scaling_status(mesh_scaled->GetValue());
     
-    object->F_arr=mesh_F_arr;
-    object->V_arr=mesh_V_arr;
+    object->mesh.set_mesh(mesh_V_arr, mesh_F_arr);
     
     update_faces();
     
-    object->Fg_arr=faces;
-    object->Fg_start=groups_start;
-    object->Fg_end=groups_end;
-    
-    for(unsigned int i=0;i<object->Fg_arr.size();i++)
-        object->propagate_faces_group(i);
+    object->mesh.set_faces_groups(faces, groups_start, groups_end);
+    object->mesh.propagate_faces_groups();
     
     object->set_mesh();
 }

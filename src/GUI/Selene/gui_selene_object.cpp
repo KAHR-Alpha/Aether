@@ -595,20 +595,20 @@ BoxDialog::BoxDialog(Sel::Object *object_,std::vector<Sel::Frame*> const &frames
                      OptimEngine &optim_engine_)
     :ObjectDialog(object_,frames_,materials_,irfs_,optim_engine_)
 {    
-    box_lx=new LengthSelector(ctrl_panel,"X Length",object->box_lx,true);
-    box_lx->handle_external_optimization(&object->box_lx,optim_engine);
+    box_lx=new LengthSelector(ctrl_panel,"X Length",object->box.get_lx(),true);
+    box_lx->handle_external_optimization(&object->box.ref_lx(),optim_engine);
     box_lx->Bind(EVT_LENGTH_SELECTOR,&ObjectDialog::evt_geometry,this);
     
     ctrl_sizer->Add(box_lx,wxSizerFlags().Expand().Border(wxALL,1));
     
-    box_ly=new LengthSelector(ctrl_panel,"Y Length",object->box_ly,true);
-    box_ly->handle_external_optimization(&object->box_ly,optim_engine);
+    box_ly=new LengthSelector(ctrl_panel,"Y Length",object->box.get_ly(),true);
+    box_ly->handle_external_optimization(&object->box.ref_ly(),optim_engine);
     box_ly->Bind(EVT_LENGTH_SELECTOR,&ObjectDialog::evt_geometry,this);
     
     ctrl_sizer->Add(box_ly,wxSizerFlags().Expand().Border(wxALL,1));
     
-    box_lz=new LengthSelector(ctrl_panel,"Z Length",object->box_lz,true);
-    box_lz->handle_external_optimization(&object->box_lz,optim_engine);
+    box_lz=new LengthSelector(ctrl_panel,"Z Length",object->box.get_lz(),true);
+    box_lz->handle_external_optimization(&object->box.ref_lz(),optim_engine);
     box_lz->Bind(EVT_LENGTH_SELECTOR,&ObjectDialog::evt_geometry,this);
     
     ctrl_sizer->Add(box_lz,wxSizerFlags().Expand().Border(wxALL,1));
@@ -643,13 +643,13 @@ void register_optimization(T *ctrl,double *var,OptimEngine &engine)
 
 void BoxDialog::save_object_geometry()
 {
-    object->box_lx=box_lx->get_length();
-    object->box_ly=box_ly->get_length();
-    object->box_lz=box_lz->get_length();
+    object->box.set_parameters(box_lx->get_length(),
+                               box_ly->get_length(),
+                               box_lz->get_length());
     
-    register_optimization(box_lx,&object->box_lx,optim_engine);
-    register_optimization(box_ly,&object->box_ly,optim_engine);
-    register_optimization(box_lz,&object->box_lz,optim_engine);
+    register_optimization(box_lx,&object->box.ref_lx(),optim_engine);
+    register_optimization(box_ly,&object->box.ref_ly(),optim_engine);
+    register_optimization(box_lz,&object->box.ref_lz(),optim_engine);
     
     object->set_box();
 }
@@ -665,26 +665,26 @@ ConicSectionDialog::ConicSectionDialog(Sel::Object *object_,
                                        OptimEngine &optim_engine_)
     :ObjectDialog(object_,frames_,materials_,irfs_,optim_engine_)
 {
-    conic_R=new LengthSelector(ctrl_panel,"Conic Radius",object->conic_R,true);
-    conic_R->handle_external_optimization(&object->conic_R,optim_engine);
+    conic_R=new LengthSelector(ctrl_panel,"Conic Radius",object->conic.R_factor,true);
+    conic_R->handle_external_optimization(&object->conic.R_factor,optim_engine);
     conic_R->Bind(EVT_LENGTH_SELECTOR,&ObjectDialog::evt_geometry,this);
     
     ctrl_sizer->Add(conic_R,wxSizerFlags().Expand().Border(wxALL,1));
     
-    conic_K=new NamedTextCtrl<double>(ctrl_panel,"Conic Constant",object->conic_K,true);
-    conic_K->handle_external_optimization(&object->conic_K,optim_engine);
+    conic_K=new NamedTextCtrl<double>(ctrl_panel,"Conic Constant",object->conic.K_factor,true);
+    conic_K->handle_external_optimization(&object->conic.K_factor,optim_engine);
     conic_K->Bind(EVT_NAMEDTXTCTRL,&ObjectDialog::evt_geometry,this);
     
     ctrl_sizer->Add(conic_K,wxSizerFlags().Expand().Border(wxALL,1));
     
-    conic_in_radius=new LengthSelector(ctrl_panel,"In Radius",object->conic_in_radius,true,"mm");
-    conic_in_radius->handle_external_optimization(&object->conic_in_radius,optim_engine);
+    conic_in_radius=new LengthSelector(ctrl_panel,"In Radius",object->conic.in_radius,true,"mm");
+    conic_in_radius->handle_external_optimization(&object->conic.in_radius,optim_engine);
     conic_in_radius->Bind(EVT_LENGTH_SELECTOR,&ObjectDialog::evt_geometry,this);
     
     ctrl_sizer->Add(conic_in_radius,wxSizerFlags().Expand().Border(wxALL,1));
     
-    conic_out_radius=new LengthSelector(ctrl_panel,"Out Radius",object->conic_out_radius,true);
-    conic_out_radius->handle_external_optimization(&object->conic_out_radius,optim_engine);
+    conic_out_radius=new LengthSelector(ctrl_panel,"Out Radius",object->conic.out_radius,true);
+    conic_out_radius->handle_external_optimization(&object->conic.out_radius,optim_engine);
     conic_out_radius->Bind(EVT_LENGTH_SELECTOR,&ObjectDialog::evt_geometry,this);
     
     ctrl_sizer->Add(conic_out_radius,wxSizerFlags().Expand().Border(wxALL,1));
@@ -704,15 +704,15 @@ double ConicSectionDialog::mesh(std::vector<Vertex> &V_arr,std::vector<Face> &F_
 
 void ConicSectionDialog::save_object_geometry()
 {
-    object->conic_R=conic_R->get_length();
-    object->conic_K=conic_K->get_value();
-    object->conic_in_radius=conic_in_radius->get_length();
-    object->conic_out_radius=conic_out_radius->get_length();
+    object->conic.R_factor=conic_R->get_length();
+    object->conic.K_factor=conic_K->get_value();
+    object->conic.in_radius=conic_in_radius->get_length();
+    object->conic.out_radius=conic_out_radius->get_length();
     
-    register_optimization(conic_R,&object->conic_R,optim_engine);
-    register_optimization(conic_K,&object->conic_K,optim_engine);
-    register_optimization(conic_in_radius,&object->conic_in_radius,optim_engine);
-    register_optimization(conic_out_radius,&object->conic_out_radius,optim_engine);
+    register_optimization(conic_R,&object->conic.R_factor,optim_engine);
+    register_optimization(conic_K,&object->conic.K_factor,optim_engine);
+    register_optimization(conic_in_radius,&object->conic.in_radius,optim_engine);
+    register_optimization(conic_out_radius,&object->conic.out_radius,optim_engine);
     
     object->set_conic_section();
 }
@@ -728,20 +728,20 @@ CylinderDialog::CylinderDialog(Sel::Object *object_,
                                OptimEngine &optim_engine_)
     :ObjectDialog(object_,frames_,materials_,irfs_,optim_engine_)
 {
-    cyl_r=new LengthSelector(ctrl_panel,"Radius",object->cyl_r,true);
-    cyl_r->handle_external_optimization(&object->cyl_r,optim_engine);
+    cyl_r=new LengthSelector(ctrl_panel,"Radius",object->cylinder.radius,true);
+    cyl_r->handle_external_optimization(&object->cylinder.radius,optim_engine);
     cyl_r->Bind(EVT_LENGTH_SELECTOR,&ObjectDialog::evt_geometry,this);
     
     ctrl_sizer->Add(cyl_r,wxSizerFlags().Expand().Border(wxALL,1));
     
-    cyl_l=new LengthSelector(ctrl_panel,"Length",object->cyl_l,true);
-    cyl_l->handle_external_optimization(&object->cyl_l,optim_engine);
+    cyl_l=new LengthSelector(ctrl_panel,"Length",object->cylinder.length,true);
+    cyl_l->handle_external_optimization(&object->cylinder.length,optim_engine);
     cyl_l->Bind(EVT_LENGTH_SELECTOR,&ObjectDialog::evt_geometry,this);
     
     ctrl_sizer->Add(cyl_l,wxSizerFlags().Expand().Border(wxALL,1));
     
-    cyl_cut=new NamedTextCtrl<double>(ctrl_panel,"Cut Factor",object->cyl_cut,true);
-    cyl_cut->handle_external_optimization(&object->cyl_cut,optim_engine);
+    cyl_cut=new NamedTextCtrl<double>(ctrl_panel,"Cut Factor",object->cylinder.cut_factor,true);
+    cyl_cut->handle_external_optimization(&object->cylinder.cut_factor,optim_engine);
     cyl_cut->Bind(EVT_NAMEDTXTCTRL,&ObjectDialog::evt_geometry,this);
     
     ctrl_sizer->Add(cyl_cut,wxSizerFlags().Expand().Border(wxALL,1));
@@ -762,13 +762,13 @@ double CylinderDialog::mesh(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr)
 
 void CylinderDialog::save_object_geometry()
 {
-    object->cyl_l=cyl_l->get_length();
-    object->cyl_r=cyl_r->get_length();
-    object->cyl_cut=cyl_cut->get_value();
+    object->cylinder.length=cyl_l->get_length();
+    object->cylinder.radius=cyl_r->get_length();
+    object->cylinder.cut_factor=cyl_cut->get_value();
     
-    register_optimization(cyl_l,&object->cyl_l,optim_engine);
-    register_optimization(cyl_r,&object->cyl_r,optim_engine);
-    register_optimization(cyl_cut,&object->cyl_cut,optim_engine);
+    register_optimization(cyl_l,&object->cylinder.length,optim_engine);
+    register_optimization(cyl_r,&object->cylinder.radius,optim_engine);
+    register_optimization(cyl_cut,&object->cylinder.cut_factor,optim_engine);
     
     object->set_cylinder_volume();
 }
@@ -784,14 +784,14 @@ DiskDialog::DiskDialog(Sel::Object *object_,
                        OptimEngine &optim_engine_)
     :ObjectDialog(object_,frames_,materials_,irfs_,optim_engine_)
 {
-    dsk_r=new LengthSelector(ctrl_panel,"Radius",object->dsk_r,true);
-    dsk_r->handle_external_optimization(&object->dsk_r,optim_engine);
+    dsk_r=new LengthSelector(ctrl_panel,"Radius",object->disk.radius,true);
+    dsk_r->handle_external_optimization(&object->disk.radius,optim_engine);
     dsk_r->Bind(EVT_LENGTH_SELECTOR,&ObjectDialog::evt_geometry,this);
     
     ctrl_sizer->Add(dsk_r,wxSizerFlags().Expand().Border(wxALL,1));
     
-    dsk_r_in=new LengthSelector(ctrl_panel,"In Radius",object->dsk_r_in,true,"mm");
-    dsk_r_in->handle_external_optimization(&object->dsk_r_in,optim_engine);
+    dsk_r_in=new LengthSelector(ctrl_panel,"In Radius",object->disk.in_radius,true,"mm");
+    dsk_r_in->handle_external_optimization(&object->disk.in_radius,optim_engine);
     dsk_r_in->Bind(EVT_LENGTH_SELECTOR,&ObjectDialog::evt_geometry,this);
     
     ctrl_sizer->Add(dsk_r_in,wxSizerFlags().Expand().Border(wxALL,1));
@@ -809,11 +809,11 @@ double DiskDialog::mesh(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr)
 
 void DiskDialog::save_object_geometry()
 {
-    object->dsk_r=dsk_r->get_length();
-    object->dsk_r_in=dsk_r_in->get_length();
+    object->disk.radius=dsk_r->get_length();
+    object->disk.in_radius=dsk_r_in->get_length();
     
-    register_optimization(dsk_r,&object->dsk_r,optim_engine);
-    register_optimization(dsk_r_in,&object->dsk_r_in,optim_engine);
+    register_optimization(dsk_r,&object->disk.radius,optim_engine);
+    register_optimization(dsk_r_in,&object->disk.in_radius,optim_engine);
     
     object->set_disk();
 }
@@ -829,26 +829,26 @@ LensDialog::LensDialog(Sel::Object *object_,
                        OptimEngine &optim_engine_)
     :ObjectDialog(object_,frames_,materials_,irfs_,optim_engine_)
 {
-    ls_thickness=new LengthSelector(ctrl_panel,"Thickness",object->ls_thickness,true);
-    ls_thickness->handle_external_optimization(&object->ls_thickness,optim_engine);
+    ls_thickness=new LengthSelector(ctrl_panel,"Thickness",object->lens.thickness,true);
+    ls_thickness->handle_external_optimization(&object->lens.thickness,optim_engine);
     ls_thickness->Bind(EVT_LENGTH_SELECTOR,&ObjectDialog::evt_geometry,this);
     
     ctrl_sizer->Add(ls_thickness,wxSizerFlags().Expand().Border(wxALL,1));
     
-    ls_r1=new LengthSelector(ctrl_panel,"In Radius",object->ls_r1,true);
-    ls_r1->handle_external_optimization(&object->ls_r1,optim_engine);
+    ls_r1=new LengthSelector(ctrl_panel,"In Radius",object->lens.radius_front,true);
+    ls_r1->handle_external_optimization(&object->lens.radius_front,optim_engine);
     ls_r1->Bind(EVT_LENGTH_SELECTOR,&ObjectDialog::evt_geometry,this);
     
     ctrl_sizer->Add(ls_r1,wxSizerFlags().Expand().Border(wxALL,1));
     
-    ls_r2=new LengthSelector(ctrl_panel,"Out Radius",object->ls_r2,true);
-    ls_r2->handle_external_optimization(&object->ls_r2,optim_engine);
+    ls_r2=new LengthSelector(ctrl_panel,"Out Radius",object->lens.radius_back,true);
+    ls_r2->handle_external_optimization(&object->lens.radius_back,optim_engine);
     ls_r2->Bind(EVT_LENGTH_SELECTOR,&ObjectDialog::evt_geometry,this);
     
     ctrl_sizer->Add(ls_r2,wxSizerFlags().Expand().Border(wxALL,1));
     
-    ls_r_max=new LengthSelector(ctrl_panel,"Max Radius",object->ls_r_max_nominal,true);
-    ls_r_max->handle_external_optimization(&object->ls_r_max_nominal,optim_engine);
+    ls_r_max=new LengthSelector(ctrl_panel,"Max Radius",object->lens.max_outer_radius,true);
+    ls_r_max->handle_external_optimization(&object->lens.max_outer_radius,optim_engine);
     ls_r_max->Bind(EVT_LENGTH_SELECTOR,&ObjectDialog::evt_geometry,this);
     
     ctrl_sizer->Add(ls_r_max,wxSizerFlags().Expand().Border(wxALL,1));
@@ -878,15 +878,15 @@ double LensDialog::mesh(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr)
 
 void LensDialog::save_object_geometry()
 {
-    object->ls_thickness=ls_thickness->get_length();
-    object->ls_r1=ls_r1->get_length();
-    object->ls_r2=ls_r2->get_length();
-    object->ls_r_max_nominal=ls_r_max->get_length();
+    object->lens.thickness=ls_thickness->get_length();
+    object->lens.radius_front=ls_r1->get_length();
+    object->lens.radius_back=ls_r2->get_length();
+    object->lens.max_outer_radius=ls_r_max->get_length();
     
-    register_optimization(ls_thickness,&object->ls_thickness,optim_engine);
-    register_optimization(ls_r1,&object->ls_r1,optim_engine);
-    register_optimization(ls_r2,&object->ls_r2,optim_engine);
-    register_optimization(ls_r_max,&object->ls_r_max_nominal,optim_engine);
+    register_optimization(ls_thickness,&object->lens.thickness,optim_engine);
+    register_optimization(ls_r1,&object->lens.radius_front,optim_engine);
+    register_optimization(ls_r2,&object->lens.radius_back,optim_engine);
+    register_optimization(ls_r_max,&object->lens.max_outer_radius,optim_engine);
     
     object->set_lens();
 }
@@ -902,20 +902,20 @@ ParabolaDialog::ParabolaDialog(Sel::Object *object_,
                                OptimEngine &optim_engine_)
     :ObjectDialog(object_,frames_,materials_,irfs_,optim_engine_)
 {
-    pr_focal=new LengthSelector(ctrl_panel,"Focal Point",object->pr_f,true);
-    pr_focal->handle_external_optimization(&object->pr_f,optim_engine);
+    pr_focal=new LengthSelector(ctrl_panel,"Focal Point",object->parabola.focal,true);
+    pr_focal->handle_external_optimization(&object->parabola.focal,optim_engine);
     pr_focal->Bind(EVT_LENGTH_SELECTOR,&ObjectDialog::evt_geometry,this);
     
     ctrl_sizer->Add(pr_focal,wxSizerFlags().Expand().Border(wxALL,1));
     
-    pr_in_radius=new LengthSelector(ctrl_panel,"In Radius",object->pr_in_radius,true);
-    pr_in_radius->handle_external_optimization(&object->pr_in_radius,optim_engine);
+    pr_in_radius=new LengthSelector(ctrl_panel,"In Radius",object->parabola.inner_radius,true);
+    pr_in_radius->handle_external_optimization(&object->parabola.inner_radius,optim_engine);
     pr_in_radius->Bind(EVT_LENGTH_SELECTOR,&ObjectDialog::evt_geometry,this);
     
     ctrl_sizer->Add(pr_in_radius,wxSizerFlags().Expand().Border(wxALL,1));
     
-    pr_height=new LengthSelector(ctrl_panel,"Height",object->pr_length,true);
-    pr_height->handle_external_optimization(&object->pr_length,optim_engine);
+    pr_height=new LengthSelector(ctrl_panel,"Height",object->parabola.length,true);
+    pr_height->handle_external_optimization(&object->parabola.length,optim_engine);
     pr_height->Bind(EVT_LENGTH_SELECTOR,&ObjectDialog::evt_geometry,this);
     
     ctrl_sizer->Add(pr_height,wxSizerFlags().Expand().Border(wxALL,1));
@@ -936,13 +936,13 @@ double ParabolaDialog::mesh(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr)
 
 void ParabolaDialog::save_object_geometry()
 {
-    object->pr_f=pr_focal->get_length();
-    object->pr_in_radius=pr_in_radius->get_length();
-    object->pr_length=pr_height->get_length();
+    object->parabola.focal=pr_focal->get_length();
+    object->parabola.inner_radius=pr_in_radius->get_length();
+    object->parabola.length=pr_height->get_length();
     
-    register_optimization(pr_focal,&object->pr_f,optim_engine);
-    register_optimization(pr_in_radius,&object->pr_in_radius,optim_engine);
-    register_optimization(pr_height,&object->pr_length,optim_engine);
+    register_optimization(pr_focal,&object->parabola.focal,optim_engine);
+    register_optimization(pr_in_radius,&object->parabola.inner_radius,optim_engine);
+    register_optimization(pr_height,&object->parabola.length,optim_engine);
     
     object->set_parabola();
 }
@@ -957,12 +957,12 @@ RectangleDialog::RectangleDialog(Sel::Object *object_,std::vector<Sel::Frame*> c
                      OptimEngine &optim_engine_)
     :ObjectDialog(object_,frames_,materials_,irfs_,optim_engine_)
 {
-    box_ly=new LengthSelector(ctrl_panel,"Y Length",object->box_ly,true,"mm");
-    box_ly->handle_external_optimization(&object->box_ly,optim_engine);
+    box_ly=new LengthSelector(ctrl_panel,"Y Length",object->rectangle.get_ly(),true,"mm");
+    box_ly->handle_external_optimization(&object->rectangle.ref_ly(),optim_engine);
     box_ly->Bind(EVT_LENGTH_SELECTOR,&ObjectDialog::evt_geometry,this);
     
-    box_lz=new LengthSelector(ctrl_panel,"Z Length",object->box_lz,true,"mm");
-    box_lz->handle_external_optimization(&object->box_lz,optim_engine);
+    box_lz=new LengthSelector(ctrl_panel,"Z Length",object->rectangle.get_lz(),true,"mm");
+    box_lz->handle_external_optimization(&object->rectangle.ref_lz(),optim_engine);
     box_lz->Bind(EVT_LENGTH_SELECTOR,&ObjectDialog::evt_geometry,this);
     
     ctrl_sizer->Add(box_ly,wxSizerFlags().Expand().Border(wxALL,1));
@@ -981,11 +981,11 @@ double RectangleDialog::mesh(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr
 
 void RectangleDialog::save_object_geometry()
 {
-    object->box_ly=box_ly->get_length();
-    object->box_lz=box_lz->get_length();
+    object->rectangle.set_parameters(box_ly->get_length(),
+                                     box_lz->get_length());
     
-    register_optimization(box_ly,&object->box_ly,optim_engine);
-    register_optimization(box_lz,&object->box_lz,optim_engine);
+    register_optimization(box_ly,&object->rectangle.ref_ly(),optim_engine);
+    register_optimization(box_lz,&object->rectangle.ref_lz(),optim_engine);
     
     object->set_rectangle();
 }
@@ -1001,12 +1001,12 @@ SphereDialog::SphereDialog(Sel::Object *object_,
                                OptimEngine &optim_engine_)
     :ObjectDialog(object_,frames_,materials_,irfs_,optim_engine_)
 {
-    sph_r=new LengthSelector(ctrl_panel,"Radius",object->sph_r,true);
-    sph_r->handle_external_optimization(&object->sph_r,optim_engine);
+    sph_r=new LengthSelector(ctrl_panel,"Radius",object->sphere.get_radius(),true);
+    sph_r->handle_external_optimization(&object->sphere.ref_radius(),optim_engine);
     sph_r->Bind(EVT_LENGTH_SELECTOR,&ObjectDialog::evt_geometry,this);
     
-    sph_cut=new NamedTextCtrl(ctrl_panel,"Slice Factor",object->sph_cut,true);
-    sph_cut->handle_external_optimization(&object->sph_cut,optim_engine);
+    sph_cut=new NamedTextCtrl(ctrl_panel,"Slice Factor",object->sphere.get_cut_factor(),true);
+    sph_cut->handle_external_optimization(&object->sphere.ref_cut_factor(),optim_engine);
     sph_cut->Bind(EVT_NAMEDTXTCTRL,&ObjectDialog::evt_geometry,this);
     
     ctrl_sizer->Add(sph_r,wxSizerFlags().Expand().Border(wxALL,1));
@@ -1025,11 +1025,11 @@ double SphereDialog::mesh(std::vector<Vertex> &V_arr,std::vector<Face> &F_arr)
 
 void SphereDialog::save_object_geometry()
 {
-    object->sph_r=sph_r->get_length();
-    object->sph_cut=sph_cut->get_value();
+    object->sphere.set_parameters(sph_r->get_length(),
+                                  sph_cut->get_value());
     
-    register_optimization(sph_r,&object->sph_r,optim_engine);
-    register_optimization(sph_cut,&object->sph_cut,optim_engine);
+    register_optimization(sph_r,&object->sphere.ref_radius(),optim_engine);
+    register_optimization(sph_cut,&object->sphere.ref_cut_factor(),optim_engine);
     
     object->set_sphere();
 }
@@ -1045,12 +1045,12 @@ SpherePatchDialog::SpherePatchDialog(Sel::Object *object_,
                                      OptimEngine &optim_engine_)
     :ObjectDialog(object_,frames_,materials_,irfs_,optim_engine_)
 {
-    sph_r=new LengthSelector(ctrl_panel,"Radius",object->sph_r,true);
-    sph_r->handle_external_optimization(&object->sph_r,optim_engine);
+    sph_r=new LengthSelector(ctrl_panel,"Radius",object->sphere_patch.get_radius(),true);
+    sph_r->handle_external_optimization(&object->sphere_patch.ref_radius(),optim_engine);
     sph_r->Bind(EVT_LENGTH_SELECTOR,&ObjectDialog::evt_geometry,this);
     
-    sph_cut=new NamedTextCtrl(ctrl_panel,"Slice Factor",object->sph_cut,true);
-    sph_cut->handle_external_optimization(&object->sph_cut,optim_engine);
+    sph_cut=new NamedTextCtrl(ctrl_panel,"Slice Factor",object->sphere_patch.get_cut_factor(),true);
+    sph_cut->handle_external_optimization(&object->sphere_patch.ref_cut_factor(),optim_engine);
     sph_cut->Bind(EVT_NAMEDTXTCTRL,&ObjectDialog::evt_geometry,this);
     
     ctrl_sizer->Add(sph_r,wxSizerFlags().Expand().Border(wxALL,1));
@@ -1069,11 +1069,11 @@ double SpherePatchDialog::mesh(std::vector<Vertex> &V_arr,std::vector<Face> &F_a
 
 void SpherePatchDialog::save_object_geometry()
 {
-    object->sph_r=sph_r->get_length();
-    object->sph_cut=sph_cut->get_value();
+    object->sphere_patch.set_parameters(sph_r->get_length(),
+                                        sph_cut->get_value());
     
-    register_optimization(sph_r,&object->sph_r,optim_engine);
-    register_optimization(sph_cut,&object->sph_cut,optim_engine);
+    register_optimization(sph_r,&object->sphere_patch.ref_radius(),optim_engine);
+    register_optimization(sph_cut,&object->sphere_patch.ref_cut_factor(),optim_engine);
     
     object->set_spherical_patch();
 }
