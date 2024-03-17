@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2024 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -13,10 +13,6 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include <mesh_tools.h>
-
-extern const Vector3 unit_vec_x;
-extern const Vector3 unit_vec_y;
-extern const Vector3 unit_vec_z;
 
 //######################################
 //######################################

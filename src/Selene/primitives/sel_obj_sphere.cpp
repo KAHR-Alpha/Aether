@@ -17,10 +17,6 @@ limitations under the License.*/
 
 extern std::ofstream plog;
 
-extern const Vector3 unit_vec_x;
-extern const Vector3 unit_vec_y;
-extern const Vector3 unit_vec_z;
-
 namespace Sel::Primitives
 {
     //############

@@ -324,6 +324,39 @@ namespace Sel::Primitives
         private:
     };
 
+    class Polynomial: public Primitive
+    {
+        public:
+            Polynomial(BoundingBox &bbox,
+                       std::vector<Sel::SelFace> &F_arr,
+                       std::vector<std::string> &face_name_arr);
+
+            Vector3 anchor(int anchor) const;
+            std::string anchor_name(int anchor) const;
+            void default_N_uv(int &Nu, int &Nv, int face) const;
+            void finalize();
+            double get_lx() const;
+            double get_ly() const;
+            double get_lz() const;
+            void intersect(std::vector<RayInter> &interlist, SelRay const &ray, int obj_ID, int face_last_intersect,bool first_forward) const;
+            void map_variables(std::map<std::string,double*> &variables_map);
+            Vector3 normal(RayInter const &inter) const;
+            double& ref_lx();
+            double& ref_ly();
+            double& ref_lz();
+            void set_parameters(double lx,
+                                double ly,
+                                double lz);
+            Vector3 tangent(RayInter const &inter,
+                            Vector3 const &normal,
+                            bool up) const;
+            void xyz_to_uv(double &u, double &v, int face,
+                           double x, double y, double z) const;
+
+        private:
+            std::vector<double> coeffs;
+    };
+
     class Rectangle: public Primitive
     {
         public:
