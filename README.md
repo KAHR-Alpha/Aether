@@ -4,6 +4,9 @@ Aether is an open-source optical simulations suite, coded in C++ for Windows and
 
 It is an evolving project and might be subject to numerous changes.
 
+![image](https://github.com/KAHR-Alpha/Aether/assets/113597714/2ca573a0-436a-4fe6-95ea-36c5003e60e9)
+
+
 # Features
 
 ## GUI
