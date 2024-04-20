@@ -640,11 +640,31 @@ GUI::Material* MaterialsLib::load_script(std::filesystem::path const &path)
     }
     
     for(std::size_t i=0;i<data.size();i++)
-        if(std::filesystem::equivalent(path,data[i]->script_path))
+    {
+        if(data[i]->script_path.empty()) continue;
+
+        std::error_code error;
+        if(!std::filesystem::exists(data[i]->script_path, error))
+        {
+            if(error)
+            {
+                wxMessageBox(data[i]->script_path.generic_string()+": "+error.message(), "File access error");
+            }
+
+            continue;
+        }
+    
+        if(std::filesystem::equivalent(path,data[i]->script_path, error))
         {
             wxMessageBox("Duplicate material","Error");
             return nullptr;
         }
+
+        if(error)
+        {
+            wxMessageBox(data[i]->script_path.generic_string()+": "+error.message(), "File access error");
+        }
+    }
     
     GUI::Material *new_data=new GUI::Material;
     new_data->type=MatType::SCRIPT;
