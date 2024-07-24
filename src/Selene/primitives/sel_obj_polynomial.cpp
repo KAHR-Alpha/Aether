@@ -27,7 +27,11 @@ namespace Sel::Primitives
              std::vector<Sel::SelFace> &F_arr_,
              std::vector<std::string> &face_name_arr_)
         :Primitive(bbox_, F_arr_, face_name_arr_),
-         coeffs(1, 0)
+         inner_radius(0),
+         outer_radius(50e-3),
+         coeffs(1, 1),
+         effective_coeffs(coeffs),
+         normalized(true)
     {
     }
     
@@ -47,6 +51,19 @@ namespace Sel::Primitives
     void Polynomial::default_N_uv(int &Nu,int &Nv,int face_) const
     {
         Nu=Nv=64;
+    }
+
+
+    double Polynomial::eval(double x) const
+    {
+        double r=0;
+
+        for(double const &c : effective_coeffs)
+        {
+            r=x*(c+r);
+        }
+
+        return r;
     }
     
     
@@ -143,6 +160,29 @@ namespace Sel::Primitives
         else if(face_inter==5) Fnorm= unit_vec_z;*/
         
         return Fnorm;
+    }
+
+
+    void Polynomial::set_parameters(double outer_radius_,
+                                    double inner_radius_,
+                                    std::vector<double> const &coeffs_,
+                                    bool normalized_)
+    {
+        outer_radius = outer_radius_;
+        inner_radius = inner_radius_;
+        coeffs = coeffs_;
+        normalized = normalized_;
+
+        effective_coeffs = coeffs;
+
+        if(normalized)
+        {
+            for(std::size_t i=0; i<effective_coeffs.size(); i++)
+            for(std::size_t j=i; j<effective_coeffs.size(); j++)
+            {
+                effective_coeffs[j] /= outer_radius;
+            }
+        }
     }
 
     

@@ -16,6 +16,7 @@ limitations under the License.*/
 #define SELENE_PRIMITIVES_H
 
 #include <geometry.h>
+#include <selene_mesh.h>
 #include <selene_rays.h>
 
 namespace Sel
@@ -335,18 +336,13 @@ namespace Sel::Primitives
             std::string anchor_name(int anchor) const;
             void default_N_uv(int &Nu, int &Nv, int face) const;
             void finalize();
-            double get_lx() const;
-            double get_ly() const;
-            double get_lz() const;
             void intersect(std::vector<RayInter> &interlist, SelRay const &ray, int obj_ID, int face_last_intersect,bool first_forward) const;
             void map_variables(std::map<std::string,double*> &variables_map);
             Vector3 normal(RayInter const &inter) const;
-            double& ref_lx();
-            double& ref_ly();
-            double& ref_lz();
-            void set_parameters(double lx,
-                                double ly,
-                                double lz);
+            void set_parameters(double outer_radius,
+                                double inner_radius,
+                                std::vector<double> const &coeffs,
+                                bool normalized);
             Vector3 tangent(RayInter const &inter,
                             Vector3 const &normal,
                             bool up) const;
@@ -354,7 +350,11 @@ namespace Sel::Primitives
                            double x, double y, double z) const;
 
         private:
-            std::vector<double> coeffs;
+            double inner_radius, outer_radius;
+            std::vector<double> coeffs, effective_coeffs;
+            bool normalized;
+
+            double eval(double x) const;
     };
 
     class Rectangle: public Primitive
