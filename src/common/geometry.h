@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2024 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -102,6 +102,9 @@ class Vector3
         friend std::ostream& operator << (std::ostream &strm,Vector3 const &V);
 };
 
+inline const Vector3 unit_vec_x(1.0,0,0);
+inline const Vector3 unit_vec_y(0,1.0,0);
+inline const Vector3 unit_vec_z(0,0,1.0);
 
 class ImVector3
 {

@@ -15,6 +15,7 @@ set(selene_src sel_analysis.cpp
 			   primitives/sel_obj_lens.cpp
 			   primitives/sel_obj_mesh.cpp
 			   primitives/sel_obj_parabola.cpp
+			   primitives/sel_obj_polynomial.cpp
 			   primitives/sel_obj_rectangle.cpp
 			   primitives/sel_obj_sphere.cpp
 			   primitives/sel_obj_spherical_patch.cpp)

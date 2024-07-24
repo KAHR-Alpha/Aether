@@ -11,6 +11,7 @@ cmake -B "cmake_build_VS" -G "Visual Studio 17 2022" `
 	-DTASK="Build CLI+GUI" `
 	-DINSTALL_PATH="${build_path}/Aether" `
 	-DDEVTESTS=1 `
+	-DEigen3_DIR="${build_path}/eigen/include/eigen3" `
 	-DFFTW_INCLUDES="${build_path}/fftw" `
 	-DFFTW_LIB="${build_path}/fftw/libfftw3-3.lib" `
 	-DLUA_LIBRARY="${build_path}/lua/lib/lua.lib" `

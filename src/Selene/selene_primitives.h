@@ -16,6 +16,7 @@ limitations under the License.*/
 #define SELENE_PRIMITIVES_H
 
 #include <geometry.h>
+#include <selene_mesh.h>
 #include <selene_rays.h>
 
 namespace Sel
@@ -322,6 +323,38 @@ namespace Sel::Primitives
                            double x, double y, double z) const;
                            
         private:
+    };
+
+    class Polynomial: public Primitive
+    {
+        public:
+            Polynomial(BoundingBox &bbox,
+                       std::vector<Sel::SelFace> &F_arr,
+                       std::vector<std::string> &face_name_arr);
+
+            Vector3 anchor(int anchor) const;
+            std::string anchor_name(int anchor) const;
+            void default_N_uv(int &Nu, int &Nv, int face) const;
+            void finalize();
+            void intersect(std::vector<RayInter> &interlist, SelRay const &ray, int obj_ID, int face_last_intersect,bool first_forward) const;
+            void map_variables(std::map<std::string,double*> &variables_map);
+            Vector3 normal(RayInter const &inter) const;
+            void set_parameters(double outer_radius,
+                                double inner_radius,
+                                std::vector<double> const &coeffs,
+                                bool normalized);
+            Vector3 tangent(RayInter const &inter,
+                            Vector3 const &normal,
+                            bool up) const;
+            void xyz_to_uv(double &u, double &v, int face,
+                           double x, double y, double z) const;
+
+        private:
+            double inner_radius, outer_radius;
+            std::vector<double> coeffs, effective_coeffs;
+            bool normalized;
+
+            double eval(double x) const;
     };
 
     class Rectangle: public Primitive
