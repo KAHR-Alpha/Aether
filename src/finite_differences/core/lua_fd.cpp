@@ -80,6 +80,13 @@ void FD_Mode::compute_discretization(int &Nx,int &Ny,int &Nz,
     chk_var(Nz);
 }
 
+
+std::filesystem::path const& FD_Mode::directory() const
+{
+    return p_directory;
+}
+
+
 double FD_Mode::get_Lx()
 {
     int Nx,Ny,Nz;
@@ -324,6 +331,70 @@ void FD_Mode::reset()
     disable_fields.clear();
 }
 
+
+void FD_Mode::set_directory(std::filesystem::path const &directory_)
+{
+    p_directory=directory_;
+    
+    if(!p_directory.empty())
+    {
+        bool impossible = false;
+            
+        std::error_code error;
+        
+        if(std::filesystem::exists(p_directory, error))
+        {
+            std::error_code check_error;
+            
+            if(std::filesystem::is_directory(p_directory, check_error))
+            {
+                return;
+            }
+            else if(check_error)
+            {
+                std::cerr<<"Could not check the status of "<<p_directory<<" , error "<<check_error.message()<<"\n";
+            }
+            else
+            {
+                std::cerr<<p_directory<<" exists but is not a directory\n";
+                impossible = true;
+            }
+        }
+        else if(error)
+        {
+            impossible = true;
+            std::cerr<<"Could not access "<<p_directory<<" , error "<<error.message()<<"\n";
+        }
+        
+        if(!impossible)
+        {
+            std::cerr<<"The directory "<<p_directory<<" does not exist, attempting to creatie it\n";
+            
+            std::error_code creation_error;
+            
+            if(std::filesystem::create_directories(p_directory, creation_error))
+            {
+                std::cerr<<"ok\n";
+                return;
+            }
+            else if(creation_error)
+            {
+                std::cerr<<"Could not create "<<p_directory<<" , error: "<<creation_error.message()<<"\n";
+            }
+            else
+            {
+                std::cerr<<"Could not create "<<p_directory<<"\n";
+            }
+        }
+    }
+    
+    std::cerr<<"The directory "<<p_directory<<" is not accessible";
+    std::cerr<<", falling back to the temporary directory: "<<PathManager::tmp_path<<"\n";
+    
+    p_directory=PathManager::tmp_path;
+}
+
+
 void FD_Mode::show() const
 {
     std::cout<<"FD Mmode"<<std::endl;
@@ -386,7 +457,7 @@ void FD_Mode::set_polarization(double polar)
 void FD_Mode::set_polarization(std::string polar) { polarization=polar; }
 void FD_Mode::set_prefix(std::string name) { prefix=name; }
 
-void FD_Mode::set_output_directory(std::string dir) { directory=dir; }
+void FD_Mode::set_output_directory(std::string dir) { p_directory=dir; }
 
 void FD_Mode::set_structure(Structure *structure_)
 {
@@ -533,9 +604,9 @@ int FD_mode_set_output_directory(lua_State *L)
     
     std::string directory=lua_tostring(L,2);
     
-    p_fd->directory=directory;
+    p_fd->set_directory(directory);
     
-    std::cout<<"Setting the results output directory to "<<p_fd->directory.generic_string()<<std::endl;
+    std::cout<<"Setting the results output directory to "<<p_fd->directory().generic_string()<<std::endl;
     
     return 1;
 }

@@ -56,7 +56,6 @@ class FD_Mode: public base_mode
         int type;
         Structure *structure;
         std::string prefix;
-        std::filesystem::path directory;
         double polar_angle;
         std::string polarization;
         
@@ -99,6 +98,8 @@ class FD_Mode: public base_mode
         
         FD_Mode();
         
+        std::filesystem::path const& directory() const;
+        
         double get_Lx();
         double get_Ly();
         double get_Lz();
@@ -136,12 +137,16 @@ class FD_Mode: public base_mode
         void set_polarization(std::string polar);
         void set_prefix(std::string name);
         
-        void set_output_directory(std::string dir);
+        void set_directory(std::filesystem::path const &directory);
+        [[deprecated]] void set_output_directory(std::string dir);
         void set_structure(Structure *structure);
         
         //##########
         
         virtual void process() override;
+    
+    private:
+        std::filesystem::path p_directory;
 };
 
 int FD_mode_disable_fields(lua_State *L);

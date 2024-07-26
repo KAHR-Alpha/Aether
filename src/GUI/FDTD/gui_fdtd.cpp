@@ -55,7 +55,7 @@ FDTD_Frame::FDTD_Frame(wxString const &title)
 {
     fdtd_parameters.type=FDTD_Mode::FDTD_NORMAL;
     fdtd_parameters.set_prefix("fdtd_");
-    fdtd_parameters.directory=PathManager::tmp_path;
+    fdtd_parameters.set_directory(PathManager::tmp_path);
     fdtd_parameters.structure=new Structure();
     
     wxSplitterWindow *splitter=new wxSplitterWindow(this);
@@ -732,7 +732,7 @@ void FDTD_Frame::reconstruct_tree()
     }
     
     {
-        tmp_str="Output: "; tmp_str<<fdtd_parameters.directory.generic_string();
+        tmp_str="Output: "; tmp_str<<fdtd_parameters.directory().generic_string();
         tree->AppendItem(root_ID,tmp_str);
     }
     
@@ -960,8 +960,8 @@ void FDTD_Frame::save(wxFileName const &fname)
     
     file<<"fdtd:prefix(\""<<p.prefix<<"\")\n";
     
-    if(!p.directory.empty())
-        file<<"fdtd:output_directory(\""<<p.directory.generic_string()<<"\")\n";
+    if(!p.directory().empty())
+        file<<"fdtd:output_directory(\""<<p.directory().generic_string()<<"\")\n";
     
     if(type!=FDTD_Mode::FDTD_CUSTOM)
     {

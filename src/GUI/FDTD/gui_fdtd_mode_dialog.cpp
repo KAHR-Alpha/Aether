@@ -381,7 +381,7 @@ void FDTD_Mode_Dialog::FDTD_Mode_Dialog_Main(wxNotebook *book,int target_panel)
     
     wxBoxSizer *dir_sizer=new wxBoxSizer(wxHORIZONTAL);
     
-    output_directory=new NamedTextCtrl<std::string>(main_panel,"Output directory: ",data->directory.generic_string());
+    output_directory=new NamedTextCtrl<std::string>(main_panel,"Output directory: ",data->directory().generic_string());
     output_directory->lock();
     
     wxButton *output_directory_btn=new wxButton(main_panel,wxID_ANY,"...",wxDefaultPosition,wxDefaultSize,wxBU_EXACTFIT);
@@ -706,7 +706,7 @@ void FDTD_Mode_Dialog::evt_ok(wxCommandEvent &event)
     // Main
     
     data->prefix=name->get_value();
-    data->directory=output_directory->get_value();
+    data->set_directory(output_directory->get_value());
     
     data->Nt=Nt_max->get_value();
     

@@ -37,9 +37,9 @@ DiffSensor::~DiffSensor()
 {
 }
 
-void DiffSensor::link(FDTD const &fdtd)
+void DiffSensor::link(FDTD const &fdtd, std::filesystem::path const &workingDirectory)
 {
-    SensorFieldHolder::link(fdtd);
+    SensorFieldHolder::link(fdtd, workingDirectory);
     
     n_index=fdtd.get_index(x1,y1,z1);
     

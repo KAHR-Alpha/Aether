@@ -51,8 +51,6 @@ FDTD::FDTD(int Nx_,int Ny_,int Nz_,int Nt_,
      alternator_H(Nthreads),
      threads_ready_H(Nthreads), threads_H(Nthreads)
 {
-    prefix="";
-    
     dt_D_comp=0;
     dt_B_comp=0;
     
@@ -194,9 +192,7 @@ FDTD::FDTD(int Nx_,int Ny_,int Nz_,int Nt_,
      allow_run_H(false),
      alternator_H(Nthreads),
      threads_ready_H(Nthreads), threads_H(Nthreads)
-{
-    prefix="";
-    
+{    
     dt_D_comp=0;
     dt_B_comp=0;
     

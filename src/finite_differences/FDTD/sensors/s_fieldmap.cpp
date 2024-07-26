@@ -591,9 +591,9 @@ FieldMap2::~FieldMap2()
     
 }
 
-void FieldMap2::link(FDTD const &fdtd)
+void FieldMap2::link(FDTD const &fdtd, std::filesystem::path const &workingDirectory)
 {
-    SensorFieldHolder::link(fdtd);
+    SensorFieldHolder::link(fdtd, workingDirectory);
     
     if(type==NORMAL_X || type==NORMAL_XM)
     {

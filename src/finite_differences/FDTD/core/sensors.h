@@ -132,7 +132,7 @@ class Sensor
         void feed(FDTD const &fdtd);
         virtual void deep_feed(FDTD const &fdtd);
         virtual void initialize();
-        virtual void link(FDTD const &fdtd);
+        virtual void link(FDTD const &fdtd, std::filesystem::path const &workingDirectory);
         void set_reference_source(Source *reference_src);
         void set_loc(int x1,int x2,int y1,int y2,int z1,int z2);
         void set_silent(bool silent);
@@ -160,12 +160,12 @@ class SensorFieldHolder: public Sensor
                           bool interpolate);
         ~SensorFieldHolder();
         
-        virtual void deep_feed(FDTD const &fdtd);
+        void deep_feed(FDTD const &fdtd) override;
         void FT_comp(int l1,int l2);
-        virtual void initialize();
-        virtual void link(FDTD const &fdtd);
+        void initialize() override;
+        void link(FDTD const &fdtd, std::filesystem::path const &workingDirectory) override;
         void threaded_computation(unsigned int ID);
-        virtual void treat();
+        void treat() override;
         void update_t(FDTD const &fdtd);
         void update_t_interp(FDTD const &fdtd);
 };
@@ -174,7 +174,7 @@ class Box_Poynting: public Sensor
 {
     public:
         Box_Poynting(int x1,int x2,int y1,int y2,int z1,int z2);
-        void deep_feed(FDTD const &fdtd);
+        void deep_feed(FDTD const &fdtd) override;
 };
 
 class CompletionSensor: public Sensor
@@ -200,9 +200,9 @@ class CompletionSensor: public Sensor
         CompletionSensor(double lambda_min,double lambda_max,double coeff,int Np,std::string const &layout);
         
         bool completion_check();
-        void deep_feed(FDTD const &fdtd);
+        void deep_feed(FDTD const &fdtd) override;
         int estimate();
-        void initialize();
+        void initialize() override;
 };
 
 class DiffSensor: public SensorFieldHolder
@@ -217,8 +217,8 @@ class DiffSensor: public SensorFieldHolder
                    int z1,int z2);
         ~DiffSensor();
         
-        void link(FDTD const &fdtd);
-        void treat();
+        void link(FDTD const &fdtd, std::filesystem::path const &workingDirectory) override;
+        void treat() override;
 };
 
 void diffract_renorm(std::string const &diff_fname,std::string const &base_fname,std::string const &out_fname);
@@ -255,9 +255,9 @@ class FarFieldSensor: public SensorFieldHolder
                        int Nfx,int Nfy);
         ~FarFieldSensor();
         
-        void link(FDTD const &fdtd);
+        void link(FDTD const &fdtd, std::filesystem::path const &workingDirectory) override;
         void set_resolution(int Nfx,int Nfy);
-        void treat();
+        void treat() override;
 };
 
 class FieldBlock: public Sensor
@@ -271,16 +271,16 @@ class FieldBlock: public Sensor
         
         ~FieldBlock();
         
-        void deep_feed(FDTD const &fdtd);
+        void deep_feed(FDTD const &fdtd) override;
         void FT_Ex(int i1,int i2,Imdouble const &tcoeff);
         void FT_Ey(int i1,int i2,Imdouble const &tcoeff);
         void FT_Ez(int i1,int i2,Imdouble const &tcoeff);
         void FT_Hx(int i1,int i2,Imdouble const &tcoeff);
         void FT_Hy(int i1,int i2,Imdouble const &tcoeff);
         void FT_Hz(int i1,int i2,Imdouble const &tcoeff);
-        void initialize();
+        void initialize() override;
         void threaded_computation(unsigned int ID);
-        void treat();
+        void treat() override;
 };
 
 class FieldMap: public Sensor
@@ -299,13 +299,13 @@ class FieldMap: public Sensor
         
         ~FieldMap();
         
-        void deep_feed(FDTD const &fdtd);
-        void initialize();
+        void deep_feed(FDTD const &fdtd) override;
+        void initialize() override;
         void FT_compute(int j1,int j2);
         void set_cumulative(bool c=true);
         void set_mag_map(bool c=true);
         void threaded_computation(unsigned int ID);
-        void treat();
+        void treat() override;
 };
 
 class FieldMap2: public SensorFieldHolder
@@ -319,8 +319,8 @@ class FieldMap2: public SensorFieldHolder
                   int z1,int z2);
         ~FieldMap2();
         
-        void link(FDTD const &fdtd);
-        void treat();
+        void link(FDTD const &fdtd, std::filesystem::path const &workingDirectory) override;
+        void treat() override;
 };
 
 class FieldPoint: public Sensor
@@ -332,9 +332,9 @@ class FieldPoint: public Sensor
         
         ~FieldPoint();
         
-        void deep_feed(FDTD const &fdtd);
-        void initialize();
-        void treat();
+        void deep_feed(FDTD const &fdtd) override;
+        void initialize() override;
+        void treat() override;
 };
 
 class MovieSensor: public Sensor
@@ -355,7 +355,7 @@ class MovieSensor: public Sensor
                     int skip=1,
                     double exposure=1.0);
                     
-        void deep_feed(FDTD const &fdtd);
+        void deep_feed(FDTD const &fdtd) override;
                   
         void set_cumulative(bool c=true);
 };
@@ -376,7 +376,7 @@ class ModesDcpl: public Sensor
         
         void deep_feed(Grid3<double> const &Ex,Grid3<double> const &Ey,Grid3<double> const &Ez,
                        Grid3<double> const &Hx,Grid3<double> const &Hy,Grid3<double> const &Hz);
-        void set_spectrum(std::vector<double> const &lambda);
+        void set_spectrum(std::vector<double> const &lambda) override;
         void treat(std::string,Slab_guide &slab,int ng_ref);
 };
 
@@ -398,8 +398,8 @@ class Spect_Poynting_FFT: public Sensor
                            int z1,int z2);
         ~Spect_Poynting_FFT();
         
-        void deep_feed(FDTD const &fdtd);
-        void initialize();
+        void deep_feed(FDTD const &fdtd) override;
+        void initialize() override;
         void treat(std::string);
 };
 
@@ -412,7 +412,7 @@ class Spect_Poynting: public SensorFieldHolder
                        int z1,int z2);
         ~Spect_Poynting();
         
-        void treat();
+        void treat() override;
 };
 
 class Box_Spect_Poynting: public Sensor
@@ -424,11 +424,13 @@ class Box_Spect_Poynting: public Sensor
                            int y1,int y2,
                            int z1,int z2);
                            
-        void deep_feed(FDTD const &fdtd);
-        void link(FDTD const &fdtd);
-        void treat();
+        void deep_feed(FDTD const &fdtd) override;
+        void link(FDTD const &fdtd, std::filesystem::path const &workingDirectory) override;
+        void treat() override;
 };
 
-Sensor* generate_fdtd_sensor(Sensor_generator const &gen,FDTD const &fdtd);
+Sensor* generate_fdtd_sensor(Sensor_generator const &gen,
+                             FDTD const &fdtd,
+                             std::filesystem::path const &workingDirectory);
 
 #endif // SENSORS_H
