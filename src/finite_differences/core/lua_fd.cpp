@@ -401,7 +401,7 @@ void FD_Mode::show() const
     
     chk_msg_sc(type);
     chk_msg_sc(prefix);
-    chk_msg_sc(directory);
+    chk_msg_sc(p_directory);
     chk_msg_sc(polar_angle);
     chk_msg_sc(polarization);
     
