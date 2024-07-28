@@ -58,10 +58,11 @@ void fmap_mats_name(std::filesystem::path const &fname,
                     std::filesystem::path &fname_mats);
 void fmap_mats_raw(std::filesystem::path const &fname,
                    Grid2<unsigned int> const &mats);
-void fmap_names(std::filesystem::path const &fname,int type,
-                std::filesystem::path &fname_x,
+void fmap_names(std::filesystem::path &fname_x,
                 std::filesystem::path &fname_y,
-                std::filesystem::path &fname_z);
+                std::filesystem::path &fname_z,
+                std::filesystem::path const &fname,
+                int type);
 void fmap_raw(std::filesystem::path const &fname,int type,
               Grid2<Imdouble> const &Gx,
               Grid2<Imdouble> const &Gy,

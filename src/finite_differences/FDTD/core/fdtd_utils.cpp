@@ -25,11 +25,6 @@ extern std::ofstream plog;
 //     FDTD
 //###############
 
-std::filesystem::path FDTD::add_prefix(std::string const &str_)
-{
-    return directory/(prefix+str_);
-}
-
 //void FDTD::bufread(Grid3<double> &G,int Nmem,std::string fs)
 //{
 //    int j,k,t;
@@ -930,23 +925,6 @@ double CutBelow(double a,double b)
     else return 0;
 }
 
-void FDTD::set_directory(std::filesystem::path const &directory_)
-{
-    directory=directory_;
-    
-    if(!directory_.empty())
-    {
-        bool result=true;
-        
-        if(std::filesystem::exists(directory))
-        {
-            result=std::filesystem::is_directory(directory);
-        }
-        else result=std::filesystem::create_directories(directory);
-        
-        if(!result) directory=PathManager::tmp_path;
-    }
-}
 
 //void FDTD::set_field_SP_phase(double li,double lf,std::string poli,double kx,double phase)
 //{
@@ -973,24 +951,7 @@ void FDTD::set_directory(std::filesystem::path const &directory_)
 //    polar_mode=poli;
 //}
 
-void FDTD::set_prefix(std::string prefix_)
-{
-    prefix=prefix_;
-}
-
-//void FDTD::set_spectrum_dens(int A)
-//{
-//    if(A>=200) spectrum_dens=A;
-//}
-
 void FDTD::set_tapering(int Ntap_)
 {
     Ntap=Ntap_;
-}
-
-void FDTD::set_working_dir(std::string wdir)
-{
-    std::stringstream strm;
-    strm<<wdir<<"/"<<prefix;
-    set_prefix(strm.str());
 }

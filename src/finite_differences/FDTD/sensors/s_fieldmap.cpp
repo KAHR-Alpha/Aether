@@ -508,9 +508,9 @@ void FieldMap::treat()
     
     file.close();
     
-    fmap_script((directory/name).generic_string(),E_FIELD);
-    fmap_raw((directory/name).generic_string(),E_FIELD,acc_Ex,acc_Ey,acc_Ez);
-    fmap_mats_raw((directory/name).generic_string(),mats);
+    fmap_script(directory/name, E_FIELD);
+    fmap_raw(directory/name, E_FIELD, acc_Ex, acc_Ey, acc_Ez);
+    fmap_mats_raw(directory/name, mats);
     
     for(i=0;i<span1;i++){ for(j=0;j<span2;j++)
     {
@@ -591,9 +591,9 @@ FieldMap2::~FieldMap2()
     
 }
 
-void FieldMap2::link(FDTD const &fdtd)
+void FieldMap2::link(FDTD const &fdtd, std::filesystem::path const &workingDirectory)
 {
-    SensorFieldHolder::link(fdtd);
+    SensorFieldHolder::link(fdtd, workingDirectory);
     
     if(type==NORMAL_X || type==NORMAL_XM)
     {

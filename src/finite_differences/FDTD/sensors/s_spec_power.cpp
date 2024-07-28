@@ -144,7 +144,7 @@ void Box_Spect_Poynting::deep_feed(FDTD const &fdtd)
     if(!disable_zp) zp.feed(fdtd);
 }
 
-void Box_Spect_Poynting::link(FDTD const &fdtd)
+void Box_Spect_Poynting::link(FDTD const &fdtd, std::filesystem::path const &workingDirectory)
 {
     
     if(!disable_xm) xm.set_spectrum(lambda);
@@ -156,12 +156,12 @@ void Box_Spect_Poynting::link(FDTD const &fdtd)
     
     chk_var(lambda.size());
     
-    if(!disable_xm) xm.link(fdtd);
-    if(!disable_xp) xp.link(fdtd);
-    if(!disable_ym) ym.link(fdtd);
-    if(!disable_yp) yp.link(fdtd);
-    if(!disable_zm) zm.link(fdtd);
-    if(!disable_zp) zp.link(fdtd);
+    if(!disable_xm) xm.link(fdtd, workingDirectory);
+    if(!disable_xp) xp.link(fdtd, workingDirectory);
+    if(!disable_ym) ym.link(fdtd, workingDirectory);
+    if(!disable_yp) yp.link(fdtd, workingDirectory);
+    if(!disable_zm) zm.link(fdtd, workingDirectory);
+    if(!disable_zp) zp.link(fdtd, workingDirectory);
     
     if(!disable_xm) xm.set_silent(true);
     if(!disable_xp) xp.set_silent(true);
@@ -170,7 +170,7 @@ void Box_Spect_Poynting::link(FDTD const &fdtd)
     if(!disable_zm) zm.set_silent(true);
     if(!disable_zp) zp.set_silent(true);
     
-    Sensor::link(fdtd);
+    Sensor::link(fdtd, workingDirectory);
 }
 
 void Box_Spect_Poynting::treat()

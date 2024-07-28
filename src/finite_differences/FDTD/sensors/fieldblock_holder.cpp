@@ -80,10 +80,11 @@ void filename_filter(std::string fname,std::string &path,std::string &core,std::
     chk_var(extension.size());
 }
 
-void fmap_names(std::filesystem::path const &fname,int type,
-                std::filesystem::path &fname_x,
+void fmap_names(std::filesystem::path &fname_x,
                 std::filesystem::path &fname_y,
-                std::filesystem::path &fname_z)
+                std::filesystem::path &fname_z,
+                std::filesystem::path const &fname,
+                int type)
 {
     fname_x=fname;
     fname_y=fname;
@@ -115,10 +116,14 @@ void fmap_mats_name(std::filesystem::path const &fname,std::filesystem::path &fn
     fname_mats.replace_filename(fname_mats.stem().generic_string() + "_mats_raw");
 }
 
-void fmap_script(std::filesystem::path const &fname,int type,bool real,double D1,double D2)
+void fmap_script(std::filesystem::path const &fname,
+                 int type,
+                 bool real,
+                 double D1,
+                 double D2)
 {
     std::filesystem::path fname_x,fname_y,fname_z,fname_mats;
-    fmap_names(fname,type,fname_x,fname_y,fname_z);
+    fmap_names(fname_x, fname_y, fname_z, fname, type);
     fmap_mats_name(fname,fname_mats);
     
     std::filesystem::path fname_out=fname;
@@ -126,7 +131,7 @@ void fmap_script(std::filesystem::path const &fname,int type,bool real,double D1
     
     std::ofstream file(fname_out,std::ios::out|std::ios::trunc|std::ios::binary);
     
-    file<<"function out="<<fname.stem()<<"(varargin)"<<'\n';
+    file<<"function out="<<fname.stem().generic_string()<<"(varargin)"<<'\n';
     
     file<<""<<'\n';
     file<<"baseline=1;"<<'\n';
@@ -139,10 +144,10 @@ void fmap_script(std::filesystem::path const &fname,int type,bool real,double D1
     file<<""<<'\n';
     file<<"cmap=[transpose(r) transpose(g) transpose(b)];"<<'\n'; 
     file<<""<<'\n';
-    file<<"Fx=dlmread('"<<fname_x.filename()<<"')/baseline;"<<'\n';
-    file<<"Fy=dlmread('"<<fname_y.filename()<<"')/baseline;"<<'\n';
-    file<<"Fz=dlmread('"<<fname_z.filename()<<"')/baseline;"<<'\n';
-    file<<"mats=dlmread('"<<fname_mats.filename()<<"');"<<'\n';
+    file<<"Fx=dlmread('"<<fname_x.filename().generic_string()<<"')/baseline;"<<'\n';
+    file<<"Fy=dlmread('"<<fname_y.filename().generic_string()<<"')/baseline;"<<'\n';
+    file<<"Fz=dlmread('"<<fname_z.filename().generic_string()<<"')/baseline;"<<'\n';
+    file<<"mats=dlmread('"<<fname_mats.filename().generic_string()<<"');"<<'\n';
     file<<""<<'\n';
     file<<"Nx=size(Fx,2);"<<'\n';
     file<<"Ny=size(Fy,2);"<<'\n';
@@ -254,13 +259,17 @@ void fmap_script(std::filesystem::path const &fname,int type,bool real,double D1
     file.close();
 }
 
-void fmap_raw(std::filesystem::path const &fname,int type,
-              Grid2<Imdouble> const &Gx,Grid2<Imdouble> const &Gy,Grid2<Imdouble> const &Gz,bool real)
+void fmap_raw(std::filesystem::path const &fname,
+              int type,
+              Grid2<Imdouble> const &Gx,
+              Grid2<Imdouble> const &Gy,
+              Grid2<Imdouble> const &Gz,
+              bool real)
 {
     int i,j;
     
     std::filesystem::path fname_x,fname_y,fname_z;
-    fmap_names(fname,type,fname_x,fname_y,fname_z);
+    fmap_names(fname_x, fname_y, fname_z, fname, type);
     
     std::ofstream fx(fname_x,std::ios::out|std::ios::trunc);
     std::ofstream fy(fname_y,std::ios::out|std::ios::trunc);

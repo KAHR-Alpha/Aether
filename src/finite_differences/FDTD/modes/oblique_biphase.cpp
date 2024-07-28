@@ -70,9 +70,6 @@ void FDTD_oblique_biphase_comp(FDTD_Mode const &fdtd_mode,double kx_in,double ky
     
     std::string new_prefix_str=fdtd_mode.prefix;
     
-    fdtd_r.set_prefix(new_prefix_str);
-    fdtd_i.set_prefix(new_prefix_str);
-    
     fdtd_r.set_tapering(fdtd_mode.tapering);
     fdtd_i.set_tapering(fdtd_mode.tapering);
     
@@ -188,7 +185,7 @@ void FDTD_oblique_biphase_comp(FDTD_Mode const &fdtd_mode,double kx_in,double ky
     std::vector<Sensor*> sensors;
     
     for(unsigned int i=0;i<fdtd_mode.sensors.size();i++)
-        sensors.push_back(generate_fdtd_sensor(fdtd_mode.sensors[i],fdtd_r));
+        sensors.push_back(generate_fdtd_sensor(fdtd_mode.sensors[i], fdtd_r, fdtd_mode.directory()));
     
     std::stringstream sim_name;
     sim_name<<"_"<<sim_index;
@@ -211,7 +208,7 @@ void FDTD_oblique_biphase_comp(FDTD_Mode const &fdtd_mode,double kx_in,double ky
     if(time_type==TIME_FT)
     {
         cpl_sensor=new CompletionSensor(cc_lmin,cc_lmax,cc_coeff,cc_quant,cc_layout);
-        cpl_sensor->link(fdtd_r);
+        cpl_sensor->link(fdtd_r, fdtd_mode.directory());
         sensors.push_back(cpl_sensor);
     }
     

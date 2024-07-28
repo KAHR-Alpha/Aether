@@ -198,8 +198,6 @@ void FDTD_normal_incidence(FDTD_Mode const &fdtd_mode,std::atomic<bool> *end_com
     fdtd.set_pml_zm(fdtd_mode.kappa_zm,fdtd_mode.sigma_zm,fdtd_mode.alpha_zm);
     fdtd.set_pml_zp(fdtd_mode.kappa_zp,fdtd_mode.sigma_zp,fdtd_mode.alpha_zp);
     
-    fdtd.set_directory(fdtd_mode.directory);
-    fdtd.set_prefix(fdtd_mode.prefix);
     fdtd.set_tapering(fdtd_mode.tapering);
     
     // Grid and materials
@@ -264,7 +262,7 @@ void FDTD_normal_incidence(FDTD_Mode const &fdtd_mode,std::atomic<bool> *end_com
     std::vector<Sensor*> sensors;
     
     for(unsigned int i=0;i<fdtd_mode.sensors.size();i++)
-        sensors.push_back(generate_fdtd_sensor(fdtd_mode.sensors[i],fdtd));
+        sensors.push_back(generate_fdtd_sensor(fdtd_mode.sensors[i], fdtd, fdtd_mode.directory()));
     
     //Completion check
     
@@ -287,13 +285,13 @@ void FDTD_normal_incidence(FDTD_Mode const &fdtd_mode,std::atomic<bool> *end_com
     if(time_type==TIME_FT)
     {
         cpl_sensor=new CompletionSensor(cc_lmin,cc_lmax,cc_coeff,cc_quant,cc_layout);
-        cpl_sensor->link(fdtd);
+        cpl_sensor->link(fdtd, fdtd_mode.directory());
         sensors.push_back(cpl_sensor);
     }
     else if(time_type==TIME_ENERGY)
     {
         cpl_sensor=new CompletionSensor(cc_coeff);
-        cpl_sensor->link(fdtd);
+        cpl_sensor->link(fdtd, fdtd_mode.directory());
         sensors.push_back(cpl_sensor);
     }
     
@@ -488,9 +486,9 @@ void FDTD_normal_incidence(FDTD_Mode const &fdtd_mode,std::atomic<bool> *end_com
         ++dsp;
     }
     
-    std::filesystem::path fname1=fdtd.add_prefix("spectdata_norm");
-    std::filesystem::path fname2=fdtd.add_prefix("spectdata_norm2");
-    std::filesystem::path fname_power=fdtd.add_prefix("power");
+    std::filesystem::path fname1 = fdtd_mode.directory()/(fdtd_mode.prefix+"spectdata_norm");
+    std::filesystem::path fname2 = fdtd_mode.directory()/(fdtd_mode.prefix+"spectdata_norm2");
+    std::filesystem::path fname_power = fdtd_mode.directory()/(fdtd_mode.prefix+"power");
     
     std::ofstream file(fname1,std::ios::out|std::ios::trunc);
     std::ofstream file2(fname2,std::ios::out|std::ios::trunc);
@@ -596,10 +594,10 @@ void FDTD_normal_incidence(FDTD_Mode const &fdtd_mode,std::atomic<bool> *end_com
     sp_collec.add_spectrum(TE_spectrum_trans);
     sp_collec.add_spectrum(TM_spectrum_trans);
     
-    std::filesystem::path col_fname=fdtd.add_prefix("norm_fullspec");
+    std::filesystem::path col_fname = fdtd_mode.directory()/(fdtd_mode.prefix+"norm_fullspec");
 //    sp_collec.write(col_fname);
     
-    norm_octave_script((fdtd.directory/fdtd.prefix).generic_string(),index_sup,index_sub);
+    norm_octave_script((fdtd_mode.directory()/fdtd_mode.prefix).generic_string(),index_sup,index_sub);
 //    norm2_octave_script(fdtd.prefix,index_sup,index_sub);
     
     for(unsigned int i=0;i<sensors.size();i++) sensors[i]->treat();

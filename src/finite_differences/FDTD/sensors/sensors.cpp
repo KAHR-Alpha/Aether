@@ -193,7 +193,7 @@ void Sensor::initialize()
 {
 }
 
-void Sensor::link(FDTD const &fdtd)
+void Sensor::link(FDTD const &fdtd, std::filesystem::path const &workingDirectory)
 {
     Nx=fdtd.Nx;
     Ny=fdtd.Ny;
@@ -223,7 +223,7 @@ void Sensor::link(FDTD const &fdtd)
     z1=std::clamp(z1,0,Nz);
     z2=std::clamp(z2,0,Nz);
     
-    directory=fdtd.directory;
+    directory = workingDirectory;
     Nthreads=fdtd.Nthreads;
     
     initialize();
@@ -312,7 +312,9 @@ void Sensor::treat()
 {
 }
 
-Sensor* generate_fdtd_sensor(Sensor_generator const &gen,FDTD const &fdtd)
+Sensor* generate_fdtd_sensor(Sensor_generator const &gen,
+                             FDTD const &fdtd,
+                             std::filesystem::path const &workingDirectory)
 {
     Sensor *sens_out=0;
     
@@ -409,7 +411,7 @@ Sensor* generate_fdtd_sensor(Sensor_generator const &gen,FDTD const &fdtd)
     else sens_out=new Sensor;
     
     sens_out->name=gen.name;
-    sens_out->link(fdtd);
+    sens_out->link(fdtd, workingDirectory);
     
     return sens_out;
 }
@@ -524,9 +526,9 @@ void SensorFieldHolder::initialize()
     sp_Hz.init(span1,span2,Nl,0);
 }
 
-void SensorFieldHolder::link(FDTD const &fdtd)
+void SensorFieldHolder::link(FDTD const &fdtd, std::filesystem::path const &workingDirectory)
 {
-    Sensor::link(fdtd);
+    Sensor::link(fdtd, workingDirectory);
 }
 
 void SensorFieldHolder::threaded_computation(unsigned int ID)

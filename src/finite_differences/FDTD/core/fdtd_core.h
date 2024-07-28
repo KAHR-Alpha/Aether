@@ -48,8 +48,6 @@ class FDTD
         bool enable_Hx,enable_Hy,enable_Hz;
         
         std::string polar_mode;
-        std::filesystem::path directory;
-        std::string prefix;
         
         //ChpIn chp;
         Grid1<FDTD_Material> mats;
@@ -96,7 +94,6 @@ class FDTD
         
         ~FDTD();
         
-        std::filesystem::path add_prefix(std::string const &);
         void alloc_DEBH();
         void bootstrap();
         void basic_differentials_compute();
@@ -113,18 +110,15 @@ class FDTD
         bool mats_in_grid(unsigned int ind);
         void report_size();
         void reset_fields();
-        void set_directory(std::filesystem::path const &directory);
-//        void set_field_SP_phase(double,double,std::string,double,double);
+//        void set_field_SP_phase(double,double,std::string,double,double); 
         #ifndef SEP_MATS
         void set_matsgrid(Grid3<unsigned int> &);
         #else
         void set_matsgrid(Grid3<unsigned int> &mat_x,Grid3<unsigned int> &mat_y,Grid3<unsigned int> &mat_z);
         #endif
         void set_material(unsigned int index,Material const &material);
-        void set_prefix(std::string);
         //void set_spectrum_dens(int);
         void set_tapering(int Ntap);
-        void set_working_dir(std::string);
         
         //#########################
         //   Computation update
@@ -171,7 +165,6 @@ class FDTD
         //     PMLs
         //###############
         
-        //int pml_x,pml_y,pml_z;
         double pml_m,pml_ma,pml_kmax,pml_amax;
         double pml_smax_x,pml_smax_y,pml_smax_z_u,pml_smax_z_d;
         

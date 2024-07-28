@@ -63,7 +63,6 @@ void mode_default_fdtd(FDTD_Mode const &fdtd_mode,std::atomic<bool> *end_computa
     fdtd.set_pml_zm(fdtd_mode.kappa_zm,fdtd_mode.sigma_zm,fdtd_mode.alpha_zm);
     fdtd.set_pml_zp(fdtd_mode.kappa_zp,fdtd_mode.sigma_zp,fdtd_mode.alpha_zp);
     
-    fdtd.set_prefix(fdtd_mode.prefix);
     fdtd.set_tapering(fdtd_mode.tapering);
     
     // Grid and materials
@@ -95,7 +94,7 @@ void mode_default_fdtd(FDTD_Mode const &fdtd_mode,std::atomic<bool> *end_computa
     std::vector<Source*> sources;
     
     for(unsigned int i=0;i<fdtd_mode.sensors.size();i++)
-        sensors.push_back(generate_fdtd_sensor(fdtd_mode.sensors[i],fdtd));
+        sensors.push_back(generate_fdtd_sensor(fdtd_mode.sensors[i], fdtd, fdtd_mode.directory()));
     
     for(unsigned int i=0;i<fdtd_mode.sources.size();i++)
         sources.push_back(generate_fdtd_source(fdtd_mode.sources[i],fdtd));
@@ -121,13 +120,13 @@ void mode_default_fdtd(FDTD_Mode const &fdtd_mode,std::atomic<bool> *end_computa
     if(time_type==TIME_FT)
     {
         cpl_sensor=new CompletionSensor(cc_lmin,cc_lmax,cc_coeff,cc_quant,cc_layout);
-        cpl_sensor->link(fdtd);
+        cpl_sensor->link(fdtd, fdtd_mode.directory());
         sensors.push_back(cpl_sensor);
     }
     else if(time_type==TIME_ENERGY)
     {
         cpl_sensor=new CompletionSensor(cc_coeff);
-        cpl_sensor->link(fdtd);
+        cpl_sensor->link(fdtd, fdtd_mode.directory());
         sensors.push_back(cpl_sensor);
     }
     
