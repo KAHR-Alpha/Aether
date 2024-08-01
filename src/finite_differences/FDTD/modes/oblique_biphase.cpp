@@ -19,8 +19,6 @@ limitations under the License.*/
 
 extern const Imdouble Im;
 
-extern std::ofstream plog;
-
 //####################
 //   Oblique phase
 //####################

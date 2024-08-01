@@ -40,6 +40,7 @@ limitations under the License.*/
 #include <gui_spp.h>
 
 #include <aether.h>
+#include <logger.h>
 
 #include <wx/aboutdlg.h>
 #include <wx/display.h>
@@ -119,6 +120,7 @@ bool Aether::OnInit()
 {
     PathManager::initialize();
     plog.open(PathManager::to_temporary_path("log.txt"),std::ios::out|std::ios::trunc);
+    Plog::init(PathManager::to_temporary_path("log.txt"));
     
     MaterialsLib::initialize();
     

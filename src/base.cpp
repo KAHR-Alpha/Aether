@@ -19,6 +19,7 @@ limitations under the License.*/
 #include <data_hdl.h>
 #include <fdtd_core.h>
 #include <index_utils.h>
+#include <logger.h>
 #include <lua_fdfd.h>
 #include <lua_fdtd.h>
 #include <lua_interface.h>
@@ -126,8 +127,8 @@ int mode_choice(lua_State *L)
     #endif
     else
     {
-        std::cout<<"Unrecognized mode "<<mode<<std::endl;
-        std::cout<<"Press Enter to continue..."<<std::endl;
+        Plog::print("Unrecognized mode ", mode, "\n");
+        Plog::print("Press Enter to continue...\n");
         std::cin.get();
     }
     
@@ -142,6 +143,7 @@ int mode_choice(lua_State *L)
 {
     PathManager::initialize();
     plog.open(PathManager::to_temporary_path("log.txt"),std::ios::out|std::ios::trunc);
+    Plog::init(PathManager::to_temporary_path("log.txt"));
     
     std::string script_fname="script.lua";
     

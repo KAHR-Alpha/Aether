@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2024 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@ limitations under the License.*/
 #include <bitmap3.h>
 #include <fdtd_core.h>
 #include <filehdl.h>
+#include <logger.h>
 #include <string_tools.h>
 
 
@@ -25,54 +26,12 @@ extern std::ofstream plog;
 //     FDTD
 //###############
 
-//void FDTD::bufread(Grid3<double> &G,int Nmem,std::string fs)
-//{
-//    int j,k,t;
-//    
-//    std::cout<<"Read "<<fs<<std::endl;
-//    std::ifstream file(fs.c_str(),std::ios::in|std::ios::binary);
-//        
-//    for(t=0;t<Nmem;t++)
-//    {
-//        for(j=0;j<Ny;j++){ for(k=0;k<Nz;k++)
-//        {
-//            file>>G(j,k,t);
-//        }}
-//    }
-//    
-//    file.close();
-//}
-//
-//void FDTD::bufwrite(Grid3<double> &G,int Nmem,std::string fs)
-//{
-//    int j,k,t;
-//    
-//    std::cout<<"Write "<<fs<<std::endl;
-//    std::ofstream file(fs.c_str(),std::ios::out|std::ios::trunc);
-//    
-//    for(t=0;t<Nmem;t++)
-//    {
-//        for(j=0;j<Ny;j++)
-//        {
-//            std::stringstream sbuf;
-//            sbuf.precision(10);
-//            for(k=0;k<Nz;k++)
-//            {
-//                sbuf<<G(j,k,t)<<" ";
-//            }
-//            
-//            file<<sbuf.str();
-//        }
-//    }
-//    
-//    file.close();
-//}
 
 void FDTD::bufread(Grid3<double> &G,int Nmem,std::string fs)
 {
     int j,k,t;
     
-    std::cout<<"Read "<<fs<<std::endl;
+    Plog::print("Read ", fs, "\n");
     std::ifstream file(fs.c_str(),std::ios::in|std::ios::binary);
     
     double b;
@@ -89,11 +48,12 @@ void FDTD::bufread(Grid3<double> &G,int Nmem,std::string fs)
     file.close();
 }
 
+
 void FDTD::bufwrite(Grid3<double> &G,int Nmem,std::string fs)
 {
     int j,k,t;
     
-    std::cout<<"Write "<<fs<<std::endl;
+    Plog::print("Write ", fs, "\n");
     std::ofstream file(fs.c_str(),std::ios::out|std::ios::trunc|std::ios::binary);
     
     double b;
@@ -110,6 +70,7 @@ void FDTD::bufwrite(Grid3<double> &G,int Nmem,std::string fs)
     
     file.close();
 }
+
 
 double FDTD::compute_poynting_box(int i1,int i2,int j1,int j2,int k1,int k2) const
 {
@@ -234,9 +195,9 @@ void FDTD::draw(int t,int vmode,int pos_x,int pos_y,int pos_z)
             im.degra(i+Nx+4,k+2*Nz+8,1.0-exp(-1.0*abs(Ex(i,pos_y,k))/max_E),0,1.0);
         }
         
-        std::cout<<max_Ex<<std::endl;
-        std::cout<<max_Ey<<std::endl;
-        std::cout<<max_Ez<<std::endl;
+        Plog::print(max_Ex, "\n");
+        Plog::print(max_Ey, "\n");
+        Plog::print(max_Ez, "\n");
     }
     if(vmode==1)
     {
@@ -260,9 +221,9 @@ void FDTD::draw(int t,int vmode,int pos_x,int pos_y,int pos_z)
             im.degra(j+Ny+4,k+2*Nz+8,1.0-exp(-1.0*abs(Ex(pos_x,j,k))/max_E),0,1.0);
         }
         
-        std::cout<<max_Ex<<std::endl;
-        std::cout<<max_Ey<<std::endl;
-        std::cout<<max_Ez<<std::endl;
+        Plog::print(max_Ex, "\n");
+        Plog::print(max_Ey, "\n");
+        Plog::print(max_Ez, "\n");
     }
     if(vmode==2)
     {
@@ -286,9 +247,9 @@ void FDTD::draw(int t,int vmode,int pos_x,int pos_y,int pos_z)
             im.degra(i+Nx+4,j+2*Ny+8,1.0-exp(-1.0*abs(Ex(i,j,pos_z))/max_E),0,1.0);
         }
         
-        std::cout<<max_Ex<<std::endl;
-        std::cout<<max_Ey<<std::endl;
-        std::cout<<max_Ez<<std::endl;
+        Plog::print(max_Ex, "\n");
+        Plog::print(max_Ey, "\n");
+        Plog::print(max_Ez, "\n");
     }
     
     im.write(K.str());
@@ -427,7 +388,7 @@ void FDTD::find_slab(int sub_ref,int sup_ref,double &hsub,double &hstruc,double 
     hsub=Nsub*Dz;
     hstruc=(Nz_s-Nsup-Nsub)*Dz;
         
-    std::cout<<hsup<<" "<<hsub<<" "<<hstruc<<std::endl;
+    Plog::print(hsup, " ", hsub, " ", hstruc, "\n");
 }
 
 double FDTD::get_index(int i,int j,int k) const
@@ -805,7 +766,7 @@ void FDTD::set_matsgrid(Grid3<unsigned int> &GMi_x,Grid3<unsigned int> &GMi_y,Gr
     }}}
     
     mats.init(Nmat,FDTD_Material());
-    std::cout<<"Number of materials: "<<Nmat<<std::endl;
+    Plog::print("Number of materials: ", Nmat, "\n");
     
     unsigned int imax=matsgrid(0,0,0);
     unsigned int imin=matsgrid(0,0,0);
@@ -885,10 +846,10 @@ void FDTD::report_size()
     M_size+=matsgrid.mem_size();
     for(unsigned int i=0;i<Nmat;i++) M_size+=mats[i].report_size();
     
-    std::cout<<"Fields size: "<<add_unit(F_size,"byte")<<std::endl;
-    std::cout<<"PML size: "<<add_unit(P_size,"byte")<<std::endl;
-    std::cout<<"Materials size: "<<add_unit(M_size,"byte")<<std::endl;
-    std::cout<<"Total size: "<<add_unit(F_size+P_size+M_size,"byte")<<std::endl;
+    Plog::print("Fields size: ", add_unit(F_size,"byte"), "\n");
+    Plog::print("PML size: ", add_unit(P_size,"byte"), "\n");
+    Plog::print("Materials size: ", add_unit(M_size,"byte"), "\n");
+    Plog::print("Total size: ", add_unit(F_size+P_size+M_size,"byte"), "\n");
 }
 
 void FDTD::reset_fields()

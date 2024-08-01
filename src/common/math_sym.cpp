@@ -13,6 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include <enum_tools.h>
+#include <logger.h>
 #include <math_sym.h>
 
 bool is_add(char c)
@@ -381,7 +382,7 @@ double SymNode::evaluate(std::list<SymNode*> &backtrace)
     for(it=backtrace.begin();it!=backtrace.end();it++)
         if(*it==this)
         {
-            std::cout<<"Bump"<<std::endl;
+            Plog::print("Bump\n");
             chk_var(this);
             return 0;
         }

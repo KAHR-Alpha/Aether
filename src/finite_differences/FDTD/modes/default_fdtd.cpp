@@ -35,15 +35,13 @@ void mode_default_fdtd(FDTD_Mode const &fdtd_mode,std::atomic<bool> *end_computa
     double Dz=fdtd_mode.Dz;
     
     double lx,ly,lz;
-    std::cout<<"A"<<std::endl;
+
     fdtd_mode.structure->retrieve_nominal_size(lx,ly,lz);
     fdtd_mode.compute_discretization(Nx,Ny,Nz,lx,ly,lz);
     
     Grid3<unsigned int> matsgrid(Nx,Ny,Nz,0);
     fdtd_mode.structure->discretize(matsgrid,Nx,Ny,Nz,Dx,Dy,Dz);
     
-    
-    std::cout<<"B"<<std::endl;
     double Dt=std::min(std::min(Dx,Dy),Dz)/(std::sqrt(3.0)*c_light)*0.99*fdtd_mode.time_mod;
     
     FDTD fdtd(Nx,Ny,Nz,Nt,Dx,Dy,Dz,Dt,"CUSTOM",
@@ -86,7 +84,7 @@ void mode_default_fdtd(FDTD_Mode const &fdtd_mode,std::atomic<bool> *end_computa
     
     // Spectrum and incident field
     
-    std::cout<<"Computing"<<std::endl;
+    Plog::print("Computing\n");
     
     fdtd.bootstrap();
     
@@ -247,7 +245,7 @@ void testlin_1(int N,int Nt)
     b=clock.now();
     
     std::chrono::duration<double> time=b-a;
-    std::cout<<"Duration split: "<<time.count()<<std::endl;
+    Plog::print("Duration split: ", time.count(), "\n");
     
     delete[] Ey;
     delete[] Hz;
@@ -282,7 +280,7 @@ void testlin_1_3D(int Nx,int Ny,int Nz,int Nt)
     b=clock.now();
     
     std::chrono::duration<double> time=b-a;
-    std::cout<<"Duration split: "<<time.count()<<std::endl;
+    Plog::print("Duration split: ", time.count() ,"\n");
 }
 
 void testlin_2(int N,int Nt)
@@ -317,7 +315,7 @@ void testlin_2(int N,int Nt)
     b=clock.now();
     std::chrono::duration<double> time=b-a;
     
-    std::cout<<"Duration interlaced: "<<time.count()<<std::endl;
+    Plog::print("Duration interlaced: ", time.count(), "\n");
     
     delete[] EM;
 }
@@ -351,7 +349,7 @@ void testlin_2_3D(int Nx,int Ny,int Nz,int Nt)
     b=clock.now();
     
     std::chrono::duration<double> time=b-a;
-    std::cout<<"Duration interlaced 1: "<<time.count()<<std::endl;
+    Plog::print("Duration interlaced 1: ", time.count(), "\n");
 }
 
 class node
@@ -393,7 +391,7 @@ void testlin_3(int N,int Nt)
     
     std::chrono::duration<double> time=b-a;
     
-    std::cout<<"Duration interlaced 2: "<<time.count()<<std::endl;
+    Plog::print("Duration interlaced 2: ", time.count(), "\n");
     
     delete[] nEM;
 }

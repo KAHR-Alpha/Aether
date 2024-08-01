@@ -14,6 +14,8 @@ limitations under the License.*/
 
 #include <gui_multilayers.h>
 
+#include <logger.h>
+
 namespace lua_gui_multilayer
 {
 
@@ -151,9 +153,9 @@ void MultilayerFrame::load_project(wxFileName const &fname_)
     
     if(load_err!=LUA_OK)
     {
-             if(load_err==LUA_ERRFILE) std::cout<<"Lua file error with "<<fname.c_str()<<std::endl;
-        else if(load_err==LUA_ERRSYNTAX) std::cout<<"Lua syntax error with "<<fname.c_str()<<std::endl;
-        else std::cout<<"Lua error with "<<fname.c_str()<<std::endl;
+             if(load_err==LUA_ERRFILE) Plog::print("Lua file error with ", fname, "\n");
+        else if(load_err==LUA_ERRSYNTAX) Plog::print("Lua syntax error with ", fname, "\n");
+        else Plog::print("Lua error with ", fname, "\n");
         std::cin.get();
         return;
     }

@@ -12,6 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
+#include <logger.h>
 #include <selene.h>
 
 namespace Sel
@@ -188,8 +189,8 @@ void RayCounter::initialize()
     }
     else
     {
-        std::cerr<<"Invalid ray file "<<sensor_fname<<"\n";
-        std::cerr<<"Missing object intersection points\nAborting...\n";
+        Plog::print(LogType::FATAL, "Invalid ray file ", sensor_fname, "\n");
+        Plog::print(LogType::FATAL, "Missing object intersection points\nAborting...\n");
         std::exit(EXIT_FAILURE);
     }
     if(vector_contains(sensor_content,std::string("obj_direction")))
@@ -209,8 +210,8 @@ void RayCounter::initialize()
     }
     else
     {
-        std::cerr<<"Invalid ray file "<<sensor_fname<<"\n";
-        std::cerr<<"Missing face intersections\nAborting...\n";
+        Plog::print(LogType::FATAL, "Invalid ray file ", sensor_fname, "\n");
+        Plog::print(LogType::FATAL, "Missing face intersections\nAborting...\n");
         std::exit(EXIT_FAILURE);
     }
     

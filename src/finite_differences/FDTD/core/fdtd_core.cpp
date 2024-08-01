@@ -120,11 +120,11 @@ FDTD::FDTD(int Nx_,int Ny_,int Nz_,int Nt_,
         }
     }
     
-    if(pml_xm || pml_xp) std::cout<<"PML-x enabled: "<<pml_xm<<" "<<pml_xp<<std::endl;
-    if(pml_ym || pml_yp) std::cout<<"PML-y enabled: "<<pml_ym<<" "<<pml_yp<<std::endl;
-    if(pml_zm || pml_zp) std::cout<<"PML-z enabled: "<<pml_zm<<" "<<pml_zp<<std::endl;
-    if(mode==M_OBLIQUE) std::cout<<"Oblique incidence requested, extending grid"<<std::endl;
-    std::cout<<"New size: ("<<Nx<<","<<Ny<<","<<Nz<<") replacing ("<<Nx_<<","<<Ny_<<","<<Nz_<<")"<<std::endl<<std::endl;
+    if(pml_xm || pml_xp) Plog::print("PML-x enabled: ", pml_xm, " ", pml_xp, "\n");
+    if(pml_ym || pml_yp) Plog::print("PML-y enabled: ", pml_ym, " ", pml_yp, "\n");
+    if(pml_zm || pml_zp) Plog::print("PML-z enabled: ", pml_zm, " ", pml_zp, "\n");
+    if(mode==M_OBLIQUE) Plog::print("Oblique incidence requested, extending grid\n");
+    Plog::print("New size: (", Nx, ",", Ny, ",", Nz, ") replacing (", Nx_, ",", Ny_, ",", Nz_, ")\n\n");
     
     alloc_DEBH();
     #ifndef SEP_MATS
