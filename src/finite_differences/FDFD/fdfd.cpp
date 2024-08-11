@@ -89,9 +89,9 @@ void FDFD::draw(int vmode,int pos_x,int pos_y,int pos_z,std::string name_mod)
             im.degra_circ(i+2*Nx+8,k+2*Nz+8,std::arg(get_Ex(i,pos_y,k)),-Pi,Pi);
         }
         
-        std::cout<<max_Ex<<std::endl;
-        std::cout<<max_Ey<<std::endl;
-        std::cout<<max_Ez<<std::endl;
+        Plog::print(max_Ex, "\n");
+        Plog::print(max_Ey, "\n");
+        Plog::print(max_Ez, "\n");
     }
     if(vmode==1)
     {
@@ -115,9 +115,9 @@ void FDFD::draw(int vmode,int pos_x,int pos_y,int pos_z,std::string name_mod)
             im.degra(j+Ny+4,k+2*Nz+8,1.0-exp(-1.0*abs(get_Ex(pos_x,j,k))/max_E),0,1.0);
         }
         
-        std::cout<<max_Ex<<std::endl;
-        std::cout<<max_Ey<<std::endl;
-        std::cout<<max_Ez<<std::endl;
+        Plog::print(max_Ex, "\n");
+        Plog::print(max_Ey, "\n");
+        Plog::print(max_Ez, "\n");
     }
     if(vmode==2)
     {
@@ -141,9 +141,9 @@ void FDFD::draw(int vmode,int pos_x,int pos_y,int pos_z,std::string name_mod)
             im.degra(i+Nx+4,j+2*Ny+8,1.0-exp(-1.0*abs(get_Ex(i,j,pos_z))/max_E),0,1.0);
         }
         
-        std::cout<<max_Ex<<std::endl;
-        std::cout<<max_Ey<<std::endl;
-        std::cout<<max_Ez<<std::endl;
+        Plog::print(max_Ex, "\n");
+        Plog::print(max_Ey, "\n");
+        Plog::print(max_Ez, "\n");
     }
     
     im.write(im_name.str());

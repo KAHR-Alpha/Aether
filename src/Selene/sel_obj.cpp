@@ -169,23 +169,7 @@ void Object::build_variables_map()
 
 void Object::bootstrap(std::filesystem::path const &output_directory,double ray_power,int max_ray_bounces)
 {
-//    std::cout<<"boot "<<this<<std::endl;
-//    
-//    chk_var(in_displacement);
-//    chk_var(in_A.degree());
-//    chk_var(in_B.degree());
-//    chk_var(in_C.degree());
-//    chk_var(loc);
-    
     consolidate_position();
-    
-//    chk_var(local_x);
-//    chk_var(local_y);
-//    chk_var(local_z);
-//    
-//    chk_var(loc);
-//    
-//    std::cout<<"\n\n";
     
     if(sensor_type!=Sensor::NONE)
     {
@@ -320,7 +304,7 @@ void Object::default_N_uv(int &Nu,int &Nv,int face_)
         case OBJ_SPHERE: sphere.default_N_uv(Nu,Nv,face_); break;
         case OBJ_SPHERE_PATCH: sphere_patch.default_N_uv(Nu,Nv,face_); break;
         default:
-            std::cout<<"Undefined UV coordinates for object of type "<<type<<"\n";
+            Plog::print(LogType::FATAL, "Undefined UV coordinates for object of type ", type, "\n");
             std::exit(EXIT_FAILURE);
     }
 }
@@ -369,7 +353,7 @@ Vector3 Object::face_normal(RayInter const &inter)
         case OBJ_SPHERE: return sphere.normal(inter);
         case OBJ_SPHERE_PATCH: return sphere_patch.normal(inter);
         default:
-            std::cout<<"Undefined normal for object of type "<<type<<"\n";
+            Plog::print(LogType::FATAL, "Undefined normal for object of type ", type, "\n");
             std::exit(0);
     }
         
@@ -957,7 +941,7 @@ void Object::update_geometry()
         case OBJ_VOL_CONE: set_cone_volume(); break;
         case OBJ_VOL_CYLINDER: set_cylinder_volume(); break;
         default:
-            std::cout<<"Geometry unaccounted for\n";
+            Plog::print(LogType::FATAL, "Geometry unaccounted for\n");
             std::exit(EXIT_FAILURE);
     }
 }
@@ -980,7 +964,7 @@ void Object::xyz_to_uv(double &u,double &v,int face_,
         case OBJ_SPHERE: sphere.xyz_to_uv(u,v,face_,x,y,z); break;
         case OBJ_SPHERE_PATCH: sphere_patch.xyz_to_uv(u,v,face_,x,y,z); break;
         default:
-            std::cout<<"Undefined UV coordinates for object of type "<<type<<"\n";
+            Plog::print(LogType::FATAL, "Undefined UV coordinates for object of type ", type, "\n");
             std::exit(EXIT_FAILURE);
     }
 }

@@ -400,7 +400,7 @@ void FD_Mode::set_directory(std::filesystem::path const &directory_)
 
 void FD_Mode::show() const
 {
-    std::cout<<"FD Mmode"<<std::endl;
+    Plog::print("FD Mmode\n");
     
     chk_msg_sc(type);
     chk_msg_sc(prefix);
@@ -670,15 +670,3 @@ int FD_mode_set_structure(lua_State *L)
     
     return 1;
 }
-
-//int FD_mode_set_threads(lua_State *L)
-//{
-//    FD_Mode **pp_fd=reinterpret_cast<FD_Mode**>(lua_touserdata(L,1));
-//    
-//    (*pp_fd)->Nthreads=lua_tointeger(L,2);
-//    
-//    std::cout<<"Setting the maximum number of threads to "<<(*pp_fd)->Nthreads<<std::endl;
-//    
-//    return 1;
-//}
-

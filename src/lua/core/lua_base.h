@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2024 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@ limitations under the License.*/
 #ifndef LUA_BASE_H_INCLUDED
 #define LUA_BASE_H_INCLUDED
 
+#include <logger.h>
 #include <lua.hpp>
 
 #include <iostream>
@@ -68,7 +69,7 @@ namespace lua_tools
             
             void show()
             {
-                std::cout<<value<<std::endl;
+                Plog::print(value, "\n");
             }
     };
     
@@ -97,7 +98,7 @@ namespace lua_tools
             
             void show()
             {
-                std::cout<<value<<std::endl;
+                Plog::print(value, "\n");
             }
     };
     
@@ -126,7 +127,7 @@ namespace lua_tools
             
             void show()
             {
-                std::cout<<value<<std::endl;
+                Plog::print(value, "\n");
             }
     };
 }

@@ -18,9 +18,9 @@ limitations under the License.*/
 //   PLog
 //##########
 
-std::ofstream PLog::p_file;
+std::ofstream Plog::p_file;
 
-void PLog::init(std::filesystem::path const &file_path)
+void Plog::init(std::filesystem::path const &file_path)
 {
     p_file.open(file_path, std::ios::out|std::ios::trunc);
 }

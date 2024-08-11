@@ -164,8 +164,8 @@ bool Aether::OnInit()
 
 int Aether::OnExit()
 {
-    std::cout<<"Quitting"<<std::endl;
-    std::cout<<main_frame<<std::endl;
+    Plog::print("Quitting\n");
+    Plog::print(main_frame, "\n");
     return wxApp::OnExit();
 }
 

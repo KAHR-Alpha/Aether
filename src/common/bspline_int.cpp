@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2024 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include <bspline_int.h>
+#include <logger.h>
 
 extern std::ofstream plog;
 
@@ -113,7 +114,7 @@ void bsp_grid::compute(Grid2<double> &data)
     
     Grid2<double> tmp_data=data;
     
-    std::cout<<"SPLINES"<<std::endl;
+    Plog::print("SPLINES\n");
     
     int Nd=data.L1();
     
@@ -165,7 +166,7 @@ void bsp_grid::compute(Grid2<double> &data)
         for(i=0;i<Nd;i++) max_z=std::max(max_z,std::abs(tmp_data(i,2)));
     }
     
-    std::cout<<"Spline interpolation level "<<glevel<<" "<<max_z<<" "<<eps<<std::endl;
+    Plog::print("Spline interpolation level ", glevel, " ", max_z, " ", eps, "\n");
 }
 
 double bsp_grid::evaluate(double x_i,double y_i)
@@ -316,8 +317,6 @@ void bsp_grid::show(int Nx,int Ny,std::string fname)
             S+=B_s[i1]*B_t[j1]*phi(i1+k,j1+l);
         }}
         
-        //if(std::isnan(S)) std::cout<<"ERR"<<std::endl;
-        
         imtmp(i,j)=S;
         
         if(j==static_cast<int>(Ny*0.6/0.7))
@@ -328,7 +327,7 @@ void bsp_grid::show(int Nx,int Ny,std::string fname)
         ++dsp;
     }}
     
-    std::cout<<"min/max "<<imtmp.min()<<" "<<imtmp.max()<<std::endl;
+    Plog::print("min/max ", imtmp.min(), " ", imtmp.max(), "\n");
         
     G2_to_degra(imtmp,fname);
 }

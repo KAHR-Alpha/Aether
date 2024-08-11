@@ -41,7 +41,7 @@ void fdfd_single_particle(FDFD_Mode const &fdfd_mode)
     
     if(Ny>1)
     {
-        std::cout<<"Warning, 3D case not supported yet. Aborting."<<std::endl;
+        Plog::print(LogType::FATAL, "Warning, 3D case not supported yet. Aborting.\n");
         std::exit(0);
     }
     
@@ -58,8 +58,8 @@ void fdfd_single_particle(FDFD_Mode const &fdfd_mode)
     else if(fdfd_mode.solver=="BiCGSTAB") fdfd.solver_type=SOLVE_BiCGSTAB;
     else
     {
-        std::cout<<"Unknown solver: "<<fdfd_mode.solver<<std::endl;
-        std::cout<<"Aborting..."<<std::endl;
+        Plog::print(LogType::FATAL, "Unknown solver: ", fdfd_mode.solver, "\n");
+        Plog::print(LogType::FATAL, "Aborting...\n");
         std::exit(0);
     }
     
@@ -318,13 +318,6 @@ double compute_diffracted_orders_power(int &pmin,int &pmax,int &qmin,int &qmax,s
         
         double F_pq=0;
         
-//        if(p==-1)
-//        {
-//            std::cout<<beta_x<<" "<<beta_y<<" "<<k1<<" "<<k2<<" "<<k3s<<" "<<L1<<" "<<L2<<std::endl;
-//        }
-//        chk_var(p);
-//        chk_var(q);
-        
         if(k3s>0)
         {
             double k1d=k1*D1;
@@ -411,7 +404,7 @@ void fdfd_periodic(FDFD_Mode const &fdfd_mode)
     
     if(Ny>1)
     {
-        std::cout<<"Warning, 3D case not supported yet.\n Aborting."<<std::endl;
+        Plog::print(LogType::FATAL, "Warning, 3D case not supported yet.\nAborting.\n");
         std::exit(EXIT_FAILURE);
     }
     
@@ -428,8 +421,8 @@ void fdfd_periodic(FDFD_Mode const &fdfd_mode)
     else if(fdfd_mode.solver=="BiCGSTAB") fdfd.solver_type=SOLVE_BiCGSTAB;
     else
     {
-        std::cout<<"Unknown solver: "<<fdfd_mode.solver<<std::endl;
-        std::cout<<"Aborting..."<<std::endl;
+        Plog::print(LogType::FATAL, "Unknown solver: ", fdfd_mode.solver, "\n");
+        Plog::print(LogType::FATAL, "Aborting...\n");
         std::exit(0);
     }
     

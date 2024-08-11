@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2024 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include <filehdl.h>
+#include <logger.h>
 #include <string_tools.h>
 
 #ifdef _WIN32
@@ -98,7 +99,7 @@ void AsciiDataLoader::initialize(std::string const &fname,double limit)
     
     if(!file.is_open())
     {
-        std::cout<<"Error: Could not open "<<fname<<std::endl;
+        Plog::print(LogType::WARNING, "Error: Could not open ", fname, "\n");
         return;
     }
     
@@ -295,7 +296,7 @@ std::filesystem::path PathManager::locate_file(std::filesystem::path const &path
     {
         if(!std::filesystem::exists(path_))
         {
-            std::cerr<<"Couldn't locate absolute path "<<path_<<" ...\nAborting...\n";
+            Plog::print(LogType::FATAL, "Couldn't locate absolute path ", path_, " ...\nAborting...\n");
             std::exit(EXIT_FAILURE);
         }
         
@@ -308,32 +309,32 @@ std::filesystem::path PathManager::locate_file(std::filesystem::path const &path
         path=pwd/path_;
         if(std::filesystem::exists(path))
         {
-            std::cout<<"Found from PWD\n";
+            Plog::print("Found from PWD\n");
             return path.lexically_normal();
         }
         
         path=caller_path/path_;
         if(std::filesystem::exists(path))
         {
-            std::cout<<"Found from caller origin\n";
+            Plog::print("Found from caller origin\n");
             return path.lexically_normal();
         }
         
-        path==executable_path/path_;
+        path = executable_path/path_;
         if(std::filesystem::exists(path))
         {
-            std::cout<<"Found from executable location\n";
+            Plog::print("Found from executable location\n");
             return path.lexically_normal();
         }
         
         path=resources_path/path_;
         if(!std::filesystem::exists(path))
         {
-            std::cerr<<"Couldn't locate "<<path<<" anywhere...\nAborting...\n";
+            Plog::print(LogType::FATAL, "Couldn't locate ", path, " anywhere...\nAborting...\n");
             std::exit(EXIT_FAILURE);
         }
         
-        std::cout<<"Found from standard resources location\n";
+        Plog::print("Found from standard resources location\n");
         return path.lexically_normal();
     }
 }
@@ -408,12 +409,12 @@ void PathManager::initialize()
     create_directories(user_profile_path);
     create_directories(user_profile_materials);
     
-    std::cout<<"Default directories initialization...\n";
-    std::cout<<"Executable directory: "<<executable_path.generic_string()<<"\n";
-    std::cout<<"Working directory: "<<pwd.generic_string()<<"\n";
-    std::cout<<"Resources directory: "<<resources_path.generic_string()<<"\n";
-    std::cout<<"Temporary directory: "<<tmp_path.generic_string()<<"\n";
-    std::cout<<"User profile directory: "<<user_profile_path.generic_string()<<"\n\n";
+    Plog::print("Default directories initialization...\n");
+    Plog::print("Executable directory: ", executable_path.generic_string(), "\n");
+    Plog::print("Working directory: ", pwd.generic_string(), "\n");
+    Plog::print("Resources directory: ", resources_path.generic_string(), "\n");
+    Plog::print("Temporary directory: ", tmp_path.generic_string(), "\n");
+    Plog::print("User profile directory: ", user_profile_path.generic_string(), "\n\n");
 }
 
 void PathManager::retrieve_executable_path()

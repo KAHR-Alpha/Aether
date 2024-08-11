@@ -12,6 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
+#include <logger.h>
 #include <lua_sensors.h>
 #include <mathUT.h>
 #include <sensors.h>
@@ -25,7 +26,7 @@ extern const Imdouble Im;
 int create_sensor(lua_State *L)
 {
     std::string type=lua_tostring(L,1);
-    std::cout<<type<<std::endl;
+    Plog::print(type, "\n");
         
     Sensor_generator **p_sens=reinterpret_cast<Sensor_generator**>(lua_newuserdata(L,sizeof(Sensor_generator*)));
     *(p_sens)=new Sensor_generator;
@@ -137,8 +138,8 @@ Sensor_type to_sensor_type(std::string const &type)
     else if(type=="planar_spectral_poynting") return Sensor_type::PLANAR_SPECTRAL_POYNTING;
     else
     {
-        std::cout<<"Unknown sensor type: "<<type<<std::endl;
-        std::cout<<"Press Enter to continue..."<<std::endl;
+        Plog::print("Unknown sensor type: ", type, "\n");
+        Plog::print("Press Enter to continue...\n");
         std::cin.get();
         
         return Sensor_type::UNKNOWN;

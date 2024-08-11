@@ -12,6 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
+#include <logger.h>
 #include <lua_fdfd.h>
 
 //####################
@@ -97,7 +98,7 @@ int FDFD_mode_output_diffraction(lua_State *L)
 {
     FDFD_Mode **pp_fdfd=reinterpret_cast<FDFD_Mode**>(lua_touserdata(L,1));
     
-    std::cout<<"Enabling diffracted orders computation"<<std::endl;
+    Plog::print("Enabling diffracted orders computation\n");
     
     (*pp_fdfd)->output_diffraction=true;
     
@@ -108,7 +109,7 @@ int FDFD_mode_output_map(lua_State *L)
 {
     FDFD_Mode **pp_fdfd=reinterpret_cast<FDFD_Mode**>(lua_touserdata(L,1));
     
-    std::cout<<"Enabling fieldmap"<<std::endl;
+    Plog::print("Enabling fieldmap\n");
     
     (*pp_fdfd)->output_map=true;
     

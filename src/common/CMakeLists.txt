@@ -4,6 +4,7 @@ set(common_src bitmap.cpp
 			   filehdl.cpp
 			   foctree.cpp
 			   geometry.cpp
+			   logger.cpp
 			   math_approx.cpp
 			   math_bessel.cpp
 			   math_optim.cpp
@@ -32,6 +33,7 @@ set(common_hdr bitmap3.h
 			   foctree.h
 			   geometry.h
 			   grid.h
+			   logger.h
 			   mathUT.h
                math_approx.h
                math_bessel.h

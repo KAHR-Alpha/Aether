@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2024 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -12,6 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
+#include <logger.h>
 #include <script_utils.h>
 #include<string_tools.h>
 
@@ -54,37 +55,37 @@ void script_add_file(std::stringstream &strm,std::vector<std::string> &data_fnam
 
 void script_add_prefix(std::stringstream &strm,std::string &stro)
 {
-    std::cout<<"Adding a new prefix: ";
+    Plog::print("Adding a new prefix: ");
     strm>>stro;
-    std::cout<<stro<<std::endl;
+    Plog::print(stro, "\n");
 }
 
 void script_enable_autocompletion(std::stringstream &strm,bool &auto_complete,double &completion_coeff)
 {
     auto_complete=true;
     strm>>completion_coeff;
-    std::cout<<"Enabling autocompletion at level "<<completion_coeff<<std::endl;
+    Plog::print("Enabling autocompletion at level ", completion_coeff, "\n");
 }
 
 void script_set_Dx(std::stringstream &strm,double &Dx)
 {
-    std::cout<<"Changing Dx from "<<add_unit_u(Dx)<<" to ";
+    Plog::print("Changing Dx from ", add_unit_u(Dx), " to ");
     strm>>Dx;
-    std::cout<<add_unit_u(Dx)<<std::endl;
+    Plog::print(add_unit_u(Dx), "\n");
 }
 
 void script_set_Dy(std::stringstream &strm,double &Dy)
 {
-    std::cout<<"Changing Dy from "<<add_unit_u(Dy)<<" to ";
+    Plog::print("Changing Dy from ", add_unit_u(Dy), " to ");
     strm>>Dy;
-    std::cout<<add_unit_u(Dy)<<std::endl;
+    Plog::print(add_unit_u(Dy), "\n");
 }
 
 void script_set_Dz(std::stringstream &strm,double &Dz)
 {
-    std::cout<<"Changing Dz from "<<add_unit_u(Dz)<<" to ";
+    Plog::print("Changing Dz from ", add_unit_u(Dz), " to ");
     strm>>Dz;
-    std::cout<<add_unit_u(Dz)<<std::endl;
+    Plog::print(add_unit_u(Dz), "\n");
 }
 
 void script_geo_subdivide(std::stringstream &strm,Grid3<unsigned int> &matgrid,int &Nx,int &Ny,int &Nz,int &Nt,double &Dx,double &Dy,double &Dz)
@@ -132,41 +133,41 @@ void script_geo_subdivide(std::stringstream &strm,Grid3<unsigned int> &matgrid,i
 void script_set_polarization(std::stringstream &strm,std::string &polar_mode)
 {
     strm>>polar_mode;
-    std::cout<<"Setting the polarisation mode to "<<polar_mode<<std::endl;
+    Plog::print("Setting the polarisation mode to ", polar_mode, "\n");
 }
 
 void script_set_slab_thickness(std::stringstream &strm,double &hslab)
 {
     strm>>hslab;
-    std::cout<<"Setting slab thickness to "<<add_unit_u(hslab)<<std::endl;
+    Plog::print("Setting slab thickness to ", add_unit_u(hslab), "\n");
 }
 
 void script_set_spectrum(std::stringstream &strm,double &li,double &lf)
 {
-    std::cout<<"Changing the covered spectrum from ["<<add_unit_u(li)<<" ; "<<add_unit_u(lf)<<"] to [";
+    Plog::print("Changing the covered spectrum from [", add_unit_u(li), " ; ", add_unit_u(lf), "] to [");
     strm>>li;
     strm>>lf;
-    std::cout<<add_unit_u(li)<<" ; "<<add_unit_u(lf)<<"]"<<std::endl;
+    Plog::print(add_unit_u(li), " ; ", add_unit_u(lf), "]", "\n");
 }
 
 void script_set_substrate_ind(std::stringstream &strm,double &n3)
 {
-    std::cout<<"Setting substrate index from "<<n3<<" to ";
+    Plog::print("Setting substrate index from ", n3, " to ");
     strm>>n3;
-    std::cout<<n3<<std::endl;
+    Plog::print(n3, "\n");
 }
 
 void script_set_superstrate_ind(std::stringstream &strm,double &n1)
 {
-    std::cout<<"Setting superstrate index from "<<n1<<" to ";
+    Plog::print("Setting superstrate index from ", n1, " to ");
     strm>>n1;
-    std::cout<<n1<<std::endl;
+    Plog::print(n1, "\n");
 }
 
 void script_set_timesteps(std::stringstream &strm,int &Nt)
 {
     strm>>Nt;
-    std::cout<<"Setting the number of timesteps to "<<Nt<<std::endl;
+    Plog::print("Setting the number of timesteps to ", Nt, "\n");
 }
 
 void script_set_working_dir(std::stringstream &strm,std::string &working_dir)
@@ -192,9 +193,9 @@ void script_add_file(std::string options,std::vector<std::string> &data_fname)
 void script_add_prefix(std::string options,std::string &stro)
 {
     std::stringstream strm(options);
-    std::cout<<"Adding a new prefix: ";
+    Plog::print("Adding a new prefix: ");
     strm>>stro;
-    std::cout<<stro<<std::endl;
+    Plog::print(stro, "\n");
 }
 
 void script_enable_autocompletion(std::string options,bool &auto_complete,double &completion_coeff)
@@ -202,31 +203,31 @@ void script_enable_autocompletion(std::string options,bool &auto_complete,double
     std::stringstream strm(options); 
     auto_complete=true;
     strm>>completion_coeff;
-    std::cout<<"Enabling autocompletion at level "<<completion_coeff<<std::endl;
+    Plog::print("Enabling autocompletion at level ", completion_coeff, "\n");
 }
 
 void script_set_Dx(std::string options,double &Dx)
 {
     std::stringstream strm(options);
-    std::cout<<"Changing Dx from "<<add_unit_u(Dx)<<" to ";
+    Plog::print("Changing Dx from ", add_unit_u(Dx), " to ");
     strm>>Dx;
-    std::cout<<add_unit_u(Dx)<<std::endl;
+    Plog::print(add_unit_u(Dx), "\n");
 }
 
 void script_set_Dy(std::string options,double &Dy)
 {
     std::stringstream strm(options);
-    std::cout<<"Changing Dy from "<<add_unit_u(Dy)<<" to ";
+    Plog::print("Changing Dy from ", add_unit_u(Dy), " to ");
     strm>>Dy;
-    std::cout<<add_unit_u(Dy)<<std::endl;
+    Plog::print(add_unit_u(Dy), "\n");
 }
 
 void script_set_Dz(std::string options,double &Dz)
 {
     std::stringstream strm(options);
-    std::cout<<"Changing Dz from "<<add_unit_u(Dz)<<" to ";
+    Plog::print("Changing Dz from ", add_unit_u(Dz), " to ");
     strm>>Dz;
-    std::cout<<add_unit_u(Dz)<<std::endl;
+    Plog::print(add_unit_u(Dz), "\n");
 }
 
 void script_geo_subdivide(std::string options,Grid3<unsigned int> &matgrid,int &Nx,int &Ny,int &Nz,int &Nt,double &Dx,double &Dy,double &Dz)
@@ -276,47 +277,47 @@ void script_set_polarization(std::string options,std::string &polar_mode)
 {
     std::stringstream strm(options);
     strm>>polar_mode;
-    std::cout<<"Setting the polarisation mode to "<<polar_mode<<std::endl;
+    Plog::print("Setting the polarisation mode to ", polar_mode, "\n");
 }
 
 void script_set_slab_thickness(std::string options,double &hslab)
 {
     std::stringstream strm(options);
     strm>>hslab;
-    std::cout<<"Setting slab thickness to "<<add_unit_u(hslab)<<std::endl;
+    Plog::print("Setting slab thickness to ", add_unit_u(hslab), "\n");
 }
 
 void script_set_spectrum(std::string options,int &Nl,double &li,double &lf)
 {
     std::stringstream strm(options);
-    std::cout<<"Changing the covered spectrum from ["<<add_unit_u(li)<<" ; "<<add_unit_u(lf)<<"] to [";
+    Plog::print("Changing the covered spectrum from [", add_unit_u(li), " ; ", add_unit_u(lf), "] to [");
     strm>>Nl;
     strm>>li;
     strm>>lf;
-    std::cout<<add_unit_u(li)<<" ; "<<add_unit_u(lf)<<"] with "<<Nl<<" points"<<std::endl;
+    Plog::print(add_unit_u(li), " ; ", add_unit_u(lf), "] with ", Nl, " points", "\n");
 }
 
 void script_set_substrate_ind(std::string options,double &n3)
 {
     std::stringstream strm(options);
-    std::cout<<"Setting substrate index from "<<n3<<" to ";
+    Plog::print("Setting substrate index from ", n3, " to ");
     strm>>n3;
-    std::cout<<n3<<std::endl;
+    Plog::print(n3, "\n");
 }
 
 void script_set_superstrate_ind(std::string options,double &n1)
 {
     std::stringstream strm(options);
-    std::cout<<"Setting superstrate index from "<<n1<<" to ";
+    Plog::print("Setting superstrate index from ", n1, " to ");
     strm>>n1;
-    std::cout<<n1<<std::endl;
+    Plog::print(n1, "\n");
 }
 
 void script_set_timesteps(std::string options,int &Nt)
 {
     std::stringstream strm(options);
     strm>>Nt;
-    std::cout<<"Setting the number of timesteps to "<<Nt<<std::endl;
+    Plog::print("Setting the number of timesteps to ", Nt, "\n");
 }
 
 void script_set_working_dir(std::string options,std::string &working_dir)
@@ -358,7 +359,7 @@ void ScriptInstr::operator = (ScriptInstr const &inst)
 
 void ScriptInstr::show()
 {
-    std::cout<<cmd<<"|"<<options<<std::endl;
+    Plog::print(cmd, "|", options, "\n");
 }
 
 //###############
@@ -654,7 +655,7 @@ void ScriptHandler::show()
 
 void ScriptHandler::show_unused()
 {
-    std::cout<<"Unused script commands:"<<std::endl;
+    Plog::print("Unused script commands:", "\n");
     if(Ncmd>0)
     {
         int i;

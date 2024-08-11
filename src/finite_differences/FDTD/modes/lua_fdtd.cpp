@@ -13,6 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include <fieldblock_holder.h>
+#include <logger.h>
 #include <lua_fdtd.h>
 #include <string_tools.h>
 
@@ -323,7 +324,7 @@ void FDTD_Mode::set_N_tsteps(int Nt_)
     Nt=Nt_;
     time_type=TIME_FIXED;
     
-    std::cout<<"Setting the number of time steps to "<<Nt<<std::endl;
+    Plog::print("Setting the number of time steps to ", Nt, "\n");
 }
 
 void FDTD_Mode::set_display_step(int N)
@@ -344,7 +345,7 @@ void FDTD_Mode::show() const
 {
     FD_Mode::show();
     
-    std::cout<<"FDTD Mode"<<std::endl;
+    Plog::print("FDTD Mode\n");
     chk_msg_sc(Nt);
     chk_msg_sc(display_step);
     chk_msg_sc(time_type);
@@ -458,7 +459,7 @@ int FDTD_mode_set_auto_tsteps(lua_State *L)
         double lmax=lua_tonumber(L,5);
         double coeff=lua_tonumber(L,6);
         int quant=lua_tointeger(L,7);
-        std::cout<<"Setting the number of time steps to automatic mode with coefficient "<<coeff<<std::endl;
+        Plog::print("Setting the number of time steps to automatic mode with coefficient ", coeff, "\n");
         
         std::string cc_layout="nnb";
         
@@ -475,7 +476,7 @@ int FDTD_mode_set_display_step(lua_State *L)
     FDTD_Mode **pp_fdtd=reinterpret_cast<FDTD_Mode**>(lua_touserdata(L,1));
     
     int display_step=lua_tointeger(L,2);
-    std::cout<<"Setting the display step to "<<display_step<<std::endl;
+    Plog::print("Setting the display step to ", display_step, "\n");
     
     (*pp_fdtd)->set_display_step(display_step);
     
@@ -493,15 +494,15 @@ int FDTD_mode_set_spectrum(lua_State *L)
     {
         (*pp_fdtd)->set_spectrum(lambda_min,lambda_max);
     
-        std::cout<<"Setting the spectrum between " <<add_unit_u(lambda_min)<<" and "<<add_unit_u(lambda_max)<<std::endl;
+        Plog::print("Setting the spectrum between ", add_unit_u(lambda_min), " and ", add_unit_u(lambda_max), "\n");
     }
     else if(lua_gettop(L)==4)
     {
         int Nl=lua_tointeger(L,4);
         (*pp_fdtd)->set_spectrum(lambda_min,lambda_max,Nl);
     
-        std::cout<<"Setting the analysis to "<<Nl<<" points between "
-                 <<add_unit_u(lambda_min)<<" and "<<add_unit_u(lambda_max)<<std::endl;
+        Plog::print("Setting the analysis to ", Nl, " points between ",
+                    add_unit_u(lambda_min), " and ", add_unit_u(lambda_max), "\n");
     }
     
     return 1;
@@ -513,7 +514,7 @@ int FDTD_mode_set_tapering(lua_State *L)
     
     double Ntap=lua_tointeger(L,2);
     
-    std::cout<<"Setting the tapering to "<<Ntap<<" time steps"<<std::endl;
+    Plog::print("Setting the tapering to ", Ntap, " time steps\n");
     
     (*pp_fdtd)->tapering=Ntap;
     
@@ -526,7 +527,7 @@ int FDTD_mode_set_time_mod(lua_State *L)
     
     double time_mod=lua_tonumber(L,2);
     
-    std::cout<<"Setting the time modifier to "<<time_mod<<std::endl;
+    Plog::print("Setting the time modifier to ", time_mod, "\n");
     
     (*pp_fdtd)->set_time_mod(time_mod);
     
