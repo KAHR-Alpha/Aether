@@ -305,7 +305,7 @@ void Sensor::set_type(int type_)
 
 void Sensor::show_location()
 {
-    std::cout<<x1<<" "<<x2<<" "<<y1<<" "<<y2<<" "<<z1<<" "<<z2<<std::endl;
+    Plog::print(x1, " ", x2, " ", y1, " ", y2, " ", z1, " ", z2, "\n");
 }
 
 void Sensor::treat()

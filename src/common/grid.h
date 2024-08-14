@@ -15,6 +15,8 @@ limitations under the License.*/
 #ifndef GRID_H_INCLUDED
 #define GRID_H_INCLUDED
 
+#include <logger.h>
+
 #include <cmath>
 #include <cstdlib>
 #include <iostream>
@@ -46,7 +48,7 @@ class Grid1
             else data=nullptr;
             
             #ifdef GRID_INIT_CHECK
-                std::cout<<"Warning: uninitialized Grid1"<<std::endl;
+                Plog::print("Warning: uninitialized Grid1", "\n";
             #endif
         }
         
@@ -155,7 +157,7 @@ class Grid1
                 data=new T[N1];
                 
                 #ifdef GRID_INIT_CHECK
-                    std::cout<<"Warning: uninitialized Grid1"<<std::endl;
+                    Plog::print("Warning: uninitialized Grid1", "\n";
                 #endif
             }
             else
@@ -297,7 +299,7 @@ class Grid1
             #ifdef D_BCHECK
             if(ind<0 || ind>=N1)
             {
-                std::cout<<"G1 Error, out of bounds: "<<ind<<" "<<N1<<std::endl;
+                Plog::print("G1 Error, out of bounds: ", ind, " ", N1, "\n");
                 std::system("pause");
             }
             #endif
@@ -310,7 +312,7 @@ class Grid1
             #ifdef D_BCHECK
             if(ind<0 || ind>=N1)
             {
-                std::cout<<"G1 Error, out of bounds: "<<ind<<" "<<N1<<std::endl;
+                Plog::print("G1 Error, out of bounds: ", ind, " ", N1, "\n");
                 std::system("pause");
             }
             #endif
@@ -324,7 +326,7 @@ class Grid1
             #ifdef D_BCHECK
             if(ind<0 || ind>=N1)
             {
-                std::cout<<"G1 Error, out of bounds: "<<ind<<" "<<N1<<std::endl;
+                Plog::print("G1 Error, out of bounds: ", ind, " ", N1, "\n");
                 std::system("pause");
             }
             #endif
@@ -337,7 +339,7 @@ class Grid1
             #ifdef D_BCHECK
             if(ind<0 || ind>=N1)
             {
-                std::cout<<"G1 Error, out of bounds: "<<ind<<" "<<N1<<std::endl;
+                Plog::print("G1 Error, out of bounds: ", ind, " ", N1, "\n");
                 std::system("pause");
             }
             #endif
@@ -426,8 +428,8 @@ class Grid1
         
         void show() const
         {
-            for(int i=0;i<N1;i++) std::cout<<data[i]<<std::endl;
-            std::cout<<std::endl;
+            for(int i=0;i<N1;i++) Plog::print(data[i], "\n");
+            Plog::print("\n");
         }
         
         double std_dev() const
@@ -488,7 +490,7 @@ class Grid2
             data=new T[N12];
             
             #ifdef GRID_INIT_CHECK
-                std::cout<<"Warning: uninitialized Grid2"<<std::endl;
+                Plog::print("Warning: uninitialized Grid2", "\n";
             #endif
         }
         
@@ -562,7 +564,7 @@ class Grid2
             data=new T[N12];
             
             #ifdef GRID_INIT_CHECK
-                std::cout<<"Warning: uninitialized Grid2"<<std::endl;
+                Plog::print("Warning: uninitialized Grid2", "\n";
             #endif
         }
         
@@ -646,9 +648,9 @@ class Grid2
             if(ind1<0 || ind1>=N1
                || ind2<0 || ind2>=N2)
             {
-                std::cout<<"G2 Error, out of bounds: "<<std::endl
-                         <<ind1<<" "<<N1<<std::endl
-                         <<ind2<<" "<<N2<<std::endl;
+                Plog::print("G2 Error, out of bounds: ", "\n"
+                         , ind1, " ", N1, "\n"
+                         , ind2, " ", N2, "\n";
                 std::system("pause");
             }
             #endif
@@ -662,9 +664,9 @@ class Grid2
             if(ind1<0 || ind1>=N1
                || ind2<0 || ind2>=N2)
             {
-                std::cout<<"G2 Error, out of bounds: "<<std::endl
-                         <<ind1<<" "<<N1<<std::endl
-                         <<ind2<<" "<<N2<<std::endl;
+                Plog::print("G2 Error, out of bounds: ", "\n"
+                         , ind1, " ", N1, "\n"
+                         , ind2, " ", N2, "\n");
                 std::system("pause");
             }
             #endif
@@ -684,10 +686,10 @@ class Grid2
         {
             for(int i=0;i<N1;i++)
             {
-                for(int j=0;j<N2;j++) std::cout<<data[i+j*N1]<<" ";
-                std::cout<<std::endl;
+                for(int j=0;j<N2;j++) Plog::print(data[i+j*N1], " ");
+                Plog::print("\n");
             }
-            std::cout<<std::endl;
+            Plog::print("\n");
         }
 };
 
@@ -720,7 +722,7 @@ class Grid3
             data=new T[NT];
             
             #ifdef GRID_INIT_CHECK
-                std::cout<<"Warning: uninitialized Grid3"<<std::endl;
+                Plog::print("Warning: uninitialized Grid3", "\n";
             #endif
         }
         
@@ -764,11 +766,11 @@ class Grid3
                || ind2<0 || ind2>=N2
                || ind3<0 || ind3>=N3)
             {
-                std::cout<<"G3 Error, out of bounds: "<<std::endl
-                         <<ind1<<" "<<N1<<std::endl
-                         <<ind2<<" "<<N2<<std::endl
-                         <<ind3<<" "<<N3<<std::endl;
-                std::cout<<"Press enter to continue"<<std::endl;
+                Plog::print("G3 Error, out of bounds: ", "\n"
+                         , ind1, " ", N1, "\n"
+                         , ind2, " ", N2, "\n"
+                         , ind3, " ", N3, "\n");
+                Plog::print("Press enter to continue", "\n");
                 std::cin.get();
             }
         }
@@ -789,7 +791,7 @@ class Grid3
             data=new T[NT];
             
             #ifdef GRID_INIT_CHECK
-                std::cout<<"Warning: uninitialized Grid3"<<std::endl;
+                Plog::print("Warning: uninitialized Grid3", "\n";
             #endif
         }
         
@@ -906,7 +908,7 @@ class Grid4
             data=new T[NT];
             
             #ifdef GRID_INIT_CHECK
-                std::cout<<"Warning: uninitialized Grid4"<<std::endl;
+                Plog::print("Warning: uninitialized Grid4", "\n";
             #endif
         }
         
@@ -957,7 +959,7 @@ class Grid4
             data=new T[NT];
             
             #ifdef GRID_INIT_CHECK
-                std::cout<<"Warning: uninitialized Grid4"<<std::endl;
+                Plog::print("Warning: uninitialized Grid4", "\n";
             #endif
         }
         
@@ -994,7 +996,7 @@ class Grid4
             {
                 for(int i=0;i<NT;i++) data[i]=G.data[i];
             }
-            else std::cerr<<"Invalid Grid4 operation"<<std::endl;
+            else std::cerr, "Invalid Grid4 operation", "\n";
         }
         
         //Partial index computations
@@ -1026,12 +1028,12 @@ class Grid4
                || ind3<0 || ind3>=N3
                || ind4<0 || ind4>=N4)
             {
-                std::cout<<"G4 Error, out of bounds: "<<std::endl
-                         <<ind1<<" "<<N1<<std::endl
-                         <<ind2<<" "<<N2<<std::endl
-                         <<ind3<<" "<<N3<<std::endl
-                         <<ind4<<" "<<N4<<std::endl;
-                std::cout<<"Press enter to continue"<<std::endl;
+                Plog::print("G4 Error, out of bounds: ", "\n"
+                         , ind1, " ", N1, "\n"
+                         , ind2, " ", N2, "\n"
+                         , ind3, " ", N3, "\n"
+                         , ind4, " ", N4, "\n");
+                Plog::print("Press enter to continue", "\n");
                 std::cin.get();
             }
         }

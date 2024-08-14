@@ -12,6 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
+#include <logger.h>
+
 template<class T>
 class XGrid
 {
@@ -37,7 +39,7 @@ class XGrid
             data=new T[NT];
             
             #ifdef GRID_INIT_CHECK
-                std::cout<<"Warning: uninitialized Grid3"<<std::endl;
+                Plog::print("Warning: uninitialized Grid3", "\n");
             #endif
         }
         
@@ -73,11 +75,11 @@ class XGrid
                || ind2<0 || ind2>=N2
                || ind3<0 || ind3>=N3)
             {
-                std::cout<<"G3 Error, out of bounds: "<<std::endl
-                         <<ind1<<" "<<N1<<std::endl
-                         <<ind2<<" "<<N2<<std::endl
-                         <<ind3<<" "<<N3<<std::endl;
-                std::cout<<"Press enter to continue"<<std::endl;
+                Plog::print("G3 Error, out of bounds: ", "\n"
+                         , ind1, " ", N1, "\n"
+                         , ind2, " ", N2, "\n"
+                         , ind3, " ", N3, "\n");
+                Plog::print("Press enter to continue", "\n");
                 std::cin.get();
             }
         }
@@ -98,7 +100,7 @@ class XGrid
             data=new T[NT];
             
             #ifdef GRID_INIT_CHECK
-                std::cout<<"Warning: uninitialized Grid3"<<std::endl;
+                Plog::print("Warning: uninitialized Grid3", "\n");
             #endif
         }
         
@@ -161,7 +163,7 @@ class XGrid
             {
                 for(int i=0;i<NT;i++) data[i]=G.data[i];
             }
-            else std::cerr<<"Invalid Grid3 operation"<<std::endl;
+            else Plog::print(LogType::FATAL, "Invalid Grid3 operation", "\n");
         }
         
         T& operator() (int ind1,int ind2,int ind3)
@@ -208,7 +210,7 @@ class YGrid
             data=new T[NT];
             
             #ifdef GRID_INIT_CHECK
-                std::cout<<"Warning: uninitialized Grid3"<<std::endl;
+                Plog::print("Warning: uninitialized Grid3", "\n");
             #endif
         }
         
@@ -244,11 +246,11 @@ class YGrid
                || ind2<0 || ind2>=N2
                || ind3<0 || ind3>=N3)
             {
-                std::cout<<"G3 Error, out of bounds: "<<std::endl
-                         <<ind1<<" "<<N1<<std::endl
-                         <<ind2<<" "<<N2<<std::endl
-                         <<ind3<<" "<<N3<<std::endl;
-                std::cout<<"Press enter to continue"<<std::endl;
+                Plog::print("G3 Error, out of bounds: ", "\n"
+                         , ind1, " ", N1, "\n"
+                         , ind2, " ", N2, "\n"
+                         , ind3, " ", N3, "\n");
+                Plog::print("Press enter to continue", "\n");
                 std::cin.get();
             }
         }
@@ -269,7 +271,7 @@ class YGrid
             data=new T[NT];
             
             #ifdef GRID_INIT_CHECK
-                std::cout<<"Warning: uninitialized Grid3"<<std::endl;
+                Plog::print("Warning: uninitialized Grid3", "\n");
             #endif
         }
         
@@ -332,7 +334,7 @@ class YGrid
             {
                 for(int i=0;i<NT;i++) data[i]=G.data[i];
             }
-            else std::cerr<<"Invalid Grid3 operation"<<std::endl;
+            else Plog::print(LogType::FATAL, "Invalid Grid3 operation", "\n");
         }
         
         T& operator() (int ind1,int ind2,int ind3)
@@ -379,7 +381,7 @@ class ZGrid
             data=new T[NT];
             
             #ifdef GRID_INIT_CHECK
-                std::cout<<"Warning: uninitialized Grid3"<<std::endl;
+                Plog::print("Warning: uninitialized Grid3", "\n");
             #endif
         }
         
@@ -415,11 +417,11 @@ class ZGrid
                || ind2<0 || ind2>=N2
                || ind3<0 || ind3>=N3)
             {
-                std::cout<<"G3 Error, out of bounds: "<<std::endl
-                         <<ind1<<" "<<N1<<std::endl
-                         <<ind2<<" "<<N2<<std::endl
-                         <<ind3<<" "<<N3<<std::endl;
-                std::cout<<"Press enter to continue"<<std::endl;
+                Plog::print("G3 Error, out of bounds: ", "\n"
+                         , ind1, " ", N1, "\n"
+                         , ind2, " ", N2, "\n"
+                         , ind3, " ", N3, "\n");
+                Plog::print("Press enter to continue", "\n");
                 std::cin.get();
             }
         }
@@ -440,7 +442,7 @@ class ZGrid
             data=new T[NT];
             
             #ifdef GRID_INIT_CHECK
-                std::cout<<"Warning: uninitialized Grid3"<<std::endl;
+                Plog::print("Warning: uninitialized Grid3", "\n");
             #endif
         }
         
@@ -503,7 +505,7 @@ class ZGrid
             {
                 for(int i=0;i<NT;i++) data[i]=G.data[i];
             }
-            else std::cerr<<"Invalid Grid3 operation"<<std::endl;
+            else Plog::print(LogType::FATAL, "Invalid Grid3 operation", "\n");
         }
         
         T& operator() (int ind1,int ind2,int ind3)

@@ -60,9 +60,9 @@ void Vertex::set_norm(double const &x,double const &y,double const &z) { norm(x,
 
 void Vertex::show()
 {
-    std::cout<<"Location: ";loc.show();
-    std::cout<<"Norm: ";norm.show();
-    std::cout<<std::endl;
+    Plog::print("Location: ");loc.show();
+    Plog::print("Norm: ");norm.show();
+    Plog::print("\n");
 }
 
 void Vertex::translate(Vector3 const &V) { loc+=V; }
@@ -117,15 +117,15 @@ bool Face::degeneracy_chk(int ID_msg)
 {
     if(V1==V2 || V1==V3 || V2==V3)
     {
-        std::cout<<"Degeneracy detected "<<0<<" "<<ID_msg<<std::endl;
-        std::cout<<"Press enter to continue"<<std::endl;
+        Plog::print("Degeneracy detected ", 0, " ", ID_msg, "\n");
+        Plog::print("Press enter to continue", "\n");
         std::cin.get();
         return 1;
     }
     if(ngb[0]==ngb[1] || ngb[0]==ngb[2] || ngb[1]==ngb[2])
     {
-        std::cout<<"Degeneracy detected "<<1<<" "<<ID_msg<<std::endl;
-        std::cout<<"Press enter to continue"<<std::endl;
+        Plog::print("Degeneracy detected ", 1, " ", ID_msg, "\n");
+        Plog::print("Press enter to continue", "\n");
         std::cin.get();
         return 1;
     }
@@ -175,9 +175,9 @@ void Face::set_Vindex(int const &V1_,int const &V2_,int const &V3_)
 
 void Face::show()
 {
-    std::cout<<"Vertices indices: "<<V1<<" "<<V2<<" "<<V3<<std::endl;
-    std::cout<<"Neighbors indices: "; for(unsigned int i=0;i<ngb.size();i++) std::cout<<ngb[i]<<" ";
-    std::cout<<std::endl;
+    Plog::print("Vertices indices: ", V1, " ", V2, " ", V3, "\n");
+    Plog::print("Neighbors indices: "); for(unsigned int i=0;i<ngb.size();i++) Plog::print(ngb[i], " ");
+    Plog::print("\n");
 }
 
 double Face::smallest_height(std::vector<Vertex> const &v_arr)
