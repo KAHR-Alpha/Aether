@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2024 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include <filehdl.h>
+#include <logger.h>
 
 #include <gui_matspanel.h>
 #include <gui_matsfitter.h>
@@ -276,14 +277,14 @@ void ModelPanel::accept_mutation()
 
 void ModelPanel::apoptose(wxCommandEvent &event)
 {
-    std::cout<<"kill"<<std::endl;
+    Plog::print("kill\n");
     
     wxCommandEvent out_event(EVT_MODEL_REMOVE);
     out_event.SetClientData(reinterpret_cast<void*>(this));
     
     wxPostEvent(this,out_event);
     
-    std::cout<<"kill end "<<this<<std::endl;
+    Plog::print("kill end ", this, "\n");
 }
 
 void ModelPanel::change_imag_col(wxCommandEvent &event)
@@ -983,7 +984,7 @@ void MatsPanel::optimize(bool *optim_toggle,std::vector<double> *w,
             }
         }
         
-        std::cout<<"Optim "<<best_score<<std::endl;
+        Plog::print("Optim ", best_score, "\n");
         
         for(i=0;i<model_panels.size();i++) model_panels[i]->update_panel();
         for(i=0;i<model_panels.size();i++) model_panels[i]->model_to_handles();

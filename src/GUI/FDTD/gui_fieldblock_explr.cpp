@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2024 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include <filehdl.h>
+#include <logger.h>
 #include <string_tools.h>
 
 #include <gui_fieldblock_explr.h>
@@ -289,7 +290,7 @@ void GL_FBExplr::get_value(wxMouseEvent &event)
 {
     SetCurrent(*glcnt);
     
-//    std::cout<<"DClick"<<std::endl;
+//    Plog::print("DClick"<<std::endl;
     GLuint fbo,texture_depth,texture_val,texture_xyz;
     
     int sx,sy;
@@ -836,7 +837,7 @@ void FieldBlockExplorer::evt_menu(wxCommandEvent &event)
 
 void FieldBlockExplorer::extract_map()
 {
-    std::cout<<"Save"<<std::endl;
+    Plog::print("Save\n");
     
     int plane=0;
     std::string fname;
@@ -887,7 +888,7 @@ void FieldBlockExplorer::load_project(wxFileName const &fname)
     
     fbh.load(data_tmp);
     
-    std::cout<<"Load "<<data_tmp<<std::endl;
+    Plog::print("Load ", data_tmp, "\n");
     
     wxString new_title("FieldBlock Explorer : ");
     new_title.Append(data_tmp);

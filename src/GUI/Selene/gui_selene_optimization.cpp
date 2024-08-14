@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2024 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -11,6 +11,8 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
+
+#include <logger.h>
 
 #include <gui_selene.h>
 #include <gui_selene_sensor.h>
@@ -222,7 +224,7 @@ void SeleneFrame::optimization_trace()
     {
         if(!first_run) optim_engine.evolve(1.0);
             
-        std::cout<<"Best score: "<<best_score<<std::endl;
+        Plog::print("Best score: ", best_score, "\n");
         Sel::Selene selene;
             
         for(std::size_t i=0;i<frames.size();i++)

@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2024 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -12,8 +12,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include <voronoi.h>
 #include <bitmap3.h>
+#include <logger.h>
+#include <voronoi.h>
 
 //#define VORONOI_DEBUG
 
@@ -142,7 +143,7 @@ double FortuneVoronoi::parabola_intersection(Site const &A,Site const &B,double 
     double d=b*b-4*a*c;
     
     #ifdef VORONOI_DEBUG
-    std::cout<<"\n";
+    Plog::print("\n";
 //    chk_var(Ax);
 //    chk_var(Bx);
 //    chk_var(Ay);
@@ -501,8 +502,6 @@ void FortuneVoronoi::generate(std::vector<Vertex> *v_arr_,
         double x=sites[i].x;
         double y=sites[i].y;
         
-//        std::cout<<x<<" "<<y<<std::endl;
-        
         queue.set_site_event(i,x,y);
     }
     
@@ -524,22 +523,22 @@ void FortuneVoronoi::generate(std::vector<Vertex> *v_arr_,
     {
         Event event=queue.next_event();
         #ifdef VORONOI_DEBUG
-        std::cout<<"__________________________________"<<std::endl;
-        std::cout<<event.circle_event<<" "<<event.site<<" "<<(sites[event.site].x-bx_min)/(bx_max-bx_min)<<" "<<(sites[event.site].y-by_min)/(by_max-by_min)<<" "<<event.x<<" "<<event.y<<std::endl<<std::endl;
+        Plog::print("__________________________________"<<std::endl;
+        Plog::print(event.circle_event<<" "<<event.site<<" "<<(sites[event.site].x-bx_min)/(bx_max-bx_min)<<" "<<(sites[event.site].y-by_min)/(by_max-by_min)<<" "<<event.x<<" "<<event.y<<std::endl<<std::endl;
         
-//        std::cout<<"arcs ";
+//        Plog::print("arcs ";
 //        for(std::size_t i=0;i<arcs.size();i++)
 //        {
-//            std::cout<<arcs[i].site<<" ";
+//            Plog::print(arcs[i].site<<" ";
 //        }
-//        std::cout<<std::endl;
+//        Plog::print(std::endl;
 
-        std::cout<<"points ";
+        Plog::print("points ";
         for(std::size_t i=0;i<points.size();i++)
         {
-            std::cout<<points[i].site_prev<<points[i].site_next<<" ";
+            Plog::print(points[i].site_prev<<points[i].site_next<<" ";
         }
-        std::cout<<std::endl;
+        Plog::print(std::endl;
         #endif
         
         if(event.circle_event)
@@ -565,10 +564,6 @@ void FortuneVoronoi::generate(std::vector<Vertex> *v_arr_,
                         
                         if((s11==s21 && s13==s23) || (s11==s23 && s13==s21))
                         {
-//                            std::cout<<"Duplicate check"<<std::endl;
-//                            std::cout<<s11<<" "<<s12<<" "<<s13<<std::endl;
-//                            std::cout<<s21<<" "<<s22<<" "<<s23<<std::endl;
-                            
                             double span1=breakpoints_span(sites[s11],sites[s12],sites[s13],event.y,
                                                           points[k1-1].pos_value,
                                                           points[k1  ].pos_value);
@@ -592,7 +587,7 @@ void FortuneVoronoi::generate(std::vector<Vertex> *v_arr_,
             if(valid_event)
             {
                 #ifdef VORONOI_DEBUG
-                std::cout<<event.circ_ps<<" "<<event.site<<" "<<event.circ_ns<<std::endl;
+                Plog::print(event.circ_ps<<" "<<event.site<<" "<<event.circ_ns<<std::endl;
                 #endif
                 process_circle_event(event);
             }
@@ -613,8 +608,6 @@ void FortuneVoronoi::generate(std::vector<Vertex> *v_arr_,
                 process_site_event(event);
             }
         }
-        
-//        print(500,"test_v_"+std::to_string(it)+".png");
         
         ++it;
         #ifndef VORONOI_DEBUG
@@ -727,7 +720,7 @@ void FortuneVoronoi::process_circle_event(Event const &event)
     
     if(k<1 || k>=arcs.size())
     {
-        std::cout<<"circle error"<<std::endl;
+        Plog::print("circle error\n");
         std::exit(0);
     }
     
@@ -768,12 +761,12 @@ void FortuneVoronoi::process_circle_event(Event const &event)
     
     
     #ifdef VORONOI_DEBUG
-    std::cout<<"points B ";
+    Plog::print("points B ";
     for(std::size_t i=0;i<points.size();i++)
     {
-        std::cout<<points[i].site_prev<<points[i].site_next<<" ";
+        Plog::print(points[i].site_prev<<points[i].site_next<<" ";
     }
-    std::cout<<std::endl;
+    Plog::print(std::endl;
     #endif
     
     points[k-1].site_prev=arcs[k-1].site;
@@ -783,12 +776,12 @@ void FortuneVoronoi::process_circle_event(Event const &event)
     // New circle events
     
     #ifdef VORONOI_DEBUG
-    std::cout<<"points C ";
+    Plog::print("points C ";
     for(std::size_t i=0;i<points.size();i++)
     {
-        std::cout<<points[i].site_prev<<points[i].site_next<<" ";
+        Plog::print(points[i].site_prev<<points[i].site_next<<" ";
     }
-    std::cout<<std::endl;
+    Plog::print(std::endl;
     #endif
     
     if(k>=2 && k+1<arcs.size())
@@ -804,12 +797,12 @@ void FortuneVoronoi::process_circle_event(Event const &event)
     points.erase(pit);
     
     #ifdef VORONOI_DEBUG
-    std::cout<<"points D ";
+    Plog::print("points D ";
     for(std::size_t i=0;i<points.size();i++)
     {
-        std::cout<<points[i].site_prev<<points[i].site_next<<" ";
+        Plog::print(points[i].site_prev<<points[i].site_next<<" ";
     }
-    std::cout<<std::endl;
+    Plog::print(std::endl;
     #endif
 }
 
@@ -851,7 +844,7 @@ void FortuneVoronoi::process_site_event(Event const &event)
     }
     
     #ifdef VORONOI_DEBUG
-    std::cout<<"Target arc "<<k<<"\n";
+    Plog::print("Target arc "<<k<<"\n";
     #endif
                     
     // Arc division
@@ -903,73 +896,6 @@ void FortuneVoronoi::process_site_event(Event const &event)
         predict_circle_event(arcs[k+1],points[k],points[k+1],event.y,-1,-1,-1);
 }
 
-//void FortuneVoronoi::predict_circle_event(Arc &arc,Breakpoint const &BP1,Breakpoint const &BP2,double l)
-//{
-//    int s1=BP1.site_prev;
-//    int s2=BP1.site_next;
-//    int s3=BP2.site_next;
-//    
-//    Site &S1=sites[s1];
-//    Site &S2=sites[s2];
-//    Site &S3=sites[s3];
-//    
-//    if(closing_breakpoints(S1,S2,S3,l,BP1.pos_value,BP2.pos_value,0.0001*(bx_max-bx_min)))
-//    {
-//        // Circle center
-//        
-//        Vector3 P1,P2,v1,v2;
-//        
-//        double x1=S1.x, y1=S1.y;
-//        double x2=S2.x, y2=S2.y;
-//        double x3=S3.x, y3=S3.y;
-//        
-//        P1.x=0.5*(x1+x2);
-//        P1.y=0.5*(y1+y2);
-//        
-//        P2.x=0.5*(x2+x3);
-//        P2.y=0.5*(y2+y3);
-//        
-//        v1.x=-(y2-y1);
-//        v1.y=x2-x1;
-//        v1.normalize();
-//        
-//        v2.x=-(y3-y2);
-//        v2.y=x3-x2;
-//        v2.normalize();
-//        
-//        Vector3 vc=crossprod(v2,v1);
-//        Vector3 pcv=crossprod(P1-P2,v2);
-//        
-//        double t=scalar_prod(pcv,vc)/vc.norm_sqr();
-//        
-//        Vector3 P=P1+t*v1;
-//        
-//        double r=(Vector3(x1,y1,0)-P).norm();
-//        
-//        // New circle event
-//        
-//        Event event;
-//        
-//        event.x=P.x;
-//        event.y=P.y-r;
-//        
-//        event.circle_event=true;
-//        event.circ_x=P.x;
-//        event.circ_y=P.y;
-//        
-////        if(span<1e-8*(bx_max-bx_min) && event.y<l)
-//        if(event.y<l)
-//        {
-//            event.circ_ps=s1;
-//            event.site=s2;
-//            event.circ_ns=s3;
-//            
-//            std::cout<<"Circ "<<event.circ_ps<<" "<<event.site<<" "<<event.circ_ns<<"  |  "<<(event.y-by_min)/(by_max-by_min)<<std::endl;
-//            
-//            arc.event_ID=queue.add_circle_event(event);
-//        }
-//    }
-//}
 
 void FortuneVoronoi::predict_circle_event(Arc &arc,Breakpoint const &BP1,Breakpoint const &BP2,double l,
                                           int gen_s1,int gen_s2,int gen_s3)
@@ -1077,7 +1003,7 @@ void FortuneVoronoi::predict_circle_event(Arc &arc,Breakpoint const &BP1,Breakpo
         event.circ_ns=s3;
         
         #ifdef VORONOI_DEBUG
-        std::cout<<"Circ "<<event.circ_ps<<" "<<event.site<<" "<<event.circ_ns<<"  |  "<<(event.y-by_min)/(by_max-by_min)<<std::endl;
+        Plog::print("Circ "<<event.circ_ps<<" "<<event.site<<" "<<event.circ_ns<<"  |  "<<(event.y-by_min)/(by_max-by_min)<<std::endl;
         #endif
         
         arc.event_ID=queue.add_circle_event(event);
@@ -1383,7 +1309,7 @@ void poisson_disc_sampling(std::vector<Vector3> &P,int N,int Nt,
         ++dsp;
     }
     
-//    std::cout<<t1()<<" "<<t2()<<std::endl;
+//    Plog::print(t1()<<" "<<t2()<<std::endl;
 }
 
 void poisson_disc_sampling(std::vector<Vector3> &P,int N,int Nt,

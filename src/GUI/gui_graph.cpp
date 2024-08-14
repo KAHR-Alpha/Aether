@@ -1581,7 +1581,7 @@ void Graph::switch_dark()
 //    int sx,sy;
 //    GetSize(&sx,&sy);
 //    SetBackgroundColour(wxColour(255,0,0));
-//    std::cout<<sx<<" "<<sy<<std::endl;
+//    Plog::print(sx<<" "<<sy<<std::endl;
 //    
 //    wxImage imag;
 //    //imag.AddHandler(wxBMPHandler);
@@ -1603,7 +1603,7 @@ void Graph::switch_dark()
 //    int sx,sy;
 //    GetSize(&sx,&sy);
 //    SetBackgroundColour(wxColour(255,0,0));
-//    std::cout<<sx<<" "<<sy<<std::endl;
+//    Plog::print(sx<<" "<<sy<<std::endl;
 //    
 //    wxImage imag;
 //    //imag.AddHandler(wxBMPHandler);
@@ -1619,5 +1619,5 @@ void Graph::switch_dark()
 ////    dc.DrawBitmap(bmp,0,0);
 //    dc.DrawText("blah",100,100);
 //
-//    std::cout<<"size"<<std::endl;
+//    Plog::print("size"<<std::endl;
 //}

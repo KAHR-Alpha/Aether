@@ -792,11 +792,6 @@ void IRF::set_type_grating(std::string ref_fname,std::string tra_fname)
             
             int t=1+grat_No_r+p-pmin_t+(q-qmin_t)*Np_t;
             
-//            if(phi==0 && th==0)
-//            {
-//                std::cout<<"A_"<<val<<" "<<x<<" "<<y<<std::endl;
-//            }
-            
             grat_orders_prob(a_th,a_phi,t)=val;
             grat_orders_dir(a_th,a_phi,t)=Vector3(x,y,0);
         }

@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2024 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -12,9 +12,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include <index_utils.h>
 #include <berreman_strat.h>
-
+#include <index_utils.h>
+#include <logger.h>
 
 extern const Imdouble Im;
 
@@ -179,13 +179,13 @@ void iso_index::randgen()
 void iso_index::show()
 {
     Imdouble n=std::sqrt((eps_r+eps_i*Im)*(mu_r+mu_i*Im));
-    std::cout<<eps_r<<" "
-                <<eps_i<<" "
-                <<mu_r<<" "
-                <<mu_i<<" "
-                <<std::real(n)<<" "
-                <<std::imag(n)<<" / "
-                <<R<<" "<<std::endl;
+    Plog::print(eps_r, " "
+                , eps_i, " "
+                , mu_r, " "
+                , mu_i, " "
+                , std::real(n), " "
+                , std::imag(n), " / "
+                , R, " ", "\n");
 }
 
 void iso_index::operator = (double a)
@@ -366,7 +366,7 @@ void normC_index_calc(int Nref,double n1,double n3,double h,std::string polar_mo
             
         }
         
-        std::cout<<lambda<<" ";
+        Plog::print(lambda, " ");
         ind[0].show();
         
         result<<lambda<<" "
@@ -578,12 +578,12 @@ void normC_index_calc_var(int Nl,double n1,double n3,double h,std::string polar_
                 mu_i_f[l]=b_mu_i;
                 obj_f[l]=b_obj;
                 
-                std::cout<<lambda[l]<<" "<<p_count[l]<<" "
-                        <<eps_r_f[l]<<" "
-                        <<eps_i_f[l]<<" "
-                        <<mu_r_f[l]<<" "
-                        <<mu_i_f[l]<<" "
-                        <<obj_f[l]<<std::endl;
+                Plog::print(lambda[l], " ", p_count[l], " "
+                        , eps_r_f[l], " "
+                        , eps_i_f[l], " "
+                        , mu_r_f[l], " "
+                        , mu_i_f[l], " "
+                        , obj_f[l], "\n");
             }
             
             p_count[l]+=1;
@@ -622,7 +622,7 @@ void normC_index_calc_var(int Nl,double n1,double n3,double h,std::string polar_
             if(p_count[l]>max_comp) p_comp[l]=0;
         }
         
-        std::cout<<std::endl<<obj_mean<<std::endl<<std::endl;
+        Plog::print("\n", obj_mean, "\n", "\n");
         
         computation_done=1;
         for(l=0;l<Nl;l++) if(p_comp[l]) computation_done=0;
@@ -1022,7 +1022,7 @@ void index_fit(std::string data_fname,int Ndr,int Nlo,int Ncp)
     
     if(!file2.is_open())
     {
-        std::cout<<"Error, file not found..."<<std::endl;
+        Plog::print("Error, file not found...", "\n");
     }
     
     Grid2<double> matdata(Nl,4,0);
@@ -1034,12 +1034,12 @@ void index_fit(std::string data_fname,int Ndr,int Nlo,int Ncp)
         file2>>matdata(i,2);
         file2>>matdata(i,3);
         
-        std::cout<<matdata(i,0)<<" "<<matdata(i,2)<<" "<<matdata(i,3)<<std::endl;
+        Plog::print(matdata(i,0), " ", matdata(i,2), " ", matdata(i,3), "\n");
     }
         
     int Np=1+Ndr*2+Nlo*3+Ncp*4; //Number of coefficients
     
-    std::cout<<Np<<std::endl;
+    Plog::print(Np, "\n");
     
     EvoS mod_coeff(Np,Nind,Npro);
     
@@ -1070,28 +1070,28 @@ void index_fit(std::string data_fname,int Ndr,int Nlo,int Ncp)
         j+=4;
     }
     
-    std::cout<<"bluh"<<std::endl;
+    Plog::print("bluh", "\n");
     
     mod_coeff.randgen();
     
-    std::cout<<std::endl;
-    for(i=0;i<Np;i++) std::cout<<mod_coeff.coeff(i,0)<<std::endl;
+    Plog::print("\n");
+    for(i=0;i<Np;i++) Plog::print(mod_coeff.coeff(i,0), "\n");
     
     dielec_evalfit(Nl,Ndr,Nlo,Ncp,matdata,Nind,mod_coeff);
     mod_coeff.sort();
     
-    std::cout<<std::endl;
-    for(i=0;i<Nind;i++) std::cout<<mod_coeff.rating[i]<<std::endl;
-    std::cout<<std::endl;
-    std::cout<<"First best:"<<std::endl;
-    for(i=0;i<Np;i++) std::cout<<mod_coeff.coeff(i,0)<<std::endl;
-    std::cout<<mod_coeff.rating[0]<<std::endl;
-    std::cout<<"First average:"<<std::endl;
-    for(i=0;i<Np;i++) std::cout<<mod_coeff.coeff(i,Nind/2)<<std::endl;
-    std::cout<<mod_coeff.rating[Nind/2]<<std::endl;
-    std::cout<<"First worst:"<<std::endl;
-    for(i=0;i<Np;i++) std::cout<<mod_coeff.coeff(i,Nind-1)<<std::endl;
-    std::cout<<mod_coeff.rating[Nind-1]<<std::endl;
+    Plog::print("\n");
+    for(i=0;i<Nind;i++) Plog::print(mod_coeff.rating[i], "\n");
+    Plog::print("\n");
+    Plog::print("First best:", "\n");
+    for(i=0;i<Np;i++) Plog::print(mod_coeff.coeff(i,0), "\n");
+    Plog::print(mod_coeff.rating[0], "\n");
+    Plog::print("First average:", "\n");
+    for(i=0;i<Np;i++) Plog::print(mod_coeff.coeff(i,Nind/2), "\n");
+    Plog::print(mod_coeff.rating[Nind/2], "\n");
+    Plog::print("First worst:", "\n");
+    for(i=0;i<Np;i++) Plog::print(mod_coeff.coeff(i,Nind-1), "\n");
+    Plog::print(mod_coeff.rating[Nind-1], "\n");
     
     
     //ProgDisp dsp(Ngen,"Calc");
@@ -1112,20 +1112,20 @@ void index_fit(std::string data_fname,int Ndr,int Nlo,int Ncp)
         ++dsp;
     }
     
-    std::cout<<"Final best:"<<std::endl;
-    for(i=0;i<Np;i++) std::cout<<mod_coeff.coeff(i,0)<<std::endl;
-    std::cout<<mod_coeff.rating[0]<<std::endl;
-    std::cout<<"Final average:"<<std::endl;
-    for(i=0;i<Np;i++) std::cout<<mod_coeff.coeff(i,Nind/2)<<std::endl;
-    std::cout<<mod_coeff.rating[Nind/2]<<std::endl;
-    std::cout<<"Final worst:"<<std::endl;
-    for(i=0;i<Np;i++) std::cout<<mod_coeff.coeff(i,Nind-1)<<std::endl;
-    std::cout<<mod_coeff.rating[Nind-1]<<std::endl;
+    Plog::print("Final best:", "\n");
+    for(i=0;i<Np;i++) Plog::print(mod_coeff.coeff(i,0), "\n");
+    Plog::print(mod_coeff.rating[0], "\n");
+    Plog::print("Final average:", "\n");
+    for(i=0;i<Np;i++) Plog::print(mod_coeff.coeff(i,Nind/2), "\n");
+    Plog::print(mod_coeff.rating[Nind/2], "\n");
+    Plog::print("Final worst:", "\n");
+    for(i=0;i<Np;i++) Plog::print(mod_coeff.coeff(i,Nind-1), "\n");
+    Plog::print(mod_coeff.rating[Nind-1], "\n");
     
-    std::cout<<std::endl;
-    for(i=0;i<Np;i++) std::cout<<mod_coeff.coeff(i,0)<<std::endl;
-    std::cout<<mod_coeff.rating[0]<<std::endl;
-    std::cout<<mod_coeff.rating[0]/Nl<<std::endl;
+    Plog::print("\n");
+    for(i=0;i<Np;i++) Plog::print(mod_coeff.coeff(i,0), "\n");
+    Plog::print(mod_coeff.rating[0], "\n");
+    Plog::print(mod_coeff.rating[0]/Nl, "\n");
     
 //    file<<ind[0].ei<<std::endl;
     for(i=0;i<Np;i++) file<<mod_coeff.coeff(i,0)<<std::endl;
@@ -1179,7 +1179,7 @@ void recalc_layered(double n1,double n3,double h_base,double h_layer,double n_la
         
         file_out<<lambda<<" "<<r_TE<<" "<<t_TE<<std::endl;
         
-//        std::cout<<lambda<<" "<<eps<<" "<<mu<<std::endl;
+//        Plog::print(lambda<<" "<<eps<<" "<<mu<<std::endl;
     }
     
     data_in.close();
@@ -1297,7 +1297,7 @@ void recalc_layered(double n1,double n3,double h_base,double h_layer,double n_la
 //            if(err_r>bound(Nc)) cls(Nc)+=1;
 //            if(err_t>bound(Nc)) cls(Nc)+=1;
             
-//            std::cout<<err_r<<" "<<err_t<<std::endl;
+//            Plog::print(err_r<<" "<<err_t<<std::endl;
         }
         
         for(j=0;j<=Nc;j++) cls[j]/=(2.0*Nl);

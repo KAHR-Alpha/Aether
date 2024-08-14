@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2024 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@ limitations under the License.*/
 
 #include <fdtd_material.h>
 #include <fdtd_utils.h>
-
+#include <logger.h>
 
 extern std::ofstream plog;
 
@@ -170,7 +170,7 @@ void FDTD_Material::RC_recalc()
         chitmp+=std::real(chi[i]);
     }
     
-    std::cout<<"chitmp "<<chitmp<<std::endl;
+    Plog::print("chitmp ", chitmp, "\n");
     
     double e_eff=ei+chitmp+sig*Dt/e0;
     

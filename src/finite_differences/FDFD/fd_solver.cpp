@@ -19,8 +19,6 @@ extern std::ofstream plog;
 
 void FDMS_Mode::process()
 {
-    std::cout<<"toto"<<std::endl;
-    
     int Nx,Ny,Nz;
     double lx,ly,lz;
     
@@ -72,7 +70,7 @@ void FDMS_Mode::process()
         //        
         //        fdms.solve_modes_1D(510e-9,1,guess,n,E,H);
         //        
-        //        std::cout<<n<<std::endl;
+        //        Plog::print(n<<std::endl;
         //    }
             
         //    for(int i=0;i<100;i++)
@@ -81,7 +79,7 @@ void FDMS_Mode::process()
         //        
         //        fdms.solve_modes_1D(510e-9,1,guess,n,E,H);
         //        
-        //        std::cout<<n<<std::endl;
+        //        Plog::print(n<<std::endl;
         //    }
             
             fdms.solve_modes_1D(510e-9,1,1.4+0.5*Im,n,E,H);

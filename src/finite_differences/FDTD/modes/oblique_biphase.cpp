@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2024 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@ limitations under the License.*/
 #include <bitmap3.h>
 #include <data_hdl.h>
 #include <fdtd_core.h>
+#include <logger.h>
 #include <lua_fdtd.h>
 
 extern const Imdouble Im;
@@ -128,7 +129,7 @@ void FDTD_oblique_biphase_comp(FDTD_Mode const &fdtd_mode,double kx_in,double ky
     double ky=ky_in*index_sup;
     double kxy=std::sqrt(kx*kx+ky*ky);
     
-    std::cout<<"u "<<eps_sup<<"/"<<index_sup<<" d "<<eps_sub<<"/"<<index_sub<<std::endl;
+    Plog::print("u ", eps_sup, "/", index_sup, " d ", eps_sub, "/", index_sub, "\n");
     
     AngleRad pol;
     

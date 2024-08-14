@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2024 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include <filehdl.h>
+#include <logger.h>
 #include <phys_tools.h>
 #include <string_tools.h>
 
@@ -1127,9 +1128,9 @@ void HAPSolverFrame::load_project(wxFileName const &fname_)
     
     if(load_err!=LUA_OK)
     {
-             if(load_err==LUA_ERRFILE) std::cout<<"Lua file error with "<<fname.c_str()<<std::endl;
-        else if(load_err==LUA_ERRSYNTAX) std::cout<<"Lua syntax error with "<<fname.c_str()<<std::endl;
-        else std::cout<<"Lua error with "<<fname.c_str()<<std::endl;
+             if(load_err==LUA_ERRFILE) Plog::print("Lua file error with ", fname.c_str(), "\n");
+        else if(load_err==LUA_ERRSYNTAX) Plog::print("Lua syntax error with ", fname.c_str(), "\n");
+        else Plog::print("Lua error with ", fname.c_str(), "\n");
         std::cin.get();
         return;
     }

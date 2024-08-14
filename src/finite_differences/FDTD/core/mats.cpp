@@ -483,7 +483,7 @@ void FDTD_Material::realloc()
     }
     else
     {
-        std::cout<<Np<<std::endl;
+        Plog::print(Np, "\n");
         
         Crec.init(Np,0);
         chi.init(Np,0);
@@ -513,7 +513,7 @@ double FDTD_Material::report_size()
             chitmp+=std::real(chi[i]);
         }
         
-        std::cout<<"chitmp "<<chitmp<<std::endl;
+        Plog::print("chitmp "<<chitmp<<std::endl;
         
         C1=ei/(ei+chitmp+sig*Dt/e0);
         C2x=Dt/(Dx*e0*(ei+chitmp+sig*Dt/e0));
@@ -532,7 +532,7 @@ double FDTD_Material::report_size()
             chitmp2+=std::real(chi_h[i]-chi[i]);
         }
         
-        std::cout<<"chitmp1 "<<chitmp1<<std::endl;
+        Plog::print("chitmp1 "<<chitmp1<<std::endl;
         
         C1=(ei+chitmp2-sig*Dt/(2.0*e0))/(ei+chitmp1+sig*Dt/(2.0*e0));
         C2x=Dt/(Dx*e0*(ei+chitmp1+sig*Dt/(2.0*e0)));
@@ -588,7 +588,7 @@ double FDTD_Material::pml_coeff()
         double es_p=A+2*B*B/A;
         double t0_p=2*B/A/w;
         
-        std::cout<<"Debye "<<ei_p<<" "<<es_p<<" "<<t0_p<<std::endl;
+        Plog::print("Debye "<<ei_p<<" "<<es_p<<" "<<t0_p<<std::endl;
         
         setdebye(ei_p,es_p,t0_p);
     }
@@ -599,7 +599,7 @@ double FDTD_Material::pml_coeff()
         double g=-e_i*w/A;
         double wd=std::sqrt(-w*w/A*(e_i*e_i+A*A));
         
-        std::cout<<"Drude "<<ei_p<<" "<<g<<" "<<wd<<std::endl;
+        Plog::print("Drude "<<ei_p<<" "<<g<<" "<<wd<<std::endl;
         
         setdrude(ei_p,wd,g);
     }
@@ -695,8 +695,8 @@ void FDTD_Material::setnagra4lvl(double wa,double Dwa,double kappa,double Wp,dou
     double t2=1.0/(1.0/t21+1.0/t20);
     double t1=1.0/(1.0/t20+1.0/t10);
     
-    std::cout<<t1<<" "<<t2<<" "<<t3<<std::endl;
-    std::cout<<wa<<" "<<Dwa<<" "<<kappa<<" "<<Wp<<std::endl;
+    Plog::print(t1<<" "<<t2<<" "<<t3<<std::endl;
+    Plog::print(wa<<" "<<Dwa<<" "<<kappa<<" "<<Wp<<std::endl;
     
     n4l_P0=(2.0*Dt*Dt)/(2.0+Dwa*Dt);
     n4l_P1=kappa;
@@ -724,25 +724,22 @@ void FDTD_Material::setnagra4lvl(double wa,double Dwa,double kappa,double Wp,dou
 
 void FDTD_Material::show()
 {
-    using std::cout;
-    using std::endl;
+    Plog::print("\n", "# poles: ", Np, "\n");
+    Plog::print("Dt: ", Dt, "\n");
+    Plog::print("Delta: ", Dx, " ", Dy, " ", Dz, "\n");
+    Plog::print("C1: ", C1, "\n");
+    Plog::print("C2: ", C2x, " ", C2y, " ", C2z, "\n");
+    Plog::print("C3: ", C3, "\n");
+    Plog::print("Crec: ");
+    for(int i=0;i<Np;i++) Plog::print(Crec[i], " ");
+    Plog::print("\n");
+    Plog::print("ei: ", ei, "\n");
+    Plog::print("sigma: ", sig, "\n");
     
-    cout<<endl<<"# poles: "<<Np<<endl;
-    cout<<"Dt: "<<Dt<<endl;
-    cout<<"Delta: "<<Dx<<" "<<Dy<<" "<<Dz<<endl;
-    cout<<"C1: "<<C1<<endl;
-    cout<<"C2: "<<C2x<<" "<<C2y<<" "<<C2z<<endl;
-    cout<<"C3: "<<C3<<endl;
-    cout<<"Crec: ";
-    for(int i=0;i<Np;i++) std::cout<<Crec[i]<<" ";
-    cout<<endl;
-    cout<<"ei: "<<ei<<endl;
-    cout<<"sigma: "<<sig<<endl;
-    
-    cout<<endl<<"Span x: "<<x1<<" "<<x2
-              <<" Span y: "<<y1<<" "<<y2
-              <<" Span z: "<<z1<<" "<<z2<<endl;
-    cout<<comp_simp<<" "<<comp_ante<<" "<<comp_post<<" "<<comp_self<<" "<<comp_D<<endl<<endl;
+    Plog::print("\n", "Span x: ", x1, " ", x2
+              , " Span y: ", y1, " ", y2
+              , " Span z: ", z1, " ", z2, "\n");
+    Plog::print(comp_simp, " ", comp_ante, " ", comp_post, " ", comp_self, " ", comp_D, "\n", "\n");
 }
 
 void FDTD_Material::operator = (double a)

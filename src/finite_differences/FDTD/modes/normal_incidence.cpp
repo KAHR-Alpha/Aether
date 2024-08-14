@@ -248,7 +248,7 @@ void FDTD_normal_incidence(FDTD_Mode const &fdtd_mode,std::atomic<bool> *end_com
     ChpIn inj_chp;
     inj_chp.init_pulse(lambda_min,lambda_max,0,pol,0,0,0,(zs_e-1)*Dz,index_sup);
     
-    std::cout<<"Computing"<<std::endl;
+    Plog::print("Computing\n");
     
     fdtd.bootstrap();
     
@@ -435,7 +435,7 @@ void FDTD_normal_incidence(FDTD_Mode const &fdtd_mode,std::atomic<bool> *end_com
         }
     }
     
-    std::cout<<"Simulation end"<<std::endl;
+    Plog::print("Simulation end\n");
     
     if(dsp_==nullptr) delete dspt;
     
@@ -448,7 +448,7 @@ void FDTD_normal_incidence(FDTD_Mode const &fdtd_mode,std::atomic<bool> *end_com
     hsup-=Dz/2.0; //! Phase calibration, unknown reason
     hsub-=Dz/2.0; //! Phase calibration, unknown reason
     
-    std::cout<<hsup<<" "<<hsub<<" "<<hstruc<<std::endl;
+    Plog::print(hsup, " ", hsub, " ", hstruc, "\n");
     
     ProgDisp dsp(Nl,"Fourier Transform");
     

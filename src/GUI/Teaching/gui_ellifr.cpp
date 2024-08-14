@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2024 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include <gui_ellifr.h>
+#include <logger.h>
 #include <phys_tools.h>
 
 #include <iomanip>
@@ -111,7 +112,7 @@ SldCombi::SldCombi(wxWindow *parent,wxString const &name_,int base_val,int min_v
 
 SldCombi::~SldCombi()
 {
-    std::cout<<"Destructing SldCombi"<<std::endl;
+    Plog::print("Destructing SldCombi\n");
 }
 
 double SldCombi::get_value()
@@ -174,7 +175,7 @@ ElliGraph::ElliGraph(wxWindow *parent)
 
 ElliGraph::~ElliGraph()
 {
-    std::cout<<"Destructing ElliGraph"<<std::endl;
+    Plog::print("Destructing ElliGraph\n");
 }
 
 void ElliGraph::draw_data(wxGraphicsContext *gc)
@@ -432,7 +433,7 @@ ElliFrame::ElliFrame(wxString const &title)
 ElliFrame::~ElliFrame()
 {
     timer->Stop();
-    std::cout<<"Destructing ElliFrame"<<std::endl;
+    Plog::print("Destructing ElliFrame\n");
 }
 
 void ElliFrame::pause_toggle(wxCommandEvent &event)
