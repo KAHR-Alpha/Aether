@@ -38,7 +38,7 @@ void Oscillator::deep_inject_E(FDTD &fdtd)
     Imdouble im_val=std::exp(-w0*step*Dt*Im)*std::exp(-std::pow(dw/2.0*((step-tshift)*Dt),2.0));
     double val=std::real(im_val)*50;
     
-//    if(step%10==0) std::cout<<"val "<<val<<std::endl;
+//    if(step%10==0) Plog::print("val "<<val<<std::endl;
     
     if(type==NORMAL_X)
     {

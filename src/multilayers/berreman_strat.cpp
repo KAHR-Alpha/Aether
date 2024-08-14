@@ -144,44 +144,16 @@ void B_strat::compute(double lambda,double ang_rad,
     Imdouble &n3=sub_ind;
     
     double theta=ang_rad;
-//    Imdouble theta_r=asin(sup_ind/sub_ind*std::sin(theta));
-    
-//    Imdouble e_sp=sup_ind*sup_ind*e0;
-//    Imdouble e_sb=sub_ind*sub_ind*e0;
-    
-//    double mu_sp=mu0;
-//    double mu_sb=mu0;
-    
-//    Imdouble p1_TE=sqrt(e_sp/mu_sp)*cos(theta);
-//    Imdouble p3_TE=sqrt(e_sb/mu_sb)*cos(theta_r);
-//    
-//    Imdouble p1_TM=sqrt(mu_sp/e_sp)*cos(theta);
-//    Imdouble p3_TM=sqrt(mu_sb/e_sb)*cos(theta_r);
-    
+
     double w=2.0*Pi*c_light/lambda;
     Imdouble kx0=2.0*Pi*n1/lambda*std::sin(theta);
     Imdouble dze=kx0/w;
-//    double dze2=dze*dze;
     
     Imdouble a,b,u,v;
     Imdouble x1,x2;
     
     Imdouble cx1,sx1,cx2,sx2;
     
-//    for(l=0;l<N_layers;l++)
-//    {
-//        Eigen::Matrix<Imdouble,4,4> D_mat;
-//        get_D_matrix(l,dze,D_mat);
-//        
-//    }
-//    
-//    for(l=0;l<N_layers;l++)
-//    {
-//        Eigen::Matrix<Imdouble,4,4> D_mat;
-//        get_D_matrix_simp(l,dze,D_mat);
-//    }
-        
-//    Eigen::Matrix<Imdouble,4,4> D_mat,F_mat;
     get_D_matrix(0,dze,D_mat);
     
     Imdouble d_mod=-h_layer[0]*w*Im;
@@ -192,16 +164,6 @@ void B_strat::compute(double lambda,double ang_rad,
     }}
     
     F_mat=D_mat.exp();
-    
-    
-//    for(i=0;i<4;i++)
-//    {
-//        for(j=0;j<4;j++)
-//        {
-//            std::cout<<F_mat(i,j)<<" ";
-//        }
-//        std::cout<<std::endl;
-//    }
     
     Imdouble eps1=sup_ind*sup_ind*e0;
     Imdouble eps3=sub_ind*sub_ind*e0;
@@ -232,8 +194,6 @@ void B_strat::compute(double lambda,double ang_rad,
     
     double kokz3=std::abs(k3/k3z); double kzok3=std::abs(k3z/k3);
     double kokz1=std::abs(k1/k1z); double kzok1=std::abs(k1z/k1);
-    
-//    std::cout<<p1y<<" "<<p3y<<std::endl;
     
     t_EE=(g11+g21)/D;
     t_EM=-(g12+g22)/D*kokz3;
@@ -329,21 +289,10 @@ void B_strat::compute(double lambda,AngleRad ang,Imdouble &r_TE,Imdouble &r_TM,I
         }
     }
     
-//    for(i=0;i<4;i++)
-//    {
-//        for(j=0;j<4;j++)
-//        {
-//            std::cout<<F_m(i,j)<<" ";
-//        }
-//        std::cout<<std::endl;
-//    }
-    
     Imdouble d=(p1_TE*(F_m(2,2)+p3_TE*F_m(2,3))+(F_m(3,2)+p3_TE*F_m(3,3)));
         
     r_TE=(p1_TE*(F_m(2,2)+p3_TE*F_m(2,3))-(F_m(3,2)+p3_TE*F_m(3,3)))/d;
     t_TE=2.0*p1_TE/d;
-    
-//    std::cout<<p1_TE<<" "<<p3_TE<<std::endl;
     
     d=((p3_TM*F_m(0,0)+F_m(0,1))+p1_TM*(p3_TM*F_m(1,0)+F_m(1,1)));
     

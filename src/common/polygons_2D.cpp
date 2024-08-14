@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2024 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -206,12 +206,7 @@ void Polygon2D::largest_in_circle(double &x,double &y,double &r,std::vector<Vert
     int i,j,k,l;
     
     double r_max=0;
-    
-//    chk_var(N);
-//    for(i=0;i<N;i++)
-//        std::cout<<v_arr[vertex_index[i]].loc<<std::endl;
         
-    
     for(i=0;i<N;i++)
     {
         Vector3 P1=v_arr[vertex_index[i]].loc;
@@ -219,9 +214,6 @@ void Polygon2D::largest_in_circle(double &x,double &y,double &r,std::vector<Vert
         Vector3 v1=v_arr[vertex_index[(i+1)%N]].loc-P1;
         v1.normalize();
     
-//        chk_var(P1);
-//        chk_var(v1);
-        
         for(j=i+1;j<N;j++)
         {
             Vector3 P2=v_arr[vertex_index[j]].loc;
@@ -229,16 +221,10 @@ void Polygon2D::largest_in_circle(double &x,double &y,double &r,std::vector<Vert
             Vector3 v2=v_arr[vertex_index[(j+1)%N]].loc-P2;
             v2.normalize();
             
-//            chk_var(P2);
-//            chk_var(v2);
-            
             Vector3 A=lines_intersect(P1,v1,P2,v2);
                         
             Vector3 v12=v2-v1;
             v12.normalize();
-            
-//            chk_var(v12);
-//            std::system("pause");
             
             for(k=j+1;k<N;k++)
             {
@@ -257,11 +243,7 @@ void Polygon2D::largest_in_circle(double &x,double &y,double &r,std::vector<Vert
                 Vector3 X=lines_intersect(A,v12,B,v23);
                 
                 r=point_to_line_distance(X,A,B-A);
-//                chk_var(r);
-//                chk_var(X);
-//                chk_var(is_inside(X.x,X.y,v_arr));
-//                std::exit(0);
-                
+
                 if(is_inside(X.x,X.y,v_arr))
                 {
                     bool valid_circle=true;

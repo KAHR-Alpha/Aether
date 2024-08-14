@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2024 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -12,6 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
+#include <logger.h>
 #include <lua_base.h>
 #include <mathUT.h>
 
@@ -41,8 +42,8 @@ int declare_parameter_cli(lua_State *L)
     lua_getglobal(L,param_name.c_str());
     if(lua_isnil(L,-1))
     {
-        std::cout<<"Undefined parameter "<<param_name<<" , defining it as "
-                 <<param_name<<"="<<param_def_val<<std::endl;
+        Plog::print("Undefined parameter ", param_name, " , defining it as ",
+                    param_name, "=", param_def_val, "\n");
         
         lua_pushnumber(L,std::stod(param_def_val));
         lua_setglobal(L,param_name.c_str());

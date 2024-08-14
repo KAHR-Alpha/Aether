@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2024 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@ limitations under the License.*/
 #include <gui_fdtd_structdesign.h>
 #include <gui_fdtd_structdesign_variables.h>
 #include <gui_rsc.h>
+#include <logger.h>
 #include <lua_base.h>
 
 bool glew_ok=false;
@@ -828,7 +829,7 @@ void EMGeometry_Frame::load_project(wxFileName const &fname)
         f_out.close();
     }*/
     
-    std::cout<<"Lua"<<std::endl;
+    Plog::print("Lua\n");
     
     lua_State *L=luaL_newstate();
     luaL_openlibs(L);
@@ -875,9 +876,9 @@ void EMGeometry_Frame::load_project(wxFileName const &fname)
     
     if(load_err!=LUA_OK)
     {
-             if(load_err==LUA_ERRFILE) std::cout<<"Lua file error with "<<full_script<<std::endl;
-        else if(load_err==LUA_ERRSYNTAX) std::cout<<"Lua syntax error with "<<full_script<<std::endl;
-        else std::cout<<"Lua error with "<<full_script<<std::endl;
+             if(load_err==LUA_ERRFILE) Plog::print("Lua file error with ", full_script, "\n");
+        else if(load_err==LUA_ERRSYNTAX) Plog::print("Lua syntax error with ", full_script, "\n");
+        else Plog::print("Lua error with ", full_script, "\n");
         std::cin.get();
         return;
     }

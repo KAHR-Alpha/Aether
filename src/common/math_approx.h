@@ -16,6 +16,7 @@ limitations under the License.*/
 #define MATH_APPROX_INCLUDED
 
 #include <grid.h>
+#include <logger.h>
 #include <mathUT.h>
 #include <Eigen/Eigen>
 
@@ -239,7 +240,7 @@ class MultiBezier
                 double t=bezier_arr[k].x_to_t(x);
                 return bezier_arr[k].eval_y(t);
             }
-            else{ std::cout<<"ERROR: unfinalized MultiBezier"<<std::endl; }
+            else{ Plog::print(LogType::FATAL, "ERROR: unfinalized MultiBezier\n"); }
             
             return 0;
         }

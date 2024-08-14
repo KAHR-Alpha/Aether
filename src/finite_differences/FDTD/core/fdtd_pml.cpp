@@ -12,8 +12,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include <fdtd_core.h>
 #include <bitmap3.h>
+#include <fdtd_core.h>
+#include <logger.h>
 #include <thread_utils.h>
 
 
@@ -447,10 +448,10 @@ double FDTD::pml_sig_z(double sig_base) { return 0.8*(pml_m+1.0)/(std::sqrt(mu0/
 
 void FDTD::state_pml()
 {
-    std::cout<<"pml x: "<<pml_xm<<" "<<pml_xp<<std::endl;
-    std::cout<<"pml y: "<<pml_ym<<" "<<pml_yp<<std::endl;
-    std::cout<<"pml z: "<<pml_zm<<" "<<pml_zp<<std::endl;
-    std::cout<<pml_smax_x<<" "<<pml_smax_y<<" "<<pml_smax_z_u<<" "<<pml_smax_z_d<<std::endl;
+    Plog::print("pml x: ", pml_xm, " ", pml_xp, "\n");
+    Plog::print("pml y: ", pml_ym, " ", pml_yp, "\n");
+    Plog::print("pml z: ", pml_zm, " ", pml_zp, "\n");
+    Plog::print(pml_smax_x, " ", pml_smax_y, " ", pml_smax_z_u, " ", pml_smax_z_d, "\n");
 }
 
 void FDTD::set_pml_xm(double kap,double sig,double alp)

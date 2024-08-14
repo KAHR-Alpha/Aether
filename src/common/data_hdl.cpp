@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2024 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -12,44 +12,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include <data_hdl.h>
 #include <bitmap3.h>
+#include <data_hdl.h>
+#include <logger.h>
 
 extern const Imdouble Im;
-extern std::ofstream plog;
-
-/*void merge_spect_collec(ScriptHandler &script)
-{
-    int i;
-    int Nf=0;
-    std::vector<std::string> base_fname;
-    std::string out_fname;
-    
-    while(script.has("add_file"))
-    {
-        std::string tmp_str=script.get_options();
-        base_fname.push_back(tmp_str);
-        Nf++;
-    }
-    if(script.has("set_output"))
-    {
-        out_fname=script.get_options();
-    }
-    
-    SpectrumCollec out_collec;
-    
-    std::cout<<Nf<<std::endl;
-    
-    for(i=0;i<Nf;i++)
-    {
-        SpectrumCollec tmp_col;
-        tmp_col.read(base_fname[i]);
-        
-        out_collec.add_collec(tmp_col);
-    }
-    
-    out_collec.write(out_fname);
-}*/
 
 //###############
 //   SpAngH
@@ -79,15 +46,15 @@ void SpAng::show()
 {
     int l;
     
-    std::cout<<lambda<<std::endl;
-    std::cout<<"EE"<<std::endl;
-    for(l=0;l<NEE;l++) std::cout<<a_EE[l]<<" "<<d_EE[l]<<std::endl;
-    std::cout<<"EM"<<std::endl;
-    for(l=0;l<NEM;l++) std::cout<<a_EM[l]<<" "<<d_EM[l]<<std::endl;
-    std::cout<<"ME"<<std::endl;
-    for(l=0;l<NME;l++) std::cout<<a_ME[l]<<" "<<d_ME[l]<<std::endl;
-    std::cout<<"MM"<<std::endl;
-    for(l=0;l<NMM;l++) std::cout<<a_MM[l]<<" "<<d_MM[l]<<std::endl;
+    Plog::print(lambda ,"\n");
+    Plog::print("EE\n");
+    for(l=0;l<NEE;l++) Plog::print(a_EE[l], " ", d_EE[l], "\n");
+    Plog::print("EM\n");
+    for(l=0;l<NEM;l++) Plog::print(a_EM[l], " ", d_EM[l], "\n");
+    Plog::print("ME\n");
+    for(l=0;l<NME;l++) Plog::print(a_ME[l], " ", d_ME[l], "\n");
+    Plog::print("MM\n");
+    for(l=0;l<NMM;l++) Plog::print(a_MM[l], " ", d_MM[l], "\n");
 }
 
 void SpAng::operator = (SpAng const &hld)

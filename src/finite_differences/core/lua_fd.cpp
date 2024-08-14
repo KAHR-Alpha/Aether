@@ -13,6 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include <filehdl.h>
+#include <logger.h>
 #include <lua_fd.h>
 #include <lua_material.h>
 #include <mesh_base.h>
@@ -193,17 +194,19 @@ void FD_Mode::set_material(int mat_index,std::filesystem::path const &mat_file)
     loader.load(&materials[mat_index],mat_file);
 }
 
+
 void FD_Mode::set_padding(int pad_xm_,int pad_xp_,int pad_ym_,int pad_yp_,int pad_zm_,int pad_zp_)
 {
     pad_xm=pad_xm_; pad_xp=pad_xp_;
     pad_ym=pad_ym_; pad_yp=pad_yp_;
     pad_zm=pad_zm_; pad_zp=pad_zp_;
     
-    std::cout<<"Setting the window padding to"<<std::endl;
-    std::cout<<"     X( "<<pad_xm<<" , "<<pad_xp<<" )"<<std::endl;
-    std::cout<<"     Y( "<<pad_ym<<" , "<<pad_yp<<" )"<<std::endl;
-    std::cout<<"     Z( "<<pad_zm<<" , "<<pad_zp<<" )"<<std::endl;
+    Plog::print("Setting the window padding to\n");
+    Plog::print("     X( ", pad_xm, " , ", pad_xp, " )\n");
+    Plog::print("     Y( ", pad_ym, " , ", pad_yp, " )\n");
+    Plog::print("     Z( ", pad_zm, " , ", pad_zp, " )\n");
 }
+
 
 void FD_Mode::set_pml_xm(int N_pml,double kap,double sig,double alp)
 {
@@ -214,10 +217,10 @@ void FD_Mode::set_pml_xm(int N_pml,double kap,double sig,double alp)
     periodic_x=false;
     pad_xm=std::max(pad_xm,5);
     
-    std::cout<<"Setting the lower X PML to "<<N_pml<<" cells with"<<std::endl;
-    std::cout<<"     kappa= "<<kappa_xm<<std::endl;
-    std::cout<<"     sigma= "<<sigma_xm<<std::endl;
-    std::cout<<"     alpha= "<<alpha_xm<<std::endl;
+    Plog::print("Setting the lower X PML to ", N_pml, " cells with\n");
+    Plog::print("     kappa= ", kappa_xm, "\n");
+    Plog::print("     sigma= ", sigma_xm, "\n");
+    Plog::print("     alpha= ", alpha_xm, "\n");
 }
 
 void FD_Mode::set_pml_xp(int N_pml,double kap,double sig,double alp)
@@ -229,10 +232,10 @@ void FD_Mode::set_pml_xp(int N_pml,double kap,double sig,double alp)
     periodic_x=false;
     pad_xp=std::max(pad_xp,5);
     
-    std::cout<<"Setting the upper X PML to "<<N_pml<<" cells with"<<std::endl;
-    std::cout<<"     kappa= "<<kappa_xp<<std::endl;
-    std::cout<<"     sigma= "<<sigma_xp<<std::endl;
-    std::cout<<"     alpha= "<<alpha_xp<<std::endl;
+    Plog::print("Setting the upper X PML to ", N_pml, " cells with\n");
+    Plog::print("     kappa= ", kappa_xp, "\n");
+    Plog::print("     sigma= ", sigma_xp, "\n");
+    Plog::print("     alpha= ", alpha_xp, "\n");
 }
 
 void FD_Mode::set_pml_ym(int N_pml,double kap,double sig,double alp)
@@ -244,10 +247,10 @@ void FD_Mode::set_pml_ym(int N_pml,double kap,double sig,double alp)
     periodic_y=false;
     pad_ym=std::max(pad_ym,5);
     
-    std::cout<<"Setting the lower Y PML to "<<N_pml<<" cells with"<<std::endl;
-    std::cout<<"     kappa= "<<kappa_ym<<std::endl;
-    std::cout<<"     sigma= "<<sigma_ym<<std::endl;
-    std::cout<<"     alpha= "<<alpha_ym<<std::endl;
+    Plog::print("Setting the lower Y PML to ", N_pml, " cells with\n");
+    Plog::print("     kappa= ", kappa_ym, "\n");
+    Plog::print("     sigma= ", sigma_ym, "\n");
+    Plog::print("     alpha= ", alpha_ym, "\n");
 }
 
 void FD_Mode::set_pml_yp(int N_pml,double kap,double sig,double alp)
@@ -259,10 +262,10 @@ void FD_Mode::set_pml_yp(int N_pml,double kap,double sig,double alp)
     periodic_y=false;
     pad_yp=std::max(pad_yp,5);
     
-    std::cout<<"Setting the upper Y PML to "<<N_pml<<" cells with"<<std::endl;
-    std::cout<<"     kappa= "<<kappa_yp<<std::endl;
-    std::cout<<"     sigma= "<<sigma_yp<<std::endl;
-    std::cout<<"     alpha= "<<alpha_yp<<std::endl;
+    Plog::print("Setting the upper Y PML to ", N_pml, " cells with\n");
+    Plog::print("     kappa= ", kappa_yp, "\n");
+    Plog::print("     sigma= ", sigma_yp, "\n");
+    Plog::print("     alpha= ", alpha_yp, "\n");
 }
 
 void FD_Mode::set_pml_zm(int N_pml,double kap,double sig,double alp)
@@ -274,10 +277,10 @@ void FD_Mode::set_pml_zm(int N_pml,double kap,double sig,double alp)
     periodic_z=false;
     pad_zm=std::max(pad_zm,5);
     
-    std::cout<<"Setting the lower Z PML to "<<N_pml<<" cells with"<<std::endl;
-    std::cout<<"     kappa= "<<kappa_zm<<std::endl;
-    std::cout<<"     sigma= "<<sigma_zm<<std::endl;
-    std::cout<<"     alpha= "<<alpha_zm<<std::endl;
+    Plog::print("Setting the lower Z PML to ", N_pml, " cells with\n");
+    Plog::print("     kappa= ", kappa_zm, "\n");
+    Plog::print("     sigma= ", sigma_zm, "\n");
+    Plog::print("     alpha= ", alpha_zm, "\n");
 }
 
 void FD_Mode::set_pml_zp(int N_pml,double kap,double sig,double alp)
@@ -289,10 +292,10 @@ void FD_Mode::set_pml_zp(int N_pml,double kap,double sig,double alp)
     periodic_z=false;
     pad_zp=std::max(pad_zp,5);
     
-    std::cout<<"Setting the upper Z PML to "<<N_pml<<" cells with"<<std::endl;
-    std::cout<<"     kappa= "<<kappa_zp<<std::endl;
-    std::cout<<"     sigma= "<<sigma_zp<<std::endl;
-    std::cout<<"     alpha= "<<alpha_zp<<std::endl;
+    Plog::print("Setting the upper Z PML to ", N_pml, " cells with\n");
+    Plog::print("     kappa= ", kappa_zp, "\n");
+    Plog::print("     sigma= ", sigma_zp, "\n");
+    Plog::print("     alpha= ", alpha_zp, "\n");
 }
 
 void FD_Mode::recompute_padding()
@@ -352,44 +355,44 @@ void FD_Mode::set_directory(std::filesystem::path const &directory_)
             }
             else if(check_error)
             {
-                std::cerr<<"Could not check the status of "<<p_directory<<" , error "<<check_error.message()<<"\n";
+                Plog::print(LogType::FATAL, "Could not check the status of ", p_directory, " , error ", check_error.message(), "\n");
             }
             else
             {
-                std::cerr<<p_directory<<" exists but is not a directory\n";
+                Plog::print(LogType::WARNING, p_directory, " exists but is not a directory\n");
                 impossible = true;
             }
         }
         else if(error)
         {
             impossible = true;
-            std::cerr<<"Could not access "<<p_directory<<" , error "<<error.message()<<"\n";
+            Plog::print(LogType::FATAL, "Could not access ", p_directory, " , error ", error.message(), "\n");
         }
         
         if(!impossible)
         {
-            std::cerr<<"The directory "<<p_directory<<" does not exist, attempting to creatie it\n";
+            Plog::print(LogType::WARNING, "The directory ", p_directory, " does not exist, attempting to creatie it\n");
             
             std::error_code creation_error;
             
             if(std::filesystem::create_directories(p_directory, creation_error))
             {
-                std::cerr<<"ok\n";
+                Plog::print(LogType::WARNING, "ok\n");
                 return;
             }
             else if(creation_error)
             {
-                std::cerr<<"Could not create "<<p_directory<<" , error: "<<creation_error.message()<<"\n";
+                Plog::print(LogType::FATAL, "Could not create ", p_directory, " , error: ", creation_error.message(), "\n");
             }
             else
             {
-                std::cerr<<"Could not create "<<p_directory<<"\n";
+                Plog::print(LogType::WARNING, "Could not create ", p_directory, "\n");
             }
         }
     }
     
-    std::cerr<<"The directory "<<p_directory<<" is not accessible";
-    std::cerr<<", falling back to the temporary directory: "<<PathManager::tmp_path<<"\n";
+    Plog::print(LogType::FATAL, "The directory ", p_directory, " is not accessible");
+    Plog::print(LogType::FATAL, ", falling back to the temporary directory: ", PathManager::tmp_path, "\n");
     
     p_directory=PathManager::tmp_path;
 }
@@ -397,7 +400,7 @@ void FD_Mode::set_directory(std::filesystem::path const &directory_)
 
 void FD_Mode::show() const
 {
-    std::cout<<"FD Mmode"<<std::endl;
+    Plog::print("FD Mmode\n");
     
     chk_msg_sc(type);
     chk_msg_sc(prefix);
@@ -469,6 +472,7 @@ void FD_Mode::process()
 {
 }
 
+
 int FD_mode_disable_fields(lua_State *L)
 {
     FD_Mode **pp_fd=reinterpret_cast<FD_Mode**>(lua_touserdata(L,1));
@@ -482,37 +486,38 @@ int FD_mode_disable_fields(lua_State *L)
              if(str=="ex" || str=="Ex" || str=="EX" || str=="eX")
         {
             (*pp_fd)->disable_fields.push_back(EX_FIELD);
-            std::cout<<"Disabling the Ex field"<<std::endl;
+            Plog::print("Disabling the Ex field\n");
         }
         else if(str=="ey" || str=="Ey" || str=="EY" || str=="eY")
         {
             (*pp_fd)->disable_fields.push_back(EY_FIELD);
-            std::cout<<"Disabling the Ey field"<<std::endl;
+            Plog::print("Disabling the Ey field\n");
         }
         else if(str=="ez" || str=="Ez" || str=="EZ" || str=="eZ")
         {
             (*pp_fd)->disable_fields.push_back(EZ_FIELD);
-            std::cout<<"Disabling the Ez field"<<std::endl;
+            Plog::print("Disabling the Ez field\n");
         }
         else if(str=="hx" || str=="Hx" || str=="HX" || str=="hX")
         {
             (*pp_fd)->disable_fields.push_back(HX_FIELD);
-            std::cout<<"Disabling the Hx field"<<std::endl;
+            Plog::print("Disabling the Hx field\n");
         }
         else if(str=="hy" || str=="Hy" || str=="HY" || str=="hY")
         {
             (*pp_fd)->disable_fields.push_back(HY_FIELD);
-            std::cout<<"Disabling the Hy field"<<std::endl;
+            Plog::print("Disabling the Hy field\n");
         }
         else if(str=="hz" || str=="Hz" || str=="HZ" || str=="hZ")
         {
             (*pp_fd)->disable_fields.push_back(HZ_FIELD);
-            std::cout<<"Disabling the Hz field"<<std::endl;
+            Plog::print("Disabling the Hz field\n");
         }
     }
     
     return 1;
 }
+
 
 int FD_mode_get_lx(lua_State *L)
 {
@@ -582,7 +587,7 @@ int FD_mode_set_material(lua_State *L)
         std::filesystem::path *caller_path=reinterpret_cast<std::filesystem::path*>(lua_touserdata(L,-1));
         std::filesystem::path mat_path=PathManager::locate_file(mat_file,*caller_path);
         
-        std::cout<<"Setting the material "<<mat_index<<" to "<<mat_path<<std::endl;
+        Plog::print("Setting the material ", mat_index, " to ", mat_path, "\n");
         
         p_fd->set_material(mat_index,mat_path);
     }
@@ -590,7 +595,7 @@ int FD_mode_set_material(lua_State *L)
     {
         Material *material=lua_get_metapointer<Material>(L,3);
         
-        std::cout<<"Setting the material "<<mat_index<<" to "<<material->name<<std::endl;
+        Plog::print("Setting the material ", mat_index, " to ", material->name, "\n");
         
         p_fd->set_material(mat_index,*material);
     }
@@ -606,7 +611,7 @@ int FD_mode_set_output_directory(lua_State *L)
     
     p_fd->set_directory(directory);
     
-    std::cout<<"Setting the results output directory to "<<p_fd->directory().generic_string()<<std::endl;
+    Plog::print("Setting the results output directory to ", p_fd->directory(), "\n");
     
     return 1;
 }
@@ -619,7 +624,7 @@ int FD_mode_set_polarization(lua_State *L)
     {
         double polar=lua_tonumber(L,2);
         
-        std::cout<<"Setting the polarization to "<<polar<<" degrees with respect to TE"<<std::endl;
+        Plog::print("Setting the polarization to ", polar, " degrees with respect to TE\n");
         (*pp_fd)->set_polarization(polar);
     }
     else
@@ -630,7 +635,7 @@ int FD_mode_set_polarization(lua_State *L)
         if(tmp=="te" || tmp=="TE" || tmp=="Te" || tmp=="tE") polarization="TE";
         if(tmp=="tm" || tmp=="TM" || tmp=="Tm" || tmp=="tM") polarization="TM";
         
-        std::cout<<"Setting the polarization to "<<polarization<<std::endl;
+        Plog::print("Setting the polarization to ", polarization, "\n");
         
         (*pp_fd)->set_polarization(polarization);
     }
@@ -647,7 +652,7 @@ int FD_mode_set_prefix(lua_State *L)
     int N=prefix.size();
     if(prefix[N-1]!='_') prefix.append("_");
     
-    std::cout<<"Setting the simulation prefix to "<<prefix<<std::endl;
+    Plog::print("Setting the simulation prefix to ", prefix, "\n");
     
     (*pp_fd)->set_prefix(prefix);
     
@@ -661,19 +666,7 @@ int FD_mode_set_structure(lua_State *L)
     
     (*pp_fd)->set_structure(p_structure);
     
-    std::cout<<"Setting the structure to "<<p_structure->get_script_path()<<std::endl;
+    Plog::print("Setting the structure to ", p_structure->get_script_path(), "\n");
     
     return 1;
 }
-
-//int FD_mode_set_threads(lua_State *L)
-//{
-//    FD_Mode **pp_fd=reinterpret_cast<FD_Mode**>(lua_touserdata(L,1));
-//    
-//    (*pp_fd)->Nthreads=lua_tointeger(L,2);
-//    
-//    std::cout<<"Setting the maximum number of threads to "<<(*pp_fd)->Nthreads<<std::endl;
-//    
-//    return 1;
-//}
-

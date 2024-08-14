@@ -35,15 +35,13 @@ void mode_default_fdtd(FDTD_Mode const &fdtd_mode,std::atomic<bool> *end_computa
     double Dz=fdtd_mode.Dz;
     
     double lx,ly,lz;
-    std::cout<<"A"<<std::endl;
+
     fdtd_mode.structure->retrieve_nominal_size(lx,ly,lz);
     fdtd_mode.compute_discretization(Nx,Ny,Nz,lx,ly,lz);
     
     Grid3<unsigned int> matsgrid(Nx,Ny,Nz,0);
     fdtd_mode.structure->discretize(matsgrid,Nx,Ny,Nz,Dx,Dy,Dz);
     
-    
-    std::cout<<"B"<<std::endl;
     double Dt=std::min(std::min(Dx,Dy),Dz)/(std::sqrt(3.0)*c_light)*0.99*fdtd_mode.time_mod;
     
     FDTD fdtd(Nx,Ny,Nz,Nt,Dx,Dy,Dz,Dt,"CUSTOM",
@@ -86,7 +84,7 @@ void mode_default_fdtd(FDTD_Mode const &fdtd_mode,std::atomic<bool> *end_computa
     
     // Spectrum and incident field
     
-    std::cout<<"Computing"<<std::endl;
+    Plog::print("Computing\n");
     
     fdtd.bootstrap();
     
@@ -247,7 +245,7 @@ void testlin_1(int N,int Nt)
     b=clock.now();
     
     std::chrono::duration<double> time=b-a;
-    std::cout<<"Duration split: "<<time.count()<<std::endl;
+    Plog::print("Duration split: ", time.count(), "\n");
     
     delete[] Ey;
     delete[] Hz;
@@ -282,7 +280,7 @@ void testlin_1_3D(int Nx,int Ny,int Nz,int Nt)
     b=clock.now();
     
     std::chrono::duration<double> time=b-a;
-    std::cout<<"Duration split: "<<time.count()<<std::endl;
+    Plog::print("Duration split: ", time.count() ,"\n");
 }
 
 void testlin_2(int N,int Nt)
@@ -317,7 +315,7 @@ void testlin_2(int N,int Nt)
     b=clock.now();
     std::chrono::duration<double> time=b-a;
     
-    std::cout<<"Duration interlaced: "<<time.count()<<std::endl;
+    Plog::print("Duration interlaced: ", time.count(), "\n");
     
     delete[] EM;
 }
@@ -351,7 +349,7 @@ void testlin_2_3D(int Nx,int Ny,int Nz,int Nt)
     b=clock.now();
     
     std::chrono::duration<double> time=b-a;
-    std::cout<<"Duration interlaced 1: "<<time.count()<<std::endl;
+    Plog::print("Duration interlaced 1: ", time.count(), "\n");
 }
 
 class node
@@ -393,7 +391,7 @@ void testlin_3(int N,int Nt)
     
     std::chrono::duration<double> time=b-a;
     
-    std::cout<<"Duration interlaced 2: "<<time.count()<<std::endl;
+    Plog::print("Duration interlaced 2: ", time.count(), "\n");
     
     delete[] nEM;
 }
@@ -433,49 +431,49 @@ void testlin_3_3D(int Nx,int Ny,int Nz,int Nt)
     b=clock.now();
     
     std::chrono::duration<double> time=b-a;
-    std::cout<<"Duration interlaced 2: "<<time.count()<<std::endl;
+    Plog::print("Duration interlaced 2: ", time.count(), "\n");
 }
 
 void testlin()
 {
-//    std::cout<<"N: "<<100000<<std::endl;
-//    std::cout<<"Nt: "<<100000<<std::endl;
+//    Plog::print("N: ", 100000, "\n");
+//    Plog::print("Nt: ", 100000, "\n");
 //    testlin_1(100000,100000);
 //    testlin_2(100000,100000);
 //    testlin_3(100000,100000);
 //    
-//    std::cout<<"N: "<<1000000<<std::endl;
-//    std::cout<<"Nt: "<<10000<<std::endl;
+//    Plog::print("N: ", 1000000, "\n");
+//    Plog::print("Nt: ", 10000, "\n");
 //    testlin_1(1000000,10000);
 //    testlin_2(1000000,10000);
 //    testlin_3(1000000,10000);
 //    
-//    std::cout<<"N: "<<10000000<<std::endl;
-//    std::cout<<"Nt: "<<1000<<std::endl;
+//    Plog::print("N: ", 10000000, "\n");
+//    Plog::print("Nt: ", 1000, "\n");
 //    testlin_1(10000000,1000);
 //    testlin_2(10000000,1000);
 //    testlin_3(10000000,1000);
 //    
-//    std::cout<<"N: "<<100000000<<std::endl;
-//    std::cout<<"Nt: "<<100<<std::endl;
+//    Plog::print("N: ", 100000000, "\n");
+//    Plog::print("Nt: ", 100, "\n");
 //    testlin_1(100000000,100);
 //    testlin_2(100000000,100);
 //    testlin_3(100000000,100);
     
-    std::cout<<"N: "<<50<<std::endl;
-    std::cout<<"Nt: "<<20000<<std::endl;
+    Plog::print("N: ", 50, "\n");
+    Plog::print("Nt: ", 20000, "\n");
     testlin_1_3D(50,50,50,20000);
     testlin_2_3D(50,50,50,20000);
     testlin_3_3D(50,50,50,20000);
     
-    std::cout<<"N: "<<100<<std::endl;
-    std::cout<<"Nt: "<<2500<<std::endl;
+    Plog::print("N: ", 100, "\n");
+    Plog::print("Nt: ", 2500, "\n");
     testlin_1_3D(100,100,100,2500);
     testlin_2_3D(100,100,100,2500);
     testlin_3_3D(100,100,100,2500);
     
-    std::cout<<"N: "<<500<<std::endl;
-    std::cout<<"Nt: "<<20<<std::endl;
+    Plog::print("N: ", 500, "\n");
+    Plog::print("Nt: ", 20, "\n");
     testlin_1_3D(500,500,500,20);
     testlin_2_3D(500,500,500,20);
     testlin_3_3D(500,500,500,20);
@@ -522,12 +520,12 @@ void mode_fdtd_lab(FDTD_Mode const &fdtd_mode,std::atomic<bool> *end_computation
 //        
 //        if(Nx_aux!=1 || Ny_aux!=1)
 //        {
-//            if(Nx_aux!=1) std::cout<<"Warning: Nx_aux ("<<Nx_aux<<") different from 1"<<std::endl;
-//            if(Ny_aux!=1) std::cout<<"Warning: Ny_aux ("<<Ny_aux<<") different from 1"<<std::endl;
+//            if(Nx_aux!=1) Plog::print("Warning: Nx_aux (", Nx_aux, ") different from 1", "\n");
+//            if(Ny_aux!=1) Plog::print("Warning: Ny_aux (", Ny_aux, ") different from 1", "\n");
 //        }
 //        if(Nz_aux!=Nz)
 //        {
-//            std::cout<<"Error: Nz ("<<Nz<<") doesn't match Nz_aux ("<<Nz_aux<<")"<<std::endl;
+//            Plog::print("Error: Nz (", Nz, ") doesn't match Nz_aux (", Nz_aux, ")", "\n");
 //            
 //            return;
 //        }
@@ -612,9 +610,9 @@ void mode_fdtd_lab(FDTD_Mode const &fdtd_mode,std::atomic<bool> *end_computation
 //    double index_sub=std::sqrt(eps_sub);
 //    double index_sup=std::sqrt(eps_sup);
 //    
-//    std::cout<<"u "<<eps_sup<<"/"<<index_sup<<" d "<<eps_sub<<"/"<<index_sub<<std::endl;
+//    Plog::print("u ", eps_sup, "/", index_sup, " d ", eps_sub, "/", index_sub, "\n");
 //    
-//    std::cout<<"Computing"<<std::endl;
+//    Plog::print("Computing", "\n");
 //    
 //    fdtd.bootstrap();
 //    
@@ -664,7 +662,7 @@ void mode_fdtd_lab(FDTD_Mode const &fdtd_mode,std::atomic<bool> *end_computation
 //        
 //        // E-field
 //        fdtd.update_E();
-//        plog<<t<<" "<<fdtd.Ex(0,0,Nz/2)<<std::endl;
+//        plog, t, " ", fdtd.Ex(0,0,Nz/2), "\n");
 //        // E-field injection
 //        for(unsigned int i=0;i<sources.size();i++)
 //            sources[i]->inject_E(fdtd);

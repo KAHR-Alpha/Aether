@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2024 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -12,6 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
+#include <logger.h>
 #include <planar_wgd.h>
 #include <string_tools.h>
 
@@ -81,7 +82,7 @@ void shift_inv_pow(double s,Eigen::MatrixXd &mat,double &eig,Eigen::MatrixXd &ei
         for(i=0;i<N;i++) eig_vec(i)/=tmp;
         
         eig=1.0/tmp*sign+s;
-        std::cout<<a<<" "<<eig<<std::endl;
+        Plog::print(a, " ", eig, "\n");
     }
 }
 
@@ -100,7 +101,7 @@ void Slab_guide::compute_guiding_char_disc(double lambda_i,double Dz)
     
     int Ns=static_cast<int>(h/Dz+0.5);
     int Ng=15*Ns;
-    std::cout<<Ng<<std::endl;
+    Plog::print(Ng<<std::endl;
     
     arma::SpMat<std::complex<double>> TE_mat(Ng,Ng),TM_mat(Ng,Ng);
     
@@ -115,7 +116,7 @@ void Slab_guide::compute_guiding_char_disc(double lambda_i,double Dz)
     
     double w=2.0*Pi*c_light/lambda;
     
-    std::cout<<n1<<" "<<n2<<" "<<n3<<std::endl;
+    Plog::print(n1<<" "<<n2<<" "<<n3<<std::endl;
     
     for(i=0;i<Ng;i++)
     {
@@ -150,7 +151,7 @@ void Slab_guide::compute_guiding_char_disc(double lambda_i,double Dz)
     arma::eigs_gen(eigval, eigvec,TE_mat,20,"lr");
     
 //    eigval.print();
-    for(int k=0;k<20;k++) std::cout<<std::sqrt(eigval[k]/k0/k0)<<std::endl;
+    for(int k=0;k<20;k++) Plog::print(std::sqrt(eigval[k]/k0/k0)<<std::endl;
     
     for(i=0;i<Ng;i++)
     {
@@ -235,22 +236,22 @@ void Slab_guide::show_guiding_char()
     
     std::ofstream file("modes.txt",std::ios::out|std::ios::app);
     
-    std::cout<<"Wavelength: "<<add_unit_u(lambda)<<std::endl;
-    std::cout<<"Superstrate: "<<n1<<std::endl;
-    std::cout<<"Guide: "<<n2<<std::endl;
-    std::cout<<"Substrate: "<<n3<<std::endl;
-    std::cout<<"Thickness: "<<add_unit_u(h)<<std::endl<<std::endl;
-    std::cout<<"TE:"<<std::endl;
+    Plog::print("Wavelength: ", add_unit_u(lambda), "\n");
+    Plog::print("Superstrate: ", n1, "\n");
+    Plog::print("Guide: ", n2, "\n");
+    Plog::print("Substrate: ", n3, "\n");
+    Plog::print("Thickness: ", add_unit_u(h), "\n\n");
+    Plog::print("TE:", "\n");
     for(i=0;i<n_TE;i++)
     {
-        std::cout<<"Mode: "<<i<<" n_eff: "<<beta_TE[i]/k0<<std::endl;
+        Plog::print("Mode: ", i, " n_eff: ", beta_TE[i]/k0, "\n");
     }
-    std::cout<<"TM:"<<std::endl;
+    Plog::print("TM:", "\n");
     for(i=0;i<n_TM;i++)
     {
-        std::cout<<"Mode: "<<i<<" n_eff: "<<beta_TM[i]/k0<<std::endl;
+        Plog::print("Mode: ", i, " n_eff: ", beta_TM[i]/k0, "\n");
     }
-    std::cout<<"_________________"<<std::endl<<std::endl;
+    Plog::print("_________________\n\n");
     
     file<<"Wavelength: "<<add_unit_u(lambda)<<std::endl;
     file<<"Superstrate: "<<n1<<std::endl;

@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2024 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include <filehdl.h>
+#include <logger.h>
 #include <lua_sensors.h>
 #include <lua_sources.h>
 #include <lua_structure.h>
@@ -671,7 +672,7 @@ void FDTD_Frame::load(wxFileName const &fname_)
     
     if(load_err!=LUA_OK)
     {
-        std::cout<<"Lua syntax error with "<<fname<<std::endl;
+        Plog::print("Lua syntax error with ", fname, "\n");
         std::cin.get();
         return;
     }

@@ -49,7 +49,7 @@ void Selene_Mode::optimize(OptimEngine *engine)
     {
         if(!first_run) engine->evolve(1.0);
             
-        std::cout<<"Best score: "<<best_score<<std::endl;
+        Plog::print("Best score: ", best_score, "\n");
             
         for(std::size_t i=0;i<objects.size();i++)
         {
@@ -66,7 +66,7 @@ void Selene_Mode::optimize(OptimEngine *engine)
         {
             best_score=current_score;
             
-            if(Nfail!=0) std::cout<<"Failure rate reset\n";
+            if(Nfail!=0) Plog::print("Failure rate reset\n");
             
             Nfail=0;
         }
@@ -75,25 +75,25 @@ void Selene_Mode::optimize(OptimEngine *engine)
             engine->revert_variables();
             Nfail++;
             
-            std::cout<<"Acceptable failure rate: "<<Nfail*100.0/engine->max_fails<<"%\n";
+            Plog::print("Acceptable failure rate: ", Nfail*100.0/engine->max_fails, "%\n");
         }
         
         first_run=false;
         
         if(Nfail>=engine->max_fails)
         {
-            std::cout<<"Acceptable failure rate exceeded, stopping\n";
+            Plog::print("Acceptable failure rate exceeded, stopping\n");
             optimization_running=false;
         }
     }
     
     rendered=true;
     
-    std::cout<<"Optimization report\n\n";
+    Plog::print("Optimization report\n\n");
     
     for(Sel::Object *object : objects)
     {
-        std::cout<<object->name<<":\n";
+        Plog::print(object->name, ":\n");
         
         std::map<std::string,double*> &variables_map=object->variables_map;
             
@@ -102,10 +102,10 @@ void Selene_Mode::optimize(OptimEngine *engine)
             OptimRule rule;
             bool known=engine->get_rule(var,rule);
             
-            if(known) std::cout<<"   "<<key<<": "<<(*var)<<"\n";
+            if(known) Plog::print("   ", key, ": ", (*var), "\n");
         }
         
-        std::cout<<"\n";
+        Plog::print("\n");
     }
 }
 
@@ -453,7 +453,7 @@ namespace LuaUI
         p_irf->ml_materials.push_back(mat);
         p_irf->ml_model.set_N_layers(p_irf->ml_heights.size());
         
-        std::cout<<std::endl;
+        Plog::print("\n");
         for(std::size_t i=0;i<p_irf->ml_heights.size();i++)
         {
             chk_var(p_irf->ml_heights[i]);
@@ -586,7 +586,7 @@ namespace LuaUI
                 lua_pushinteger(L,j);
                 lua_setglobal(L,an.c_str());
                 #ifdef DEV_INFO
-                std::cout<<j<<" "<<an.c_str()<<std::endl;
+                Plog::print(j<<" "<<an.c_str()<<std::endl;
                 #endif
             }
         }

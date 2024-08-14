@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2024 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@ limitations under the License.*/
 
 #include <fdtd_material.h>
 #include <fdtd_utils.h>
-
+#include <logger.h>
 
 extern const Imdouble Im;
 extern std::ofstream plog;
@@ -73,7 +73,7 @@ void test4lvl(double wa,double Dwa,double kappa,double Dt)
     double P2=2.0/(Dt*Dt)-wa*wa;
     double P3=Dwa/(2.0*Dt)-1.0/(Dt*Dt);
     
-    std::cout<<P0*P1<<" "<<P0*P2<<" "<<P0*P3<<std::endl;
+    Plog::print(P0*P1, " ", P0*P2, " ", P0*P3, "\n");
 }
 
 /*void FDTD_Material::atom_lev_load_script(ScriptHandler &script)
@@ -101,7 +101,7 @@ void test4lvl(double wa,double Dwa,double kappa,double Dt)
     show();
     
     if(script.has("levels")) script.get_options(N_levels);
-    else{ std::cout<<"Material error, no levels defined"<<std::endl; }
+    else{ Plog::print("Material error, no levels defined"<<std::endl; }
     if(script.has("population")) script.get_options(AL_pop);
     
     while(script.has("add_stim_transition"))
@@ -128,7 +128,7 @@ void test4lvl(double wa,double Dwa,double kappa,double Dt)
         pol_C2.push_back((t_b*Dt-2.0)/(2.0+t_b*Dt));
         pol_C3.push_back((2.0*Dt*Dt*t_d)/(2.0+t_b*Dt));
         
-        std::cout<<pol_C1[0]<<" "<<pol_C2[0]<<" "<<pol_C3[0]<<std::endl;
+        Plog::print(pol_C1[0]<<" "<<pol_C2[0]<<" "<<pol_C3[0]<<std::endl;
         test4lvl(t_g,t_b,t_d,Dt);
     }
     
@@ -161,10 +161,10 @@ void test4lvl(double wa,double Dwa,double kappa,double Dt)
         pump_matrix[lv]+=rate;
     }
     
-    std::cout<<ei<<std::endl;
-    std::cout<<AL_pop<<std::endl<<std::endl;
+    Plog::print(ei<<std::endl;
+    Plog::print(AL_pop<<std::endl<<std::endl;
     levels_matrix.show();
-    std::cout<<std::endl;
+    Plog::print(std::endl;
     pump_matrix.show();
     
     atom_lev_precompute();
@@ -188,7 +188,7 @@ void test4lvl(double wa,double Dwa,double kappa,double Dt)
         }
         else if(ptype=="step") script.get_options(Nt);
         
-        std::cout<<Nt<<std::endl;
+        Plog::print(Nt<<std::endl;
     }
     
     if(script.has("prepopulate_DN"))
@@ -244,7 +244,7 @@ void test4lvl(double wa,double Dwa,double kappa,double Dt)
                                 for(l=0;l<N_levels;l++)
                                     pop_matrix(i,j,k,l)=sim_N[l];
                             }
-                std::cout<<inc<<std::endl;
+                Plog::print(inc<<std::endl;
             }
             else
             {

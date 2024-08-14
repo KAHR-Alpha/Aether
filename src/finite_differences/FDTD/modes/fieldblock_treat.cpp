@@ -61,7 +61,6 @@ void quick_print_fmap(Grid2<Imdouble>& fx, Grid2<Imdouble>& fy, Grid2<Imdouble>&
     }
 
     c_norm = std::sqrt(c_norm / c_norm_N);
-    //    std::cout<<c_norm<<std::endl;
     c_norm = 550.0;
 
     double expo = 3.0;
@@ -117,13 +116,13 @@ void Fblock_treat_mode::add_map_extraction(std::string field_str, std::string di
     else if (field_str == "S") field = S_FIELD;
     else
     {
-        std::cout << "Unrecognized field " << field_str << std::endl;
+        Plog::print(LogType::WARNING, "Unrecognized field ", field_str, "\n");
     }
 
     dir = dir_to_int(dir_str);
     if (dir == NORMAL_UNDEF)
     {
-        std::cout << "Unrecognized orientation " << dir_str << std::endl;
+        Plog::print(LogType::WARNING, "Unrecognized orientation ", dir_str, "\n");
     }
 
     add_map_extraction_sub(field, dir, index, fname);
@@ -326,7 +325,7 @@ void Fblock_treat_mode::process()
         double Spx = 0, Spy = 0, Spz = 0;
         Imdouble px, py, pz;
 
-        std::cout << "Surface poynting" << std::endl;
+        Plog::print("Surface poynting\n");
 
         i = 0;
         Spx = Spy = Spz = 0;
@@ -336,13 +335,11 @@ void Fblock_treat_mode::process()
             py = Ez(i, j, k) * conj(Hx(i, j, k)) - Ex(i, j, k) * conj(Hz(i, j, k));
             pz = Ex(i, j, k) * conj(Hy(i, j, k)) - Ey(i, j, k) * conj(Hx(i, j, k));
 
-            //std::cout<<Ey(i,j,k)<<" "<<Hz(i,j,k)<<std::endl;
-
             Spx += 0.5 * std::real(px);
             Spy += 0.5 * std::real(py);
             Spz += 0.5 * std::real(pz);
         }
-        std::cout << "X-: " << Spx << " " << Spy << " " << Spz << std::endl;
+        Plog::print("X-: ", Spx, " ", Spy, " ", Spz, "\n");
 
         i = Nx - 1;
         i = 1;
@@ -353,13 +350,11 @@ void Fblock_treat_mode::process()
             py = Ez(i, j, k) * conj(Hx(i, j, k)) - Ex(i, j, k) * conj(Hz(i, j, k));
             pz = Ex(i, j, k) * conj(Hy(i, j, k)) - Ey(i, j, k) * conj(Hx(i, j, k));
 
-            //std::cout<<Ey(i,j,k)<<" "<<Hz(i,j,k)<<std::endl;
-
             Spx += 0.5 * std::real(px);
             Spy += 0.5 * std::real(py);
             Spz += 0.5 * std::real(pz);
         }
-        std::cout << "X+: " << Spx << " " << Spy << " " << Spz << std::endl;
+        Plog::print("X+: ", Spx, " ", Spy, " ", Spz, "\n");
 
         j = 0;
         Spx = Spy = Spz = 0;
@@ -373,7 +368,7 @@ void Fblock_treat_mode::process()
             Spy += 0.5 * std::real(py);
             Spz += 0.5 * std::real(pz);
         }
-        std::cout << "Y-: " << Spx << " " << Spy << " " << Spz << std::endl;
+        Plog::print("Y-: ",  Spx, " ", Spy, " ", Spz, "\n");
 
         j = Ny - 1;
         Spx = Spy = Spz = 0;
@@ -387,7 +382,7 @@ void Fblock_treat_mode::process()
             Spy += 0.5 * std::real(py);
             Spz += 0.5 * std::real(pz);
         }
-        std::cout << "Y+: " << Spx << " " << Spy << " " << Spz << std::endl;
+        Plog::print("Y+: ", Spx, " ", Spy, " ", Spz, "\n");
 
         k = 0;
         Spx = Spy = Spz = 0;
@@ -401,7 +396,7 @@ void Fblock_treat_mode::process()
             Spy += 0.5 * std::real(py);
             Spz += 0.5 * std::real(pz);
         }
-        std::cout << "Z-: " << Spx << " " << Spy << " " << Spz << std::endl;
+        Plog::print("Z-: ", Spx, " ", Spy, " ", Spz, "\n");
 
         k = Nz - 1;
         Spx = Spy = Spz = 0;
@@ -415,7 +410,7 @@ void Fblock_treat_mode::process()
             Spy += 0.5 * std::real(py);
             Spz += 0.5 * std::real(pz);
         }
-        std::cout << "Z+: " << Spx << " " << Spy << " " << Spz << std::endl;
+        Plog::print("Z+: ", Spx, " ", Spy, " ", Spz, "\n");
     }
 }
 

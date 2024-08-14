@@ -156,25 +156,25 @@ void Dielec_model::show()
 {
     std::size_t i;
     
-    std::cout<<"Eps_inf: "<<eps_inf<<std::endl;
+    Plog::print("Eps_inf: ", eps_inf, "\n");
     for(i=0;i<debye_arr.size();i++)
     {
-        std::cout<<"Debye "<<i<<":"<<std::endl;
+        Plog::print("Debye ", i, ":", "\n");
         debye_arr[i].show();
     }
     for(i=0;i<drude_arr.size();i++)
     {
-        std::cout<<"Drude "<<i<<":"<<std::endl;
+        Plog::print("Drude ", i, ":", "\n");
         drude_arr[i].show();
     }
     for(i=0;i<lorentz_arr.size();i++)
     {
-        std::cout<<"Lorentz "<<i<<":"<<std::endl;
+        Plog::print("Lorentz ", i, ":", "\n");
         lorentz_arr[i].show();
     }
     for(i=0;i<cp_arr.size();i++)
     {
-        std::cout<<"Critical-points "<<i<<":"<<std::endl;
+        Plog::print("Critical-points ", i, ":", "\n");
         cp_arr[i].show();
     }
 }
@@ -237,7 +237,7 @@ void DebyeModel::set(double dsi,double t0i)
 
 void DebyeModel::show()
 {
-    std::cout<<"Ds: "<<ds<<" t0: "<<t0<<std::endl;
+    Plog::print("Ds: ", ds, " t0: ", t0, "\n");
 }
 
 void DebyeModel::operator = (DebyeModel const &D)
@@ -304,7 +304,7 @@ void DrudeModel::set(double wd_,double g_)
 
 void DrudeModel::show()
 {
-    std::cout<<"Wd: "<<wd<<" Wd2: "<<wd2<<" g: "<<g<<std::endl;
+    Plog::print("Wd: ", wd, " Wd2: ", wd2, " g: ", g, "\n");
 }
 
 void DrudeModel::operator = (DrudeModel const &D)
@@ -370,7 +370,7 @@ void LorentzModel::set(double Ai,double Oi,double Gi)
 
 void LorentzModel::show()
 {
-    std::cout<<"A: "<<A<<" O: "<<O<<" O2: "<<O2<<" G: "<<G<<std::endl;
+    Plog::print("A: ", A, " O: ", O, " O2: ", O2, " G: ", G, "\n");
 }
 
 void LorentzModel::operator =(LorentzModel const &D)
@@ -434,7 +434,7 @@ void CritpointModel::set(double Ai,double Oi,double P_i,double Gi)
 
 void CritpointModel::show()
 {
-    std::cout<<"A: "<<A<<" O: "<<O<<" P: "<<P<<" G: "<<G<<std::endl;
+    Plog::print("A: ", A, " O: ", O, " P: ", P, " G: ", G, "\n");
 }
 
 void CritpointModel::operator = (CritpointModel const &D)

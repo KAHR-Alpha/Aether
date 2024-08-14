@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2024 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -12,6 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
+#include <logger.h>
 #include <lua_optim.h>
 #include <lua_selene.h>
 
@@ -208,7 +209,7 @@ void SeleneFrame::load_project(wxFileName const &fname_)
 {
     if(optimization_running) return;
     
-    std::cout<<"\n\nThis: "<<this<<"\n\n";
+    Plog::print("\n\nThis: ", this, "\n\n");
     
     clear_state();
     
@@ -281,7 +282,7 @@ void SeleneFrame::load_project(wxFileName const &fname_)
 //    
 //    if(load_err!=LUA_OK)
 //    {
-//        std::cout<<"Lua syntax error with "<<fname<<std::endl;
+//        Plog::print("Lua syntax error with "<<fname<<std::endl;
 //        std::cin.get();
 //        return;
 //    }
@@ -373,7 +374,7 @@ void save_optimization_targets(std::ofstream &file,
         }
         else
         {
-            std::cout<<"Error: sensor "<<targets[i].sensor<<" not found\n";
+            Plog::print("Error: sensor ", targets[i].sensor, " not found\n");
             continue;
         }
     }

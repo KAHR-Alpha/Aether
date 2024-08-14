@@ -691,7 +691,7 @@ std::complex<T> asin(std::complex<T> Z)
 //###############
 //###############
 
-#define chk_dbg() std::cout<<__FILE__<<" "<<__LINE__<<std::endl;
+#define chk_dbg() Plog::print(__FILE__<<" "<<__LINE__<<std::endl;
 #define chk_msg_s(N) chk_msg(#N,N)
 #define chk_msg_sc(N) chk_msg_c(#N,N)
 #define chk_var(N) chk_var_f(#N,N)
@@ -701,28 +701,29 @@ void ascii_data_loader(std::string const &fname,std::vector<std::vector<double>>
 void chk_msg(std::string k);
 template<typename T> void chk_msg(T const &k)
 {
-    std::cout<<"Check: "<<k<<std::endl;
-    std::cout<<"Press enter to continue"<<std::endl;
+    Plog::print("Check: \n");
+    Plog::print("Press enter to continue\n");
     std::cin.get();
 }
 template<typename T> void chk_msg(std::string ks,T const &k)
 {
-    std::cout<<"Check "<<ks<<": "<<k<<std::endl;
-    std::cout<<"Press enter to continue"<<std::endl;
+    Plog::print("Check ", ks, ": ", k, "\n");
+    Plog::print("Press enter to continue\n");
     std::cin.get();
 }
 template<typename T> void chk_msg_c(std::string ks,T const &k)
 {
-    std::cout<<"Check "<<ks<<": "<<k<<std::endl;
+    Plog::print("Check ", ks, ": ", k,  "\n");
 }
 template<typename T> void msg_n(std::string ks,T const &k)
 {
-    std::cout<<ks<<": "<<k<<std::endl;
+    Plog::print(ks, ": ", k, "\n");
 }
 template<typename T> void chk_var_f(std::string ks,T const &k)
 {
     #ifdef DEV_INFO
-    std::cout<<ks<<": "<<k<<std::endl<<std::flush;
+    Plog::print(ks, ": ", k, "\n");
+    Plog::flush();
     #endif
 }
 

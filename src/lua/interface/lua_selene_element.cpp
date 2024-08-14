@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2024 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -12,6 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
+#include <logger.h>
 #include <lua_selene.h>
 
 namespace LuaUI
@@ -110,7 +111,7 @@ namespace LuaUI
         }
         else
         {
-            std::cout<<"Unrecognized object type: "<<type<<std::endl;
+            Plog::print("Unrecognized object type: ", type, "\n");
             std::cin.get();
             std::exit(0);
         }

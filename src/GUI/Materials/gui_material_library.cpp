@@ -546,7 +546,7 @@ void MaterialsLib::initialize()
     
     // Default Library
     
-    std::cout<<"Materials library initialization:"<<std::endl;
+    Plog::print("Materials library initialization:\n");
     
     std::ifstream file_default(PathManager::locate_resource("mat_lib/default_materials_library"),std::ios::in);
     
@@ -569,7 +569,7 @@ void MaterialsLib::initialize()
     
     if(!file.is_open())
     {
-        std::cout<<"    No user specific materials to load"<<std::endl;
+        Plog::print("    No user specific materials to load\n");
         return;
     }
     else
@@ -600,7 +600,7 @@ Material* MaterialsLib::knows_material(unsigned int &n,Material const &material,
 
 void MaterialsLib::load_library_material(std::filesystem::path const &fname,MatType type)
 {
-    std::cout<<"    Loading "<<fname;
+    Plog::print("    Loading ", fname);
     
     std::filesystem::path material_path;
     
@@ -609,13 +609,13 @@ void MaterialsLib::load_library_material(std::filesystem::path const &fname,MatT
     
     if(!std::filesystem::exists(material_path))
     {
-        std::cout<<" ... not found"<<std::endl;
+        Plog::print(" ... not found\n");
         return;
     }
     
     for(std::size_t i=0;i<data.size();i++) if(std::filesystem::equivalent(material_path,data[i]->script_path))
     {
-        std::cout<<" ... duplicate"<<std::endl;
+        Plog::print(" ... duplicate\n");
         return;
     }
     
@@ -628,7 +628,7 @@ void MaterialsLib::load_library_material(std::filesystem::path const &fname,MatT
     
     data.push_back(new_data);
     
-    std::cout<<" ... done"<<std::endl;
+    Plog::print(" ... done\n");
 }
 
 GUI::Material* MaterialsLib::load_script(std::filesystem::path const &path)

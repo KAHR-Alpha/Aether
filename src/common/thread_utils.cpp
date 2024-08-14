@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2024 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -12,22 +12,23 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include <iostream>
-
+#include <logger.h>
 #include <thread_utils.h>
+
+#include <iostream>
 
 std::mutex out_mutex;
 
 template<typename T>
 void var_cout(T const &A)
 {
-    std::cout<<A<<std::endl;
+    Plog::print(A, "\n");
 }
 
 template<typename T,typename... Args>
 void var_cout(T const &A,Args... args)
 {
-    std::cout<<A<<" ";
+    Plog::print(A, " ");
     var_cout(args...);
 }
 

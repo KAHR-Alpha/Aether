@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2024 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-
+#include <logger.h>
 #include <mathUT.h>
 #include <string_tools.h>
 
@@ -121,8 +121,8 @@ ProgDisp::ProgDisp(int i)
 {
     count=0;
     j=1;
-    std::cout<<std::endl<<"0%   10   20   30   40   50   60   70   80   90   100%\n";
-    std::cout<<"|----|----|----|----|----|----|----|----|----|----|"<<std::endl;
+    Plog::print("\n0%   10   20   30   40   50   60   70   80   90   100%\n");
+    Plog::print("|----|----|----|----|----|----|----|----|----|----|\n");
 }
 
 ProgDisp::ProgDisp(int i,std::string K)
@@ -130,9 +130,8 @@ ProgDisp::ProgDisp(int i,std::string K)
 {
     count=0;
     j=1;
-    std::cout<<std::endl<<K<<std::endl<<
-        "0%   10   20   30   40   50   60   70   80   90   100%\n";
-    std::cout<<"|----|----|----|----|----|----|----|----|----|----|"<<std::endl;
+    Plog::print("\n", K, "\n0%   10   20   30   40   50   60   70   80   90   100%\n");
+    Plog::print("|----|----|----|----|----|----|----|----|----|----|\n");
 }
 
 
@@ -140,12 +139,13 @@ void ProgDisp::operator ++()
 {
     if(count/Nstep2<=j/51.0 && (count+1.0)/Nstep2>j/51.0)
     {
-        std::cout<<"#"<<std::flush;
+        Plog::print("#");
+        Plog::flush();
         j++;
     }
     
     count++;
-    if(count==Nstep) std::cout<<std::endl;
+    if(count==Nstep) Plog::print("\n");
 }
 
 void ProgDisp::reset(int i)
@@ -154,8 +154,8 @@ void ProgDisp::reset(int i)
     Nstep2=i-1.0;
     j=1;
     count=0;
-    std::cout<<std::endl<<"0%   10   20   30   40   50   60   70   80   90   100%\n";
-    std::cout<<"|----|----|----|----|----|----|----|----|----|----|"<<std::endl;
+    Plog::print("\n0%   10   20   30   40   50   60   70   80   90   100%\n");
+    Plog::print("|----|----|----|----|----|----|----|----|----|----|\n");
 }
 
 void ProgDisp::reset(int i,std::string K)
@@ -164,9 +164,8 @@ void ProgDisp::reset(int i,std::string K)
     Nstep2=i-1.0;
     j=1;
     count=0;
-    std::cout<<std::endl<<K<<std::endl<<
-        "0%   10   20   30   40   50   60   70   80   90   100%\n";
-    std::cout<<"|----|----|----|----|----|----|----|----|----|----|"<<std::endl;
+    Plog::print("\n", K, "\n0%   10   20   30   40   50   60   70   80   90   100%\n");
+    Plog::print("|----|----|----|----|----|----|----|----|----|----|\n");
 }
 
 //####################
@@ -210,25 +209,25 @@ void ProgTimeDisp::operator ++()
         int i;
         
         if(std::this_thread::get_id()!=main_thread_id)
-            std::cout<<"thread "<<std::this_thread::get_id()<<" : ";
+            Plog::print("thread ", std::this_thread::get_id(), " : ");
         
         if(prefix=="")
-            std::cout<<completion_percent<<"% ";
+            Plog::print(completion_percent, "% ");
         else
-            std::cout<<prefix<<" "<<completion_percent<<"% ";
+            Plog::print(prefix, " ", completion_percent, "% ");
         
-        std::cout<<time_spent<<" "
-                 <<d_spent.count()/(count+1.0)<<" "<<avg<<" "
-                 <<time_remaining<<" "
-                 <<time_total<<" "
-                 <<count<<" / "<<Nstep<<" ";
+        Plog::print(time_spent, " ",
+                    d_spent.count()/(count+1.0), " ", avg, " ",
+                    time_remaining, " ",
+                    time_total, " ",
+                    count, " / ", Nstep, " ");
         
         int Nc=static_cast<int>(20.0*(count+0.5)/(Nstep-1.0));
         
-        std::cout<<"[";
-        for(i=0;i<Nc;i++) std::cout<<"#";
-        for(i=0;i<20-Nc;i++) std::cout<<"-";
-        std::cout<<"]"<<std::endl;
+        Plog::print("[");
+        for(i=0;i<Nc;i++) Plog::print("#");
+        for(i=0;i<20-Nc;i++) Plog::print("-");
+        Plog::print("]\n");
         #endif
         
         a=b;
@@ -390,7 +389,7 @@ void multi_cspline::auto_sct(Grid1<double> &x_data)
             Nd2-=Np2;
         }
         
-        std::cout<<k<<std::endl;
+        Plog::print(k, "\n");
         
         xi[i]=x_data[k];
     }
@@ -425,7 +424,7 @@ void multi_cspline::auto_sct(Grid2<double> &data)
             Nd2-=Np2;
         }
         
-        std::cout<<k<<std::endl;
+        Plog::print(k, "\n");
         
         xi[i]=data(k,0);
     }
@@ -790,10 +789,10 @@ void multi_cspline::show()
     
     for(i=0;i<Ns;i++)
     {
-        std::cout<<xi[i]<<" "<<yi[i]<<" "<<di[i]<<" "
-                    <<sa[i]<<" "<<sb[i]<<" "<<sc[i]<<" "<<sd[i]<<std::endl;
+        Plog::print(xi[i], " ", yi[i], " ", di[i], " ",
+                    sa[i], " ", sb[i], " ", sc[i], " ", sd[i], "\n");
     }
-    std::cout<<xi[Np-1]<<" "<<di[Np-1]<<std::endl<<std::endl;
+    Plog::print(xi[Np-1], " ", di[Np-1], "\n\n");
 }
 
 //###############
@@ -801,15 +800,15 @@ void multi_cspline::show()
 
 void chk_msg(std::string k)
 {
-    std::cout<<k<<std::endl;
-    std::cout<<"Press enter to continue"<<std::endl;
+    Plog::print(k, "\n");
+    Plog::print("Press enter to continue\n");
     std::cin.get();
 }
 
 void debug_msg(std::string k)
 {
     #ifdef DEBUG_MSG_ON
-    std::cout<<k<<std::endl;
+    Plog::print(k, "\n");
     #endif
 }
 
@@ -886,7 +885,7 @@ void ascii_data_loader(std::string const &fname,std::vector<std::vector<double>>
     
     if(!file.is_open())
     {
-        std::cout<<"Error: Could not open "<<fname<<std::endl;
+        Plog::print(LogType::FATAL, "Error: Could not open ", fname, "\n");
         return;
     }
     
@@ -1266,7 +1265,7 @@ bool OutChk(double val,double l,double h,int Id)
 {
     if(val<l || val>h) 
     {
-        std::cout<<"Out of bound "<<Id<<" "<<val<<std::endl;
+        Plog::print("Out of bound ", Id, " ", val, "\n");
         return 1;
     }
     return 0;

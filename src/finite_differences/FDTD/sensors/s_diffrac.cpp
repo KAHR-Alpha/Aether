@@ -251,7 +251,7 @@ std::string diffract_average_files(std::vector<std::string> const &fnames,std::s
     
     if(Nf<1)
     {
-        std::cout<<"Diffraction files averaging error"<<std::endl;
+        Plog::print("Diffraction files averaging error", "\n");
         std::exit(0);
     }
     
@@ -270,7 +270,7 @@ std::string diffract_average_files(std::vector<std::string> const &fnames,std::s
         files[f].open(fnames[f],std::ios::in|std::ios::binary);
         if(!files[f].is_open())
         {
-            std::cout<<"Couldn't open "<<fnames[f]<<std::endl;
+            Plog::print("Couldn't open ", fnames[f], "\n");
             std::exit(0);
         }
     }
@@ -281,7 +281,7 @@ std::string diffract_average_files(std::vector<std::string> const &fnames,std::s
     {
         if(Nl!=fcountlines(fnames[f]))
         {
-            std::cout<<"Invalid file "<<fnames[f]<<std::endl;
+            Plog::print("Invalid file ", fnames[f], "\n");
             std::exit(0);
         }
     }
@@ -382,7 +382,7 @@ std::string diffract_orders_normalize(std::string const &diff_fname,std::string 
     
     if(!diff_file.is_open())
     {
-        std::cout<<"Couldn't load "<<diff_fname<<std::endl;
+        Plog::print("Couldn't load ", diff_fname, "\n");
         std::exit(0);
     }
     
@@ -454,13 +454,13 @@ std::string diffract_power_normalize(std::string const &diff_fname,std::string c
     
     if(!diff_file.is_open())
     {
-        std::cout<<"Couldn't open "<<diff_fname<<std::endl;
+        Plog::print("Couldn't open ", diff_fname, "\n");
         std::exit(0);
     }
     
     if(!base_file.is_open())
     {
-        std::cout<<"Couldn't open "<<base_fname<<std::endl;
+        Plog::print("Couldn't open ", base_fname, "\n");
         std::exit(0);
     }
     
@@ -468,7 +468,7 @@ std::string diffract_power_normalize(std::string const &diff_fname,std::string c
     
     if(Nl!=fcountlines(base_fname))
     {
-        std::cout<<"Files mismatch: "<<diff_fname<<" , "<<base_fname<<std::endl;
+        Plog::print("Files mismatch: ", diff_fname, " , ", base_fname, "\n");
         std::exit(0);
     }
     
@@ -534,11 +534,11 @@ void diffract_renorm(std::string const &diff_fname,std::string const &base_fname
     std::ifstream diff_file(diff_fname,std::ios::in|std::ios::binary);
     std::ifstream base_file(base_fname,std::ios::in|std::ios::binary);
     
-    if(!diff_file.is_open()) { std::cout<<"Can't open file: "<<diff_fname<<std::endl; return; }
-    if(!base_file.is_open()) { std::cout<<"Can't open file: "<<base_fname<<std::endl; return; }
+    if(!diff_file.is_open()) { Plog::print("Can't open file: ", diff_fname, "\n"); return; }
+    if(!base_file.is_open()) { Plog::print("Can't open file: ", base_fname, "\n"); return; }
     
     int Nl=fcountlines(diff_fname);
-    if(Nl!=fcountlines(base_fname)) { std::cout<<"Number mismatch"<<std::endl; return; }
+    if(Nl!=fcountlines(base_fname)) { Plog::print("Number mismatch", "\n"); return; }
     
     std::ofstream out_file(out_fname,std::ios::out|std::ios::binary|std::ios::trunc);
     
@@ -601,19 +601,19 @@ void diffract_renorm(std::string const &diff_fname,std::vector<std::string> cons
     
     std::ifstream diff_file(diff_fname,std::ios::in|std::ios::binary);
     
-    if(!diff_file.is_open()) { std::cout<<"Can't open file: "<<diff_fname<<std::endl; return; }
+    if(!diff_file.is_open()) { Plog::print("Can't open file: ", diff_fname, "\n"); return; }
     
     std::vector<std::ifstream> base_file(base_fname.size());
     for(unsigned int i=0;i<base_fname.size();i++)
     {
         base_file[i].open(base_fname[i],std::ios::in|std::ios::binary);
-        if(!base_file[i].is_open()) { std::cout<<"Can't open file: "<<base_fname[i]<<std::endl; return; }
+        if(!base_file[i].is_open()) { Plog::print("Can't open file: ", base_fname[i], "\n"); return; }
     }
     
     int Nl=fcountlines(diff_fname);
     for(unsigned int i=0;i<base_fname.size();i++)
     {
-        if(Nl!=fcountlines(base_fname[i])) { std::cout<<"Number mismatch "<<Nl<<" "<<base_fname[i]<<std::endl; return; }
+        if(Nl!=fcountlines(base_fname[i])) { Plog::print("Number mismatch ", Nl, " ", base_fname[i], "\n"); return; }
     }
     
     std::ofstream out_file(out_fname,std::ios::out|std::ios::binary|std::ios::trunc);
@@ -737,7 +737,7 @@ void diffract_renorm(std::string const &diff_fname,std::vector<std::string> cons
 //    
 //    for(l=0;l<Nl;l++)
 //    {
-//        std::cout<<"Computing Diffraction pattern "<<l<<"/"<<Nl<<std::endl;
+//        Plog::print("Computing Diffraction pattern "<<l<<"/"<<Nl, "\n");
 //        double k0=2.0*Pi/lambda[l];
 //        double kn=k0*ref_index;
 //        

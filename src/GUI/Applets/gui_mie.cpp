@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2024 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include <gui_mie.h>
+#include <logger.h>
 
 extern const Imdouble Im;
 
@@ -180,7 +181,7 @@ MieTool::MieTool(wxString const &title)
 
 MieTool::~MieTool()
 {
-    std::cout<<"Destructing MieTool"<<std::endl;
+    Plog::print("Destructing MieTool\n");
 }
 
 void MieTool::evt_recompute(wxCommandEvent &event)

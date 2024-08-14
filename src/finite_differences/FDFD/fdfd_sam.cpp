@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include <fdfd.h>
-
+#include <logger.h>
 
 extern const Imdouble Im;
 extern std::ofstream plog;
@@ -39,46 +39,28 @@ void Slice::absorb_forward(Slice *slc)
 {
     top_ID=slc->top_ID;
     top=slc->top;
-    
-//    Eigen::SparseLU<Eigen::SparseMatrix<Imdouble>> solver;
-//    Eigen::SparseMatrix<Imdouble> x_mat(B_mat.rows(),B_mat.cols());
-//    
-//    std::cout<<"Absorb"<<std::endl;
-////    std::cout<<slc->B_mat.nonZeros()<<std::endl;
-////    std::cout<<slc->B_mat.rows()<<std::endl;
-////    plog<<slc->B_mat<<std::endl;
-//    solver.compute(slc->B_mat);
-//    std::cout<<"Compute done"<<std::endl;
-//    
-//    x_mat=solver.solve(slc->A_mat);
-//    B_mat=B_mat-C_mat*x_mat;
-//    std::cout<<"Solve 1 done"<<std::endl;
-//    
-//    x_mat=solver.solve(slc->C_mat);
-//    C_mat=-C_mat*x_mat;
-//    std::cout<<"Solve 2 done"<<std::endl;
-    
+        
     Eigen::BiCGSTAB<Eigen::SparseMatrix<Imdouble>,Eigen::IncompleteLUT<Imdouble>> solver;
     solver.setMaxIterations(5);
     solver.setTolerance(1e-5);
     
     Eigen::SparseMatrix<Imdouble> x_mat(B_mat.rows(),B_mat.cols());
-    std::cout<<slc->A_mat.nonZeros()<<std::endl;
-    std::cout<<slc->B_mat.nonZeros()<<std::endl;
-    std::cout<<slc->C_mat.nonZeros()<<std::endl;
-    std::cout<<"Absorb"<<std::endl;
+    Plog::print(slc->A_mat.nonZeros(), "\n");
+    Plog::print(slc->B_mat.nonZeros(), "\n");
+    Plog::print(slc->C_mat.nonZeros(), "\n");
+    Plog::print("Absorb\n");
     solver.compute(slc->B_mat);
-    std::cout<<"Compute done"<<std::endl;
+    Plog::print("Compute done\n");
     
     x_mat=solver.solve(slc->A_mat);
-    std::cout<<"Solve 1"<<std::endl;
+    Plog::print("Solve 1\n");
     B_mat=B_mat-C_mat*x_mat;
-    std::cout<<"Solve 1 done"<<std::endl;
+    Plog::print("Solve 1 done\n");
     
     x_mat=solver.solve(slc->C_mat);
-    std::cout<<"Solve 2"<<std::endl;
+    Plog::print("Solve 2\n");
     C_mat=-C_mat*x_mat;
-    std::cout<<"Solve 2 done"<<std::endl;
+    Plog::print("Solve 2 done\n");
 }
 
 void Slice::set_bottom(Slice *slc,int slc_ID) { btm=slc; btm_ID=slc_ID; }
@@ -86,8 +68,8 @@ void Slice::set_ID(int ID_) { ID=ID_; }
 void Slice::set_top(Slice *slc,int slc_ID) { top=slc; top_ID=slc_ID; }
 void Slice::show()
 {
-    std::cout<<ID<<" "<<btm_ID<<" "<<top_ID<<" "
-             <<this<<" "<<btm<<" "<<top<<std::endl;
+    Plog::print(ID, " ", btm_ID, " ", top_ID, " ",
+                this, " ", btm, " ", top, "\n");
 }
 
 //####################
@@ -348,7 +330,7 @@ void FDFD::solve_prop_3D_SAM(double lambda_,AngleRad theta,AngleRad phi,AngleRad
             
             slc_p=slc_q;
             slc_q.clear();
-            std::cout<<std::endl;
+            Plog::print("\n");
             for(unsigned int k=0;k<slc_p.size();k++)
             {
                 slc_p[k]->show();
@@ -358,7 +340,7 @@ void FDFD::solve_prop_3D_SAM(double lambda_,AngleRad theta,AngleRad phi,AngleRad
         {
             for(unsigned int k=0;k<slc_p.size();k++)
             {
-                std::cout<<k<<std::endl;
+                Plog::print(k, "\n");
                 if(k%2==1)
                 {
                     slc_p[k-1]->absorb_forward(slc_p[k]);
@@ -371,7 +353,7 @@ void FDFD::solve_prop_3D_SAM(double lambda_,AngleRad theta,AngleRad phi,AngleRad
             
             slc_p=slc_q;
             slc_q.clear();
-            std::cout<<std::endl;
+            Plog::print("\n");
             for(unsigned int k=0;k<slc_p.size();k++)
             {
                 slc_p[k]->show();

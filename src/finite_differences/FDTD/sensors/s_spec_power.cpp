@@ -205,7 +205,7 @@ void Box_Spect_Poynting::treat()
         if(!disable_zm) rsp_result[l]+=zm.rsp_result[l];
         if(!disable_zp) rsp_result[l]+=zp.rsp_result[l];
         
-        std::cout<<xm.rsp_result[l]<<std::endl;
+        Plog::print(xm.rsp_result[l], "\n");
         
         if(!silent)
         {
@@ -449,7 +449,7 @@ void Spect_Poynting_FFT::treat(std::string fname_out)
     //   Treatment
     //###############
     
-    std::cout<<"Computing Poynting sensor results"<<std::endl;
+    Plog::print("Computing Poynting sensor results", "\n");
     ProgTimeDisp dsp(span1*span2);
     
     
@@ -462,7 +462,7 @@ void Spect_Poynting_FFT::treat(std::string fname_out)
         {
             if(t%Naccu==0)
             {
-                std::cout<<f_in.tellg()<<std::endl;
+                Plog::print(f_in.tellg(), "\n");
                 
                 //Necessary step to avoid overflows
                 
@@ -480,7 +480,7 @@ void Spect_Poynting_FFT::treat(std::string fname_out)
                 
                 f_in.seekg(p);
                 
-                std::cout<<f_in.tellg()<<" "<<f_in.good()<<" "<<sizeof(long)<<std::endl;
+                Plog::print(f_in.tellg(), " ", f_in.good(), " ", sizeof(long), "\n");
                 Nchunk+=1;
             }
             
@@ -494,8 +494,8 @@ void Spect_Poynting_FFT::treat(std::string fname_out)
                 f_in.read(reinterpret_cast<char*>(&tr_Hz(i,t)),sizeof(double));
             }
             
-            if(f_in.bad()) std::cout<<"bleh"<<std::endl;
-            if(f_in.eof()) std::cout<<"blah"<<std::endl;
+            if(f_in.bad()) Plog::print("bleh", "\n");
+            if(f_in.eof()) Plog::print("blah", "\n");
         }
         
         for(i=0;i<span1;i++)

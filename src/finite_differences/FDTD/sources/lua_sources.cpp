@@ -13,6 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include <enum_constants.h>
+#include <logger.h>
 #include <lua_sources.h>
 #include <mathUT.h>
 #include <sources.h>
@@ -25,7 +26,7 @@ limitations under the License.*/
 int create_source(lua_State *L)
 {
     std::string type=lua_tostring(L,1);
-    std::cout<<type<<std::endl;
+    Plog::print(type, "\n");
     
     Source_generator **p_src=reinterpret_cast<Source_generator**>(lua_newuserdata(L,sizeof(Source_generator*)));
     *(p_src)=new Source_generator;
@@ -40,8 +41,8 @@ int create_source(lua_State *L)
     else if(type=="oscillator") src.type=Source_generator::SOURCE_GEN_OSCILLATOR;
     else
     {
-        std::cout<<"Unknown sensor type: "<<type<<std::endl;
-        std::cout<<"Press Enter to continue..."<<std::endl;
+        Plog::print("Unknown sensor type: ", type, "\n");
+        Plog::print("Press Enter to continue...\n");
         std::cin.get();
     }
     return 1;
@@ -121,7 +122,7 @@ int source_set_orientation(lua_State *L)
         else if(is_y_neg(orient_str)) (*pp_src)->orientation=NORMAL_YM;
         else if(is_z_neg(orient_str)) (*pp_src)->orientation=NORMAL_ZM;
     }
-    else std::cout<<"Error, unrecognized orientation"<<std::endl;
+    else Plog::print("Error, unrecognized orientation\n");
     
     return 1;
 }

@@ -12,9 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
+#include <logger.h>
 #include <math_approx.h>
-
-
 
 Cspline::Cspline()
     :Np(0),
@@ -215,25 +214,25 @@ bool Cspline::is_empty() const
 
 void Cspline::show() const
 {
-    std::cout<<"Np: "<<Np<<"\n";
-    std::cout<<"end_mod: "<<end_mode<<"\n";
-    std::cout<<"offset_x: "<<offset_x<<"\n";
-    std::cout<<"offset_y: "<<offset_y<<"\n";
-    std::cout<<"scale_x: "<<scale_x<<"\n";
-    std::cout<<"scale_y: "<<scale_y<<"\n";
+    Plog::print("Np: ", Np, "\n");
+    Plog::print("end_mod: ", end_mode, "\n");
+    Plog::print("offset_x: ", offset_x, "\n");
+    Plog::print("offset_y: ", offset_y, "\n");
+    Plog::print("scale_x: ", scale_x, "\n");
+    Plog::print("scale_y: ", scale_y, "\n");
     
-    std::cout<<"xp:\n";
+    Plog::print("xp:\n");
     for(std::size_t i=0;i<xp.size();i++)
-        std::cout<<xp[i]<<" ";
-    std::cout<<"\nyp:\n";
+        Plog::print(xp[i], " ");
+    Plog::print("\nyp:\n");
     for(std::size_t i=0;i<yp.size();i++)
-        std::cout<<yp[i]<<" ";
-    std::cout<<"\ncoeffs:\n";
+        Plog::print(yp[i], " ");
+    Plog::print("\ncoeffs:\n");
     for(int i=0;i<coeffs.L1();i++)
     {
         for(int j=0;j<coeffs.L2();j++)
-            std::cout<<coeffs(i,j)<<" ";
-        std::cout<<"\n";
+            Plog::print(coeffs(i,j), " ");
+        Plog::print("\n");
     }
 }
 

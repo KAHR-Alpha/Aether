@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2024 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -12,6 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
+#include <logger.h>
 #include <multilayers.h>
 #include <phys_tools.h>
 
@@ -485,7 +486,7 @@ void LayerFitter::compute_response(bool silent)
 //        data_comp[l]=R_21-P*P*T_12*R_23*T_12/(R_21*P*P*R_23-1.0);
             
 //            if(l==N_data-1)
-//            std::cout<<n_sub<<" "<<exp_decay<<" "<<sec_ref<<" "
+//            Plog::print(n_sub<<" "<<exp_decay<<" "<<sec_ref<<" "
 //                     <<(1.0-std::real(sec_ref*std::conj(sec_ref)))<<" "
 //                     <<t_base<<" "
 //                     <<t_TE<<" "
@@ -794,7 +795,7 @@ void LayerFitter::threaded_optimization()
     
     while(optimizing)
     {
-        std::cout<<k<<" "<<best_score<<std::endl;
+        Plog::print(k, " ", best_score, "\n");
         k++;
 
         optim_engine.evolve(factor);

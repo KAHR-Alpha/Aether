@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2024 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@ limitations under the License.*/
 #include <bitmap3.h>
 #include <data_hdl.h>
 #include <fdtd_core.h>
+#include <logger.h>
 #include <lua_fdtd.h>
 
 extern const Imdouble Im;
@@ -186,12 +187,12 @@ void FDTD_single_particle(FDTD_Mode const &fdtd_mode,std::atomic<bool> *end_comp
     double index_sub=std::sqrt(eps_sub);
     double index_sup=std::sqrt(eps_sup);
     
-    std::cout<<"u "<<eps_sup<<"/"<<index_sup<<" d "<<eps_sub<<"/"<<index_sub<<std::endl;
+    Plog::print("u ", eps_sup , "/", index_sup, " d ", eps_sub, "/", index_sub, "\n");
     
     ChpIn inj_chp;
     inj_chp.init_pulse(lambda_min,lambda_max,0,pol,0,0,0,(zs_e-1+5)*Dz,1.0);
     
-    std::cout<<"Computing"<<std::endl;
+    Plog::print("Computing\n");
     
     fdtd.bootstrap();
     

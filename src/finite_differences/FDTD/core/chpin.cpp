@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2024 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include <fdtd_core.h>
+#include <logger.h>
 #include <thread_utils.h>
 
 extern const Imdouble Im;
@@ -161,8 +162,8 @@ void ChpIn::init_phase(double li,double lf,double kxi,double poli,double phase_i
     double wi=2.0*Pi*c_light/li;
     double wf=2.0*Pi*c_light/lf;
     
-    std::cout<<li<<std::endl;
-    std::cout<<lf<<std::endl;
+    Plog::print(li, "\n");
+    Plog::print(lf, "\n");
         
     pcw0=(wi+wf)/2.0;
     pcdw=std::abs(0.5*(wi-pcw0));
@@ -233,7 +234,7 @@ void ChpIn::init_phase(double li,double lf,double kxi,double poli,double phase_i
         pHy=&ChpIn::PhaseHy;
         pHz=&ChpIn::PhaseHz;
         
-        std::cout<<"EM field: Real part initialized"<<std::endl;
+        Plog::print("EM field: Real part initialized", "\n");
     }
     else
     {
@@ -244,7 +245,7 @@ void ChpIn::init_phase(double li,double lf,double kxi,double poli,double phase_i
         pHy=&ChpIn::PhaseHy_D;
         pHz=&ChpIn::PhaseHz_D;
         
-        std::cout<<"EM field: Imaginary part initialized"<<std::endl;
+        Plog::print("EM field: Imaginary part initialized", "\n");
     }
 }
 
@@ -545,14 +546,12 @@ void ChpIn::setfields()
 
 void ChpIn::show()
 {
-    using std::cout;
-    using std::endl;
     using std::pow;
     
-    cout<<"kx: "<<kx/k<<endl<<"ky: "<<ky/k<<endl<<"kz: "<<kz/k<<endl;
-    cout<<"Norm1: "<<pow(kx/k,2.0)+pow(ky/k,2.0)+pow(kz/k,2.0)<<endl;
-    cout<<"Ex: "<<Ex0<<endl<<"Ey: "<<Ey0<<endl<<"Ez: "<<Ez0<<endl;
-    cout<<"Norm2: "<<Ex0*Ex0+Ey0*Ey0+Ez0*Ez0<<endl;
-    cout<<"Hx: "<<Hx0<<endl<<"Hy: "<<Hy0<<endl<<"Hz: "<<Hz0<<endl;
-    cout<<"Norm3: "<<Hx0*Hx0+Hy0*Hy0+Hz0*Hz0<<endl;
+    Plog::print("kx: ", kx/k, "\n", "ky: ", ky/k, "\n", "kz: ", kz/k, "\n");
+    Plog::print("Norm1: ", pow(kx/k,2.0)+pow(ky/k,2.0)+pow(kz/k,2.0), "\n");
+    Plog::print("Ex: ", Ex0, "\n", "Ey: ", Ey0, "\n", "Ez: ", Ez0, "\n");
+    Plog::print("Norm2: ", Ex0*Ex0+Ey0*Ey0+Ez0*Ez0, "\n");
+    Plog::print("Hx: ", Hx0, "\n", "Hy: ", Hy0, "\n", "Hz: ", Hz0, "\n");
+    Plog::print("Norm3: ", Hx0*Hx0+Hy0*Hy0+Hz0*Hz0, "\n");
 }

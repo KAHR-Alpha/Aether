@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2024 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -12,6 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
+#include <logger.h>
 #include <fieldblock_holder.h>
 
 #include <fstream>
@@ -535,11 +536,11 @@ bool FieldBlockHolder::load(std::string const &fname)
     file.read(reinterpret_cast<char*>(&Dy),sizeof(double));
     file.read(reinterpret_cast<char*>(&Dz),sizeof(double));
     
-    std::cout<<lambda<<std::endl;
-    std::cout<<x1<<" "<<y1<<" "<<z1<<std::endl;
-    std::cout<<"Nx: "<<Nx<<" Ny: "<<Ny<<" Nz: "<<Nz<<std::endl;
-    std::cout<<Dx<<" "<<Dy<<" "<<Dz<<std::endl;
-    std::cout<<file.tellg()<<std::endl;
+    Plog::print(lambda, "\n");
+    Plog::print(x1, " ", y1, " ", z1, "\n");
+    Plog::print("Nx: ", Nx, " Ny: ", Ny, " Nz: ", Nz, "\n");
+    Plog::print(Dx, " ", Dy, " ", Dz, "\n");
+    Plog::print(file.tellg(), "\n");
     
     mats.init(Nx,Ny,Nz,0);
     

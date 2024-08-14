@@ -101,7 +101,7 @@ void Sensor_generator::operator = (Sensor_generator const &sens)
 void Sensor_generator::set_name(std::string name_)
 {
     name=name_;
-    std::cout<<"Setting the sensor name to "<<name<<std::endl;
+    Plog::print("Setting the sensor name to ", name, "\n");
 }
 
 void Sensor_generator::set_orientation(std::string orient_str)
@@ -127,16 +127,16 @@ void Sensor_generator::set_spectrum(double lambda_min_,double lambda_max_,int Nl
     lambda_min=lambda_min_;
     lambda_max=lambda_max_;
     Nl=Nl_;
-    std::cout<<"Setting the analysis spectrum between "
-             <<add_unit_u(lambda_min)<<" and "<<add_unit_u(lambda_max)
-             <<" with "<<Nl<<" points"<<std::endl;
+    Plog::print("Setting the analysis spectrum between ",
+                add_unit_u(lambda_min), " and ", add_unit_u(lambda_max),
+                " with ", Nl, " points\n");
 }
 
 void Sensor_generator::set_wavelength(double lambda_)
 {
     Nl=1;
     lambda_min=lambda_max=lambda_;
-    std::cout<<"Setting the analysis wavelength to "<<add_unit_u(lambda_min)<<std::endl;
+    Plog::print("Setting the analysis wavelength to ", add_unit_u(lambda_min), "\n");
 }
 
 void Sensor_generator::to_discrete(double Dx,double Dy,double Dz)
@@ -305,7 +305,7 @@ void Sensor::set_type(int type_)
 
 void Sensor::show_location()
 {
-    std::cout<<x1<<" "<<x2<<" "<<y1<<" "<<y2<<" "<<z1<<" "<<z2<<std::endl;
+    Plog::print(x1, " ", x2, " ", y1, " ", y2, " ", z1, " ", z2, "\n");
 }
 
 void Sensor::treat()

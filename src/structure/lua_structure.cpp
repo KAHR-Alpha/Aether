@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2024 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include <filehdl.h>
+#include <logger.h>
 #include <lua_structure.h>
 #include <phys_tools.h>
 #include <string_tools.h>
@@ -300,10 +301,10 @@ int structure_add_block(lua_State *L)
     double z2=lua_tonumber(L,6);
     int index=lua_tointeger(L,7);
     
-    std::cout<<"Adding a block with index "<<index<<std::endl
-             <<"     from X( "<<add_unit_u(x1)<<" , "<<add_unit_u(x2)<<" ) "<<std::endl
-             <<"     from Y( "<<add_unit_u(y1)<<" , "<<add_unit_u(y2)<<" ) "<<std::endl
-             <<"     from Z( "<<add_unit_u(z1)<<" , "<<add_unit_u(z2)<<" ) "<<std::endl;
+    Plog::print("Adding a block with index ", index, "\n"
+             , "     from X( ", add_unit_u(x1), " , ", add_unit_u(x2), " ) ", "\n"
+             , "     from Y( ", add_unit_u(y1), " , ", add_unit_u(y2), " ) ", "\n"
+             , "     from Z( ", add_unit_u(z1), " , ", add_unit_u(z2), " ) ", "\n");
     
     p_struct->add_operation(new Add_Block(x1,x2,y1,y2,z1,z2,index));
     
@@ -321,9 +322,9 @@ int structure_add_coating(lua_State *L)
     int origin_index=lua_tointeger(L,5);
     int index=lua_tointeger(L,6);
     
-    std::cout<<"Adding a coating with index "<<index<<" from index "<<origin_index<<"\n"
-             <<"     deposited at an incidence of "<<theta.degree()<<" and an azimuth of "<<phi.degree()<<"\n"
-             <<"     with a thickness of "<<add_unit_u(thickness)<<" and a delta check of "<<add_unit_u(delta)<<std::endl;
+    Plog::print("Adding a coating with index ", index, " from index ", origin_index, "\n"
+             , "     deposited at an incidence of ", theta.degree(), " and an azimuth of ", phi.degree(), "\n"
+             , "     with a thickness of ", add_unit_u(thickness), " and a delta check of ", add_unit_u(delta), "\n");
     
     p_struct->add_operation(new Add_Coating(theta,phi,thickness,delta,origin_index,index));
     
@@ -343,10 +344,10 @@ int structure_add_cone(lua_State *L)
     double r=lua_tonumber(L,7);
     int index=lua_tointeger(L,8);
     
-    std::cout<<"Adding cone with index "<<index<<std::endl
-             <<"     from ( "<<x1<<" , "<<y1<<" , "<<z1<<" ) "<<std::endl
-             <<"     to ( "<<x1+x2<<" , "<<y1+y2<<" , "<<z1+z2<<" ) "<<std::endl
-             <<"     with radius "<<r<<std::endl;
+    Plog::print("Adding cone with index ", index, "\n"
+             , "     from ( ", x1, " , ", y1, " , ", z1, " ) ", "\n"
+             , "     to ( ", x1+x2, " , ", y1+y2, " , ", z1+z2, " ) ", "\n"
+             , "     with radius ", r, "\n");
     
     p_struct->add_operation(new Add_Cone(x1,y1,z1,x1+x2,y1+y2,z1+z2,r,index));
     
@@ -366,10 +367,10 @@ int structure_add_cylinder(lua_State *L)
     double r=lua_tonumber(L,7);
     int index=lua_tointeger(L,8);
     
-    std::cout<<"Adding cylinder with index "<<index<<std::endl
-             <<"     from ( "<<x1<<" , "<<y1<<" , "<<z1<<" ) "<<std::endl
-             <<"     to ( "<<x1+x2<<" , "<<y1+y2<<" , "<<z1+z2<<" ) "<<std::endl
-             <<"     with radius "<<r<<std::endl;
+    Plog::print("Adding cylinder with index ", index, "\n"
+             , "     from ( ", x1, " , ", y1, " , ", z1, " ) ", "\n"
+             , "     to ( ", x1+x2, " , ", y1+y2, " , ", z1+z2, " ) ", "\n"
+             , "     with radius ", r, "\n");
     
     p_struct->add_operation(new Add_Cylinder(x1,y1,z1,x1+x2,y1+y2,z1+z2,r,index));
     
@@ -388,9 +389,9 @@ int structure_add_ellipsoid(lua_State *L)
     double rz=lua_tonumber(L,6);
     int index=lua_tointeger(L,7);
     
-    std::cout<<"Adding an ellipsoid with index "<<index<<std::endl
-             <<"     at ( "<<add_unit_u(x)<<" , "<<add_unit_u(y)<<" , "<<add_unit_u(z)<<" ) with arm lengthes ("
-             <<add_unit_u(rx)<<" , "<<add_unit_u(ry)<<" , "<<add_unit_u(rz)<<")"<<std::endl;
+    Plog::print("Adding an ellipsoid with index ", index, "\n"
+             , "     at ( ", add_unit_u(x), " , ", add_unit_u(y), " , ", add_unit_u(z), " ) with arm lengthes ("
+             , add_unit_u(rx), " , ", add_unit_u(ry), " , ", add_unit_u(rz), ")", "\n");
     
     p_struct->add_operation(new Add_Ellipsoid(x,y,z,rx,ry,rz,index));
     
@@ -411,9 +412,9 @@ int structure_add_layer(lua_State *L)
     if(type_str=="X" || type_str=="x") type=0;
     else if(type_str=="Y" || type_str=="y") type=1;
     
-    std::cout<<"Adding layer with index "<<index<<std::endl
-             <<"     along "<<type_str<<std::endl
-             <<"     between "<<add_unit_u(z1)<<" and "<<add_unit_u(z2)<<std::endl;
+    Plog::print("Adding layer with index ", index, "\n"
+             , "     along ", type_str, "\n"
+             , "     between ", add_unit_u(z1), " and ", add_unit_u(z2), "\n");
     
     p_struct->add_operation(new Add_Layer(type,z1,z2,index));
     
@@ -470,9 +471,9 @@ int structure_add_mesh(lua_State *L)
     
     fpath=PathManager::locate_file(fpath,*caller_path);
     
-    std::cout<<"Adding a mesh from the file "<<fpath<<" with index "<<index<<std::endl
-             <<"     at ( "<<add_unit_u(x)<<" , "<<add_unit_u(y)<<" , "<<add_unit_u(z)<<" ) with scale "
-             <<s<<std::endl;
+    Plog::print("Adding a mesh from the file ", fpath, " with index ", index, "\n"
+             , "     at ( ", add_unit_u(x), " , ", add_unit_u(y), " , ", add_unit_u(z), " ) with scale "
+             , s, "\n");
     
     p_struct->add_operation(new Add_Mesh(x,y,z,s,fpath,index));
     
@@ -497,11 +498,11 @@ int structure_add_sin_layer(lua_State *L)
     
     int index=lua_tointeger(L,9);
     
-    std::cout<<"Adding a sinusoidal with index "<<index<<std::endl
-             <<"     between z="<<add_unit_u(z1)<<" and z="<<add_unit_u(z2)<<std::endl
-             <<"     with amplitudes of "<<add_unit_u(a1)<<" and "<<add_unit_u(a2)<<std::endl
-             <<"     with periodicities of "<<add_unit_u(px)<<" and "<<add_unit_u(py)<<std::endl
-             <<"     with phases of "<<180.0/Pi*phi_x<<" and "<<180.0/Pi*phi_y<<std::endl;
+    Plog::print("Adding a sinusoidal with index ", index, "\n"
+             , "     between z=", add_unit_u(z1), " and z=", add_unit_u(z2), "\n"
+             , "     with amplitudes of ", add_unit_u(a1), " and ", add_unit_u(a2), "\n"
+             , "     with periodicities of ", add_unit_u(px), " and ", add_unit_u(py), "\n"
+             , "     with phases of ", 180.0/Pi*phi_x, " and ", 180.0/Pi*phi_y, "\n");
     
     p_struct->add_operation(new Add_Sin_Layer(z1,a1,z2,a2,px,phi_x,py,phi_y,index));
     
@@ -518,9 +519,9 @@ int structure_add_sphere(lua_State *L)
     double r=lua_tonumber(L,4);
     int index=lua_tointeger(L,5);
     
-    std::cout<<"Adding a sphere with index "<<index<<std::endl
-             <<"     at ( "<<add_unit_u(x)<<" , "<<add_unit_u(y)<<" , "<<add_unit_u(z)<<" ) with radius "
-             <<add_unit_u(r)<<std::endl;
+    Plog::print("Adding a sphere with index ", index, "\n"
+             , "     at ( ", add_unit_u(x), " , ", add_unit_u(y), " , ", add_unit_u(z), " ) with radius "
+             , add_unit_u(r), "\n");
     
     p_struct->add_operation(new Add_Sphere(x,y,z,r,index));
     
@@ -548,11 +549,11 @@ int structure_add_vect_block(lua_State *L)
     double zC=lua_tonumber(L,12);
     int index=lua_tointeger(L,13);
     
-    std::cout<<"Adding a vector block with index "<<index<<std::endl;
-    std::cout<<"    with O( "<<xO<<" , "<<yO<<" , "<<zO<<" )"<<std::endl;
-    std::cout<<"    with A( "<<xA<<" , "<<yA<<" , "<<zA<<" )"<<std::endl;
-    std::cout<<"    with B( "<<xB<<" , "<<yB<<" , "<<zB<<" )"<<std::endl;
-    std::cout<<"    with C( "<<xC<<" , "<<yC<<" , "<<zC<<" )"<<std::endl;
+    Plog::print("Adding a vector block with index ", index, "\n");
+    Plog::print("    with O( ", xO, " , ", yO, " , ", zO, " )", "\n");
+    Plog::print("    with A( ", xA, " , ", yA, " , ", zA, " )", "\n");
+    Plog::print("    with B( ", xB, " , ", yB, " , ", zB, " )", "\n");
+    Plog::print("    with C( ", xC, " , ", yC, " , ", zC, " )", "\n");
     
     p_struct->add_operation(new Add_Vect_Block(xO,yO,zO,xA,yA,zA,xB,yB,zB,xC,yC,zC,index));
     
@@ -582,11 +583,11 @@ int structure_add_vect_tri(lua_State *L)
     double alp=lua_tonumber(L,13);
     int index=lua_tointeger(L,14);
     
-    std::cout<<"Adding a vector triangle with index "<<index<<std::endl;
-    std::cout<<"    with O( "<<xO<<" , "<<yO<<" , "<<zO<<" )"<<std::endl;
-    std::cout<<"    with A( "<<xA<<" , "<<yA<<" , "<<zA<<" )"<<std::endl;
-    std::cout<<"    with B( "<<xB<<" , "<<yB<<" , "<<zB<<" )"<<std::endl;
-    std::cout<<"    with C( "<<xC<<" , "<<yC<<" , "<<zC<<" )"<<std::endl;
+    Plog::print("Adding a vector triangle with index ", index, "\n");
+    Plog::print("    with O( ", xO, " , ", yO, " , ", zO, " )", "\n");
+    Plog::print("    with A( ", xA, " , ", yA, " , ", zA, " )", "\n");
+    Plog::print("    with B( ", xB, " , ", yB, " , ", zB, " )", "\n");
+    Plog::print("    with C( ", xC, " , ", yC, " , ", zC, " )", "\n");
     
     p_struct->add_operation(new Add_Vect_Tri(xO,yO,zO,xA,yA,zA,xB,yB,zB,xC,yC,zC,alp,index));
     
@@ -629,7 +630,7 @@ int structure_default_material(lua_State *L)
     Structure *p_struct=get_structure_pointer(L);
 
     int index=lua_tointeger(L,1);
-    std::cout<<"Filling with index "<<index<<std::endl;
+    Plog::print("Filling with index ", index, "\n");
     
     p_struct->set_default_material(index);
     

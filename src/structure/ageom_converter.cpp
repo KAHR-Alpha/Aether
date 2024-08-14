@@ -186,9 +186,9 @@ std::string ageom_to_lua(std::filesystem::path const &script)
 
     if(load_err!=LUA_OK)
     {
-        if(load_err==LUA_ERRFILE) std::cout<<"Lua file error with "<<script<<std::endl;
-        else if(load_err==LUA_ERRSYNTAX) std::cout<<"Lua syntax error with "<<script<<std::endl;
-        else std::cout<<"Lua error with "<<script<<std::endl;
+        if(load_err==LUA_ERRFILE) Plog::print("Lua file error with ", script, "\n");
+        else if(load_err==LUA_ERRSYNTAX) Plog::print("Lua syntax error with ", script, "\n");
+        else Plog::print("Lua error with ", script, "\n");
         std::cin.get();
         return "";
     }

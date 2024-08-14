@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2024 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -12,8 +12,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
-#include <fdtd_core.h>
 #include <bitmap3.h>
+#include <logger.h>
+#include <fdtd_core.h>
 
 
 extern const Imdouble Im;
@@ -48,7 +49,7 @@ void bufread(Grid3<double> &G,int Nmem,std::string fs)
     int Ny=G.L1();
     int Nz=G.L2();
     
-    std::cout<<"Read "<<fs<<std::endl;
+    Plog::print("Read ", fs, "\n");
     std::ifstream file(fs.c_str(),std::ios::in|std::ios::binary);
     
     double b;
@@ -71,7 +72,7 @@ void bufwrite(Grid3<double> &G,int Nmem,std::string fs)
     int Ny=G.L1();
     int Nz=G.L2();
     
-    std::cout<<"Write "<<fs<<std::endl;
+    Plog::print("Write ", fs, "\n");
     std::ofstream file(fs.c_str(),std::ios::out|std::ios::trunc|std::ios::binary);
     
     double b;
@@ -94,12 +95,12 @@ void bufwrite(Grid3<double> &G,int Nmem,std::string fs)
     int i,j,k,l,t;
     int it;
     
-    std::cout<<"blah"<<std::endl;
+    Plog::print("blah"<<std::endl;
     
     double inc_ang_deg=0;
     double inc_ang_rad=0;
     
-    std::cout<<inc_ang_rad<<std::endl;
+    Plog::print(inc_ang_rad<<std::endl;
     
     int Nx=60,Ny=60,Nz=60;
     int Nt=40000;
@@ -156,9 +157,9 @@ void bufwrite(Grid3<double> &G,int Nmem,std::string fs)
     
     if(script.has("angle")) script.get_options(inc_ang_deg);
     
-    std::cout<<"Oblique incidence"<<std::endl;
-    std::cout<<"Requested angle: "<<inc_ang_deg<<std::endl;
-    std::cout<<Nx*Dx<<std::endl;
+    Plog::print("Oblique incidence"<<std::endl;
+    Plog::print("Requested angle: "<<inc_ang_deg<<std::endl;
+    Plog::print(Nx*Dx<<std::endl;
     
     i=0;
     
@@ -192,8 +193,8 @@ void bufwrite(Grid3<double> &G,int Nmem,std::string fs)
         i++;
     }
     
-    std::cout<<"Used angle: "<<inc_ang_deg<<std::endl;
-    std::cout<<"Time shift: "<<Nshift<<" steps"<<std::endl;
+    Plog::print("Used angle: "<<inc_ang_deg<<std::endl;
+    Plog::print("Time shift: "<<Nshift<<" steps"<<std::endl;
     
     inc_ang_rad=Pi/180.0*inc_ang_deg;
     
@@ -241,7 +242,7 @@ void bufwrite(Grid3<double> &G,int Nmem,std::string fs)
     int xs_s=fdtd.xs_s+10;
     int xs_e=xs_s+fdtd.Nx_s-20;
     
-    std::cout<<xs_s<<" "<<xs_e<<" "<<xs_e-xs_s<<std::endl;
+    Plog::print(xs_s<<" "<<xs_e<<" "<<xs_e-xs_s<<std::endl;
     
     //################
     // Mem alloc
@@ -527,7 +528,7 @@ void bufwrite(Grid3<double> &G,int Nmem,std::string fs)
                 bufread(P_bufHy,Nmem,fsh2.str());
                 bufread(P_bufHz,Nmem,fsh3.str());
                 
-                std::cout<<"TAC "<<(np+1)/Nmem<<std::endl;
+                Plog::print("TAC "<<(np+1)/Nmem<<std::endl;
             }
             #endif
                         
@@ -565,7 +566,7 @@ void bufwrite(Grid3<double> &G,int Nmem,std::string fs)
                 bufread(F_bufHy,Nmem,fsh2.str());
                 bufread(F_bufHz,Nmem,fsh3.str());
                 
-                std::cout<<"TOC "<<(nf+1)/Nmem<<std::endl;
+                Plog::print("TOC "<<(nf+1)/Nmem<<std::endl;
             }
             
             if((nf+1)/Nmem!=nf/Nmem && nf+1>=Nt)
@@ -621,7 +622,7 @@ void bufwrite(Grid3<double> &G,int Nmem,std::string fs)
                 bufwrite(N_bufHy_r,Nmem,fsh2.str());
                 bufwrite(N_bufHz_r,Nmem,fsh3.str());
                 
-                std::cout<<"TIC R"<<t/Nmem<<std::endl;
+                Plog::print("TIC R"<<t/Nmem<<std::endl;
             }
             
             //Cache writing - Past
@@ -640,7 +641,7 @@ void bufwrite(Grid3<double> &G,int Nmem,std::string fs)
                 bufwrite(N_bufHy_l,Nmem,fsh2.str());
                 bufwrite(N_bufHz_l,Nmem,fsh3.str());
                 
-                std::cout<<"TIC L"<<t/Nmem<<std::endl;
+                Plog::print("TIC L"<<t/Nmem<<std::endl;
             }
             #endif
             
@@ -796,7 +797,7 @@ void bufwrite(Grid3<double> &G,int Nmem,std::string fs)
     using std::sqrt;
     using std::norm;
         
-    std::cout<<inc_ang_deg<<" "<<Nt<<std::endl;
+    Plog::print(inc_ang_deg<<" "<<Nt<<std::endl;
     
     for(l=0;l<Nl;l++)
     {
@@ -1102,7 +1103,7 @@ void bufwrite(Grid3<double> &G,int Nmem,std::string fs)
 //                bufread(P_bufHy,Nmem,fsh2.str());
 //                bufread(P_bufHz,Nmem,fsh3.str());
 //                
-//                std::cout<<"TAC "<<(np+1)/Nmem<<std::endl;
+//                Plog::print("TAC "<<(np+1)/Nmem<<std::endl;
 //            }
 //            #endif
 //            
@@ -1138,7 +1139,7 @@ void bufwrite(Grid3<double> &G,int Nmem,std::string fs)
 //                bufread(F_bufHy,Nmem,fsh2.str());
 //                bufread(F_bufHz,Nmem,fsh3.str());
 //                
-//                std::cout<<"TOC "<<(nf+1)/Nmem<<std::endl;
+//                Plog::print("TOC "<<(nf+1)/Nmem<<std::endl;
 //            }
 //            
 //            if((nf+1)/Nmem!=nf/Nmem && nf+1>=Nt)
@@ -1192,7 +1193,7 @@ void bufwrite(Grid3<double> &G,int Nmem,std::string fs)
 //                bufwrite(N_bufHy_r,Nmem,fsh2.str());
 //                bufwrite(N_bufHz_r,Nmem,fsh3.str());
 //                
-//                std::cout<<"TIC R"<<t/Nmem<<std::endl;
+//                Plog::print("TIC R"<<t/Nmem<<std::endl;
 //            }
 //            
 //            //Cache writing - Past
@@ -1211,7 +1212,7 @@ void bufwrite(Grid3<double> &G,int Nmem,std::string fs)
 //                bufwrite(N_bufHy_l,Nmem,fsh2.str());
 //                bufwrite(N_bufHz_l,Nmem,fsh3.str());
 //                
-//                std::cout<<"TIC L"<<t/Nmem<<std::endl;
+//                Plog::print("TIC L"<<t/Nmem<<std::endl;
 //            }
 //            #endif
 //            
@@ -1228,7 +1229,7 @@ void bufwrite(Grid3<double> &G,int Nmem,std::string fs)
 //                int tc1=int(tc)/3600;
 //                int tc2=(int(tc)-3600*tc1)/60;
 //                double tc3=tc-3600*tc1-60*tc2;
-//                std::cout<<(t+it*Nt)/(Nt*Nit-1.0)*100.0<<"% "<<tc1<<":"<<tc2<<":"<<tc3<<" "
+//                Plog::print((t+it*Nt)/(Nt*Nit-1.0)*100.0<<"% "<<tc1<<":"<<tc2<<":"<<tc3<<" "
 //                            <<(b-a)/(t+1.0+it*Nt)<<" "<<t1<<":"<<t2<<":"<<t3<<" "<<t<<" / "<<Nt<<" "<<t+it*Nt<<" / "<<Nt*Nit-1<<std::endl;
 //            }
 //            
@@ -1564,7 +1565,7 @@ void bufwrite(Grid3<double> &G,int Nmem,std::string fs)
 //    using std::sqrt;
 //    using std::norm;
 //        
-//    std::cout<<inc_ang*180.0/Pi<<" "<<Nt<<std::endl;
+//    Plog::print(inc_ang*180.0/Pi<<" "<<Nt<<std::endl;
 //    
 //    for(l=0;l<Nl;l++)
 //    {

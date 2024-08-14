@@ -19,6 +19,7 @@ limitations under the License.*/
 #include <data_hdl.h>
 #include <fdtd_core.h>
 #include <index_utils.h>
+#include <logger.h>
 #include <lua_fdfd.h>
 #include <lua_fdtd.h>
 #include <lua_interface.h>
@@ -126,8 +127,8 @@ int mode_choice(lua_State *L)
     #endif
     else
     {
-        std::cout<<"Unrecognized mode "<<mode<<std::endl;
-        std::cout<<"Press Enter to continue..."<<std::endl;
+        Plog::print("Unrecognized mode ", mode, "\n");
+        Plog::print("Press Enter to continue...\n");
         std::cin.get();
     }
     
@@ -142,6 +143,7 @@ int mode_choice(lua_State *L)
 {
     PathManager::initialize();
     plog.open(PathManager::to_temporary_path("log.txt"),std::ios::out|std::ios::trunc);
+    Plog::init(PathManager::to_temporary_path("log.txt"));
     
     std::string script_fname="script.lua";
     
@@ -164,21 +166,21 @@ int mode_choice(lua_State *L)
                 if(curr_arg+1<n_args) { curr_arg++; script_fname=args[curr_arg]; }
                 else
                 {
-                    std::cerr << "Missing file argument for '-f'."<<std::endl;
-                    std::cerr << "Try '"<<args[0]<<" --help' for more information."<<std::endl;
+                    Plog::print(LogType::FATAL, "Missing file argument for '-f'.\n");
+                    Plog::print(LogType::FATAL, "Try '", args[0], " --help' for more information.\n");
                     std::exit(EXIT_FAILURE);
                 }
             }
             else if(args[curr_arg]=="-h" || args[curr_arg]=="--help") // Help requested
             {
-                std::cout << "Usage: " << args[0] << " [-f SCRIPT_NAME]" << std::endl;
-                std::cout << "If SCRIPT_NAME is not specified, Aether will attempt to run a file named 'script.lua' in the current working directory."<<std::endl;
+                Plog::print("Usage: ", args[0], " [-f SCRIPT_NAME]\n");
+                Plog::print("If SCRIPT_NAME is not specified, Aether will attempt to run a file named 'script.lua' in the current working directory.\n");
                 std::exit(EXIT_SUCCESS);
             }
             else // Unrecognized argument
             {
-                std::cerr << "Invalid option '"<<args[curr_arg]<<"'."<<std::endl;
-                std::cerr << "Try '"<<args[0]<<" --help' for more information."<<std::endl;
+                Plog::print(LogType::FATAL, "Invalid option '", args[curr_arg], "'.\n");
+                Plog::print(LogType::FATAL, "Try '", args[0], " --help' for more information.");
                 std::exit(EXIT_FAILURE);
             }
             curr_arg++;
@@ -189,8 +191,11 @@ int mode_choice(lua_State *L)
     
     if(!std::filesystem::is_regular_file(script_fname_path))
     {
-        std::cerr<<script_fname_path.generic_string()<<" is not a file or could not be located at "
-                 <<std::filesystem::absolute(script_fname_path).generic_string()<<"\nAborting...\n";
+        Plog::print(LogType::FATAL,
+                    script_fname_path.generic_string(),
+                    " is not a file or could not be located at ",
+                    std::filesystem::absolute(script_fname_path).generic_string(),
+                    "\nAborting...\n");
         std::exit(EXIT_FAILURE);
     }
     
@@ -374,7 +379,7 @@ int mode_choice(lua_State *L)
     
     lua_close(L);
     
-    std::cout<<"test_failure: "<<test_failure<<std::endl;
+    Plog::print("test_failure: ", test_failure, "\n");
     
     if(test_failure) return 1;
     else return 0;

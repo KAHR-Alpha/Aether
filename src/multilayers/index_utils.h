@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2024 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -16,12 +16,13 @@ limitations under the License.*/
 #define INDEX_UTILS_H
 
 #include <bitmap3.h>
+#include <logger.h>
 #include <mathUT.h>
 #include <phys_constants.h>
-#include <iostream>
-#include <fstream>
-#include <vector>
 
+#include <fstream>
+#include <iostream>
+#include <vector>
 
 extern const Imdouble Im;
 
@@ -206,7 +207,7 @@ class Index
         
         void show()
         {
-            std::cout<<n2<<" "<<R<<std::endl;
+            Plog::print(n2, " ", R, "\n");
         }
 };
 

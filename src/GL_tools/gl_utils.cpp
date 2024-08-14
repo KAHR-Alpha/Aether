@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2024 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include <gl_utils.h>
+#include <logger.h>
 
 extern std::ofstream plog;
 
@@ -154,7 +155,7 @@ namespace Glite
         
         if(shad_comp==GL_FALSE)
         {
-            std::cout<<"Compilation error"<<std::endl;
+            Plog::print("Compilation error\n");
             
             GLint shad_log_l;
             glGetShaderiv(shader,GL_INFO_LOG_LENGTH,&shad_log_l);
@@ -164,11 +165,11 @@ namespace Glite
             glGetShaderInfoLog(shader,shad_log_l*2,&shad_log_l,log);
             
             for(int i=0;i<shad_log_l;i++)
-                std::cout<<char(log[i]);
+                Plog::print(char(log[i]));
             
             delete[] log;
             
-            std::cout<<"Press enter to continue"<<std::endl;
+            Plog::print("Press enter to continue\n");
             std::cin.get();
         }
     }

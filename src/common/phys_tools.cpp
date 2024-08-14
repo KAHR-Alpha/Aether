@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2024 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -12,8 +12,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
+#include <logger.h>
 #include <phys_tools.h>
-
 
 extern const Imdouble Im;
 
@@ -384,7 +384,7 @@ void random_packing(std::vector<SeedParticle> &particles,double x_max,double y_m
             }
         }
         
-        if(counter%100==0) std::cout<<"Stability: "<<1.0-N_unstable/(Npart+0.0)<<std::endl;
+        if(counter%100==0) Plog::print("Stability: ", 1.0-N_unstable/(Npart+0.0), "\n");
         
 //        if(counter%50000==0)
 //        {            

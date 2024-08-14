@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2024 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@ limitations under the License.*/
 
 #include <fdtd_material.h>
 #include <fdtd_utils.h>
+#include <logger.h>
 
 void FDTD_Material::PCRC_ante(int i,int j,int k,
                               Grid3<double> const &Ex,
@@ -128,7 +129,7 @@ void FDTD_Material::PCRC_recalc()
         chitmp2+=std::real(chi_h[i]-chi[i]);
     }
     
-    std::cout<<"chitmp1 "<<chitmp1<<" chitmp2 "<<chitmp2<<std::endl;
+    Plog::print("chitmp1 ", chitmp1, " chitmp2 ", chitmp2, "\n");
     
     double e_eff=ei+chitmp1+sig*Dt/(2.0*e0);
     

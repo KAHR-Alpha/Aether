@@ -12,6 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
+#include <logger.h>
  #include <lua_structure.h>
 
 #include <fstream>
@@ -77,9 +78,9 @@ int ageom_converter(int argc,char *argv[])
 	}
 	else
 	{
-		std::cout<<"Error, unequal strings:\n";
-		std::cout<<cmp_str<<"\n";
-		std::cout<<output.str()<<"\n";
+        Plog::print(LogType::FATAL, "Error, unequal strings:\n");
+        Plog::print(LogType::FATAL, cmp_str, "\n");
+        Plog::print(LogType::FATAL, output.str(), "\n");
 		return 1;
 	}
 }

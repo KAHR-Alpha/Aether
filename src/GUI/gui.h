@@ -15,6 +15,7 @@ limitations under the License.*/
 #ifndef GUI_H
 #define GUI_H
 
+#include <logger.h>
 #include <mathUT.h>
 #include <math_optim.h>
 #include <math_sym.h>
@@ -618,7 +619,7 @@ class MainFrame: public wxFrame
         template<class T,const char *title>
         void open_frame(wxCommandEvent &event)
         {
-            std::cout<<title<<std::endl;
+            Plog::print(title, "\n");
             T *frame=new T(wxString(title));
             frame->Show(true);
             frame->Maximize();

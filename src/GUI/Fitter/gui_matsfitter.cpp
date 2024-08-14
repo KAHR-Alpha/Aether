@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2024 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -12,6 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
+#include <logger.h>
 #include <phys_tools.h>
 #include <gui_matsfitter.h>
 
@@ -148,11 +149,11 @@ void MatsFitter::get_data_fname(wxCommandEvent &event)
     
     data_fname=data_tmp;
     
-    std::cout<<data_fname<<std::endl;
+    Plog::print(data_fname, "\n");
     data_name_disp->SetValue(data_fname);
     
     N_data=fcountlines(data_fname);
-    std::cout<<N_data<<std::endl;
+    Plog::print(N_data, "\n");
     
     w_base.resize(N_data,0);
     real_base.resize(N_data,0);
@@ -358,7 +359,7 @@ void GraphMatsFitter::delete_widget(ModelPanel *panel)
             break;
         }
     }
-    std::cout<<"size "<<model_widgets.size()<<std::endl;
+    Plog::print("size " ,model_widgets.size(), "\n");
     
     Refresh();
 }

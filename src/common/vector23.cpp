@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include <geometry.h>
-
+#include <logger.h>
 
 extern const Imdouble Im;
 
@@ -284,7 +284,7 @@ void Vector3::normalize()
 
 void Vector3::show()
 {
-    std::cout<<"X="<<x<<" Y="<<y<<" Z="<<z<<std::endl;
+    Plog::print("X=", x, " Y=", y, " Z=", z, "\n");
 }
 
 void Vector3::operator =(double a)
@@ -557,7 +557,7 @@ void ImVector3::normalize()
 
 void ImVector3::show()
 {
-    std::cout<<"X="<<x<<" Y="<<y<<" Z="<<z<<std::endl;
+    Plog::print("X=", x, " Y=", y, " Z=", z, "\n");
 }
 
 void ImVector3::operator =(double a)
