@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2024 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -246,8 +246,8 @@ int Add_Lua_Def::index(double x,double y,double z)
     
     if(lua_isnil(L,-1))
     {
-        std::cout<<"Error, unknown function: "<<fname<<std::endl;
-        std::cout<<"Ignoring operation"<<std::endl;
+        Plog::print("Error, unknown function: ", fname, "\n");
+        Plog::print("Ignoring operation", "\n");
         
         return -1;
     }

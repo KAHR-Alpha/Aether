@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2024 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -13,10 +13,9 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 #include <fdtd_core.h>
-
+#include <logger.h>
 
 extern const Imdouble Im;
-extern std::ofstream plog;
 
 #include <exception>
 
@@ -251,11 +250,11 @@ FDTD::FDTD(int Nx_,int Ny_,int Nz_,int Nt_,
     ys_s=pml_ym+pad_ym; ys_e=ys_s+Ny_s;
     zs_s=pml_zm+pad_zm; zs_e=zs_s+Nz_s;
     
-    if(pml_xm || pml_xp) std::cout<<"PML-x enabled: "<<pml_xm<<" "<<pml_xp<<std::endl;
-    if(pml_ym || pml_yp) std::cout<<"PML-y enabled: "<<pml_ym<<" "<<pml_yp<<std::endl;
-    if(pml_zm || pml_zp) std::cout<<"PML-z enabled: "<<pml_zm<<" "<<pml_zp<<std::endl;
-    if(mode==M_OBLIQUE) std::cout<<"Oblique incidence requested, extending grid"<<std::endl;
-    std::cout<<"New size: ("<<Nx<<","<<Ny<<","<<Nz<<") replacing ("<<Nx_<<","<<Ny_<<","<<Nz_<<")"<<std::endl<<std::endl;
+    if(pml_xm || pml_xp) Plog::print("PML-x enabled: ", pml_xm, " ", pml_xp, "\n");
+    if(pml_ym || pml_yp) Plog::print("PML-y enabled: ", pml_ym, " ", pml_yp, "\n");
+    if(pml_zm || pml_zp) Plog::print("PML-z enabled: ", pml_zm, " ", pml_zp, "\n");
+    if(mode==M_OBLIQUE) Plog::print("Oblique incidence requested, extending grid", "\n");
+    Plog::print("New size: (", Nx, ",", Ny, ",", Nz, ") replacing (", Nx_, ",", Ny_, ",", Nz_, ")", "\n\n");
     
     alloc_DEBH();
     #ifndef SEP_MATS

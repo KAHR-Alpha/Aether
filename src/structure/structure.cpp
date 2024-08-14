@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2024 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -168,9 +168,9 @@ void Structure::finalize()
     
     if(load_err!=LUA_OK)
     {
-             if(load_err==LUA_ERRFILE) std::cout<<"Lua file error with "<<script_path<<std::endl;
-        else if(load_err==LUA_ERRSYNTAX) std::cout<<"Lua syntax error with "<<script_path<<std::endl;
-        else std::cout<<"Lua error with "<<script_path<<std::endl;
+             if(load_err==LUA_ERRFILE) Plog::print("Lua file error with ", script_path, "\n");
+        else if(load_err==LUA_ERRSYNTAX) Plog::print("Lua syntax error with ", script_path, "\n");
+        else Plog::print("Lua error with ", script_path, "\n");
         std::cin.get();
         return;
     }
@@ -306,10 +306,10 @@ void Structure::set_flip(int x,int y,int z)
     flip_y=(y!=0);
     flip_z=(z!=0);
 
-    std::cout<<"Changing the flip modifiers to "
-             <<flip_x<<" "
-             <<flip_y<<" "
-             <<flip_z<<"\n";
+    Plog::print("Changing the flip modifiers to "
+             , flip_x, " "
+             , flip_y, " "
+             , flip_z, "\n");
 }
 
 
@@ -319,10 +319,10 @@ void Structure::set_loop(int x,int y,int z)
     periodic_y=(y!=0);
     periodic_z=(z!=0);
 
-    std::cout<<"Changing the periodic modifiers to "
-             <<periodic_x<<" "
-             <<periodic_y<<" "
-             <<periodic_z<<"\n";
+    Plog::print("Changing the periodic modifiers to "
+             , periodic_x, " "
+             , periodic_y, " "
+             , periodic_z, "\n");
 }
 
 

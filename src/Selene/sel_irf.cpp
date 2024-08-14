@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2024 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -12,6 +12,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
+#include <logger.h>
 #include <selene.h>
 
 extern std::ofstream plog;
@@ -248,14 +249,6 @@ bool IRF::get_response_grating(Vector3 const &in_dir,Vector3 &out_dir,
     y=scalar_prod(in_dir,r);
     
     double phi=std::atan2(y,x);
-//    std::cout<<" "<<std::endl;
-//    chk_var(in_dir);
-//    chk_var(Fnorm);
-//    chk_var(n);
-//    chk_var(t);
-//    chk_var(r);
-//    chk_var(th*180/Pi);
-//    chk_var(phi*180/Pi);
     
     // Interpolation index
     
@@ -269,19 +262,6 @@ bool IRF::get_response_grating(Vector3 const &in_dir,Vector3 &out_dir,
     double cv=1.0-v;
         
     double p=randp(1.0);
-//    chk_var(p);
-//    chk_var(u);
-//    chk_var(v);
-//    chk_var(ind_th);
-//    chk_var(ind_phi);
-//    chk_var(grat_orders_prob(ind_th  ,ind_phi  ,0));
-//    p=0.7;
-//    
-//    std::cout<<std::endl;
-//    for(int i=0;i<grat_No;i++)
-//    {
-//        std::cout<<grat_orders_prob(ind_th  ,ind_phi  ,i)<<" "<<grat_orders_dir(ind_th  ,ind_phi  ,i)<<std::endl;
-//    }
     
     // Absorption
     
@@ -693,12 +673,12 @@ void IRF::set_type_grating(std::string ref_fname,std::string tra_fname)
     
     if(!file_ref.is_open())
     {
-        std::cout<<"Couldn't open "<<ref_fname<<std::endl;
+        Plog::print(LogType::FATAL, "Couldn't open ", ref_fname, "\n");
         std::exit(EXIT_FAILURE);
     }
     if(!file_tra.is_open())
     {
-        std::cout<<"Couldn't open "<<tra_fname<<std::endl;
+        Plog::print(LogType::FATAL, "Couldn't open ", tra_fname, "\n");
         std::exit(EXIT_FAILURE);
     }
     

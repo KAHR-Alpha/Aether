@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2024 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -15,12 +15,14 @@ limitations under the License.*/
 #ifndef LUA_INTERFACE_H
 #define LUA_INTERFACE_H
 
-#include <vector>
 
 #include <enum_constants.h>
-#include <mathUT.h>
+#include <logger.h>
 #include <lua_base.h>
+#include <mathUT.h>
 #include <string_tools.h>
+
+#include <vector>
 
 //###################################
 //       Dielec planar waveguide
@@ -98,15 +100,15 @@ int mie_mode_get_cq(lua_State *L)
     (*pp_mie)->extract_lmin.push_back(lmin);
     (*pp_mie)->extract_lmax.push_back(lmax);
     
-    std::cout<<"Extracting the ";
-         if(type==MIE_CABS) std::cout<<"absorption cross-section";
-    else if(type==MIE_CEXT) std::cout<<"extinction cross-section";
-    else if(type==MIE_CSCATT) std::cout<<"scattering cross-section";
-    else if(type==MIE_FULL_CQ) std::cout<<"cross-sections and efficiencies";
-    else if(type==MIE_QABS) std::cout<<"absorption efficiency";
-    else if(type==MIE_QEXT) std::cout<<"extinction efficiency";
-    else if(type==MIE_QSCATT) std::cout<<"scattering efficiency";
-    std::cout<<" from "<<add_unit_u(lmin)<<" to "<<add_unit_u(lmax)<<" for "<<Nl<<" points, to "<<fname<<std::endl;
+    Plog::print("Extracting the ");
+         if(type==MIE_CABS) Plog::print("absorption cross-section");
+    else if(type==MIE_CEXT) Plog::print("extinction cross-section");
+    else if(type==MIE_CSCATT) Plog::print("scattering cross-section");
+    else if(type==MIE_FULL_CQ) Plog::print("cross-sections and efficiencies");
+    else if(type==MIE_QABS) Plog::print("absorption efficiency");
+    else if(type==MIE_QEXT) Plog::print("extinction efficiency");
+    else if(type==MIE_QSCATT) Plog::print("scattering efficiency");
+    Plog::print(" from ", add_unit_u(lmin), " to ", add_unit_u(lmax), " for ", Nl, " points, to ", fname, "\n");
     
     return 1;
 }
@@ -138,8 +140,8 @@ class Pause_mode: public base_mode
         bool interruption_type() { return true; }
         void process()
         {
-            std::cout<<"Pausing program"<<std::endl;
-            std::cout<<"Press Enter to resume..."<<std::endl;
+            Plog::print("Pausing program", "\n");
+            Plog::print("Press Enter to resume...", "\n");
             std::cin.get();
         }
 };
@@ -154,7 +156,7 @@ class Quit_mode: public base_mode
         bool interruption_type() { return true; }
         void process()
         {
-            std::cout<<"Ending program"<<std::endl;
+            Plog::print("Ending program", "\n");
             std::exit(0);
         }
 };
@@ -168,7 +170,7 @@ class Sleep_mode: public base_mode
     public:
         void process()
         {
-            std::cout<<"Making the computer sleep"<<std::endl;
+            Plog::print("Making the computer sleep", "\n");
             #ifdef WIN7
                 std::system("shutdown /h");
             #endif
