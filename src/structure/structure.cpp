@@ -91,6 +91,8 @@ void Structure::discretize(Grid3<unsigned int> &matgrid,
 {
     matgrid.init(Nx,Ny,Nz,0);
     
+    ProgTimeDisp dsp(Nx*Ny*Nz, 1, "toto");
+    
     for(int i=0;i<Nx;i++)
     for(int j=0;j<Ny;j++)
     for(int k=0;k<Nz;k++)
@@ -100,6 +102,8 @@ void Structure::discretize(Grid3<unsigned int> &matgrid,
         double z=k*Dz;
         
         matgrid(i,j,k)=index(x,y,z);
+        
+        ++dsp;
     }
 }
 
@@ -146,6 +150,7 @@ void Structure::finalize()
     lua_register(L,"default_material",LuaUI::structure_default_material);
     lua_register(L,"add_coating",LuaUI::structure_add_coating);
     lua_register(L,"add_cone",LuaUI::structure_add_cone);
+    lua_register(L,"add_conformal_coating",LuaUI::structure_add_conf_coating);
     lua_register(L,"add_cylinder",LuaUI::structure_add_cylinder);
     lua_register(L,"add_ellipsoid",LuaUI::structure_add_ellipsoid);
 //    lua_register(L,"add_height_map",lop_add_height_map);

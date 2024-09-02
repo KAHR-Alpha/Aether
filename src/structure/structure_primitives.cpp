@@ -133,6 +133,64 @@ int Add_Cone::index(double x,double y,double z)
     return -1;
 }
 
+//######################
+//   Add_Conf_Coating
+//######################
+
+Add_Conf_Coating::Add_Conf_Coating(double thickness,
+                                   int origin_mat,
+                                   double delta,
+                                   int index)
+    :Structure_OP(0,0,0,0,0,0,index),
+     p_thickness(thickness),
+     p_origin_mat(origin_mat),
+     p_delta(delta)
+{
+    if(p_delta <= 0)
+    {
+        p_delta = 5e-9;
+    }
+}
+
+int Add_Conf_Coating::index(double x,double y,double z)
+{
+    if(parent->index(x,y,z,stack_ID) != p_origin_mat) return -1;
+
+    int N_dist = 1+static_cast<int>(p_thickness/p_delta);
+
+    for(int i=1; i<=N_dist; i++)
+    {
+        double dist = i*p_thickness/N_dist;
+
+        int Nz = 1+static_cast<int>(Pi/2.0*dist/p_delta);
+        double z_ang = Pi/2.0/Nz;
+
+        for(int j=0; j<=Nz; j++)
+        {
+            double rad = std::cos(j*z_ang)*dist;
+            double z_disp = -std::sin(j*z_ang)*dist; // assuming the substrate is below
+
+            int N_circ = 1+static_cast<int>(2.0*Pi*rad/p_delta);
+            double ang = 2.0*Pi/N_circ;
+
+            for(int k=0; k<N_circ; k++)
+            {
+                double x_disp = rad*std::cos(k*ang);
+                double y_disp = rad*std::sin(k*ang);
+
+                if(parent->index(x+x_disp,
+                                 y+y_disp,
+                                 z+z_disp,stack_ID) != p_origin_mat)
+                {
+                    return mat_index;
+                }
+            }
+        }
+    }
+
+    return -1;
+}
+
 //##################
 //   Add_Cylinder
 //##################

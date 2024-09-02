@@ -354,6 +354,25 @@ int structure_add_cone(lua_State *L)
     return 0;
 }
 
+
+    int structure_add_conf_coating(lua_State *L)
+    {
+        Structure *p_struct=get_structure_pointer(L);
+
+        double thickness = lua_tonumber(L,1);
+        int origin_index = lua_tointeger(L,2);
+        double delta = lua_tonumber(L,3);
+        int index = lua_tointeger(L,4);
+
+        Plog::print("Adding a conformal coating with index ", index, " from index ", origin_index, "\n",
+                    "     with a thickness of ", add_unit_u(thickness), " and a delta check of ", add_unit_u(delta), "\n");
+
+        p_struct->add_operation(new Add_Conf_Coating(thickness, origin_index, delta, index));
+
+        return 0;
+    }
+
+
 int structure_add_cylinder(lua_State *L)
 {
     Structure *p_struct=get_structure_pointer(L);

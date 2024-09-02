@@ -76,6 +76,23 @@ class Add_Cone: public Structure_OP
         int index(double x,double y,double z);
 };
 
+
+class Add_Conf_Coating: public Structure_OP
+{
+    public:
+        Add_Conf_Coating(double thickness,
+                         int destination_index,
+                         double delta,
+                         int index);
+
+        int index(double x, double y, double z) override;
+
+    private:
+        double p_thickness, p_delta;
+        int p_origin_mat;
+};
+
+
 class Add_Cylinder: public Structure_OP
 {
     public:

@@ -586,7 +586,7 @@ namespace LuaUI
                 lua_pushinteger(L,j);
                 lua_setglobal(L,an.c_str());
                 #ifdef DEV_INFO
-                Plog::print(j<<" "<<an.c_str()<<std::endl;
+                Plog::print(j, " ", an.c_str(), "\n");
                 #endif
             }
         }
