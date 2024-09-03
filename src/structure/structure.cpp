@@ -41,6 +41,11 @@ int Structure_OP::index(double x,double y,double z)
     return -1;
 }
 
+
+void Structure_OP::precompute()
+{
+}
+
 //###############
 //   Structure
 //###############
@@ -91,7 +96,7 @@ void Structure::discretize(Grid3<unsigned int> &matgrid,
 {
     matgrid.init(Nx,Ny,Nz,0);
     
-    ProgTimeDisp dsp(Nx*Ny*Nz, 1, "toto");
+    ProgTimeDisp dsp(Nx*Ny*Nz, 100, "Structure Discretization");
     
     for(int i=0;i<Nx;i++)
     for(int j=0;j<Ny;j++)
@@ -105,6 +110,18 @@ void Structure::discretize(Grid3<unsigned int> &matgrid,
         
         ++dsp;
     }
+}
+
+
+double Structure::get_lx() const
+{
+    return lx;
+}
+
+
+double Structure::get_ly() const
+{
+    return ly;
 }
 
 
@@ -195,10 +212,11 @@ void Structure::finalize()
     chk_var(ly);
     chk_var(lz);
     
-    for(unsigned int i=0;i<operations.size();i++)
+    for(unsigned int i=0; i<operations.size(); i++)
     {
         operations[i]->parent=this;
         operations[i]->stack_ID=i;
+        operations[i]->precompute();
     }
 }
 

@@ -38,6 +38,7 @@ class Structure_OP
         virtual ~Structure_OP();
         
         virtual int index(double x,double y,double z);
+        virtual void precompute();
 };
 
 class Add_Block: public Structure_OP
@@ -86,10 +87,18 @@ class Add_Conf_Coating: public Structure_OP
                          int index);
 
         int index(double x, double y, double z) override;
+        void precompute() override;
 
     private:
+        struct Seed
+        {
+            double x,y,z;
+            bool operator == (Seed const &) const = default;
+        };
+
         double p_thickness, p_delta;
         int p_origin_mat;
+        std::vector<Seed> p_seeds;
 };
 
 
@@ -234,6 +243,8 @@ class Structure
         void discretize(Grid3<unsigned int> &matgrid,
                         int Nx,int Ny,int Nz,double Dx,double Dy,double Dz);
         void finalize();
+        double get_lx() const;
+        double get_ly() const;
         double get_lz() const;
         std::filesystem::path const& get_script_path() const;
         int index(double x,double y,double z);

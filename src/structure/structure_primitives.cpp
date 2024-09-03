@@ -152,43 +152,122 @@ Add_Conf_Coating::Add_Conf_Coating(double thickness,
     }
 }
 
-int Add_Conf_Coating::index(double x,double y,double z)
+int Add_Conf_Coating::index(double x, double y, double z)
 {
     if(parent->index(x,y,z,stack_ID) != p_origin_mat) return -1;
 
-    int N_dist = 1+static_cast<int>(p_thickness/p_delta);
+    //int N_dist = 1+static_cast<int>(p_thickness/p_delta);
 
-    for(int i=1; i<=N_dist; i++)
+    //for(int i=1; i<=N_dist; i++)
+    //{
+    //    double dist = i*p_thickness/N_dist;
+
+    //    int Nz = 1+static_cast<int>(Pi/2.0*dist/p_delta);
+    //    double z_ang = Pi/2.0/Nz;
+
+    //    for(int j=0; j<=Nz; j++)
+    //    {
+    //        double rad = std::cos(j*z_ang)*dist;
+    //        double z_disp = -std::sin(j*z_ang)*dist; // assuming the substrate is below
+
+    //        int N_circ = 1+static_cast<int>(2.0*Pi*rad/p_delta);
+    //        double ang = 2.0*Pi/N_circ;
+
+    //        for(int k=0; k<N_circ; k++)
+    //        {
+    //            double x_disp = rad*std::cos(k*ang);
+    //            double y_disp = rad*std::sin(k*ang);
+
+    //            if(parent->index(x+x_disp,
+    //                             y+y_disp,
+    //                             z+z_disp,stack_ID) != p_origin_mat)
+    //            {
+    //                return mat_index;
+    //            }
+    //        }
+    //    }
+    //}
+
+    for(Seed const &s : p_seeds)
     {
-        double dist = i*p_thickness/N_dist;
+        double dx = x-s.x;
+        double dy = y-s.y;
+        double dz = z-s.z;
 
-        int Nz = 1+static_cast<int>(Pi/2.0*dist/p_delta);
-        double z_ang = Pi/2.0/Nz;
+        double d2 = dx*dx+dy*dy+dz*dz;
 
-        for(int j=0; j<=Nz; j++)
+        if(d2 < p_thickness*p_thickness)
         {
-            double rad = std::cos(j*z_ang)*dist;
-            double z_disp = -std::sin(j*z_ang)*dist; // assuming the substrate is below
-
-            int N_circ = 1+static_cast<int>(2.0*Pi*rad/p_delta);
-            double ang = 2.0*Pi/N_circ;
-
-            for(int k=0; k<N_circ; k++)
-            {
-                double x_disp = rad*std::cos(k*ang);
-                double y_disp = rad*std::sin(k*ang);
-
-                if(parent->index(x+x_disp,
-                                 y+y_disp,
-                                 z+z_disp,stack_ID) != p_origin_mat)
-                {
-                    return mat_index;
-                }
-            }
+            return mat_index;
         }
     }
 
     return -1;
+}
+
+
+void Add_Conf_Coating::precompute()
+{
+    double lx = parent->get_lx();
+    double ly = parent->get_ly();
+    double lz = parent->get_lz();
+
+    int Nx = static_cast<int>(lx/p_delta);
+    int Ny = static_cast<int>(ly/p_delta);
+    int Nz = static_cast<int>(lz/p_delta);
+
+    p_seeds.clear();
+    p_seeds.reserve(Nx*Ny);
+
+    for(int i=0; i<Nx; i++)
+    for(int j=0; j<Ny; j++)
+    for(int k=0; k<Nz; k++)
+    {
+        double x = i*p_delta;
+        double y = j*p_delta;
+        double z = k*p_delta;
+
+        if(parent->index(x, y, z, stack_ID) != p_origin_mat)
+        {
+            continue;
+        }
+        
+        if(   parent->index(x-p_delta, y, z, stack_ID) != p_origin_mat
+           && !vector_contains(p_seeds, {x-p_delta, y, z}))
+        {
+            p_seeds.push_back({x-p_delta, y, z});
+        }
+
+        if(   parent->index(x+p_delta, y, z, stack_ID) != p_origin_mat
+           && !vector_contains(p_seeds, {x+p_delta, y, z}))
+        {
+            p_seeds.push_back({x+p_delta, y, z});
+        }
+
+        if(   parent->index(x, y-p_delta, z, stack_ID) != p_origin_mat
+           && !vector_contains(p_seeds, {x, y-p_delta, z}))
+        {
+            p_seeds.push_back({x, y-p_delta, z});
+        }
+
+        if(   parent->index(x, y+p_delta, z, stack_ID) != p_origin_mat
+           && !vector_contains(p_seeds, {x, y+p_delta, z}))
+        {
+            p_seeds.push_back({x, y+p_delta, z});
+        }
+
+        if(   parent->index(x, y, z-p_delta, stack_ID) != p_origin_mat
+           && !vector_contains(p_seeds, {x, y, z-p_delta}))
+        {
+            p_seeds.push_back({x, y, z-p_delta});
+        }
+
+        if(   parent->index(x, y, z+p_delta, stack_ID) != p_origin_mat
+           && !vector_contains(p_seeds, {x, y, z+p_delta}))
+        {
+            p_seeds.push_back({x, y, z+p_delta});
+        }
+    }
 }
 
 //##################
