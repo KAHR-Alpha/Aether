@@ -63,7 +63,7 @@ if(!(Test-Path freetype.zip))
 	Invoke-WebRequest -UserAgent "Wget" -URI https://sourceforge.net/projects/freetype/files/latest/download -OutFile freetype.zip
 	Expand-Archive -Force ./freetype.zip
 }
-cd freetype/freetype-2.13.2
+cd freetype/freetype-2.13.3
 cmake -B "cmake_build" -G "MinGW Makefiles" -DCMAKE_INSTALL_PREFIX="${build_path}/freetype" -DCMAKE_BUILD_TYPE=Release `
 	-DFT_DISABLE_HARFBUZZ=ON `
 	-DFT_DISABLE_BZIP2=ON `
