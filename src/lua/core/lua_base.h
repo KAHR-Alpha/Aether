@@ -206,16 +206,6 @@ void extract_lua_arguments(lua_State *L,int N,std::string &val,Args &...args)
     extract_lua_arguments(L,N+1,args...);
 }
 
-template<typename... Args>
-void extract_lua_arguments(lua_State *L,int N,std::string const &val) { val=lua_tostring(L,N); }
-
-template<typename... Args>
-void extract_lua_arguments(lua_State *L,int N,std::string const &val,Args &...args)
-{
-    val=lua_tostring(L,N);
-    extract_lua_arguments(L,N+1,args...);
-}
-
 template<typename... T,size_t... I>
 void lua_args_to_tuple_sub(lua_State *L,int N_start,std::tuple<T...> &t,std::index_sequence<I...>)
 {

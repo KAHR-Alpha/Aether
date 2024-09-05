@@ -40,52 +40,6 @@ class FOctree_node
         ~FOctree_node();
         
         template<class TVertex,class TFace>
-        void add_faces(Grid1<TVertex> const &V_arr,Grid1<TFace> const &F_arr,std::list<int> const &b_flist)
-        {
-            int i;
-            
-            std::list<int>::const_iterator iterator;
-            
-            double xmin=0,xmax=0,ymin=0,ymax=0,zmin=0,zmax=0;
-            
-            bool in=false;
-            
-            using std::min;
-            using std::max;
-            
-            double Dx=fx2-fx1;
-            double Dy=fy2-fy1;
-            double Dz=fz2-fz1;
-            
-            for(iterator=b_flist.begin();iterator!=b_flist.end();iterator++)
-            {
-                i=*iterator;
-                
-                Vector3 const &loc1=V_arr(F_arr(i).V1).loc;
-                Vector3 const &loc2=V_arr(F_arr(i).V2).loc;
-                Vector3 const &loc3=V_arr(F_arr(i).V3).loc;
-                
-                xmin=min(loc1.x,min(loc2.x,loc3.x));
-                xmax=max(loc1.x,max(loc2.x,loc3.x));
-                ymin=min(loc1.y,min(loc2.y,loc3.y));
-                ymax=max(loc1.y,max(loc2.y,loc3.y));
-                zmin=min(loc1.z,min(loc2.z,loc3.z));
-                zmax=max(loc1.z,max(loc2.z,loc3.z));
-                
-                in=false;
-                
-                if(xmin>fx2+0.05*Dx || xmax<fx1-0.05*Dx ||
-                   ymin>fy2+0.05*Dy || ymax<fy1-0.05*Dy ||
-                   zmin>fz2+0.05*Dz || zmax<fz1-0.05*Dz) in=false;
-                else in=true;
-                
-                if(in) flist.push_back(i);
-            }
-            
-            if(flist.size()<10) bottom_node=true;
-        }
-        
-        template<class TVertex,class TFace>
         void add_faces(std::vector<TVertex> const &V_arr,std::vector<TFace> const &F_arr,std::list<int> const &b_flist)
         {
             int i;
@@ -129,35 +83,6 @@ class FOctree_node
             }
             
             if(flist.size()<10) bottom_node=true;
-        }
-        
-        template<class TVertex,class TFace>
-        void breed(Grid1<TVertex> const &V_arr,Grid1<TFace> const &F_arr)
-        {
-            if(bottom_node==false)
-            {
-                int i,j,k,l;
-                
-                l=0;
-                
-                double fxh=(fx2-fx1)/2.0 , fxm=(fx2+fx1)/2.0;
-                double fyh=(fy2-fy1)/2.0 , fym=(fy2+fy1)/2.0;
-                double fzh=(fz2-fz1)/2.0 , fzm=(fz2+fz1)/2.0;
-                
-                for(i=0;i<2;i++){ for(j=0;j<2;j++){ for(k=0;k<2;k++)
-                {
-                    children[l]=new FOctree_node(level+1,max_level,
-                                                 fx1+i*fxh,fxm+i*fxh,
-                                                 fy1+j*fyh,fym+j*fyh,
-                                                 fz1+k*fzh,fzm+k*fzh);
-                                                 
-                    children[l]->add_faces(V_arr,F_arr,flist);
-                    children[l]->breed(V_arr,F_arr);
-                    l++;
-                }}}
-                
-                flist.clear();
-            }
         }
         
         template<class TVertex,class TFace>
@@ -334,40 +259,7 @@ class FOctree
         ~FOctree();
         
         void clear_tree();
-        
-        template<class TVertex,class TFace>
-        void generate_tree(Grid1<TVertex> const &V_arr,Grid1<TFace> const &F_arr)
-        {
-            int i,j,k,l;
-            
-            clear_tree();
-            
-            int Nf=F_arr.L1();
-            std::list<int> tmp_list;
-            for(i=0;i<Nf;i++) tmp_list.push_back(i);
-            
-            l=0;
-            
-            double fxh=(fx2-fx1)/2.0 , fxm=(fx2+fx1)/2.0;
-            double fyh=(fy2-fy1)/2.0 , fym=(fy2+fy1)/2.0;
-            double fzh=(fz2-fz1)/2.0 , fzm=(fz2+fz1)/2.0;
-            
-            for(i=0;i<2;i++){ for(j=0;j<2;j++){ for(k=0;k<2;k++)
-            {
-                children[l]=new FOctree_node(1,max_level,
-                                             fx1+i*fxh,fxm+i*fxh,
-                                             fy1+j*fyh,fym+j*fyh,
-                                             fz1+k*fzh,fzm+k*fzh);
                 
-                children[l]->add_faces(V_arr,F_arr,tmp_list);
-                children[l]->breed(V_arr,F_arr);
-                l++;
-            }}}
-            
-            tmp_list.clear();
-            finalize();
-        }
-        
         template<class TVertex,class TFace>
         void generate_tree(std::vector<TVertex> const &V_arr,std::vector<TFace> const &F_arr)
         {
