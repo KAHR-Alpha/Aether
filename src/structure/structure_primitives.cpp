@@ -142,61 +142,34 @@ Add_Conf_Coating::Add_Conf_Coating(double thickness,
                                    double delta,
                                    int index)
     :Structure_OP(0,0,0,0,0,0,index),
-     p_thickness(thickness),
-     p_origin_mat(origin_mat),
-     p_delta(delta)
+     thickness(thickness),
+     origin_mat(origin_mat),
+     delta(delta)
 {
-    if(p_delta <= 0)
+    if(delta <= 0)
     {
-        p_delta = 5e-9;
+        delta = 5e-9;
     }
 }
 
+
 int Add_Conf_Coating::index(double x, double y, double z)
 {
-    if(parent->index(x,y,z,stack_ID) != p_origin_mat) return -1;
+    if(parent->index(x,y,z,stack_ID) != origin_mat) return -1;
 
-    //int N_dist = 1+static_cast<int>(p_thickness/p_delta);
+    octree.point_check(buffer, x, y, z);
 
-    //for(int i=1; i<=N_dist; i++)
-    //{
-    //    double dist = i*p_thickness/N_dist;
-
-    //    int Nz = 1+static_cast<int>(Pi/2.0*dist/p_delta);
-    //    double z_ang = Pi/2.0/Nz;
-
-    //    for(int j=0; j<=Nz; j++)
-    //    {
-    //        double rad = std::cos(j*z_ang)*dist;
-    //        double z_disp = -std::sin(j*z_ang)*dist; // assuming the substrate is below
-
-    //        int N_circ = 1+static_cast<int>(2.0*Pi*rad/p_delta);
-    //        double ang = 2.0*Pi/N_circ;
-
-    //        for(int k=0; k<N_circ; k++)
-    //        {
-    //            double x_disp = rad*std::cos(k*ang);
-    //            double y_disp = rad*std::sin(k*ang);
-
-    //            if(parent->index(x+x_disp,
-    //                             y+y_disp,
-    //                             z+z_disp,stack_ID) != p_origin_mat)
-    //            {
-    //                return mat_index;
-    //            }
-    //        }
-    //    }
-    //}
-
-    for(Seed const &s : p_seeds)
+    for(int i : buffer)
     {
+        Seed const &s = seeds[i];
+
         double dx = x-s.x;
         double dy = y-s.y;
         double dz = z-s.z;
 
         double d2 = dx*dx+dy*dy+dz*dz;
 
-        if(d2 < p_thickness*p_thickness)
+        if(d2 < thickness*thickness)
         {
             return mat_index;
         }
@@ -212,62 +185,67 @@ void Add_Conf_Coating::precompute()
     double ly = parent->get_ly();
     double lz = parent->get_lz();
 
-    int Nx = static_cast<int>(lx/p_delta);
-    int Ny = static_cast<int>(ly/p_delta);
-    int Nz = static_cast<int>(lz/p_delta);
+    int Nx = static_cast<int>(lx/delta);
+    int Ny = static_cast<int>(ly/delta);
+    int Nz = static_cast<int>(lz/delta);
 
-    p_seeds.clear();
-    p_seeds.reserve(Nx*Ny);
+    seeds.clear();
+    seeds.reserve(Nx*Ny);
 
     for(int i=0; i<Nx; i++)
     for(int j=0; j<Ny; j++)
     for(int k=0; k<Nz; k++)
     {
-        double x = i*p_delta;
-        double y = j*p_delta;
-        double z = k*p_delta;
+        double x = i*delta;
+        double y = j*delta;
+        double z = k*delta;
 
-        if(parent->index(x, y, z, stack_ID) != p_origin_mat)
+        if(parent->index(x, y, z, stack_ID) != origin_mat)
         {
             continue;
         }
         
-        if(   parent->index(x-p_delta, y, z, stack_ID) != p_origin_mat
-           && !vector_contains(p_seeds, {x-p_delta, y, z}))
+        if(   parent->index(x-delta, y, z, stack_ID) != origin_mat
+           && !vector_contains(seeds, {x-delta, y, z}))
         {
-            p_seeds.push_back({x-p_delta, y, z});
+            seeds.push_back({x-delta, y, z});
         }
 
-        if(   parent->index(x+p_delta, y, z, stack_ID) != p_origin_mat
-           && !vector_contains(p_seeds, {x+p_delta, y, z}))
+        if(   parent->index(x+delta, y, z, stack_ID) != origin_mat
+           && !vector_contains(seeds, {x+delta, y, z}))
         {
-            p_seeds.push_back({x+p_delta, y, z});
+            seeds.push_back({x+delta, y, z});
         }
 
-        if(   parent->index(x, y-p_delta, z, stack_ID) != p_origin_mat
-           && !vector_contains(p_seeds, {x, y-p_delta, z}))
+        if(   parent->index(x, y-delta, z, stack_ID) != origin_mat
+           && !vector_contains(seeds, {x, y-delta, z}))
         {
-            p_seeds.push_back({x, y-p_delta, z});
+            seeds.push_back({x, y-delta, z});
         }
 
-        if(   parent->index(x, y+p_delta, z, stack_ID) != p_origin_mat
-           && !vector_contains(p_seeds, {x, y+p_delta, z}))
+        if(   parent->index(x, y+delta, z, stack_ID) != origin_mat
+           && !vector_contains(seeds, {x, y+delta, z}))
         {
-            p_seeds.push_back({x, y+p_delta, z});
+            seeds.push_back({x, y+delta, z});
         }
 
-        if(   parent->index(x, y, z-p_delta, stack_ID) != p_origin_mat
-           && !vector_contains(p_seeds, {x, y, z-p_delta}))
+        if(   parent->index(x, y, z-delta, stack_ID) != origin_mat
+           && !vector_contains(seeds, {x, y, z-delta}))
         {
-            p_seeds.push_back({x, y, z-p_delta});
+            seeds.push_back({x, y, z-delta});
         }
 
-        if(   parent->index(x, y, z+p_delta, stack_ID) != p_origin_mat
-           && !vector_contains(p_seeds, {x, y, z+p_delta}))
+        if(   parent->index(x, y, z+delta, stack_ID) != origin_mat
+           && !vector_contains(seeds, {x, y, z+delta}))
         {
-            p_seeds.push_back({x, y, z+p_delta});
+            seeds.push_back({x, y, z+delta});
         }
     }
+
+    Conformal_Rule rule(thickness);
+
+    octree.set_params(5, 0, lx, 0, ly, 0, lz);
+    octree.generate_tree(seeds, rule);
 }
 
 //##################

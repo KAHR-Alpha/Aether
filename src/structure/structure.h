@@ -17,6 +17,7 @@ limitations under the License.*/
 
 #include <lua_base.h>
 #include <mesh_base.h>
+#include <octree.h>
 
 #include <Eigen/Eigen>
 
@@ -96,9 +97,37 @@ class Add_Conf_Coating: public Structure_OP
             bool operator == (Seed const &) const = default;
         };
 
-        double p_thickness, p_delta;
-        int p_origin_mat;
-        std::vector<Seed> p_seeds;
+        struct Conformal_Rule
+        {
+            double thickness;
+
+            Conformal_Rule(double thickness_)
+                :thickness(thickness_)
+            {}
+
+            bool operator() (Seed const &seed,
+                             double xm, double xp,
+                             double ym, double yp,
+                             double zm, double zp) const
+            {
+                if(   seed.x+thickness < xm || seed.x-thickness > xp
+                   || seed.y+thickness < ym || seed.y-thickness > yp
+                   || seed.z+thickness < zm || seed.z-thickness > zp)
+                {
+                    return false;
+                }
+
+                return true;
+            }
+        };
+
+        double thickness, delta;
+        int origin_mat;
+
+        std::vector<Seed> seeds;
+        Octree octree;
+
+        std::vector<int> buffer;
 };
 
 

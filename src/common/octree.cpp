@@ -119,9 +119,9 @@ void Octree::finalize()
 }
 
 void Octree::set_params(int max_level_,
-                         double fx1_,double fx2_,
-                         double fy1_,double fy2_,
-                         double fz1_,double fz2_)
+                        double fx1_,double fx2_,
+                        double fy1_,double fy2_,
+                        double fz1_,double fz2_)
 {
     max_level=max_level_;
     fx1=fx1_; fx2=fx2_;
