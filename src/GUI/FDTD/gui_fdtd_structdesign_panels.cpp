@@ -308,6 +308,81 @@ void GOP_Cone::update_vao()
     vao->set_matrix(O,A,B,C);
 }
 
+//######################
+//   GOP_Conf_Coating
+//######################
+
+GOP_Conf_Coating::GOP_Conf_Coating(wxWindow *parent, SymLib *lib, EMGeometry_GL *engine)
+    :GeomOP_Panel(parent, lib, engine)
+{
+    wxStaticText *title = new wxStaticText(this,wxID_ANY,"Conformal Coating");
+
+    sizer->Add(title);
+
+    thickness = new NamedSymCtrl(this, "Thickness: ", 0.0);
+    delta = new NamedSymCtrl(this, "Delta: ", 0.0);
+    origin_mat = new NamedSymCtrl(this, "Origin Mat: ", 0.0);
+    mat = new NamedSymCtrl(this, "Mat: ", 0.0);
+
+    thickness->set_lib(lib);
+    delta->set_lib(lib);
+    origin_mat->set_lib(lib);
+
+    sizer->Add(thickness, wxSizerFlags().Expand());
+    sizer->Add(delta, wxSizerFlags().Expand());
+    sizer->Add(origin_mat, wxSizerFlags().Expand());
+    sizer->Add(mat, wxSizerFlags().Expand());
+}
+
+
+void GOP_Conf_Coating::collapse()
+{
+    thickness->Hide();
+    delta->Hide();
+    origin_mat->Hide();
+    mat->Hide();
+
+    Layout();
+}
+
+
+void GOP_Conf_Coating::expand()
+{
+    thickness->Show();
+    delta->Show();
+    origin_mat->Show();
+    mat->Show();
+
+    Layout();
+}
+
+
+std::string GOP_Conf_Coating::get_lua()
+{
+    std::stringstream strm;
+    
+    strm<<"add_conformal_coating(";
+    strm<<"\""<<thickness->get_text()<<"\",";
+    strm<<"\""<<delta->get_text()<<"\",";
+    strm<<origin_mat->get_value_integer()<<",";
+    strm<<mat->get_value_integer()<<")";
+    
+    return strm.str();
+}
+
+
+int GOP_Conf_Coating::get_material() { return mat->get_value_integer(); }
+
+
+void GOP_Conf_Coating::set(std::vector<std::string> const &args)
+{
+    thickness->set_expression(args[0]);
+    delta->set_expression(args[1]);
+    origin_mat->set_expression(args[2]);
+    
+    mat->set_expression(args[3]);
+}
+
 //####################
 //    GOP_Cylinder
 //####################

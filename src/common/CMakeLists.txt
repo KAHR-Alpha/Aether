@@ -14,6 +14,7 @@ set(common_src bitmap.cpp
 			   mesh_base.cpp
 			   mesh_tools.cpp
 			   noise.cpp
+			   octree.cpp
 			   phys_tools.cpp
 			   polygons_2D.cpp
 			   ray_intersect.cpp
@@ -43,6 +44,7 @@ set(common_hdr bitmap3.h
                mesh_tools.h
 			   mini_svg.h
 			   noise.h
+			   octree.h
 			   phys_constants.h
 			   phys_tools.h
                polygons_2D.h

@@ -120,13 +120,13 @@ jobs:
       - run: Expand-Archive ./sources.zip
       
       - run: cmake -B "${{github.workspace}}/cmake_build" -DCMAKE_INSTALL_PREFIX="${{github.workspace}}/builds/freetype" -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
-        working-directory: sources/freetype-2.13.2
+        working-directory: sources/freetype-2.13.3
         
       - run: cmake --build "${{github.workspace}}/cmake_build" --config ${{env.BUILD_TYPE}}
-        working-directory: sources/freetype-2.13.2
+        working-directory: sources/freetype-2.13.3
         
       - run: cmake --install "${{github.workspace}}/cmake_build"
-        working-directory: sources/freetype-2.13.2
+        working-directory: sources/freetype-2.13.3
           
   get_fftw:
     runs-on: windows-latest

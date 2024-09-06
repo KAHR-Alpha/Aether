@@ -133,6 +133,121 @@ int Add_Cone::index(double x,double y,double z)
     return -1;
 }
 
+//######################
+//   Add_Conf_Coating
+//######################
+
+Add_Conf_Coating::Add_Conf_Coating(double thickness_,
+                                   double delta_,
+                                   int origin_mat_,
+                                   int index_)
+    :Structure_OP(0,0,0,0,0,0,index_),
+     thickness(thickness_),
+     delta(delta_),
+     origin_mat(origin_mat_)
+{
+    if(delta <= 0)
+    {
+        delta = 5e-9;
+    }
+}
+
+
+int Add_Conf_Coating::index(double x, double y, double z)
+{
+    if(parent->index(x,y,z,stack_ID) != origin_mat) return -1;
+
+    octree.point_check(buffer, x, y, z);
+
+    for(int i : buffer)
+    {
+        Seed const &s = seeds[i];
+
+        double dx = x-s.x;
+        double dy = y-s.y;
+        double dz = z-s.z;
+
+        double d2 = dx*dx+dy*dy+dz*dz;
+
+        if(d2 < thickness*thickness)
+        {
+            return mat_index;
+        }
+    }
+
+    return -1;
+}
+
+
+void Add_Conf_Coating::precompute()
+{
+    double lx = parent->get_lx();
+    double ly = parent->get_ly();
+    double lz = parent->get_lz();
+
+    int Nx = static_cast<int>(lx/delta);
+    int Ny = static_cast<int>(ly/delta);
+    int Nz = static_cast<int>(lz/delta);
+
+    seeds.clear();
+    seeds.reserve(Nx*Ny);
+
+    for(int i=0; i<Nx; i++)
+    for(int j=0; j<Ny; j++)
+    for(int k=0; k<Nz; k++)
+    {
+        double x = i*delta;
+        double y = j*delta;
+        double z = k*delta;
+
+        if(parent->index(x, y, z, stack_ID) != origin_mat)
+        {
+            continue;
+        }
+        
+        if(   parent->index(x-delta, y, z, stack_ID) != origin_mat
+           && !vector_contains(seeds, {x-delta, y, z}))
+        {
+            seeds.push_back({x-delta, y, z});
+        }
+
+        if(   parent->index(x+delta, y, z, stack_ID) != origin_mat
+           && !vector_contains(seeds, {x+delta, y, z}))
+        {
+            seeds.push_back({x+delta, y, z});
+        }
+
+        if(   parent->index(x, y-delta, z, stack_ID) != origin_mat
+           && !vector_contains(seeds, {x, y-delta, z}))
+        {
+            seeds.push_back({x, y-delta, z});
+        }
+
+        if(   parent->index(x, y+delta, z, stack_ID) != origin_mat
+           && !vector_contains(seeds, {x, y+delta, z}))
+        {
+            seeds.push_back({x, y+delta, z});
+        }
+
+        if(   parent->index(x, y, z-delta, stack_ID) != origin_mat
+           && !vector_contains(seeds, {x, y, z-delta}))
+        {
+            seeds.push_back({x, y, z-delta});
+        }
+
+        if(   parent->index(x, y, z+delta, stack_ID) != origin_mat
+           && !vector_contains(seeds, {x, y, z+delta}))
+        {
+            seeds.push_back({x, y, z+delta});
+        }
+    }
+
+    Conformal_Rule rule(thickness);
+
+    octree.set_params(5, 0, lx, 0, ly, 0, lz);
+    octree.generate_tree(seeds, rule);
+}
+
 //##################
 //   Add_Cylinder
 //##################

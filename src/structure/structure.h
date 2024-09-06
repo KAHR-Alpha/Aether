@@ -17,6 +17,7 @@ limitations under the License.*/
 
 #include <lua_base.h>
 #include <mesh_base.h>
+#include <octree.h>
 
 #include <Eigen/Eigen>
 
@@ -38,6 +39,7 @@ class Structure_OP
         virtual ~Structure_OP();
         
         virtual int index(double x,double y,double z);
+        virtual void precompute();
 };
 
 class Add_Block: public Structure_OP
@@ -75,6 +77,59 @@ class Add_Cone: public Structure_OP
         
         int index(double x,double y,double z);
 };
+
+
+class Add_Conf_Coating: public Structure_OP
+{
+    public:
+        Add_Conf_Coating(double thickness,
+                         double delta,
+                         int destination_index,
+                         int index);
+
+        int index(double x, double y, double z) override;
+        void precompute() override;
+
+    private:
+        struct Seed
+        {
+            double x,y,z;
+            bool operator == (Seed const &) const = default;
+        };
+
+        struct Conformal_Rule
+        {
+            double thickness;
+
+            Conformal_Rule(double thickness_)
+                :thickness(thickness_)
+            {}
+
+            bool operator() (Seed const &seed,
+                             double xm, double xp,
+                             double ym, double yp,
+                             double zm, double zp) const
+            {
+                if(   seed.x+thickness < xm || seed.x-thickness > xp
+                   || seed.y+thickness < ym || seed.y-thickness > yp
+                   || seed.z+thickness < zm || seed.z-thickness > zp)
+                {
+                    return false;
+                }
+
+                return true;
+            }
+        };
+
+        double thickness, delta;
+        int origin_mat;
+
+        std::vector<Seed> seeds;
+        Octree octree;
+
+        std::vector<int> buffer;
+};
+
 
 class Add_Cylinder: public Structure_OP
 {
@@ -217,6 +272,8 @@ class Structure
         void discretize(Grid3<unsigned int> &matgrid,
                         int Nx,int Ny,int Nz,double Dx,double Dy,double Dz);
         void finalize();
+        double get_lx() const;
+        double get_ly() const;
         double get_lz() const;
         std::filesystem::path const& get_script_path() const;
         int index(double x,double y,double z);

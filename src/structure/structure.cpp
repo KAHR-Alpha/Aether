@@ -41,6 +41,11 @@ int Structure_OP::index(double x,double y,double z)
     return -1;
 }
 
+
+void Structure_OP::precompute()
+{
+}
+
 //###############
 //   Structure
 //###############
@@ -91,6 +96,8 @@ void Structure::discretize(Grid3<unsigned int> &matgrid,
 {
     matgrid.init(Nx,Ny,Nz,0);
     
+    ProgTimeDisp dsp(Nx*Ny*Nz, 100, "Structure Discretization");
+    
     for(int i=0;i<Nx;i++)
     for(int j=0;j<Ny;j++)
     for(int k=0;k<Nz;k++)
@@ -100,7 +107,21 @@ void Structure::discretize(Grid3<unsigned int> &matgrid,
         double z=k*Dz;
         
         matgrid(i,j,k)=index(x,y,z);
+        
+        ++dsp;
     }
+}
+
+
+double Structure::get_lx() const
+{
+    return lx;
+}
+
+
+double Structure::get_ly() const
+{
+    return ly;
 }
 
 
@@ -146,6 +167,7 @@ void Structure::finalize()
     lua_register(L,"default_material",LuaUI::structure_default_material);
     lua_register(L,"add_coating",LuaUI::structure_add_coating);
     lua_register(L,"add_cone",LuaUI::structure_add_cone);
+    lua_register(L,"add_conformal_coating",LuaUI::structure_add_conf_coating);
     lua_register(L,"add_cylinder",LuaUI::structure_add_cylinder);
     lua_register(L,"add_ellipsoid",LuaUI::structure_add_ellipsoid);
 //    lua_register(L,"add_height_map",lop_add_height_map);
@@ -190,10 +212,11 @@ void Structure::finalize()
     chk_var(ly);
     chk_var(lz);
     
-    for(unsigned int i=0;i<operations.size();i++)
+    for(unsigned int i=0; i<operations.size(); i++)
     {
         operations[i]->parent=this;
         operations[i]->stack_ID=i;
+        operations[i]->precompute();
     }
 }
 

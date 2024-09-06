@@ -11,3 +11,4 @@ libs
 libs_mingw
 libs_vs22
 cmake_build*
+build*

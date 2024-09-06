@@ -42,6 +42,18 @@ namespace cnv
     }
 
 
+    int structure_add_conf_coating(lua_State *L)
+    {
+        get_stream(L)
+            <<"add_conformal_coating("<<lua_tostring(L,1)<<","
+                                      <<lua_tostring(L,2)<<","
+                                      <<lua_tointeger(L,3)<<","
+                                      <<lua_tointeger(L,4)<<")\n";
+        
+        return 0;
+    }
+
+
     int structure_add_cone(lua_State *L)
     {
         get_stream(L)
@@ -164,6 +176,7 @@ std::string ageom_to_lua(std::filesystem::path const &script)
 
     lua_register(L,"add_block",cnv::structure_add_block);
     //lua_register(L,"add_coating",cnv::structure_add_coating);
+    lua_register(L,"add_conformal_coating",cnv::structure_add_conf_coating);
     lua_register(L,"add_cone",cnv::structure_add_cone);
     lua_register(L,"add_cylinder",cnv::structure_add_cylinder);
     //lua_register(L,"add_ellipsoid",cnv::structure_add_ellipsoid);

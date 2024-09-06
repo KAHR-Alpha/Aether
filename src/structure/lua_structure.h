@@ -30,6 +30,7 @@ int structure_set_parameter(lua_State *L);
 int structure_add_block(lua_State *L);
 int structure_add_coating(lua_State *L);
 int structure_add_cone(lua_State *L);
+int structure_add_conf_coating(lua_State *L);
 int structure_add_cylinder(lua_State *L);
 int structure_add_ellipsoid(lua_State *L);
 int structure_add_layer(lua_State *L);

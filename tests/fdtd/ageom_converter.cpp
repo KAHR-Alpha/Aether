@@ -49,6 +49,9 @@ int ageom_converter(int argc,char *argv[])
 	geostr<<"add_cone(\"arg1\",\"arg2\",\"arg3\",\"arg4\",\"arg5\",\"arg6\",\"rad\",2)\n";
 	output<<"add_cone(arg1,arg2,arg3,arg4,arg5,arg6,rad,2)\n";
 	
+	geostr<<"add_conformal_coating(\"arg1\",\"arg3\",1,5)\n";
+	output<<"add_conformal_coating(arg1,arg3,1,5)\n";
+	
 	geostr<<"add_cylinder(\"arg1\",\"arg2\",\"arg3\",\"arg4\",\"arg5\",\"arg6\",\"rad\",3)\n";
 	output<<"add_cylinder(arg1,arg2,arg3,arg4,arg5,arg6,rad,3)\n";
 	
