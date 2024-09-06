@@ -385,12 +385,13 @@ EMGeometry_Frame::EMGeometry_Frame(wxString const &title)
     wxString choices[]={"Block","Cone","Cylinder","Layer","Mesh","Sphere"};
     
     op_add_choice=new EnumChoice<OPtype>(ctrl_panel, wxID_ANY);
-    op_add_choice->append("Block",    OPtype::BLOCK);
-    op_add_choice->append("Cone",     OPtype::CONE);
-    op_add_choice->append("Cylinder", OPtype::CYLINDER);
-    op_add_choice->append("Layer",    OPtype::LAYER);
-    op_add_choice->append("Mesh",     OPtype::MESH);
-    op_add_choice->append("Sphere",   OPtype::SPHERE);
+    op_add_choice->append("Block",             OPtype::BLOCK);
+    op_add_choice->append("Cone",              OPtype::CONE);
+    op_add_choice->append("Conformal Coating", OPtype::CONFORMAL_COATING);
+    op_add_choice->append("Cylinder",          OPtype::CYLINDER);
+    op_add_choice->append("Layer",             OPtype::LAYER);
+    op_add_choice->append("Mesh",              OPtype::MESH);
+    op_add_choice->append("Sphere",            OPtype::SPHERE);
     op_add_choice->set_selection(OPtype::BLOCK);
 
     wxButton *add_op_btn=new wxButton(ctrl_panel,wxID_ANY,"Add Operation");
@@ -503,6 +504,10 @@ void EMGeometry_Frame::evt_add_operation(wxCommandEvent &event)
 
         case OPtype::CONE:
             panel=op->add_panel<GOP_Cone>(&lib,gl);
+            break;
+
+        case OPtype::CONFORMAL_COATING:
+            panel = op->add_panel<GOP_Conf_Coating>(&lib, gl);
             break;
 
         case OPtype::CYLINDER:
@@ -843,6 +848,7 @@ void EMGeometry_Frame::load_project(wxFileName const &fname)
     lua_register(L,"add_block",lua_add_command<GOP_Block>);
     lua_register(L,"add_cone",lua_add_command<GOP_Cone>);
 //    lua_register(L,"add_cone_o",lop_add_cone_o);
+    lua_register(L,"add_conformal_coating",lua_add_command<GOP_Conf_Coating>);
     lua_register(L,"add_cylinder",lua_add_command<GOP_Cylinder>);
 //    lua_register(L,"add_cylinder_o",lop_add_cylinder_o);
 //    lua_register(L,"add_ellipsoid",lop_add_ellipsoid);

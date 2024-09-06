@@ -137,14 +137,14 @@ int Add_Cone::index(double x,double y,double z)
 //   Add_Conf_Coating
 //######################
 
-Add_Conf_Coating::Add_Conf_Coating(double thickness,
-                                   int origin_mat,
-                                   double delta,
-                                   int index)
-    :Structure_OP(0,0,0,0,0,0,index),
-     thickness(thickness),
-     origin_mat(origin_mat),
-     delta(delta)
+Add_Conf_Coating::Add_Conf_Coating(double thickness_,
+                                   double delta_,
+                                   int origin_mat_,
+                                   int index_)
+    :Structure_OP(0,0,0,0,0,0,index_),
+     thickness(thickness_),
+     delta(delta_),
+     origin_mat(origin_mat_)
 {
     if(delta <= 0)
     {

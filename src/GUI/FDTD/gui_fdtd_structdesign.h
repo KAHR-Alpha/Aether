@@ -121,6 +121,21 @@ class GOP_Cone: public GeomOP_Panel
         void update_vao() override;
 };
 
+class GOP_Conf_Coating: public GeomOP_Panel
+{
+    public:
+        NamedSymCtrl *thickness, *delta, *origin_mat;
+        NamedSymCtrl *mat;
+
+        GOP_Conf_Coating(wxWindow *parent, SymLib *lib, EMGeometry_GL *engine);
+
+        void collapse() override;
+        void expand() override;
+        std::string get_lua() override;
+        int get_material() override;
+        void set(std::vector<std::string> const &args) override;
+};
+
 class GOP_Cylinder: public GeomOP_Panel
 {
     public:
@@ -183,6 +198,7 @@ class EMGeometry_Frame: public BaseFrame
         {
             BLOCK,
             CONE,
+            CONFORMAL_COATING,
             CYLINDER,
             LAYER,
             MESH,

@@ -83,8 +83,8 @@ class Add_Conf_Coating: public Structure_OP
 {
     public:
         Add_Conf_Coating(double thickness,
-                         int destination_index,
                          double delta,
+                         int destination_index,
                          int index);
 
         int index(double x, double y, double z) override;
