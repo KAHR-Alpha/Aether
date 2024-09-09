@@ -174,7 +174,7 @@ class LayerFitter: public BaseFrame
         ~LayerFitter();
         
         void add_dielec_element(PanelsList<ModelPanel2> *panel);
-        void compute_response(bool silent=true);
+        void compute_response();
         void evt_add_dielec_layer(wxCommandEvent &event);
         void evt_add_dielec_substrate(wxCommandEvent &event);
         void evt_add_dielec_environment(wxCommandEvent &event);
@@ -183,6 +183,8 @@ class LayerFitter: public BaseFrame
         void evt_update_ui(wxCommandEvent &event);
         void evt_optimize(wxCommandEvent &event);
         void evt_timed_refresh(wxTimerEvent &event);
+        void export_as_ascii(std::filesystem::path const &fname);
+        void export_as_matlab(std::filesystem::path const &fname) const;
         void get_data_fname(wxCommandEvent &event);
         void threaded_optimization();
 };

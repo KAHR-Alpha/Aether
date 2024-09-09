@@ -426,7 +426,7 @@ void LayerFitter::add_dielec_element(PanelsList<ModelPanel2> *panel)
     ctrl_panel->FitInside();
 }
 
-void LayerFitter::compute_response(bool silent)
+void LayerFitter::compute_response()
 {
     for(unsigned int i=0;i<layer_eps.size();i++)
     {
@@ -521,11 +521,70 @@ void LayerFitter::evt_add_dielec_substrate(wxCommandEvent &event)
 
 void LayerFitter::evt_export(wxCommandEvent &event)
 {
-    wxString wildcard="MatLab script (*.m)|*.m";
+    ExportChoiceDialog dialog("Please choose a format to export to",
+                              {"MatLab", "ASCII"},
+                              {"MatLab script (*.m)|*.m", "ASCII file (*.txt)|*.txt"});
+
+    if(!dialog.choice_ok) return;
+
+    if(dialog.export_type == 0)
+    {
+        export_as_matlab(dialog.fname);
+    }
+    else
+    {
+        export_as_ascii(dialog.fname);
+    }
+}
+
+void LayerFitter::evt_update(wxCommandEvent &event)
+{
+    compute_response();
+    graph->Refresh();
     
-    wxString fname=wxFileSelector("Select the file to save to:",
-                                  wxEmptyString,wxEmptyString,wxEmptyString,
-                                  wildcard,wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
+    event.Skip();
+}
+
+void LayerFitter::evt_update_ui(wxCommandEvent &event)
+{
+    ctrl_panel->FitInside();
+    Layout();
+    
+    evt_update(event);
+}
+
+
+void LayerFitter::export_as_ascii(std::filesystem::path const &fname)
+{
+    compute_response();
+
+    std::ofstream file(fname, std::ios::out|std::ios::trunc);
+
+    if(!file.is_open())
+    {
+        Plog::print(LogType::FATAL, "Couldn't write to ", fname.generic_string());
+        return;
+    }
+
+    for(std::size_t i=0; i<lambda.size(); i++)
+    {
+        Imdouble n_env = std::sqrt(env_eps[i]);
+        Imdouble n_layer = std::sqrt(layer_eps[i]);
+        Imdouble n_sub = std::sqrt(sub_eps[i]);
+
+        file<<lambda[i]<<" ";
+        file<<n_env.real()<<" "<<n_env.imag()<<" ";
+        file<<n_layer.real()<<" "<<n_layer.imag()<<" ";
+        file<<n_sub.real()<<" "<<n_sub.imag();
+
+        if(i < lambda.size()-1) file<<"\n";
+    }
+}
+
+
+void LayerFitter::export_as_matlab(std::filesystem::path const &fname_) const
+{
+    wxString fname = fname_.generic_string();
     
     if(fname.size()==0) return;
     
@@ -620,21 +679,6 @@ void LayerFitter::evt_export(wxCommandEvent &event)
     file.Write(strm);
 }
 
-void LayerFitter::evt_update(wxCommandEvent &event)
-{
-    compute_response();
-    graph->Refresh();
-    
-    event.Skip();
-}
-
-void LayerFitter::evt_update_ui(wxCommandEvent &event)
-{
-    ctrl_panel->FitInside();
-    Layout();
-    
-    evt_update(event);
-}
 
 void LayerFitter::get_data_fname(wxCommandEvent &event)
 {
@@ -800,7 +844,7 @@ void LayerFitter::threaded_optimization()
 
         optim_engine.evolve(factor);
         
-        compute_response(true);
+        compute_response();
         
         double tmp_score=0;
 
