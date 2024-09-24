@@ -139,37 +139,21 @@ class NamedTextCtrl: public wxPanel
             {
                 if(optim_engine!=nullptr) // Internal optimization
                 {
-                    bool known=optim_engine->get_rule(&val,optim_rule);
-                    
+                    bool known = optim_engine->get_rule(&val, optim_rule);
                     if(!known) return;
-                    
-                    OptimRuleDialog<NamedTextCtrl<T>> dialog(adv_ctrl->GetScreenPosition(),true,optim_rule);
-                    
-                    if(dialog.selection_ok)
-                    {
-                        optim_rule=dialog.rule;
-                        optim_engine->set_rule(&val,optim_rule);
-                    }
                 }
-                else // External optimization
+                    
+                OptimRuleDialog<NamedTextCtrl<T>> dialog(adv_ctrl->GetScreenPosition(),optimize,optim_rule);
+                    
+                if(dialog.selection_ok)
                 {
-                    OptimRuleDialog<NamedTextCtrl<T>> dialog(adv_ctrl->GetScreenPosition(),optimize,optim_rule);
-        
-                    if(dialog.selection_ok)
-                    {
-                        optimize=dialog.optimize;
-                        optim_rule=dialog.rule;
-                        
-                        if(optimize)
-                        {
-                            if(optim_rule.lock)
-                                 txt->SetBackgroundColour(wxColour(220,220,255));
-                            else txt->SetBackgroundColour(wxColour(220,255,220));
-                        }
-                        else txt->SetBackgroundColour(wxColour(255,255,255));
-                        
-                        Refresh();
-                    }
+                    optimize=dialog.optimize;
+                    optim_rule=dialog.rule;
+                    
+                    if(optim_engine!=nullptr)
+                        optim_engine->set_rule(&val,optim_rule);
+
+                    update_optimization_color();
                 }
             }
         }
@@ -204,6 +188,19 @@ class NamedTextCtrl: public wxPanel
             strm<<val;
             
             txt->ChangeValue(wxString(strm.str()));
+        }
+
+        void update_optimization_color()
+        {
+            if(optimize)
+            {
+                if(optim_rule.lock)
+                        txt->SetBackgroundColour(wxColour(220,220,255));
+                else txt->SetBackgroundColour(wxColour(220,255,220));
+            }
+            else txt->SetBackgroundColour(wxColour(255,255,255));
+                        
+            Refresh();
         }
         
         operator T() const { return val; }
