@@ -627,6 +627,11 @@ void MultilayerFrame::recompute_statistical()
     A_TE.resize(N_resize);
     A_TM.resize(N_resize);
     A_avg.resize(N_resize);
+
+    pr_TE.resize(N_resize);
+    pr_TM.resize(N_resize);
+    pt_TE.resize(N_resize);
+    pt_TM.resize(N_resize);
     
     for(unsigned int i=0;i<N_resize;i++)
     {
@@ -635,6 +640,11 @@ void MultilayerFrame::recompute_statistical()
         
         T_TE_sum[i]=0;
         T_TM_sum[i]=0;
+
+        pr_TE[i] = 0;
+        pr_TM[i] = 0;
+        pt_TE[i] = 0;
+        pt_TM[i] = 0;
     }
     
     graph->clear_graph();
@@ -857,7 +867,14 @@ void MultilayerFrame::recompute_straight()
     A_TE.resize(N_resize);
     A_TM.resize(N_resize);
     A_avg.resize(N_resize);
-    
+
+    pr_TE.resize(N_resize);
+    pr_TM.resize(N_resize);
+    pt_TE.resize(N_resize);
+    pt_TM.resize(N_resize);
+
+    Imdouble tmp_rte, tmp_rtm, tmp_tte, tmp_ttm;
+
     if(spectral)
     {
         ml.set_angle(Degree(curr_angle));
@@ -872,9 +889,18 @@ void MultilayerFrame::recompute_straight()
             
             for(l=0;l<Nl;l++)
                 ml.set_layer(l,layers_height[l],layers_material[l]->get_n(w));
+
+            ml.compute(tmp_rte, tmp_rtm, tmp_tte, tmp_ttm);
             
             ml.compute_power(R_TE[i],T_TE[i],A_TE[i],
-                             R_TM[i],T_TM[i],A_TM[i]);
+                             R_TM[i],T_TM[i],A_TM[i],
+                             tmp_rte, tmp_rtm,
+                             tmp_tte, tmp_ttm);
+            
+            ml.compute_phase(pr_TE[i], pr_TM[i],
+                             pt_TE[i], pt_TM[i],
+                             tmp_rte, tmp_rtm,
+                             tmp_tte, tmp_ttm);
             
             R_avg[i]=0.5*(R_TE[i]+R_TM[i]);
             T_avg[i]=0.5*(T_TE[i]+T_TM[i]);
@@ -903,8 +929,17 @@ void MultilayerFrame::recompute_straight()
             ang_rad.degree(angle[i]);
             ml.set_angle(ang_rad);
             
+            ml.compute(tmp_rte, tmp_rtm, tmp_tte, tmp_ttm);
+
             ml.compute_power(R_TE[i],T_TE[i],A_TE[i],
-                             R_TM[i],T_TM[i],A_TM[i]);
+                             R_TM[i],T_TM[i],A_TM[i],
+                             tmp_rte, tmp_rtm,
+                             tmp_tte, tmp_ttm);
+
+            ml.compute_phase(pr_TE[i], pr_TM[i],
+                             pt_TE[i], pt_TM[i],
+                             tmp_rte, tmp_rtm,
+                             tmp_tte, tmp_ttm);
             
             R_avg[i]=0.5*(R_TE[i]+R_TM[i]);
             T_avg[i]=0.5*(T_TE[i]+T_TM[i]);

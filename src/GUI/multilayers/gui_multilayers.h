@@ -52,9 +52,16 @@ class MultilayerFrame: public BaseFrame
         
         std::vector<double> lambda,angle;
         std::vector<double> lambda_disp,angle_disp;
+        
+        // Powers
+
         std::vector<double> R_TE,R_TM,R_avg,R_TE_sum,R_TM_sum;
         std::vector<double> T_TE,T_TM,T_avg,T_TE_sum,T_TM_sum;
         std::vector<double> A_TE,A_TM,A_avg;
+
+        // Phases
+
+        std::vector<double> pr_TE, pr_TM, pt_TE, pt_TM;
         
         // Statistical computation
         
