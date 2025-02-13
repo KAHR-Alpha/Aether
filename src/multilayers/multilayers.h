@@ -379,8 +379,16 @@ class Multilayer_TMM_UD
                      Imdouble &t_TE,Imdouble &t_TM);
         void compute_abs(double &r_TE,double &r_TM,
                          double &t_TE,double &t_TM);
+        void compute_phase(double &pr_TE, double &pr_TM,
+                           double &pt_TE, double &pt_TM,
+                           Imdouble const &r_TE, Imdouble const &r_TM,
+                           Imdouble const &t_TE, Imdouble const &t_TM);
         void compute_power(double &R_TE,double &T_TE,double &A_TE,
                            double &R_TM,double &T_TM,double &A_TM);
+        void compute_power(double &R_TE,double &T_TE,double &A_TE,
+                           double &R_TM,double &T_TM,double &A_TM,
+                           Imdouble const &r_TE,Imdouble const &r_TM,
+                           Imdouble const &t_TE,Imdouble const &t_TM);
         void operator = (Multilayer_TMM_UD const &ml);
         void recompute_L();
         void set_angle(AngleRad const &ang);

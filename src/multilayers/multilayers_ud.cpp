@@ -133,6 +133,19 @@ void Multilayer_TMM_UD::compute(Imdouble &r_TE,Imdouble &r_TM,
     t_TM=M(0,0)+M(0,1)*r_TM;
 }
 
+
+void Multilayer_TMM_UD::compute_phase(double &pr_TE, double &pr_TM,
+                                      double &pt_TE, double &pt_TM,
+                                      Imdouble const &r_TE, Imdouble const &r_TM,
+                                      Imdouble const &t_TE, Imdouble const &t_TM)
+{
+    pr_TE = 0;
+    pr_TM = 0;
+    pt_TE = 0;
+    pt_TM = 0;
+}
+
+
 void Multilayer_TMM_UD::compute_power(double &R_TE,double &T_TE,double &A_TE,
                                       double &R_TM,double &T_TM,double &A_TM)
 {
@@ -143,17 +156,28 @@ void Multilayer_TMM_UD::compute_power(double &R_TE,double &T_TE,double &A_TE,
     
     compute(r_te,r_tm,t_te,t_tm);
     
+    compute_power(R_TE, T_TE, A_TE,
+                  R_TM, T_TM, A_TM,
+                  r_te, r_tm, t_te, t_tm);
+}
+
+
+void Multilayer_TMM_UD::compute_power(double &R_TE,double &T_TE,double &A_TE,
+                                      double &R_TM,double &T_TM,double &A_TM,
+                                      Imdouble const &r_te,Imdouble const &r_tm,
+                                      Imdouble const &t_te,Imdouble const &t_tm)
+{
     Imdouble k1=k0*sup_ind;
     Imdouble kz1=std::sqrt(k1*k1-kp*kp);
     Imdouble k2=k0*sub_ind;
     Imdouble kz2=std::sqrt(k2*k2-kp*kp);
-    
+
     R_TE=std::norm(r_te);
     R_TM=std::norm(r_tm);
-    
+
     if(std::isnan(R_TE))
         plog<<r_te<<std::endl;
-    
+
     if(std::imag(kz2)!=0)
     {
         T_TE=T_TM=0;
@@ -163,10 +187,11 @@ void Multilayer_TMM_UD::compute_power(double &R_TE,double &T_TE,double &A_TE,
         T_TE=std::norm(t_te)*std::abs(kz2/kz1);
         T_TM=std::norm(t_tm)*std::abs(sup_ind*sup_ind*kz2/(sub_ind*sub_ind*kz1));
     }
-        
+
     A_TE=1.0-R_TE-T_TE;
     A_TM=1.0-R_TM-T_TM;
 }
+
 
 void Multilayer_TMM_UD::operator =  (Multilayer_TMM_UD const &ml)
 {
