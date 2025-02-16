@@ -78,7 +78,8 @@ class MultilayerFrame: public BaseFrame
         wxPanel *display_panel;
         
         wxRadioBox *computation_ctrl;
-        Graph *graph;
+        Graph *graph, *phase_graph;
+        wxNotebook *display_book;
         SliderDisplay *ctrl_slider;
         
         SpectrumSelector *spectrum;
@@ -112,6 +113,7 @@ class MultilayerFrame: public BaseFrame
         void evt_add_layer(wxCommandEvent &event);
         void evt_angle(wxCommandEvent &event);
         void evt_export_data(wxCommandEvent &event);
+        void evt_graph_switch(wxBookCtrlEvent &event);
         void evt_menu(wxCommandEvent &event);
         void evt_mode_switch(wxCommandEvent &event);
         void evt_panels_change(wxCommandEvent &event);

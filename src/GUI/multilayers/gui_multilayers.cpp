@@ -36,6 +36,8 @@ enum
 MultilayerFrame::MultilayerFrame(wxString const &title)
     :BaseFrame(title),
      spectral(true),
+     curr_lambda(500e-9),
+     curr_angle(0),
      lambda(481), angle(901),
      statistical_computation(false), thread_running(false),
      N_samples(10000), thread(nullptr),
@@ -199,12 +201,21 @@ MultilayerFrame::MultilayerFrame(wxString const &title)
     
     wxBoxSizer *display_sizer=new wxBoxSizer(wxVERTICAL);
     
-    graph=new Graph(display_panel);
-    graph->spectral_data=true;
+    display_book = new wxNotebook(display_panel, wxID_ANY);
+    display_book->Bind(wxEVT_NOTEBOOK_PAGE_CHANGING, &MultilayerFrame::evt_graph_switch, this);
+
+    graph = new Graph(display_book);
+    graph->spectral_data = true;
+
+    phase_graph = new Graph(display_book);
+    phase_graph->spectral_data = true;
+
+    display_book->AddPage(graph, "Power");
+    display_book->AddPage(phase_graph, "Phase");
     
-    ctrl_slider=new SliderDisplay(display_panel,901,0,90.0,1.0,"°");
+    ctrl_slider=new SliderDisplay(display_panel, 901,0,90.0,1.0,"°");
     
-    display_sizer->Add(graph,wxSizerFlags(1).Expand());
+    display_sizer->Add(display_book,wxSizerFlags(1).Expand());
     display_sizer->Add(ctrl_slider,wxSizerFlags().Expand());
     
     display_panel->SetSizer(display_sizer);
@@ -344,6 +355,17 @@ void MultilayerFrame::evt_export_data(wxCommandEvent &event)
         }
     }
 }
+
+
+void MultilayerFrame::evt_graph_switch(wxBookCtrlEvent &event)
+{
+    if(statistical_computation)
+    {
+        wxMessageBox("The phase is not available in statistical computations");
+        event.Veto();
+    }
+}
+
 
 void MultilayerFrame::evt_menu(wxCommandEvent &event)
 {
@@ -564,6 +586,7 @@ void MultilayerFrame::evt_spectrum(wxCommandEvent &event)
     double lambda_max=spectrum->get_lambda_max();
     
     graph->clear_graph();
+    phase_graph->clear_graph();
     
     lambda.resize(Nl);
     
@@ -596,7 +619,12 @@ void MultilayerFrame::recompute()
         
         if(panel->is_statistical())
         {
-            statistical_computation=true;
+            if(display_book->GetSelection() == 1)
+            {
+                display_book->SetSelection(0);
+            }
+
+            statistical_computation = true;
             break;
         }
     }
@@ -648,6 +676,7 @@ void MultilayerFrame::recompute_statistical()
     }
     
     graph->clear_graph();
+    phase_graph->clear_graph();
     
     std::vector<double> *abscissa;
     
@@ -669,7 +698,7 @@ void MultilayerFrame::recompute_statistical()
     if(disp_T_avg) graph->add_external_data(abscissa,&T_avg,0,s,0,"T_avg");
     if(disp_A_avg) graph->add_external_data(abscissa,&A_avg,s,0,0,"A_avg");
     
-    graph->set_scale((*abscissa)[0],(*abscissa)[abscissa->size()-1],-0.1,1.1);
+    graph->set_scale(abscissa->front(), abscissa->back(), -0.1, 1.1);
     
     graph->Refresh();
     
@@ -947,12 +976,13 @@ void MultilayerFrame::recompute_straight()
         }
     }
     
+    std::vector<double> *abscissa = &lambda;
+
+    if(spectral == false) abscissa = &angle;
+
+    // Power graph
+
     graph->clear_graph();
-    
-    std::vector<double> *abscissa;
-    
-    if(spectral) abscissa=&lambda;
-    else abscissa=&angle;
     
     double s=0.25;
     if(disp_Rs) graph->add_external_data(abscissa,&R_TE,0,0,s,"Rs");
@@ -969,9 +999,25 @@ void MultilayerFrame::recompute_straight()
     if(disp_T_avg) graph->add_external_data(abscissa,&T_avg,0,s,0,"T_avg");
     if(disp_A_avg) graph->add_external_data(abscissa,&A_avg,s,0,0,"A_avg");
     
-    graph->set_scale((*abscissa)[0],(*abscissa)[abscissa->size()-1],-0.1,1.1);
+    graph->set_scale(abscissa->front(), abscissa->back(), -0.1, 1.1);
     
     graph->Refresh();
+
+    // Phase graph
+
+    phase_graph->clear_graph();
+
+    s=0.25;
+    if(disp_Rs) phase_graph->add_external_data(abscissa, &pr_TE, 0, 0, s, "Rs");
+    if(disp_Ts) phase_graph->add_external_data(abscissa, &pt_TE, 0, s, 0, "Ts");
+
+    s=0.6;
+    if(disp_Rp) phase_graph->add_external_data(abscissa, &pr_TM, 0, 0, s, "Rp");
+    if(disp_Tp) phase_graph->add_external_data(abscissa, &pt_TM, 0, s, 0, "Tp");
+
+    phase_graph->set_scale(abscissa->front(), abscissa->back(), -3.2, 3.2);
+
+    phase_graph->Refresh();
 }
 
 void MultilayerFrame::rename_panels()
