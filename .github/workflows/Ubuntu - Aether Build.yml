@@ -43,7 +43,7 @@ jobs:
     - run: sudo apt install zlib1g-dev
     - run: sudo apt install libpng-dev
     - run: sudo apt install libfreetype-dev
-    - run: sudo apt install libwxgtk3.0-gtk3-dev --fix-missing
+    - run: sudo apt install libwxgtk3.2-dev --fix-missing
       
     # - name: 'Upload built dependencies'
       # uses: actions/upload-artifact@v3
