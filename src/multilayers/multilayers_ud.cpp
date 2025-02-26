@@ -139,10 +139,10 @@ void Multilayer_TMM_UD::compute_phase(double &pr_TE, double &pr_TM,
                                       Imdouble const &r_TE, Imdouble const &r_TM,
                                       Imdouble const &t_TE, Imdouble const &t_TM)
 {
-    pr_TE = 0;
-    pr_TM = 0;
-    pt_TE = 0;
-    pt_TM = 0;
+    pr_TE = std::arg(r_TE);
+    pr_TM = std::arg(r_TM);
+    pt_TE = std::arg(t_TE);
+    pt_TM = std::arg(t_TM);
 }
 
 
