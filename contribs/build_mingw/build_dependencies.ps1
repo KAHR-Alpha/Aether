@@ -47,7 +47,7 @@ if(!(Test-Path libpng.zip))
 	Invoke-WebRequest -UserAgent "Wget" -URI https://sourceforge.net/projects/libpng/files/latest/download -OutFile libpng.zip
 	Expand-Archive -Force ./libpng.zip
 }
-cd libpng/lpng1643
+cd libpng/lpng1647
 cmake -B "cmake_build" -G "MinGW Makefiles" -DCMAKE_INSTALL_PREFIX="${build_path}/libpng" -DCMAKE_BUILD_TYPE=Release -DCMAKE_PREFIX_PATH="../../zlib_build"
 cmake --build "cmake_build" --config Release --parallel 8
 cmake --install "cmake_build"
