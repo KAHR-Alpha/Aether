@@ -52,9 +52,16 @@ class MultilayerFrame: public BaseFrame
         
         std::vector<double> lambda,angle;
         std::vector<double> lambda_disp,angle_disp;
+        
+        // Powers
+
         std::vector<double> R_TE,R_TM,R_avg,R_TE_sum,R_TM_sum;
         std::vector<double> T_TE,T_TM,T_avg,T_TE_sum,T_TM_sum;
         std::vector<double> A_TE,A_TM,A_avg;
+
+        // Phases
+
+        std::vector<double> pr_TE, pr_TM, pt_TE, pt_TM;
         
         // Statistical computation
         
@@ -71,7 +78,8 @@ class MultilayerFrame: public BaseFrame
         wxPanel *display_panel;
         
         wxRadioBox *computation_ctrl;
-        Graph *graph;
+        Graph *graph, *phase_graph;
+        wxNotebook *display_book;
         SliderDisplay *ctrl_slider;
         
         SpectrumSelector *spectrum;
@@ -105,6 +113,7 @@ class MultilayerFrame: public BaseFrame
         void evt_add_layer(wxCommandEvent &event);
         void evt_angle(wxCommandEvent &event);
         void evt_export_data(wxCommandEvent &event);
+        void evt_graph_switch(wxBookCtrlEvent &event);
         void evt_menu(wxCommandEvent &event);
         void evt_mode_switch(wxCommandEvent &event);
         void evt_panels_change(wxCommandEvent &event);
