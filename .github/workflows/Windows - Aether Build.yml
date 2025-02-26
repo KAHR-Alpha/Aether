@@ -85,7 +85,7 @@ jobs:
       - run: dir "${{github.workspace}}/cmake_build"
         
       - name: 'Upload Aether Artifact'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Aether_windows
           path: cmake_build/Aether*
