@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2025 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -21,12 +21,12 @@ limitations under the License.*/
 
 wxDEFINE_EVENT(EVT_NAMEDTXTCTRL,wxCommandEvent);
 
-//##################
-//   ChoiceDialog
-//##################
+//####################
+//   RadioBoxDialog
+//####################
 
-ChoiceDialog::ChoiceDialog(wxString const &title,
-                           std::vector<wxString> const &labels)
+RadioBoxDialog::RadioBoxDialog(wxString const &title,
+                               std::vector<wxString> const &labels)
     :wxDialog(0,wxID_ANY,"",
               wxGetApp().default_dialog_origin()),
      choice_ok(false)
@@ -56,19 +56,21 @@ ChoiceDialog::ChoiceDialog(wxString const &title,
     
     top_sizer->Add(btn_sizer,wxSizerFlags().Border(wxALL,2).Align(wxALIGN_RIGHT));
     
-    cancel_btn->Bind(wxEVT_BUTTON,&ChoiceDialog::evt_cancel,this);
-    ok_btn->Bind(wxEVT_BUTTON,&ChoiceDialog::evt_ok,this);
+    cancel_btn->Bind(wxEVT_BUTTON,&RadioBoxDialog::evt_cancel,this);
+    ok_btn->Bind(wxEVT_BUTTON,&RadioBoxDialog::evt_ok,this);
     
     SetSizerAndFit(top_sizer);
     ShowModal();
 }
 
-void ChoiceDialog::evt_cancel(wxCommandEvent &event)
+
+void RadioBoxDialog::evt_cancel(wxCommandEvent &event)
 {
     Close();
 }
 
-void ChoiceDialog::evt_ok(wxCommandEvent &event)
+
+void RadioBoxDialog::evt_ok(wxCommandEvent &event)
 {
     choice=choice_ctrl->GetSelection();
     choice_ok=true;

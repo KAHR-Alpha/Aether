@@ -166,7 +166,7 @@ namespace MatGUI
             
             Cspline *er_spline,*ei_spline;
             
-            wxButton *edit_btn;
+            wxButton *load_btn, *edit_btn;
             
             DataPanel(wxWindow *parent,int ID,
                       std::vector<double> *lambda,
@@ -177,9 +177,13 @@ namespace MatGUI
                       Cspline *ei_spline);
             
             void evt_edit(wxCommandEvent &event);
+            void evt_load(wxCommandEvent &event);
             void lock();
             void signal_type();
             void unlock();
+            
+        private:
+            void rebuild_splines();
     };
 }
 

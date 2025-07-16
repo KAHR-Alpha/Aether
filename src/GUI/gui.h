@@ -492,7 +492,7 @@ class BaseFrame: public wxFrame
         #endif
 };
 
-class ChoiceDialog: public wxDialog
+class RadioBoxDialog: public wxDialog
 {
     public:
         bool choice_ok;
@@ -500,8 +500,8 @@ class ChoiceDialog: public wxDialog
         
         wxRadioBox *choice_ctrl;
         
-        ChoiceDialog(wxString const &title,
-                     std::vector<wxString> const &labels);
+        RadioBoxDialog(wxString const &title,
+                       std::vector<wxString> const &labels);
         
         void evt_cancel(wxCommandEvent &event);
         void evt_ok(wxCommandEvent &event);

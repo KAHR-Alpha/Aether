@@ -300,6 +300,9 @@ void Cspline::rescale()
     scale_x=x_max-x_min;
     scale_y=y_max-y_min;
     
+    if(scale_x == 0) scale_x = 1.0;
+    if(scale_y == 0) scale_y = 1.0;
+    
     for(int l=0;l<Np;l++)
     {
         xp[l]=(xp[l]-offset_x)/scale_x;

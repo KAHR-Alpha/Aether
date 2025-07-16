@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2025 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -12,8 +12,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
+#include <filehdl.h>
 #include <phys_tools.h>
 
+#include <gui_enum_choice.h>
 #include <gui_material_editor_panels.h>
 
 #include <wx/grid.h>
@@ -689,17 +691,94 @@ namespace MatGUI
     {
         set_title("Spline "+std::to_string(ID));
         
+        wxBoxSizer *btn_sizer = new wxBoxSizer(wxHORIZONTAL);
+        
+        load_btn = new wxButton(this, wxID_ANY, "Load Data");
+        load_btn->Bind(wxEVT_BUTTON, &DataPanel::evt_load, this);
+        load_btn->SetToolTip("Three columns, space separation\nLambda(m) real(data) imag(data)");
+        btn_sizer->Add(load_btn, wxSizerFlags(1));
+        
         edit_btn=new wxButton(this,wxID_ANY,"Edit Data");
         edit_btn->Bind(wxEVT_BUTTON,&DataPanel::evt_edit,this);
-        
-        sizer->Add(edit_btn,wxSizerFlags().Expand());
+        btn_sizer->Add(edit_btn, wxSizerFlags(1));
+                
+        sizer->Add(btn_sizer,wxSizerFlags().Expand());
     }
+    
     
     void DataPanel::evt_edit(wxCommandEvent &event)
     {
         DataPanelDialog dialog(lambda,data_r,data_i,index_type);
         dialog.ShowModal();
         
+        rebuild_splines();
+                    
+        wxCommandEvent event_out(EVT_NAMEDTXTCTRL);
+        wxPostEvent(this,event_out); // Will be caught by the editor
+    }
+    
+    
+    void DataPanel::evt_load(wxCommandEvent &event)
+    {
+        // Index type selection
+        
+        enum class Type { PERMITTIVITY, INDEX };
+        
+        EnumRadioDialog<Type> dialog("Select an import format:",
+                                     {"Permittivity", "Refractive Index"},
+                                     {Type::PERMITTIVITY, Type::INDEX});
+        dialog.ShowModal();
+        std::optional<Type> selection = dialog.get_selection();
+        
+        if(selection.has_value() == false) return;
+        
+        // Data file selection
+        
+        wxFileName fname_=wxFileSelector("Select the file containing the data:",
+                                         wxEmptyString, wxEmptyString, wxEmptyString,
+                                         "*.*", wxFD_OPEN);
+                                         
+        std::filesystem::path fname = fname_.GetFullPath().ToStdString();
+        
+        if(fname.empty()) return;
+        
+        AsciiDataLoader loader(fname.generic_string());
+        
+        std::vector<std::vector<double>> data;
+        loader.load_full(data);
+        
+        if(data.size() < 3)
+        {
+            wxMessageBox("This file does not contain three data columns", "Error", wxICON_ERROR);
+            return;
+        }
+        
+        // Data processing
+        
+        if(selection == Type::PERMITTIVITY) *index_type = 0;
+        else                                *index_type = 1;
+        
+        *lambda = data[0];
+        *data_r = data[1];
+        *data_i = data[2];
+        
+        rebuild_splines();
+        
+        wxCommandEvent event_out(EVT_NAMEDTXTCTRL);
+        wxPostEvent(this, event_out); // Will be caught by the editor
+    }
+    
+    
+    void DataPanel::lock()
+    {
+        edit_btn->Disable();
+        
+        PanelsListBase::lock();
+    }
+    
+    
+    void DataPanel::rebuild_splines()
+    {
         std::vector<double> w(lambda->size());
         
         for(std::size_t i=0;i<w.size();i++)
@@ -726,17 +805,8 @@ namespace MatGUI
             er_spline->init(w,*data_r);
             ei_spline->init(w,*data_i);
         }
-                    
-        wxCommandEvent event_out(EVT_NAMEDTXTCTRL);
-        wxPostEvent(this,event_out); // Will be caught by the editor
     }
     
-    void DataPanel::lock()
-    {
-        edit_btn->Disable();
-        
-        PanelsListBase::lock();
-    }
     
     void DataPanel::signal_type()
     {

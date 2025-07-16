@@ -1,4 +1,4 @@
-/*Copyright 2008-2023 - Loïc Le Cunff
+/*Copyright 2008-2025 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -223,7 +223,7 @@ void MaterialsEditor::evt_export(wxCommandEvent &event)
     choices[1]="Refractive index";
     choices[2]="MatLab Script";
 
-    ChoiceDialog dialog("Export type",choices);
+    RadioBoxDialog dialog("Export type",choices);
 
     if(!dialog.choice_ok) return;
 
