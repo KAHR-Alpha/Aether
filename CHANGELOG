@@ -4,6 +4,9 @@ Todo:
 - Tangent vectors managements for Selene
 - Implement the Lambertian, Guassian and ABg scattering models ( see "What scattering models are available in OpticStudio?" )
 
+0.16.1
+- Fixes to the Tabulated Data panel of the Materials Editor
+
 0.16
 - Phases are now displayed in the multilayer applet
 
