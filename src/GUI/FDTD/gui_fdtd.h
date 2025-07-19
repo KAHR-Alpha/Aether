@@ -310,6 +310,7 @@ class FDTD_Frame: public BaseFrame
         FDTD_GL *gl;
         std::vector<Basic_VAO*> disc_vao,sensor_vao,source_vao;
         FDTD_Disp_Dialog *disp_options_dialog;
+
         
         FDTD_Frame(wxString const &title);
         ~FDTD_Frame();

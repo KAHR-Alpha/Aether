@@ -390,6 +390,7 @@ EMGeometry_Frame::EMGeometry_Frame(wxString const &title)
     op_add_choice->append("Conformal Coating", OPtype::CONFORMAL_COATING);
     op_add_choice->append("Cylinder",          OPtype::CYLINDER);
     op_add_choice->append("Layer",             OPtype::LAYER);
+    op_add_choice->append("Lua Definition",    OPtype::LUA_DEFINITION);
     op_add_choice->append("Mesh",              OPtype::MESH);
     op_add_choice->append("Sphere",            OPtype::SPHERE);
     op_add_choice->set_selection(OPtype::BLOCK);
@@ -447,6 +448,8 @@ EMGeometry_Frame::EMGeometry_Frame(wxString const &title)
     Bind(EVT_PLIST_RESIZE,&EMGeometry_Frame::evt_refit,this);
     Bind(EVT_PLIST_DOWN,&EMGeometry_Frame::evt_operation_down,this);
     Bind(EVT_PLIST_UP,&EMGeometry_Frame::evt_operation_up,this);
+    
+    Bind(EVT_GOP_LUA, &EMGeometry_Frame::evt_refit,this);
 }
 
 EMGeometry_Frame::~EMGeometry_Frame()
@@ -516,6 +519,10 @@ void EMGeometry_Frame::evt_add_operation(wxCommandEvent &event)
 
         case OPtype::LAYER:
             panel=op->add_panel<GOP_Layer>(&lib,gl);
+            break;
+
+        case OPtype::LUA_DEFINITION:
+            panel=op->add_panel<GOP_Lua>(&lib, gl);
             break;
 
         case OPtype::SPHERE:

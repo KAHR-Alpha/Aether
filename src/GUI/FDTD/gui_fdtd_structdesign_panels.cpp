@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2025 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -12,7 +12,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.*/
 
+#include <logger.h>
+#include <string_tools.h>
+
 #include <gui_fdtd_structdesign.h>
+
+#include <optional>
 
 GOP_Block::GOP_Block(wxWindow *parent,SymLib *lib,EMGeometry_GL *engine)
     :GeomOP_Panel(parent,lib,engine)
@@ -706,6 +711,152 @@ void GOP_Layer::update_vao()
     
     vao->set_matrix(O,A,B,C);
 }
+
+//#############
+//   GOP_Lua
+//#############
+
+class Lua_VariablesDialog: public wxDialog
+{
+    public:
+        Lua_VariablesDialog(std::vector<std::string> const &variables)
+            :wxDialog(nullptr, wxID_ANY, "Variables", wxGetApp().default_dialog_origin())
+        {
+            wxBoxSizer *sizer = new wxBoxSizer(wxVERTICAL);
+            
+            // Tip
+            
+            sizer->Add(new wxStaticText(this, wxID_ANY, "List of variables separated by a comma"),
+                       wxSizerFlags().Expand().Border(wxTOP, 2));
+            sizer->Add(new wxStaticText(this, wxID_ANY, "Spaces not taken into account"),
+                       wxSizerFlags().Expand().Border(wxBOTTOM, 2));
+            
+            // Variables
+            
+            std::string str;
+            
+            for(std::size_t i = 0; i < variables.size(); i++)
+            {
+                str += variables[i];
+                
+                if(i+1 < variables.size())
+                {
+                    str += ", ";
+                }
+            }
+            
+            variables_ctrl = new wxTextCtrl(this, wxID_ANY, wxString(str));
+            sizer->Add(variables_ctrl, wxSizerFlags().Expand().Border(wxALL, 2));
+            
+            // Buttons
+            
+            wxBoxSizer *btn_sizer = new wxBoxSizer(wxHORIZONTAL);
+            
+            wxButton *ok_btn = new wxButton(this, wxID_ANY, "Ok");
+            ok_btn->Bind(wxEVT_BUTTON, &Lua_VariablesDialog::evt_ok, this);
+            btn_sizer->Add(ok_btn);
+            
+            wxButton *cancel_btn = new wxButton(this, wxID_ANY, "Cancel");
+            cancel_btn->Bind(wxEVT_BUTTON, &Lua_VariablesDialog::evt_cancel, this);
+            btn_sizer->Add(cancel_btn);
+            
+            sizer->Add(btn_sizer, wxSizerFlags().Align(wxALIGN_RIGHT));
+            
+            SetSizerAndFit(sizer);
+        }
+        
+        std::optional<std::vector<std::string>> const& get_response() const
+        {
+            return response;
+        }
+                
+    private:
+        std::optional<std::vector<std::string>> response;   ///< Variables if OK has been clicked
+        
+        wxTextCtrl *variables_ctrl;
+        
+        void evt_cancel(wxCommandEvent &event)
+        {
+            Close();
+        }
+        
+        void evt_ok(wxCommandEvent &event)
+        {
+            std::string str = variables_ctrl->GetValue().ToStdString();
+            std::vector<std::string> split_vars;
+            
+            str = remove_characters(str, ' ');
+            split_string(split_vars, str, ',');
+            
+            response = split_vars;
+            Close();
+        }
+};
+
+
+wxDEFINE_EVENT(EVT_GOP_LUA, wxCommandEvent);
+
+
+GOP_Lua::GOP_Lua(wxWindow *parent, SymLib *lib, EMGeometry_GL *engine)
+    :GeomOP_Panel(parent, lib, engine)
+{
+    wxStaticText *title = new wxStaticText(this, wxID_ANY, "Lua Definition");
+    
+    sizer->Add(title);
+    
+    // Variables
+    
+    wxButton *var_button = new wxButton(this, wxID_ANY, "Edit Variables");
+    var_button->Bind(wxEVT_BUTTON, &GOP_Lua::evt_set_variables, this);
+    sizer->Add(var_button, wxSizerFlags().Expand());
+    
+    variables_panel = new wxPanel(this);
+    variables_sizer = new wxBoxSizer(wxVERTICAL);
+    variables_panel->SetSizer(variables_sizer);
+    
+    sizer->Add(variables_panel, wxSizerFlags().Expand());
+    
+    //
+    
+    wxButton *code_button = new wxButton(this, wxID_ANY, "Edit Code");
+    code_button->Bind(wxEVT_BUTTON, &GOP_Lua::evt_edit, this);
+    sizer->Add(code_button, wxSizerFlags().Expand());
+    
+    mat=new NamedSymCtrl(this,"Mat: ",0.0);
+    
+    sizer->Add(mat,wxSizerFlags().Expand());
+}
+
+
+void GOP_Lua::evt_edit(wxCommandEvent &event)
+{
+    
+}
+
+
+void GOP_Lua::evt_set_variables(wxCommandEvent &event)
+{
+    Lua_VariablesDialog dialog(variables);
+    dialog.ShowModal();
+    
+    if(dialog.get_response().has_value())
+    {
+        variables = *(dialog.get_response());
+    }
+    else return;
+    
+    variables_panel->DestroyChildren();
+    
+    for(std::string const &var: variables)
+    {
+        NamedSymCtrl *ctrl = new NamedSymCtrl(variables_panel, var+": " , 0.0);
+        variables_sizer->Add(ctrl, wxSizerFlags().Expand());
+    }
+    
+    wxCommandEvent signal(EVT_GOP_LUA);
+    wxPostEvent(this, signal);
+}
+
 
 //###############
 //   GOP_Sphere

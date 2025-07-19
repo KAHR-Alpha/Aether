@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2025 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -30,6 +30,9 @@ limitations under the License.*/
 #include <wx/minifram.h>
 #include <wx/splitter.h>
 #include <wx/treelist.h>
+
+#include <string>
+#include <vector>
 
 class EMGeometry_GL: public GL_3D_Base
 {
@@ -174,6 +177,28 @@ class GOP_Layer: public GeomOP_Panel
         void update_vao() override;
 };
 
+wxDECLARE_EVENT(EVT_GOP_LUA, wxCommandEvent);
+
+class GOP_Lua: public GeomOP_Panel
+{
+    public:
+        GOP_Lua(wxWindow *parent, SymLib *lib, EMGeometry_GL *engine);
+        
+    private:
+        std::string code;                           ///< Lua code
+        std::vector<std::string> variables;         ///< Names of the variables
+        
+        wxPanel *variables_panel;                   ///< Canva for the variables controls
+        wxBoxSizer *variables_sizer;
+        std::vector<NamedSymCtrl*> variables_ctrl;  ///< Variables controls
+        
+        NamedSymCtrl *mat;                          ///< Material number
+        
+        void evt_edit(wxCommandEvent &event);
+        void evt_set_variables(wxCommandEvent &event);
+};
+
+
 class GOP_Sphere: public GeomOP_Panel
 {
     public:
@@ -201,6 +226,7 @@ class EMGeometry_Frame: public BaseFrame
             CONFORMAL_COATING,
             CYLINDER,
             LAYER,
+            LUA_DEFINITION,
             MESH,
             SPHERE
         };
