@@ -786,9 +786,71 @@ class Lua_VariablesDialog: public wxDialog
             std::vector<std::string> split_vars;
             
             str = remove_characters(str, ' ');
-            split_string(split_vars, str, ',');
+            
+            if(str.find(",") == std::string::npos)
+            {
+                split_vars.push_back(str);
+            }
+            else
+            {
+                split_string(split_vars, str, ',');
+            }
             
             response = split_vars;
+            
+            Close();
+        }
+};
+
+
+class LuaCodeDialog: public wxDialog
+{
+    public:
+        LuaCodeDialog(std::string const &code_)
+            :wxDialog(nullptr, wxID_ANY, "Function expression",
+                      wxGetApp().default_dialog_origin(),
+                      wxGetApp().default_dialog_size())
+        {
+            wxBoxSizer *sizer=new wxBoxSizer(wxVERTICAL);
+            
+            text=new wxTextCtrl(this, wxID_ANY, code_, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_PROCESS_TAB);
+            
+            sizer->Add(text,wxSizerFlags(1).Expand());
+            
+            wxButton *ok_btn=new wxButton(this,wxID_ANY,"Ok");
+            ok_btn->Bind(wxEVT_BUTTON, &LuaCodeDialog::evt_ok, this);
+            
+            wxButton *cancel_btn=new wxButton(this,wxID_ANY,"Cancel");
+            cancel_btn->Bind(wxEVT_BUTTON, &LuaCodeDialog::evt_cancel, this);
+            
+            wxBoxSizer *btn_sizer=new wxBoxSizer(wxHORIZONTAL);
+            
+            btn_sizer->Add(ok_btn);
+            btn_sizer->Add(cancel_btn);
+            
+            sizer->Add(btn_sizer,wxSizerFlags().Align(wxALIGN_RIGHT));
+            
+            SetSizer(sizer);
+        }
+        
+        std::optional<std::string> const& get_code() const
+        {
+            return code;
+        }
+        
+    private:
+        std::optional<std::string> code;
+        wxTextCtrl *text;
+        
+        void evt_cancel(wxCommandEvent &event)
+        {
+            Close();
+        }
+        
+        void evt_ok(wxCommandEvent &event)
+        {
+            code = text->GetValue().ToStdString();
+            
             Close();
         }
 };
@@ -830,7 +892,19 @@ GOP_Lua::GOP_Lua(wxWindow *parent, SymLib *lib, EMGeometry_GL *engine)
 
 void GOP_Lua::evt_edit(wxCommandEvent &event)
 {
+    LuaCodeDialog dialog{code};
+    dialog.ShowModal();
     
+    event.Skip();
+    
+    if(dialog.get_code().has_value())
+    {
+        code = *(dialog.get_code());
+    }
+    else
+    {
+        return;
+    }
 }
 
 
