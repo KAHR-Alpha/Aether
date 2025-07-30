@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2025 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -28,6 +28,8 @@ limitations under the License.*/
 #include <Eigen/Eigen>
 
 #include <atomic>
+#include <string>
+#include <vector>
 
 class FD_Boundary_Panel: public wxPanel
 {
@@ -59,6 +61,14 @@ namespace GUI
         public:
             std::vector<GUI::Material*> g_materials;
             
+            bool sequential_possible = false;
+            bool sequential_enabled = false;
+
+            std::vector<std::string> seq_names;
+            std::vector<double> seq_min;
+            std::vector<double> seq_max;
+            std::vector<double> seq_delta;
+
             void consolidate_materials()
             {
                 materials.resize(g_materials.size());
@@ -117,7 +127,17 @@ class FDTD_Mode_Dialog: public wxDialog
         wxScrolledWindow *boundaries_panel;
         
         FD_Boundary_Panel *boundary_x,*boundary_y,*boundary_z;
-                 
+        
+        // Sequential runs
+        wxScrolledWindow *seq_runs_panel;
+        wxCheckBox *seq_runs_activation;
+        wxPanel *seq_items;
+        wxBoxSizer *seq_sizer;
+        std::vector<wxStaticBoxSizer *> seq_names;
+        std::vector<NamedTextCtrl<double>*> seq_min;
+        std::vector<NamedTextCtrl<double>*> seq_max;
+        std::vector<NamedTextCtrl<double>*> seq_delt;
+
         
         FDTD_Mode_Dialog(GUI::FDTD_Mode *data,int target_panel);
         
@@ -126,6 +146,7 @@ class FDTD_Mode_Dialog: public wxDialog
         void FDTD_Mode_Dialog_Incidence(wxNotebook *book,int target_panel);
         void FDTD_Mode_Dialog_Main(wxNotebook *book,int target_panel);
         void FDTD_Mode_Dialog_Materials(wxNotebook *book,int target_panel);
+        void FDTD_Mode_Dialog_Seq_Runs(wxNotebook *book);
         void FDTD_Mode_Dialog_Structure(wxNotebook *book,int target_panel);
         
         
@@ -141,6 +162,7 @@ class FDTD_Mode_Dialog: public wxDialog
         void layout_adaptive_time();
         void layout_fixed_time();
         void rename_materials();
+        void repopulate_sequential_panel();
 };
 
 class FDTD_Run_Dialog: public wxDialog

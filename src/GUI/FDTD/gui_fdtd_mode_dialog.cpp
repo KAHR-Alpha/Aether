@@ -1,4 +1,4 @@
-/*Copyright 2008-2022 - Loïc Le Cunff
+/*Copyright 2008-2025 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -248,6 +248,7 @@ FDTD_Mode_Dialog::FDTD_Mode_Dialog(GUI::FDTD_Mode *data_,int target_panel)
     FDTD_Mode_Dialog_Incidence(book,target_panel);
     FDTD_Mode_Dialog_Materials(book,target_panel);
     FDTD_Mode_Dialog_Boundaries(book,target_panel);
+    FDTD_Mode_Dialog_Seq_Runs(book);
     
     //
     
@@ -511,6 +512,31 @@ void FDTD_Mode_Dialog::FDTD_Mode_Dialog_Materials(wxNotebook *book,int target_pa
     if(target_panel==3) book->SetSelection(N_panels); N_panels++;
 }
 
+
+void FDTD_Mode_Dialog::FDTD_Mode_Dialog_Seq_Runs(wxNotebook *book)
+{
+    seq_runs_panel = new wxScrolledWindow(book);
+
+    wxBoxSizer *sizer = new wxBoxSizer(wxVERTICAL);
+
+    seq_runs_activation = new wxCheckBox(seq_runs_panel, wxID_ANY, "Enable sequential runs: ");
+    seq_runs_activation->SetValue(data->sequential_enabled);
+    sizer->Add(seq_runs_activation, wxSizerFlags().Border(wxALL, 2));
+
+    seq_items = new wxPanel(seq_runs_panel);
+    seq_sizer = new wxBoxSizer(wxVERTICAL);
+    seq_items->SetSizer(seq_sizer);
+    sizer->Add(seq_items, wxSizerFlags().Expand());
+
+    repopulate_sequential_panel();
+
+    seq_runs_panel->SetScrollbars(1, 1, 50, 50);
+    seq_runs_panel->SetSizerAndFit(sizer);
+    
+    book->AddPage(seq_runs_panel, "Sequential Runs");
+}
+
+
 void FDTD_Mode_Dialog::FDTD_Mode_Dialog_Structure(wxNotebook *book,int target_panel)
 {
     structure_panel=new wxScrolledWindow(book);
@@ -592,6 +618,7 @@ void FDTD_Mode_Dialog::FDTD_Mode_Dialog_Structure(wxNotebook *book,int target_pa
     if(target_panel==1) book->SetSelection(N_panels); N_panels++;
 }
 
+
 //----------------------
 //   Member functions
 //----------------------
@@ -628,6 +655,8 @@ void FDTD_Mode_Dialog::evt_edit_structure(wxCommandEvent &event)
 
 void FDTD_Mode_Dialog::evt_load_structure(wxCommandEvent &event)
 {
+    event.Skip();
+
     wxFileName fname;
     fname=wxFileSelector("Load structure script",
                          wxFileSelectorPromptStr,
@@ -658,10 +687,13 @@ void FDTD_Mode_Dialog::evt_load_structure(wxCommandEvent &event)
     Structure loader(struct_path);
     loader.finalize();
     
+    std::vector<std::string> prev_parameter_names = parameter_names;
     parameter_names=loader.parameter_name;
     
     for(std::size_t i=0;i<loader.parameter_name.size();i++)
     {
+        // Structure parameters
+
         NamedTextCtrl<double> *param=new NamedTextCtrl(parameters_sizer->GetStaticBox(),
                                                        loader.parameter_name[i]+" : ",
                                                        loader.parameter_value[i]);
@@ -681,8 +713,34 @@ void FDTD_Mode_Dialog::evt_load_structure(wxCommandEvent &event)
     }
     
     structure_panel->FitInside();
-    
-    event.Skip();
+
+    // Sequential mode
+
+    if(loader.parameter_name.empty())
+    {
+        data->sequential_possible = false;
+        data->sequential_enabled = false;
+        data->seq_names.clear();
+        data->seq_min.clear();
+        data->seq_max.clear();
+        data->seq_delta.clear();
+    }
+    else
+    {
+        data->sequential_possible = true;
+        
+        if(data->seq_names != loader.parameter_name)
+        {
+            data->seq_names = loader.parameter_name;
+            data->seq_min = loader.parameter_value;
+            data->seq_max = loader.parameter_value;
+            
+            data->seq_delta.resize(loader.parameter_value.size());
+            std::fill(data->seq_delta.begin(), data->seq_delta.end(), 0.0);
+        }
+
+        repopulate_sequential_panel();
+    }
 }
 
 void FDTD_Mode_Dialog::evt_material_change(wxCommandEvent &event)
@@ -794,6 +852,21 @@ void FDTD_Mode_Dialog::evt_ok(wxCommandEvent &event)
                                data->pml_zm,data->kappa_zm,data->sigma_zm,data->alpha_zm,data->pad_zm,
                                data->pml_zp,data->kappa_zp,data->sigma_zp,data->alpha_zp,data->pad_zp);
     
+    // Sequential runs
+
+    data->sequential_enabled = seq_runs_activation->GetValue();
+    data->seq_names = parameter_names;
+    data->seq_min.resize(parameter_names.size());
+    data->seq_max.resize(parameter_names.size());
+    data->seq_delta.resize(parameter_names.size());
+
+    for(std::size_t i=0; i<parameter_names.size(); i++)
+    {
+        data->seq_min[i] = seq_min[i]->get_value();
+        data->seq_max[i] = seq_max[i]->get_value();
+        data->seq_delta[i] = seq_delt[i]->get_value();
+    }
+
     Close();
 }
 
@@ -852,6 +925,43 @@ void FDTD_Mode_Dialog::rename_materials()
         
         mats_list->get_panel(i)->set_title(title);
     }
+}
+
+
+void FDTD_Mode_Dialog::repopulate_sequential_panel()
+{
+    seq_items->DestroyChildren();
+
+    seq_names.clear();
+    seq_min.clear();
+    seq_max.clear();
+    seq_delt.clear();
+
+    for(std::size_t i=0; i<data->seq_names.size(); i++)
+    {
+        wxStaticBoxSizer *sizer = new wxStaticBoxSizer(wxHORIZONTAL, seq_items, data->seq_names[i]);
+        seq_sizer->Add(sizer, wxSizerFlags().Expand().Border(wxALL, 2));
+
+        NamedTextCtrl<double> *min_ctrl
+            = new NamedTextCtrl<double>(sizer->GetStaticBox(), "Min: ", data->seq_min[i]);
+
+        NamedTextCtrl<double> *max_ctrl
+            = new NamedTextCtrl<double>(sizer->GetStaticBox(), " Max: ", data->seq_max[i]);
+
+        NamedTextCtrl<double> *delta_ctrl
+            = new NamedTextCtrl<double>(sizer->GetStaticBox(), " Delta: ", data->seq_delta[i]);
+
+        sizer->Add(min_ctrl, wxSizerFlags(1));
+        sizer->Add(max_ctrl, wxSizerFlags(1));
+        sizer->Add(delta_ctrl, wxSizerFlags(1));
+
+        seq_names.push_back(sizer);
+        seq_min.push_back(min_ctrl);
+        seq_max.push_back(max_ctrl);
+        seq_delt.push_back(delta_ctrl);
+    }
+
+    seq_runs_panel->FitInside();
 }
 
 //#####################
