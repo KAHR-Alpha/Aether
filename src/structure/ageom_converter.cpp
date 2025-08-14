@@ -98,6 +98,36 @@ namespace cnv
     }
 
 
+    int structure_add_lua_def(lua_State *L)
+    {
+        int N_args_tot = lua_gettop(L);
+        int N_args = (N_args_tot-3)/2;
+
+        std::stringstream &strm = get_stream(L);
+
+        strm << "function " << lua_tostring(L, 1) << "(x,y,z";
+        for(int i=1; i<=N_args; i++)
+        {
+            strm << "," << lua_tostring(L, 1+i);
+        }
+        strm << ")\n";
+        
+        int arg_shift = N_args+2;
+
+        strm << lua_tostring(L, arg_shift) << "\n";
+        strm << "end\n";
+        strm << "add_lua_def(" << std::quoted(lua_tostring(L,1));
+        for(int i=1; i<=N_args; i++)
+        {
+            strm << "," << lua_tostring(L, arg_shift+i);
+        }
+
+        strm << "," << lua_tointeger(L, N_args_tot) << ")\n";
+        
+        return 0;
+    }
+
+
     int structure_add_sphere(lua_State *L)
     {
         get_stream(L)
@@ -182,7 +212,7 @@ std::string ageom_to_lua(std::filesystem::path const &script)
     //lua_register(L,"add_ellipsoid",cnv::structure_add_ellipsoid);
     //    lua_register(L,"add_height_map",lop_add_height_map);
     lua_register(L,"add_layer",cnv::structure_add_layer);
-    //lua_register(L,"add_lua_def",cnv::structure_add_lua_def);
+    lua_register(L,"add_lua_def",cnv::structure_add_lua_def);
     //lua_register(L,"add_mesh",cnv::structure_add_mesh);
     //lua_register(L,"add_sin_layer",cnv::structure_add_sin_layer);
     lua_register(L,"add_sphere",cnv::structure_add_sphere);

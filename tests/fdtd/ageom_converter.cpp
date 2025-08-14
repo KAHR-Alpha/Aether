@@ -1,4 +1,4 @@
-/*Copyright 2008-2024 - Loïc Le Cunff
+/*Copyright 2008-2025 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -60,7 +60,11 @@ int ageom_converter(int argc,char *argv[])
 	geostr<<"add_layer(\"dir\",\"arg1\",\"arg2\",4)\n";
 	output<<"add_layer(\"dir\",arg1,arg2,4)\n";
 	
-	////geostr<<"add_lua_def",LuaUI::structure_add_lua_def);
+	geostr << "add_lua_def(\"fname_1\",\"arg1\",\"arg2\",\"def_1\",\"val1\",\"val2\",6)\n";
+    output << "function fname_1(x,y,z,arg1,arg2)\n";
+    output << "def_1\n";
+    output << "end\n";
+    output << "add_lua_def(\"fname_1\",val1,val2,6)\n";
 	////geostr<<"add_mesh",LuaUI::structure_add_mesh);
 	////geostr<<"add_sin_layer",LuaUI::structure_add_sin_layer);
 	
