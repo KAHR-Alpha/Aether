@@ -257,6 +257,12 @@ class EMGeometry_Frame: public BaseFrame
         NamedTextCtrl<int> *def_mat_ctrl;
         EnumChoice<OPtype> *op_add_choice;
         
+        // Preview
+        
+        LengthSelector *dx_preview,  ///< Dx of the preview discretization
+                       *dy_preview,  ///< Dy of the preview discretization
+                       *dz_preview;  ///< Dz of the preview discretization
+        
         EMGeometry_GL *gl;
         
         PanelsList<GeomOP_Panel> *op;
@@ -294,6 +300,7 @@ class EMGeometry_Frame: public BaseFrame
         void evt_menu(wxCommandEvent &event);
         void evt_operation_down(wxCommandEvent &event);
         void evt_operation_up(wxCommandEvent &event);
+        void evt_preview(wxCommandEvent &event);
         void evt_remove_operation(wxCommandEvent &event);
         void evt_update_grid(wxCommandEvent &event);
         void evt_variables(wxCommandEvent &event);

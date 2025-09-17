@@ -1,4 +1,4 @@
-/*Copyright 2008-2024 - Loïc Le Cunff
+/*Copyright 2008-2025 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -410,6 +410,26 @@ EMGeometry_Frame::EMGeometry_Frame(wxString const &title)
     
     ctrl_sizer->Add(geom_top_sizer,wxSizerFlags(1).Expand());
     
+    // Preview
+    
+    wxStaticBoxSizer *preview_sizer = new wxStaticBoxSizer(wxHORIZONTAL, ctrl_panel, "Preview Discretization");
+    wxBoxSizer *delta_preview_sizer = new wxBoxSizer(wxVERTICAL);
+    
+    dx_preview = new LengthSelector(preview_sizer->GetStaticBox(), "Dx: ", 5e-9);
+    dy_preview = new LengthSelector(preview_sizer->GetStaticBox(), "Dy: ", 5e-9);
+    dz_preview = new LengthSelector(preview_sizer->GetStaticBox(), "Dz: ", 5e-9);
+    
+    delta_preview_sizer->Add(dx_preview, wxSizerFlags().Expand());
+    delta_preview_sizer->Add(dy_preview, wxSizerFlags().Expand());
+    delta_preview_sizer->Add(dz_preview, wxSizerFlags().Expand());
+    
+    wxButton *preview_btn = new wxButton(preview_sizer->GetStaticBox(), wxID_ANY, "Compute");
+    
+    preview_sizer->Add(delta_preview_sizer, wxSizerFlags(1).Expand());
+    preview_sizer->Add(preview_btn, wxSizerFlags().Expand());
+    
+    ctrl_sizer->Add(preview_sizer, wxSizerFlags().Expand());
+    
     splitter->SetMinimumPaneSize(300);
     splitter->SplitVertically(ctrl_panel,gl,300);
     
@@ -647,6 +667,14 @@ void EMGeometry_Frame::evt_operation_up(wxCommandEvent &event)
     Layout();
     Refresh();
 }
+
+
+void EMGeometry_Frame::evt_preview(wxCommandEvent &event)
+{
+    
+    event.Skip();
+}
+
 
 void EMGeometry_Frame::evt_refit(wxCommandEvent &event)
 {
