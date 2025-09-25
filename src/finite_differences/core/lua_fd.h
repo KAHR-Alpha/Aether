@@ -112,8 +112,7 @@ class FD_Mode: public base_mode
         virtual void reset();
         virtual void show() const;
         
-        void compute_discretization(int &Nx,int &Ny,int &Nz,
-                                    double lx,double ly,double lz) const;
+        void compute_discretization(int &Nx,int &Ny,int &Nz) const;
         
         void set_discretization(double D);
         void set_discretization_x(double Dx);

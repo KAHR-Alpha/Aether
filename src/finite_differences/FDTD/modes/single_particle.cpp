@@ -45,10 +45,7 @@ void FDTD_single_particle(FDTD_Mode const &fdtd_mode,std::atomic<bool> *end_comp
     double Dy=fdtd_mode.Dy;
     double Dz=fdtd_mode.Dz;
     
-    double lx,ly,lz;
-    
-    fdtd_mode.structure->retrieve_nominal_size(lx,ly,lz);
-    fdtd_mode.compute_discretization(Nx,Ny,Nz,lx,ly,lz);
+    fdtd_mode.compute_discretization(Nx,Ny,Nz);
     
     Grid3<unsigned int> matsgrid(Nx,Ny,Nz,0);
     fdtd_mode.structure->discretize(matsgrid,Nx,Ny,Nz,Dx,Dy,Dz);

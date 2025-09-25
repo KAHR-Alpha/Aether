@@ -66,9 +66,18 @@ FD_Mode::FD_Mode()
 {
 }
 
-void FD_Mode::compute_discretization(int &Nx,int &Ny,int &Nz,
-                                     double lx,double ly,double lz) const
+void FD_Mode::compute_discretization(int &Nx,int &Ny,int &Nz) const
 {
+    double lx,ly,lz;
+
+    if(structure == nullptr)
+    {
+        Plog::print(LogType::FATAL, "Attempted to use a nullptr structure");
+        std::abort();
+    }
+    
+    structure->retrieve_nominal_size(lx,ly,lz);
+    
     Nx=std::max(1,nearest_integer(lx/Dx));
     Ny=std::max(1,nearest_integer(ly/Dy));
     Nz=std::max(1,nearest_integer(lz/Dz));
@@ -91,43 +100,38 @@ std::filesystem::path const& FD_Mode::directory() const
 double FD_Mode::get_Lx()
 {
     int Nx,Ny,Nz;
-    double lx,ly,lz;
     
-    structure->retrieve_nominal_size(lx,ly,lz);
-    compute_discretization(Nx,Ny,Nz,lx,ly,lz);
+    compute_discretization(Nx,Ny,Nz);
     
     return Nx*Dx;
 }
 
+
 double FD_Mode::get_Ly()
 {
     int Nx,Ny,Nz;
-    double lx,ly,lz;
     
-    structure->retrieve_nominal_size(lx,ly,lz);
-    compute_discretization(Nx,Ny,Nz,lx,ly,lz);
+    compute_discretization(Nx,Ny,Nz);
     
     return Ny*Dy;
 }
 
+
 double FD_Mode::get_Lz()
 {
     int Nx,Ny,Nz;
-    double lx,ly,lz;
     
-    structure->retrieve_nominal_size(lx,ly,lz);
-    compute_discretization(Nx,Ny,Nz,lx,ly,lz);
+    compute_discretization(Nx,Ny,Nz);
     
     return Nz*Dz;
 }
 
+
 int FD_Mode::get_Nx()
 {
     int Nx,Ny,Nz;
-    double lx,ly,lz;
     
-    structure->retrieve_nominal_size(lx,ly,lz);
-    compute_discretization(Nx,Ny,Nz,lx,ly,lz);
+    compute_discretization(Nx,Ny,Nz);
     
     return Nx;
 }
@@ -135,10 +139,8 @@ int FD_Mode::get_Nx()
 int FD_Mode::get_Ny()
 {
     int Nx,Ny,Nz;
-    double lx,ly,lz;
     
-    structure->retrieve_nominal_size(lx,ly,lz);
-    compute_discretization(Nx,Ny,Nz,lx,ly,lz);
+    compute_discretization(Nx,Ny,Nz);
     
     return Ny;
 }
@@ -146,10 +148,8 @@ int FD_Mode::get_Ny()
 int FD_Mode::get_Nz()
 {
     int Nx,Ny,Nz;
-    double lx,ly,lz;
     
-    structure->retrieve_nominal_size(lx,ly,lz);
-    compute_discretization(Nx,Ny,Nz,lx,ly,lz);
+    compute_discretization(Nx,Ny,Nz);
     
     return Nz;
 }

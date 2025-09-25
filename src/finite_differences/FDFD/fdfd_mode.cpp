@@ -31,10 +31,7 @@ void fdfd_single_particle(FDFD_Mode const &fdfd_mode)
     double Dy=fdfd_mode.Dy;
     double Dz=fdfd_mode.Dz;
     
-    double lx,ly,lz;
-    
-    fdfd_mode.structure->retrieve_nominal_size(lx,ly,lz);
-    fdfd_mode.compute_discretization(Nx,Ny,Nz,lx,ly,lz);
+    fdfd_mode.compute_discretization(Nx,Ny,Nz);
     
     Grid3<unsigned int> matsgrid(Nx,Ny,Nz,0);
     fdfd_mode.structure->discretize(matsgrid,Nx,Ny,Nz,Dx,Dy,Dz);
@@ -394,10 +391,7 @@ void fdfd_periodic(FDFD_Mode const &fdfd_mode)
     double Dy=fdfd_mode.Dx;
     double Dz=fdfd_mode.Dx;
     
-    double lx,ly,lz;
-    
-    fdfd_mode.structure->retrieve_nominal_size(lx,ly,lz);
-    fdfd_mode.compute_discretization(Nx,Ny,Nz,lx,ly,lz);
+    fdfd_mode.compute_discretization(Nx,Ny,Nz);
     
     Grid3<unsigned int> matsgrid(Nx,Ny,Nz,0);
     fdfd_mode.structure->discretize(matsgrid,Nx,Ny,Nz,Dx,Dy,Dz);
@@ -750,10 +744,7 @@ void mode_3D(FDFD_Mode const &fdfd_mode)
     double Dy=fdfd_mode.Dy;
     double Dz=fdfd_mode.Dz;
     
-    double lx,ly,lz;
-    
-    fdfd_mode.structure->retrieve_nominal_size(lx,ly,lz);
-    fdfd_mode.compute_discretization(Nx,Ny,Nz,lx,ly,lz);
+    fdfd_mode.compute_discretization(Nx,Ny,Nz);
     
     Grid3<unsigned int> matsgrid(Nx,Ny,Nz,0);
     fdfd_mode.structure->discretize(matsgrid,Nx,Ny,Nz,Dx,Dy,Dz);

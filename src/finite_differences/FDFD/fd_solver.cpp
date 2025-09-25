@@ -20,12 +20,10 @@ extern std::ofstream plog;
 void FDMS_Mode::process()
 {
     int Nx,Ny,Nz;
-    double lx,ly,lz;
     
     Grid3<unsigned int> tmp_matsgrid;
     
-    structure->retrieve_nominal_size(lx,ly,lz);
-    compute_discretization(Nx,Ny,Nz,lx,ly,lz);
+    compute_discretization(Nx,Ny,Nz);
     
     structure->discretize(tmp_matsgrid,Nx,Ny,Nz,Dx,Dy,Dz);
     

@@ -378,11 +378,8 @@ void FDTD_Frame::evt_popup_menu(wxCommandEvent &event)
         
         if(dialog.new_structure==true)
         {
-            double lx,ly,lz;
-            
             fdtd_parameters.structure->finalize();
-            fdtd_parameters.structure->retrieve_nominal_size(lx,ly,lz);
-            fdtd_parameters.compute_discretization(Nx,Ny,Nz,lx,ly,lz);
+            fdtd_parameters.compute_discretization(Nx,Ny,Nz);
             
             Dx=fdtd_parameters.Dx;
             Dy=fdtd_parameters.Dy;
@@ -691,11 +688,8 @@ void FDTD_Frame::load(wxFileName const &fname_)
     
     // Treating the new structure
     
-    double lx,ly,lz;
-    
     fdtd_parameters.structure->finalize();
-    fdtd_parameters.structure->retrieve_nominal_size(lx,ly,lz);
-    fdtd_parameters.compute_discretization(Nx,Ny,Nz,lx,ly,lz);
+    fdtd_parameters.compute_discretization(Nx,Ny,Nz);
     
     fdtd_parameters.structure->discretize(matsgrid,Nx,Ny,Nz,Dx,Dy,Dz);
     fdtd_parameters.finalize_thight();

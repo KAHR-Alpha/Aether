@@ -76,10 +76,8 @@ void FDTD_Mode::finalize()
     unsigned int i;
     
     int Nx,Ny,Nz;
-    double lx,ly,lz;
     
-    structure->retrieve_nominal_size(lx,ly,lz);
-    compute_discretization(Nx,Ny,Nz,lx,ly,lz);
+    compute_discretization(Nx,Ny,Nz);
     
     for(i=0;i<sensors.size();i++)
         sensors[i].to_discrete(Dx,Dy,Dz);
