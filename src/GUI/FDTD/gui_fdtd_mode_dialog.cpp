@@ -718,7 +718,6 @@ void FDTD_Mode_Dialog::evt_load_structure(wxCommandEvent &event)
 
     if(loader.parameter_name.empty())
     {
-        data->sequential_possible = false;
         data->sequential_enabled = false;
         data->seq_names.clear();
         data->seq_min.clear();
@@ -727,8 +726,6 @@ void FDTD_Mode_Dialog::evt_load_structure(wxCommandEvent &event)
     }
     else
     {
-        data->sequential_possible = true;
-        
         if(data->seq_names != loader.parameter_name)
         {
             data->seq_names = loader.parameter_name;

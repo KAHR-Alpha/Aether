@@ -61,7 +61,6 @@ namespace GUI
         public:
             std::vector<GUI::Material*> g_materials;
             
-            bool sequential_possible = false;
             bool sequential_enabled = false;
 
             std::vector<std::string> seq_names;

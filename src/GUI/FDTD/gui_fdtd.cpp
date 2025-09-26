@@ -1,4 +1,4 @@
-/*Copyright 2008-2024 - Loïc Le Cunff
+/*Copyright 2008-2025 - Loïc Le Cunff
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -588,10 +588,37 @@ int FDTD_Frame_lua_mode(lua_State *L)
 
 namespace GUI
 {
+    int fdtd_add_sequence(lua_State *L)
+    {
+        lua_getglobal(L, "bound_class");
+
+        GUI::FDTD_Mode *p_mode = dynamic_cast<GUI::FDTD_Mode*>(lua_get_metapointer<::FDTD_Mode>(L, -1));
+
+        p_mode->seq_names.push_back(lua_tostring(L, 1));
+        p_mode->seq_min.push_back(lua_tonumber(L, 2));
+        p_mode->seq_max.push_back(lua_tonumber(L, 3));
+        p_mode->seq_delta.push_back(lua_tonumber(L, 4));
+
+        return 0;
+    }
+
+
     int fdtd_compute(lua_State *L)
     {
         // Ignoring the command in GUI mode
         
+        return 0;
+    }
+
+
+    int fdtd_enable_sequential(lua_State *L)
+    {
+        lua_getglobal(L, "bound_class");
+
+        GUI::FDTD_Mode *p_mode = dynamic_cast<GUI::FDTD_Mode*>(lua_get_metapointer<::FDTD_Mode>(L, -1));
+
+        p_mode->sequential_enabled = true;
+
         return 0;
     }
     
@@ -655,6 +682,9 @@ void FDTD_Frame::load(wxFileName const &fname_)
     lua_register(L,"create_source",create_source);
     lua_register(L,"nearest_integer",nearest_integer);
     
+    lua_register(L, "enable_sequential", &GUI::fdtd_enable_sequential);
+    lua_register(L, "add_sequence", &GUI::fdtd_add_sequence);
+
     FDTD_Mode_create_metatable(L);
     metatable_add_func(L,"compute",&GUI::fdtd_compute);       // Override of the FDTD Mode computation (nothing to do in it)
     metatable_add_func(L,"material",&GUI::fdtd_set_material); // Override of the FDTD Mode Loading
@@ -944,11 +974,31 @@ void FDTD_Frame::save(wxFileName const &fname)
     std::filesystem::path structure_path;
     structure_path=to_relative_file(p.structure->get_script_path(),save_path);
     
+    // Structure
+
     file<<"structure=Structure(\""<<structure_path.generic_string()<<"\")\n";
     for(std::size_t i=0;i<p.structure->parameter_name.size();i++)
         file<<"structure:parameter(\""<<p.structure->parameter_name[i]<<"\","<<p.structure->parameter_value[i]<<")\n";
     file<<"\n";
+
+    // Sequential parameters
+
+    if(p.sequential_enabled == true)
+    {
+        file << "enable_sequential()\n";
+    }
+
+    for(std::size_t i=0; i<p.seq_names.size(); i++)
+    {
+        file << "add_sequence(" << std::quoted(p.seq_names[i]) << ","
+                                << p.seq_min[i] << ","
+                                << p.seq_max[i] << ","
+                                << p.seq_delta[i] << ")\n";
+    }
+    file << "\n";
     
+    // FDTD parameters
+
          if(type==FDTD_Mode::FDTD_CUSTOM) file<<"fdtd=MODE(\"fdtd\")\n";
     else if(type==FDTD_Mode::FDTD_NORMAL) file<<"fdtd=MODE(\"fdtd_normal\")\n";
     else if(type==FDTD_Mode::FDTD_SINGLE_PARTICLE) file<<"fdtd=MODE(\"fdtd_single_particle\")\n";
