@@ -965,11 +965,12 @@ void FDTD_Mode_Dialog::repopulate_sequential_panel()
 //   FDTD_Run_Dialog
 //#####################
 
-FDTD_Run_Dialog::FDTD_Run_Dialog(wxWindow *parent,GUI::FDTD_Mode const &data)
+FDTD_Run_Dialog::FDTD_Run_Dialog(wxWindow *parent, GUI::FDTD_Mode &data_)
     :wxDialog(parent,wxID_ANY,"Simulation",
               wxGetApp().default_dialog_origin(),
               wxGetApp().default_dialog_size(),wxCAPTION),
-     end_computation(false), computation_done(false), dsp(10000)
+     end_computation(false), computation_done(false), dsp(10000),
+     data(data_)
 {
     wxBoxSizer *top_sizer=new wxBoxSizer(wxVERTICAL);
     
@@ -1034,7 +1035,7 @@ FDTD_Run_Dialog::FDTD_Run_Dialog(wxWindow *parent,GUI::FDTD_Mode const &data)
     
     // Timer
     
-    thread=new std::thread(&FDTD_Run_Dialog::run_computation,this,data);
+    thread = new std::thread(&FDTD_Run_Dialog::run_computation, this);
     
     timer=new wxTimer(this);
     
@@ -1086,12 +1087,115 @@ void FDTD_Run_Dialog::evt_timed_refresh(wxTimerEvent &event)
     }
 }
 
-void FDTD_Run_Dialog::run_computation(GUI::FDTD_Mode const &data)
+void FDTD_Run_Dialog::run_computation()
 {
-         if(data.type==FDTD_Mode::FDTD_CUSTOM) mode_default_fdtd(data,&end_computation,&dsp,&display->bitmap);
+    if(data.sequential_enabled == true)
+    {
+        Structure &structure = *data.structure;
+
+        if(structure.parameter_name != data.seq_names)
+        {
+            Plog::print(LogType::FATAL, "Parameter mismatch in the sequential FDTD mode");
+            std::abort();
+        }
+
+        int i,j;
+        int Ntot = 1;
+        int Nseq = data.seq_names.size();
+        std::vector<int> limits(Nseq),index(Nseq);
+
+        for(i=0; i<Nseq; i++)
+        {
+            index[i] = 0;
+            limits[i] = static_cast<int>(1e-5 + std::abs((data.seq_max[i] - data.seq_min[i])/data.seq_delta[i]));
+
+            if(   limits[i] == 0
+               || data.seq_delta[i] == 0)
+            {
+                limits[i] = 1;
+            }
+            
+            Ntot *= limits[i];
+        }
+
+        // Saving base names
+        std::string prefix = data.prefix;
+        std::vector<std::string> sensor_prefix;
+
+        for(Sensor_generator const &sensor : data.sensors)
+        {
+            sensor_prefix.push_back(sensor.name);
+        }
+        
+        std::ofstream summary(data.directory() / (prefix + "_summary.txt"), std::ios::out|std::ios::trunc);
+        summary << "ID";
+
+        for(std::string const &str : data.seq_names)
+            summary << " " << str;
+        summary << "\n";
+
+        for(i=0; i<Ntot; i++)
+        {
+            if(i > 0) index[0]++;
+
+            for(j=0; j<Nseq-1; j++)
+            {
+                if(index[j] >= limits[j])
+                {
+                    index[j]=0;
+                    index[j+1]++;
+                }
+                else break;
+            }
+
+            // Applying parameters to the structure
+
+            summary << i;
+
+            for(j=0; j<Nseq; j++)
+            {
+                double value = data.seq_min[j] + index[j]*data.seq_delta[j];
+
+                summary << " " << value;
+                structure.parameter_value[j] = value;
+            }
+            summary << "\n";
+
+
+            std::string ID = "_" + std::to_string(i);
+            data.prefix = prefix + ID;
+
+            for(std::size_t i=0; i<sensor_prefix.size(); i++)
+            {
+                data.sensors[i].name = sensor_prefix[i] + ID;
+            }
+
+            run_computation_dispatch();
+
+            if(end_computation == true) break;
+        }
+
+        // Reapplying base names
+        data.prefix = prefix;
+
+        for(std::size_t i=0; i<sensor_prefix.size(); i++)
+        {
+            data.sensors[i].name = sensor_prefix[i];
+        }
+    }
+    else
+    {
+        run_computation_dispatch();
+    }
+
+    computation_done=true;
+}
+
+
+void FDTD_Run_Dialog::run_computation_dispatch()
+{
+    if(data.type==FDTD_Mode::FDTD_CUSTOM) mode_default_fdtd(data,&end_computation,&dsp,&display->bitmap);
     else if(data.type==FDTD_Mode::FDTD_NORMAL) FDTD_normal_incidence(data,&end_computation,&dsp,&display->bitmap);
     else if(data.type==FDTD_Mode::FDTD_OBLIQUE_ARS) FDTD_oblique_biphase(data,&end_computation,&dsp);
     else if(data.type==FDTD_Mode::FDTD_SINGLE_PARTICLE) FDTD_single_particle(data,&end_computation,&dsp,&display->bitmap);
-    
-    computation_done=true;
 }

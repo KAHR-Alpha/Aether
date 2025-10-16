@@ -23,7 +23,7 @@ extern std::ofstream plog;
 
 void norm_octave_script(std::string prefix,double n1,double n2)
 {
-    std::ofstream file(prefix+"show_norm.m",std::ios::out|std::ios::trunc);
+    std::ofstream file(prefix+"_show_norm.m",std::ios::out|std::ios::trunc);
     
     using std::endl;
     
@@ -32,7 +32,7 @@ void norm_octave_script(std::string prefix,double n1,double n2)
     
     file<<"function out="<<prefix<<"show_norm(varargin)"<<endl;
     file<<endl;
-    file<<"D=load('"<<prefix+"spectdata_norm"<<"');"<<endl;
+    file<<"D=load('"<<prefix+"_spectdata_norm"<<"');"<<endl;
     file<<"L=D(:,1)*1e6;"<<endl;
     file<<"r=D(:,2);"<<endl;
     file<<"t=D(:,3);"<<endl;
@@ -484,8 +484,8 @@ void FDTD_normal_incidence(FDTD_Mode const &fdtd_mode,std::atomic<bool> *end_com
         ++dsp;
     }
     
-    std::filesystem::path fname1 = fdtd_mode.directory()/(fdtd_mode.prefix+"spectdata_norm");
-    std::filesystem::path fname2 = fdtd_mode.directory()/(fdtd_mode.prefix+"spectdata_norm2");
+    std::filesystem::path fname1 = fdtd_mode.directory()/(fdtd_mode.prefix+"_spectdata_norm");
+    std::filesystem::path fname2 = fdtd_mode.directory()/(fdtd_mode.prefix+"_spectdata_norm2");
     std::filesystem::path fname_power = fdtd_mode.directory()/(fdtd_mode.prefix+"power");
     
     std::ofstream file(fname1,std::ios::out|std::ios::trunc);

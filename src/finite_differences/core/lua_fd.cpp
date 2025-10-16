@@ -649,9 +649,6 @@ int FD_mode_set_prefix(lua_State *L)
     
     std::string prefix=lua_tostring(L,2);
     
-    int N=prefix.size();
-    if(prefix[N-1]!='_') prefix.append("_");
-    
     Plog::print("Setting the simulation prefix to ", prefix, "\n");
     
     (*pp_fd)->set_prefix(prefix);

@@ -170,6 +170,7 @@ class FDTD_Run_Dialog: public wxDialog
         std::atomic<bool> end_computation,
                           computation_done;
         
+        
         ProgTimeDisp dsp;
         std::thread *thread;
         
@@ -184,13 +185,17 @@ class FDTD_Run_Dialog: public wxDialog
         wxTimer *timer;
         wxButton *ok_btn,*cancel_btn;
         
-        FDTD_Run_Dialog(wxWindow *parent,GUI::FDTD_Mode const &data);
+        FDTD_Run_Dialog(wxWindow *parent,GUI::FDTD_Mode &data);
         ~FDTD_Run_Dialog();
         
         void evt_cancel(wxCommandEvent &event);
         void evt_ok(wxCommandEvent &event);
         void evt_timed_refresh(wxTimerEvent &event);
-        void run_computation(GUI::FDTD_Mode const &data);
+        void run_computation();
+        void run_computation_dispatch();
+
+    private:
+        GUI::FDTD_Mode &data;  ///< Reference to the GUI parameters
 };
 
 class Sensor_Gen_Dialog: public Sensor_generator, public wxDialog
@@ -317,7 +322,9 @@ class FDTD_Frame: public BaseFrame
                      sources_root_ID,
                      sensors_root_ID,
                      focus_ID;
-        
+
+        wxButton *run_btn;
+
         wxMenu fdtd_menu,
                sources_root_menu,
                sources_menu,
@@ -357,6 +364,7 @@ class FDTD_Frame: public BaseFrame
         void subevt_menu_save_as();
         void subevt_menu_restore();
         void update_gl_pmls();
+        void update_run_label();
 };
 
 #endif // GUI_FDTD_H_INCLUDED

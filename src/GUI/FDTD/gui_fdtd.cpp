@@ -55,7 +55,7 @@ FDTD_Frame::FDTD_Frame(wxString const &title)
      disp_options_dialog(nullptr)
 {
     fdtd_parameters.type=FDTD_Mode::FDTD_NORMAL;
-    fdtd_parameters.set_prefix("fdtd_");
+    fdtd_parameters.set_prefix("fdtd");
     fdtd_parameters.set_directory(PathManager::tmp_path);
     fdtd_parameters.structure=new Structure();
     
@@ -145,7 +145,7 @@ FDTD_Frame::FDTD_Frame(wxString const &title)
     
     // - Run
     
-    wxButton *run_btn=new wxButton(ctrl_panel,wxID_ANY,"Run");
+    run_btn = new wxButton(ctrl_panel, wxID_ANY, "Run");
     run_btn->Bind(wxEVT_BUTTON,&FDTD_Frame::evt_run,this);
     ctrl_sizer->Add(run_btn,wxSizerFlags().Expand());
     
@@ -398,6 +398,8 @@ void FDTD_Frame::evt_popup_menu(wxCommandEvent &event)
             fdtd_parameters.finalize_thight();
             update_gl_pmls();
         }
+
+        update_run_label();
     }
     else if(menu_ID==SENSORS_ROOT_MENU_ADD)
     {
@@ -737,6 +739,8 @@ void FDTD_Frame::load(wxFileName const &fname_)
     
     update_gl_pmls();
     gl->reset_pml_display();
+
+    update_run_label();
 }
 
 void FDTD_Frame::reconstruct_tree()
@@ -1189,5 +1193,18 @@ void FDTD_Frame::update_gl_pmls()
     {
         gl->set_pml(0,0,0,0,fdtd_parameters.pml_zm,fdtd_parameters.pml_zp,
                     0,0,0,0,fdtd_parameters.pad_zm,fdtd_parameters.pad_zp);
+    }
+}
+
+
+void FDTD_Frame::update_run_label()
+{
+    if(fdtd_parameters.sequential_enabled == true)
+    {
+        run_btn->SetLabel("Run Sequential");
+    }
+    else
+    {
+        run_btn->SetLabel("Run");
     }
 }
